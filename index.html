@@ -471,10 +471,11 @@ const toStr = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.g
 const fromStr = s => { const [y, m, d] = String(s).split("-").map(Number); return new Date(y, (m || 1) - 1, d || 1); };
 const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 const dayDiff = (a, b) => Math.round((b - a) / 86400000);
-const START = new Date(2026, 9, 19);              // lundi 19 octobre 2026 = début de S1
+const DEFAULT_START = "2026-10-19";                // Gauthier's S1 Monday; friends get the Monday of the week they join
+const startDate = () => fromStr((typeof S !== "undefined" && S.profile && S.profile.startDay) || DEFAULT_START);
 const today = () => window.__GLDate || toStr(new Date());
-const weekOfStr = s => Math.floor(dayDiff(START, fromStr(s)) / 7) + 1;
-const weekStart = w => addDays(START, (w - 1) * 7);
+const weekOfStr = s => Math.floor(dayDiff(startDate(), fromStr(s)) / 7) + 1;
+const weekStart = w => addDays(startDate(), (w - 1) * 7);
 const fmtDay = (d, o) => d.toLocaleDateString("fr-FR", o || {weekday: "short", day: "numeric", month: "short"});
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const plural = (n, one, many) => n + " " + (Math.abs(n) > 1 ? (many || one + "s") : one);
@@ -753,6 +754,10 @@ function makeMemDB(data, persist) {
 }
 /* ---- cloud: the app hosted online, data in Gauthier's own Supabase project (one row per document, private by RLS) ---- */
 const CLOUD = window.GL_CLOUD || null;
+const PSEUDO_DOMAIN = "joueurs.muscu-leveling.invalid";   // reserved TLD: these addresses can never receive mail
+const normPseudo = v => String(v || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-").replace(/[^a-z0-9._-]/g, "").slice(0, 30);
+const loginEmail = v => String(v || "").includes("@") ? String(v).trim().toLowerCase() : normPseudo(v) + "@" + PSEUDO_DOMAIN;
+const loginName = email => String(email || "").endsWith("@" + PSEUDO_DOMAIN) ? email.split("@")[0] : String(email || "");
 const Cloud = (() => {
   if (!CLOUD) return null;
   const base = CLOUD.url.replace(/\/$/, ""), key = CLOUD.key;
@@ -818,9 +823,17 @@ const Cloud = (() => {
     return pulling;
   }
   return {
-    signedIn: () => !!session, email: () => session?.user?.email || "", userId: () => session?.user?.id,
+    signedIn: () => !!session, email: () => loginName(session?.user?.email || ""), userId: () => session?.user?.id,
     onAuthLost: fn => { onAuthLost = fn; },
     async signIn(email, password) { await auth("password", {email, password}); sv(KC, null); sv(KP, null); sv(KO, null); },
+    async signUp(email, password) {
+      let r; try { r = await fetch(base + "/auth/v1/signup", {method: "POST", headers: {apikey: key, "Content-Type": "application/json"}, body: JSON.stringify({email, password})}); }
+      catch (e) { throw {code: "offline"}; }
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw {code: r.status >= 500 ? "unavailable" : "signup", message: j.msg || j.error_description || j.message || "", ecode: j.error_code || ""};
+      if (j.access_token) { setSession(j); sv(KC, null); sv(KP, null); sv(KO, null); return {session: true}; }
+      return {session: false};
+    },
     signOut() { session = null; [KS, KC, KO, KP].forEach(k => sv(k, null)); },
     pending: () => Object.keys(outbox()).length,
     async open() { mem = makeMemDB(ld(KC) || {}, persist); return mem; },
@@ -1179,14 +1192,16 @@ const saveBadge = () => {
   if (Store.mode === "cloud") { const n = Cloud.pending(); const off = state.offline || n; return `<span class="save ${off ? "local" : ""}" id="syncBadge"><i></i>${off ? (n ? plural(n, "changement") + " à envoyer" : "Hors ligne") : "Synchronisé"}</span>`; }
   const m = SAVE_LABEL[Store.mode] || SAVE_LABEL.local; return `<span class="save ${m[1]}"><i></i>${m[0]}</span>`; };
 function viewLogin() {
-  const l = state.login || (state.login = {email: "", password: "", busy: false, err: ""});
-  return `<div class="ob"><section class="win"><h2 class="win-title">Connexion au Système</h2>
-    <p class="sys-line">[Identifie-toi, Joueur.]</p>
-    <p class="muted small">Ton compte Muscu Leveling (celui créé dans ton projet Supabase). Une seule connexion par appareil : ensuite l'appli se souvient de toi.</p>
-    <div class="field"><label for="lg-email">E-mail</label><input id="lg-email" data-bind="login" data-f="email" type="email" autocomplete="username" value="${esc(l.email)}"></div>
-    <div class="field"><label for="lg-pass">Mot de passe</label><input id="lg-pass" data-bind="login" data-f="password" type="password" autocomplete="current-password" value=""></div>
-    ${l.err ? `<p class="malus">${esc(l.err)}</p>` : ""}
-    <button class="btn primary big" data-act="login" ${l.busy ? "disabled" : ""}>${l.busy ? "Connexion…" : "Se connecter"}</button></section></div>`;
+  const l = state.login || (state.login = {mode: "in", email: "", password: "", busy: false, err: "", info: ""});
+  const up = l.mode === "up";
+  return `<div class="ob"><section class="win"><h2 class="win-title">${up ? "Nouveau Joueur" : "Connexion au Système"}</h2>
+    <p class="sys-line">${up ? "[Le Système recrute.]" : "[Identifie-toi, Joueur.]"}</p>
+    <div class="seg" role="group" aria-label="Compte"><button class="${up ? "" : "on"}" data-act="loginMode" data-m="in">J'ai un compte</button><button class="${up ? "on" : ""}" data-act="loginMode" data-m="up">Créer un compte</button></div>
+    <p class="muted small">${up ? "Choisis un pseudo et un mot de passe, pas besoin d'e-mail. Chaque joueur a sa propre progression : personne d'autre ne la voit. Note bien ton mot de passe : sans e-mail, pas de récupération automatique (Gauthier peut le réinitialiser au besoin)." : "Une seule connexion par appareil : ensuite l'appli se souvient de toi."}</p>
+    <div class="field"><label for="lg-email">${up ? "Pseudo" : "Pseudo (ou e-mail)"}</label><input id="lg-email" data-bind="login" data-f="email" type="text" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="username" value="${esc(l.email)}"></div>
+    <div class="field"><label for="lg-pass">Mot de passe${up ? " (6 caractères minimum)" : ""}</label><input id="lg-pass" data-bind="login" data-f="password" type="password" autocomplete="${up ? "new-password" : "current-password"}" value=""></div>
+    ${l.err ? `<p class="malus">${esc(l.err)}</p>` : ""}${l.info ? `<p class="reading good">${esc(l.info)}</p>` : ""}
+    <button class="btn primary big" data-act="${up ? "signup" : "login"}" ${l.busy ? "disabled" : ""}>${l.busy ? "Un instant…" : up ? "Créer mon compte" : "Se connecter"}</button></section></div>`;
 }
 function topbar() {
   return `<header class="top"><div class="brand"><span class="brand-mark">SYSTÈME</span>${saveBadge()}</div><div class="top-btns"><button class="icon-btn ${state.view === "journal" ? "on" : ""}" data-act="go" data-v="journal" aria-label="Journal">${ICON.book}</button><button class="icon-btn" data-act="go" data-v="settings" aria-label="Réglages">${ICON.gear}</button></div></header>`;
@@ -1205,7 +1220,7 @@ function statusWin(P) {
   const pct = Math.min(100, Math.round(P.into / P.need * 100)); const s = P.stats;
   const stat = (k, l, v, cap) => `<div class="stat"><span class="stat-k">${k}</span><span class="stat-l">${l}</span><small>${cap}</small><b class="stat-v">${v}</b></div>`;
   return `<section class="win" aria-label="Statut du Joueur"><h2 class="win-title">Statut</h2>
-    <div class="st-head"><div class="st-id"><div class="st-name">Gauthier</div><div class="st-title">Titre : <b>${esc(currentTitle(P))}</b></div>
+    <div class="st-head"><div class="st-id"><div class="st-name">${esc(S.profile?.name || "Joueur")}</div><div class="st-title">Titre : <b>${esc(currentTitle(P))}</b></div>
       <div class="st-rank">${rankBadge(P.rank)}<span>Chasseur de rang ${P.rank}</span></div></div>
       <div class="st-level"><span>Niveau</span><b>${P.level}</b></div></div>
     <div class="xpbar" role="progressbar" aria-label="Expérience" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
@@ -1262,7 +1277,7 @@ function portalWin() {
   if (S.draft && S.draft.active) return "";
   const t = today(), cw = weekOfStr(t), info = weekInfo(cw), dow = (fromStr(t).getDay() + 6) % 7;
   const wrap = body => `<section class="win"><h2 class="win-title">Donjons de la semaine</h2>${body}</section>`;
-  if (!info) return wrap(`<p>Le programme commence le lundi 19 octobre.</p>`);
+  if (!info) return wrap(`<p>Ton programme commence le <b>${fmtDay(startDate(), {weekday: "long", day: "numeric", month: "long"})}</b>. D'ici là : quête quotidienne, repas, pesée.</p>`);
   if (!info.types.length) return blockDoneWin(cw);
   const plan = weekPlan(cw), open = plan.filter(p => !p.bonus && !p.done), bonus = plan.find(p => p.bonus), legs = plan.find(p => p.ty === "J");
   const todayIt = open.find(p => p.date === t);
@@ -1339,7 +1354,7 @@ function viewDungeons() {
       <div class="chips">${weekPlan(cw).map(chip).join("")}</div></div>`);
   }
   const jl = jokersUsed() >= JOKERS ? "utilisé" : "disponible (onglet Statut, avant le premier donjon de la semaine)";
-  return topbar() + `<section class="win"><h2 class="win-title">Carte des donjons</h2><p class="lead">8 semaines de programme à partir du 19 octobre. Lundi A, mardi B, jeudi C, vendredi Jambes ou Haut (une semaine sur deux). Mercredi, samedi et dimanche : repos. Grosse semaine : un 5e donjon en bonus. Touche un donjon pour voir ses exercices.</p><p class="small">Joker semaine allégée : ${jl}.</p>${weeks.join("")}</section>` + grimoire();
+  return topbar() + `<section class="win"><h2 class="win-title">Carte des donjons</h2><p class="lead">8 semaines de programme à partir du ${fmtDay(startDate(), {day: "numeric", month: "long"})}. Lundi A, mardi B, jeudi C, vendredi Jambes ou Haut (une semaine sur deux). Mercredi, samedi et dimanche : repos. Grosse semaine : un 5e donjon en bonus. Touche un donjon pour voir ses exercices.</p><p class="small">Joker semaine allégée : ${jl}.</p>${weeks.join("")}</section>` + grimoire();
 }
 const rankBadgeInline = r => `<span class="tag" style="color:var(--r-${r});border-color:var(--r-${r})">Rang ${r}</span>`;
 function grimoire() {
@@ -1862,7 +1877,7 @@ function useTicket(pid, date, slot) {
 /* ----- settings ----- */
 function viewSettings(P) {
   if (!state.setDraft) { const p = S.profile || {}, t = p.targets || {}, sv = v => v != null && v !== "" ? fmtIn(Number(v)) : "";
-    state.setDraft = {weight: sv(p.weight), oldBench: sv(p.oldBench), height: sv(p.height), age: sv(p.age), neck: sv(p.neck), bf: sv(p.bf), activity: String(p.activity || 1.5),
+    state.setDraft = {name: p.name || "", weight: sv(p.weight), oldBench: sv(p.oldBench), height: sv(p.height), age: sv(p.age), neck: sv(p.neck), bf: sv(p.bf), activity: String(p.activity || 1.5),
       freeDay: String(p.freeDay == null ? 5 : p.freeDay), freeComp: p.freeComp !== false, studyMin: String(t.studyMin ?? 60), steps: String(t.steps ?? 8000), sleep: fmtIn(t.sleep ?? 7), water: fmtIn(t.water ?? 2),
       kcalManual: sv(p.kcalManual), proteinManual: sv(p.proteinManual), fastH: String(p.fastH || ""), fastStart: p.fastStart || "12:00", legMaint: p.legMaint !== false, sound: p.sound !== false, title: p.title || ""}; }
   const s = state.setDraft;
@@ -1871,6 +1886,7 @@ function viewSettings(P) {
   const f = (id, label, mode, ph) => `<div class="field"><label for="set-${id}">${label}</label><input id="set-${id}" data-bind="set" data-f="${id}" inputmode="${mode || "decimal"}" placeholder="${ph || ""}" value="${esc(s[id])}"></div>`;
   return topbar() + `<section class="win"><h2 class="win-title">Réglages</h2>
       <div class="field"><label for="set-title">Titre affiché</label><select id="set-title" data-bind="set" data-f="title"><option value="">${DEFAULT_TITLE}</option>${owned.map(a => `<option value="${a.id}" ${s.title === a.id ? "selected" : ""}>${esc(a.name)}</option>`).join("")}</select><small>Les titres se gagnent dans le Journal.</small></div>
+      <div class="field"><label for="set-name">Prénom ou pseudo</label><input id="set-name" data-bind="set" data-f="name" autocomplete="nickname" value="${esc(s.name)}"></div>
       <span class="lbl">Ton corps</span>
       <div class="grid2">${f("weight", "Poids de départ (kg)")}${f("height", "Taille (cm)", "numeric")}</div>
       <div class="grid2">${f("age", "Âge", "numeric")}${f("neck", "Tour de cou (cm)")}</div>
@@ -1891,18 +1907,18 @@ function viewSettings(P) {
     ${Store.mode === "cloud" || Store.mode === "server" ? `<section class="win"><h2 class="win-title">Copie de sécurité</h2>
       <p class="small">Télécharge toute ta progression dans un fichier, ou recharge un fichier (par exemple <b>donnees\\progression.json</b> de la version PC) pour tout reprendre ici.</p>
       <div class="row"><button class="btn ghost" data-act="exportData">Télécharger une copie</button><label class="btn ghost" for="importFile">Importer un fichier<input type="file" id="importFile" accept=".json,application/json" hidden></label></div></section>` : ""}
-    ${Store.mode === "cloud" ? `<section class="win"><h2 class="win-title">Compte</h2><p class="small">Connecté en tant que <b>${esc(Cloud.email())}</b>. Ta progression se synchronise entre ton téléphone et ton PC.</p><button class="btn ghost" data-act="logout">Se déconnecter de cet appareil</button></section>` : ""}
+    ${Store.mode === "cloud" ? `<section class="win"><h2 class="win-title">Compte</h2><p class="small">Connecté en tant que <b>${esc(Cloud.email())}</b>. Tu restes connecté sur cet appareil. Ta progression se synchronise entre ton téléphone et ton PC.</p><button class="btn ghost" data-act="logout">Se déconnecter de cet appareil</button></section>` : ""}
     <section class="win"><h2 class="win-title">Sauvegarde</h2><p class="small">${Store.mode === "cloud" ? "Tout est enregistré dans ton espace privé en ligne (ton projet Supabase). Sans réseau à la salle, l'appli garde tes séries et les envoie dès que la connexion revient. Claude peut lire ta progression pour ajuster le programme." : Store.mode === "server" ? "Ta progression est enregistrée sur ton PC, dans le dossier gauthier-leveling\\donnees, avec une copie de sécurité par jour. Claude peut la lire pour ajuster le programme." : Store.mode === "db" ? "Ta progression est sauvegardée en ligne, sur ton compte Claude. Claude peut la lire pour ajuster le programme." : "Ta progression est gardée dans ce navigateur seulement. Lance plutôt Muscu Leveling depuis le raccourci du bureau : tout est alors enregistré dans un fichier sur ton PC."}</p></section>`;
 }
 
 /* ----- onboarding ----- */
 function startOnboarding() {
-  state.ob = {step: 0, weight: "", height: "", age: "", oldBench: "", waist: "", neck: "", activity: "1.5", freeDay: "5", studyMin: "60", steps: "8000", sleep: "7", water: "2", fastH: "", fastStart: "12:00"};
+  state.ob = {step: 0, name: state.pendingName || (Cloud && Cloud.signedIn() && !Cloud.email().includes("@") ? Cloud.email() : ""), weight: "", height: "", age: "", oldBench: "", waist: "", neck: "", activity: "1.5", freeDay: "5", studyMin: "60", steps: "8000", sleep: "7", water: "2", fastH: "", fastStart: "12:00"};
   state.rw = {items: SUGGESTED.map((r, i) => ({...r, id: "r" + i, keep: true})), rank: {...RANK_DEFAULT}, newName: "", newCost: "", newTier: "petite"};
 }
 function obProfile() {
   const o = state.ob, n = v => parseNum(v);
-  return {weight: n(o.weight) > 0 ? r1(n(o.weight)) : null, height: n(o.height) > 0 ? Math.round(n(o.height)) : null, age: n(o.age) > 0 ? Math.round(n(o.age)) : null,
+  return {name: String(o.name || "").trim().slice(0, 24) || null, weight: n(o.weight) > 0 ? r1(n(o.weight)) : null, height: n(o.height) > 0 ? Math.round(n(o.height)) : null, age: n(o.age) > 0 ? Math.round(n(o.age)) : null,
     waist: n(o.waist) > 0 ? r1(n(o.waist)) : null, neck: n(o.neck) > 0 ? r1(n(o.neck)) : null, sex: "m", activity: Number(o.activity) || 1.5,
     freeDay: Number(o.freeDay), freeComp: true, fastH: Number(o.fastH) || null, fastStart: /^\d{2}:\d{2}$/.test(o.fastStart || "") ? o.fastStart : "12:00", targets: {steps: Math.round(n(o.steps) || 8000), sleep: n(o.sleep) || 7, water: n(o.water) || 2, studyMin: Math.round(n(o.studyMin) || 60)}};
 }
@@ -1931,6 +1947,7 @@ function viewOnboarding() {
   const f = (id, label, ph, mode) => `<div class="field"><label for="ob-${id}">${label}</label><input id="ob-${id}" data-bind="ob" data-f="${id}" inputmode="${mode || "decimal"}" placeholder="${ph}" value="${esc(o[id])}"></div>`;
   if (o.step === 1) return `<div class="ob">${steps}<section class="win"><h2 class="win-title">Évaluation du Joueur</h2>
       <p class="muted small">Sert à calculer tes calories (méthode Jeff Nippard) et la charge de ta première séance. Tout se change plus tard dans les Réglages.</p>
+      <div class="field"><label for="ob-name">Ton prénom ou pseudo</label><input id="ob-name" data-bind="ob" data-f="name" autocomplete="nickname" placeholder="Ex. Gauthier" value="${esc(o.name)}"></div>
       <div class="grid2">${f("weight", "Poids (kg)", "Ex. 85")}${f("height", "Taille (cm)", "Ex. 180", "numeric")}</div>
       <div class="grid2">${f("age", "Âge", "Ex. 23", "numeric")}${f("oldBench", "Ancien max couché (kg)", "Facultatif")}</div>
       <div class="grid2">${f("waist", "Tour de taille (cm)", "Au nombril")}${f("neck", "Tour de cou (cm)", "Sous la pomme d'Adam")}</div>
@@ -2165,7 +2182,9 @@ function nextPortalText() {
 }
 async function finishOnboarding() {
   const o = state.ob, m = state.rw, base = obProfile();
-  const profile = {v: 2, createdAt: new Date().toISOString(), createdDay: today(), foodStart: toStr(addDays(fromStr(today()), 1)), ...base, oldBench: parseNum(o.oldBench) > 0 ? parseNum(o.oldBench) : null,
+  const dowNow = (fromStr(today()).getDay() + 6) % 7, monday = addDays(fromStr(today()), -dowNow);
+  const startDay = toStr(dowNow <= 2 ? monday : addDays(monday, 7));   // joined Mon-Wed: this week counts; later: next Monday
+  const profile = {v: 2, startDay, createdAt: new Date().toISOString(), createdDay: today(), foodStart: toStr(addDays(fromStr(today()), 1)), ...base, oldBench: parseNum(o.oldBench) > 0 ? parseNum(o.oldBench) : null,
     legMaint: true, sound: true, title: null};
   const rewards = rewardsFromEditor(m); if (!rewards) return;
   try { await Store.db.doc("game/rewards").set(rewards); await Store.db.doc("game/profile").set(profile); }
@@ -2173,7 +2192,7 @@ async function finishOnboarding() {
   S.rewards = rewards; S.profile = profile; state.view = "status"; state.ob = null;
   if (base.waist) setDay(today(), {waist: base.waist});
   window.scrollTo(0, 0); render();
-  pushFx({kind: "level", eyebrow: "[Contrat signé]", mid: "Vous êtes désormais un Joueur.", sub: nextPortalText() + " Ta quête quotidienne commence aujourd'hui."});
+  pushFx({kind: "level", eyebrow: "[Contrat signé]", mid: "Vous êtes désormais un Joueur.", sub: (nextPortalText() || "Ton programme commence le " + fmtDay(startDate(), {weekday: "long", day: "numeric", month: "long"}) + ".") + " Ta quête quotidienne commence aujourd'hui."});
 }
 function rewardsFromEditor(m) {
   const items = [];
@@ -2188,10 +2207,21 @@ const ACTIONS = {
   preview: a => { state.modal = {kind: "preview", cw: Number(a.dataset.cw), ty: a.dataset.ty}; renderModal(); },
   enter: a => enterDungeon(Number(a.dataset.cw), a.dataset.ty),
   jokerAsk: a => askJoker(Number(a.dataset.cw)),
-  login: async () => { const l = state.login; if (!l.email || !l.password) { l.err = "Indique ton e-mail et ton mot de passe."; render(); return; }
+  loginMode: a => { Object.assign(state.login, {mode: a.dataset.m, err: "", info: ""}); render(); },
+  signup: async () => { const l = state.login, raw = (l.email || "").trim(), email = loginEmail(raw);
+    if (raw.includes("@") ? !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(raw) : normPseudo(raw).length < 3) { l.err = "Choisis un pseudo d'au moins 3 lettres ou chiffres."; render(); return; }
+    if ((l.password || "").length < 6) { l.err = "Choisis un mot de passe d'au moins 6 caractères."; render(); return; }
+    l.busy = true; l.err = ""; l.info = ""; render();
+    try { const r = await Cloud.signUp(email, l.password);
+      if (r.session) { state.pendingName = raw.includes("@") ? "" : raw.slice(0, 24); state.login = null; state.ready = false; state.view = "status"; loaded.clear(); boot(); return; }
+      Object.assign(l, {busy: false, mode: "in", password: "", info: "Compte créé. Ouvre l'e-mail de confirmation que tu viens de recevoir, clique sur le lien, puis reviens te connecter ici."}); render(); }
+    catch (e) { l.busy = false; l.password = "";
+      l.err = e.code === "offline" ? "Pas de connexion internet." : /already|registered|exists/i.test((e.message || "") + e.ecode) ? "Ce pseudo est déjà pris (si c'est le tien, connecte-toi)." : /disabled|not allowed/i.test((e.message || "") + e.ecode) ? "Les inscriptions sont fermées : demande à Gauthier de les ouvrir." : e.code === "signup" ? "Inscription refusée : " + (e.message || "vérifie l'e-mail et le mot de passe.") : "Le serveur ne répond pas, réessaie dans un instant.";
+      render(); } },
+  login: async () => { const l = state.login; if (!l.email || !l.password) { l.err = "Indique ton pseudo et ton mot de passe."; render(); return; }
     l.busy = true; l.err = ""; render();
-    try { await Cloud.signIn(l.email.trim(), l.password); state.login = null; state.ready = false; state.view = "status"; loaded.clear(); boot(); }
-    catch (e) { l.busy = false; l.password = ""; l.err = e.code === "offline" ? "Pas de connexion internet." : e.code === "auth" ? "E-mail ou mot de passe incorrect." : "Le serveur ne répond pas, réessaie dans un instant."; render(); } },
+    try { await Cloud.signIn(loginEmail(l.email), l.password); state.login = null; state.ready = false; state.view = "status"; loaded.clear(); boot(); }
+    catch (e) { l.busy = false; l.password = ""; l.err = e.code === "offline" ? "Pas de connexion internet." : e.code === "auth" ? "Pseudo ou mot de passe incorrect." : "Le serveur ne répond pas, réessaie dans un instant."; render(); } },
   logout: () => confirmModal({title: "Déconnexion", body: "Te déconnecter de cet appareil ? Ta progression reste en sécurité dans ton espace en ligne.", yes: "Se déconnecter", run: async () => { Cloud.signOut(); location.reload(); }}),
   exportData: () => { const data = Store.db && Store.db.all ? Store.db.all() : null; if (!data) { toast("[Système] Export impossible ici.", "red"); return; }
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], {type: "application/json"})); a.download = `muscu-leveling-${today()}.json`; document.body.appendChild(a); a.click(); a.remove(); },
@@ -2287,7 +2317,7 @@ const ACTIONS = {
     const s = state.setDraft, p = S.profile || {}, n = v => parseNum(v), pos = v => n(v) > 0 ? n(v) : null;
     const steps = Math.round(n(s.steps)), sleep = n(s.sleep), water = n(s.water), studyMin = Math.round(n(s.studyMin));
     if (!(steps > 0 && sleep > 0 && water > 0 && studyMin >= 0)) { toast("[Système] Un objectif est vide ou illisible.", "red"); return; }
-    const next = {...clone(p), weight: pos(s.weight) && r1(pos(s.weight)), oldBench: pos(s.oldBench), height: pos(s.height) && Math.round(pos(s.height)), age: pos(s.age) && Math.round(pos(s.age)),
+    const next = {...clone(p), name: String(s.name || "").trim().slice(0, 24) || null, weight: pos(s.weight) && r1(pos(s.weight)), oldBench: pos(s.oldBench), height: pos(s.height) && Math.round(pos(s.height)), age: pos(s.age) && Math.round(pos(s.age)),
       neck: pos(s.neck) && r1(pos(s.neck)), bf: pos(s.bf), activity: Number(s.activity) || 1.5, freeDay: Number(s.freeDay), freeComp: !!s.freeComp,
       kcalManual: pos(s.kcalManual) && Math.round(pos(s.kcalManual)), proteinManual: pos(s.proteinManual) && Math.round(pos(s.proteinManual)),
       fastH: Number(s.fastH) || null, fastStart: /^\d{2}:\d{2}$/.test(s.fastStart || "") ? s.fastStart : "12:00",
