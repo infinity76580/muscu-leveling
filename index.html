@@ -687,7 +687,7 @@ const TYPES = {
 const PROGRAM_WEEKS = 8;
 const JOKERS = 1;
 const WEEKS = [null,
-  {n: 1, phase: "Initiation", rank: "E", rirTxt: "4-5 partout (que des gros mouvements)", setsTxt: "3 par exo"},
+  {n: 1, phase: "Initiation", rank: "E", rirTxt: "3 partout (que des gros mouvements)", setsTxt: "2 par exo"},
   {n: 2, phase: "Réintroduction", rank: "D", rirTxt: "3-4 sur les gros mouvements, 2-3 sur l'isolation", setsTxt: "2 par exo"},
   {n: 3, phase: "Transition", rank: "C", rirTxt: "2-3 sur les gros mouvements, 1-2 sur l'isolation", setsTxt: "3 sur les 2 premiers exos, 2 ailleurs"},
   {n: 4, phase: "Construction", rank: "B", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
@@ -710,7 +710,7 @@ const WEEKS_FELIX = [null,
   {n: 8, phase: "Bilan", rank: "S", rirTxt: "1-2, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
 ];
 const WEEKS_MATHIS = [null,
-  {n: 1, phase: "Calibrage", rank: "E", rirTxt: "2 sur les gros exos, 1-2 sur l'isolation", setsTxt: "Comme écrit, Jambes : une série de moins"},
+  {n: 1, phase: "Calibrage", rank: "E", rirTxt: "2 sur les gros exos, 1-2 sur l'isolation", setsTxt: "Jeudi full body commun : 2 par exo ; Jambes : une série de moins"},
   {n: 2, phase: "Progression", rank: "D", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
   {n: 3, phase: "Progression", rank: "C", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
   ...BUILD.map((b, i) => ({n: 4 + i, phase: "Intensification", rank: b.rank, rirTxt: "1, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"})),
@@ -747,6 +747,7 @@ const planTest = () => curPlan().test || {};
 const tyLabel = ty => ty === "FB" ? "Full body" : TYPES[ty]?.solo ? TYPES[ty].name : "Séance " + ty + " · " + (TYPES[ty]?.name || "");
 function planSched(info) {
   const id = curPlan().id;
+  if (id === "mathis" && info.p === 1 && !info.deload) return "Cette semaine : full body jeudi avec Gauthier et Félix, puis grosse séance Jambes samedi. Poussée et Tirage restent ouverts si tu veux les rattraper.";
   if (id === "mathis") return info.deload ? "Mêmes jours que d'habitude, moitié des séries, mêmes charges." : `Lundi Poussée, mardi Tirage, jeudi Haut complet, samedi ${TYPES[info.types[3]].name.toLowerCase()}. Mercredi, vendredi et dimanche : repos.`;
   const fri = TYPES[id === "felix" ? "J" : sideType(info.p)].name;
   return info.p === 1 && !info.deload ? (id === "felix" ? "Une seule séance cette semaine : le full body, jeudi." : "Une seule séance cette semaine : la reprise, jeudi.")
@@ -764,7 +765,7 @@ function weekInfo(cw) {
   if (!(cw >= 1)) return null;
   const PL = curPlan(), p = progWeek(cw), deload = isDeload(cw);
   const x = PL.id === "mathis" ? (p % 2 ? "JX" : "BE") : PL.id === "felix" ? "J" : sideType(p);
-  const main = PL.id === "mathis" ? ["P", "T", "HC", x] : ["A", "B", "C", x];
+  const main = PL.id === "mathis" ? ["P", "T", p === 1 && !deload ? "FB" : "HC", x] : ["A", "B", "C", x];   // week 1 Thursday: full body with the others
   if (deload) return {cw, p, deload, W: DELOAD, types: main, bonus: null, after: p > PROGRAM_WEEKS};
   if (p > PROGRAM_WEEKS) return {cw, p, deload, W: null, types: [], bonus: null, after: true};
   if (p === 1 && PL.fbFirst) return {cw, p, deload, W: PL.weeks[1], types: ["FB"], bonus: null};
@@ -788,6 +789,7 @@ function jokerState(cw) {
 function setsFor(p, it, idx, deload, ty) {
   if (deload) return Math.ceil(it.sets / 2);
   if (it.maint) return 2;
+  if (ty === "FB") return Math.min(2, it.sets);       // shared first session: same for the three players
   const PL = curPlan().id;
   if (PL === "felix") return p <= 3 ? Math.min(2, it.sets) : it.sets;              // newbie: 2 sets for 3 weeks
   if (PL === "mathis") return p === 1 && ty === "JX" ? Math.max(1, it.sets - 1) : it.sets;  // first big leg day: one set less
@@ -798,6 +800,7 @@ function setsFor(p, it, idx, deload, ty) {
 }
 function rirFor(p, it, idx, ty, deload) {
   if (deload || it.maint) return {txt: "3 reps en réserve", fail: false};
+  if (ty === "FB") return {txt: "3 reps en réserve", fail: false};
   const PL = curPlan().id, isPoly = EX[it.ex].kind === "poly";
   if (PL === "felix" && p <= 3) return {txt: "3 reps en réserve", fail: false};
   if (PL === "mathis") {
@@ -1597,7 +1600,7 @@ function grimoire() {
       <li><b>Semaine allégée en joker</b>, au moment que tu choisis, au lieu d'une semaine fixe.</li>
       <li><b>Un peu de jambes chaque semaine.</b> Les semaines Haut où tu ne fais pas Jambes en bonus, la séance Haut finit par 2 séries de presse et 2 de leg curl, 3 reps en réserve (environ 10 min). Avec une séance Jambes toutes les deux semaines seulement, chaque séance te détruit ; en les touchant chaque semaine, les courbatures restent gérables. Tu peux couper cet ajout dans les Réglages.</li>
       <li><b>Échauffement à chaque séance</b>, pas seulement à la première.</li>
-      <li><b>Première séance : que des gros mouvements.</b> 2 exercices pecs, 2 dos, 2 jambes, 3 séries chacun. Pas de bras ni d'isolation : les pecs et le dos travaillent déjà les bras.</li>
+      <li><b>Première séance : que des gros mouvements.</b> 2 exercices pecs, 2 dos, 2 jambes, 2 séries chacun, 3 reps en réserve : la même séance que Félix et Mathis, pour la faire ensemble. Pas de bras ni d'isolation : les pecs et le dos travaillent déjà les bras.</li>
       <li><b>Couché de la première séance.</b> Le repère de 55 % de ton ancien max peut être trop lourd après un long arrêt. La règle qui compte : une charge que tu pourrais pousser 10-12 fois, arrêtée à 6.</li>
       <li><b>Les rowings, tirages et presses à la machine</b> comptent comme des gros mouvements : ils restent à 1-2 reps en réserve. Seule l'isolation va à l'échec.</li>
       <li><b>Protéines, sommeil, pas.</b> Le programme n'en parlait pas, alors que la reprise en dépend. Ils deviennent ta quête quotidienne (protéines : environ 1,8 g par kg de poids de corps).</li>
@@ -1981,7 +1984,7 @@ function searchFoods(q) {
   const toks = norm(q).split(/[^a-z0-9]+/).filter(Boolean); if (!toks.length) return [];
   const res = [];
   for (const f of [...customFoods(), ...EXTRA_FOODS, ...(FOODS || [])]) { const n = f._s || (f._s = norm(f.n)); if (toks.every(t => n.includes(t))) res.push(f); }
-  const score = f => (f.src === "perso" ? 0 : f.src === "extra" ? 1000 : 2000) + (f._s.startsWith(toks[0]) ? 0 : 500) + f.n.length;
+  const score = f => (f.src === "perso" ? 0 : f.src === "extra" ? (/\(estimation\)/.test(f.n) ? 2100 : 1000) : 2000) + (f._s.startsWith(toks[0]) ? 0 : 1500) + f.n.length;
   return res.sort((a, b) => score(a) - score(b)).slice(0, 40);
 }
 function entryFrom(f, g, u) {
@@ -2556,6 +2559,7 @@ const ACTIONS = {
   foodMode: a => { state.modal.mode = a.dataset.m; renderModal(); },
   foodBack: () => { state.modal.sel = null; renderModal(); },
   foodAdd: () => { const m = state.modal, f = m.sel, useU = f.unit && f.ug > 0 && m.mode !== "g", q = parseNum(useU ? m.units : m.grams); if (!(q > 0)) return;
+    if (useU && q > 20) { toast(`[Système] ${fmt(q, 0)} × « ${esc(f.unit)} » ? Pour une quantité en grammes, touche d'abord « Grammes ».`, "red"); return; }
     const e = entryFrom(f, useU ? q * f.ug : q, useU ? q : null); addEntries(m.date, m.slot, [e]); state.modal = null; render(); toast(`[Ajouté] ${esc(f.n)} · ${fmt(e.kcal, 0)} kcal`, "ok"); },
   foodQuick: () => { const m = state.modal, name = String(m.qName || "").trim(), k = parseNum(m.qKcal), p = parseNum(m.qProt) || 0;
     if (!name) { toast("[Système] Écris ce que tu as mangé.", "red"); return; } if (!(k >= 0)) { toast("[Système] Indique les calories (une estimation suffit).", "red"); return; }
