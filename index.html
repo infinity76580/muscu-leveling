@@ -733,7 +733,10 @@ const PLANS = {
     s1: "Semaine de calibrage : trouve tes charges dans les nouvelles fourchettes de reps, sans aller à l'échec."},
 };
 const cloudName = () => Cloud && Cloud.signedIn() ? Cloud.email() : "";
-function detectPlan(...names) {              // by name or pseudo, accents ignored; null when the Système can't tell
+const hash53 = (str, seed = 0) => { let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed; for (let i = 0, ch; i < str.length; i++) { ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); } h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909); h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909); return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36); };
+const KNOWN_LOGINS = {"1sdgioed0i": "mathis"};   // hashed login e-mails: the site is public, so no address in clear
+function detectPlan(...names) {              // by login, name or pseudo, accents ignored; null when the Système can't tell
+  for (const n of names) { const hit = KNOWN_LOGINS[hash53(String(n || "").trim().toLowerCase())]; if (hit) return hit; }
   const k = names.map(normPseudo).join(" ");
   return /felix/.test(k) ? "felix" : /mat+h?is/.test(k) ? "mathis" : /gauthier/.test(k) ? "base" : null;
 }
