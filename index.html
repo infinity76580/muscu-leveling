@@ -523,21 +523,18 @@ const EX = {
   leanLatRaise:{n: "Élévation latérale haltère, penché sur un appui", kind: "iso", eq: "db"},
   triHigh:     {n: "Extension triceps poulie haute", kind: "iso", eq: "cable"},
   hammer:      {n: "Curl marteau", kind: "iso", eq: "db"},
+  rdl:         {n: "Soulevé de terre roumain (haltères ou barre)", kind: "poly", eq: "db"},
 };
 const RESTTXT = {150: "2-3 min", 120: "2 min", 90: "90 s", 75: "60-90 s", 60: "60 s"};
 const PULLUP_NOTE = " Note le lest en kg : 0 = poids du corps, négatif = assistance (ex. −20).";
 const SESS = {
-  FB: [
-    {ex: "bench", sets: 2, reps: [6, 6], rest: 120, cue: "Omoplates serrées et basses, pieds ancrés, barre au bas des pecs, descente en 2 s."},
-    {ex: "latpd", sets: 2, reps: [10, 12], rest: 120, cue: "Poitrine haute, coudes vers les côtes, remonte bras tendus pour étirer le dos."},
-    {ex: "inclDb", sets: 2, reps: [10, 12], rest: 120, cue: "Descends profond, haltères au niveau des pecs."},
-    {ex: "csRow", sets: 2, reps: [10, 12], rest: 120, cue: "Poitrine collée au pad, coudes vers l'arrière, serre les omoplates."},
-    {ex: "legPress", sets: 2, reps: [10, 12], rest: 120, cue: "Descente profonde, bas du dos collé au dossier."},
-    {ex: "legCurl", sets: 2, reps: [12, 15], rest: 90, cue: "Buste penché en avant pour étirer les ischios."},
-    {ex: "latRaise", sets: 2, reps: [12, 15], rest: 60, perArm: true, cue: "Monte vers l'extérieur jusqu'à l'épaule, sans hausser les épaules."},
-    {ex: "flySeated", sets: 2, reps: [12, 15], rest: 90, opt: true, cue: "Coudes légèrement fléchis et figés, ouvre en grand."},
-    {ex: "ohTri", sets: 2, reps: [12, 12], rest: 60, opt: true, cue: "Cherche l'étirement en bas du mouvement."},
-    {ex: "bayCurl", sets: 2, reps: [12, 12], rest: 60, opt: true, cue: "Cherche l'étirement en bas du mouvement."},
+  FB: [                                    // his call (2026-10-21): compound lifts only, 2 chest / 2 back / 2 legs, 3 sets
+    {ex: "bench", sets: 3, reps: [6, 6], rest: 150, cue: "Omoplates serrées et basses, pieds ancrés, barre au bas des pecs, descente en 2 s."},
+    {ex: "csRow", sets: 3, reps: [10, 12], rest: 120, cue: "Dos n° 1. Poitrine collée au pad, coudes vers l'arrière, serre les omoplates."},
+    {ex: "inclDb", sets: 3, reps: [10, 12], rest: 120, cue: "Descends profond, haltères au niveau des pecs."},
+    {ex: "latpd", sets: 3, reps: [10, 12], rest: 120, cue: "Dos n° 2. Poitrine haute, coudes vers les côtes, remonte bras tendus pour étirer le dos."},
+    {ex: "legPress", sets: 3, reps: [10, 12], rest: 120, cue: "Descente profonde, bas du dos collé au dossier."},
+    {ex: "rdl", sets: 3, reps: [10, 12], rest: 120, cue: "Genoux légèrement fléchis, dos bien droit : pousse les fesses en arrière jusqu'à sentir l'étirement derrière les cuisses, puis remonte en serrant les fessiers."},
   ],
   A: [
     {ex: "bench", sets: 3, reps: [6, 8], rest: 150, cue: "Omoplates serrées et basses, léger arc, pieds ancrés ; barre au bas des pecs, touche sans rebond."},
@@ -594,7 +591,7 @@ const TYPES = {
 const PROGRAM_WEEKS = 8;
 const JOKERS = 1;
 const WEEKS = [null,
-  {n: 1, phase: "Initiation", rank: "E", rirTxt: "4-5 sur les gros mouvements, 3 sur le reste", setsTxt: "2 par exo"},
+  {n: 1, phase: "Initiation", rank: "E", rirTxt: "4-5 partout (que des gros mouvements)", setsTxt: "3 par exo"},
   {n: 2, phase: "Réintroduction", rank: "D", rirTxt: "3-4 sur les gros mouvements, 2-3 sur l'isolation", setsTxt: "2 par exo"},
   {n: 3, phase: "Transition", rank: "C", rirTxt: "2-3 sur les gros mouvements, 1-2 sur l'isolation", setsTxt: "3 sur les 2 premiers exos, 2 ailleurs"},
   {n: 4, phase: "Construction", rank: "B", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
@@ -650,7 +647,7 @@ function setsFor(p, it, idx, deload) {
 function rirFor(p, it, idx, ty, deload) {
   if (deload || it.maint) return {txt: "3 reps en réserve", fail: false};
   if (ty === "J") return {txt: "2 reps en réserve, jamais à l'échec", fail: false};
-  if (p === 1) return {txt: idx < 5 ? "4-5 reps en réserve" : "≈3 reps en réserve", fail: false};
+  if (p === 1) return {txt: EX[it.ex].kind === "poly" ? "4-5 reps en réserve" : "≈3 reps en réserve", fail: false};
   const poly = EX[it.ex].kind === "poly";
   if (p === 2) return {txt: poly ? "3-4 reps en réserve" : "2-3 reps en réserve", fail: false};
   if (p === 3) return {txt: poly ? "2-3 reps en réserve" : "1-2 reps en réserve", fail: false};
@@ -1403,6 +1400,7 @@ function grimoire() {
       <li><b>Semaine allégée en joker</b>, au moment que tu choisis, au lieu d'une semaine fixe.</li>
       <li><b>Un peu de jambes chaque semaine.</b> Les semaines Haut où tu ne fais pas Jambes en bonus, la séance Haut finit par 2 séries de presse et 2 de leg curl, 3 reps en réserve (environ 10 min). Avec une séance Jambes toutes les deux semaines seulement, chaque séance te détruit ; en les touchant chaque semaine, les courbatures restent gérables. Tu peux couper cet ajout dans les Réglages.</li>
       <li><b>Échauffement à chaque séance</b>, pas seulement à la première.</li>
+      <li><b>Première séance : que des gros mouvements.</b> 2 exercices pecs, 2 dos, 2 jambes, 3 séries chacun. Pas de bras ni d'isolation : les pecs et le dos travaillent déjà les bras.</li>
       <li><b>Couché de la première séance.</b> Le repère de 55 % de ton ancien max peut être trop lourd après un long arrêt. La règle qui compte : une charge que tu pourrais pousser 10-12 fois, arrêtée à 6.</li>
       <li><b>Les rowings, tirages et presses à la machine</b> comptent comme des gros mouvements : ils restent à 1-2 reps en réserve. Seule l'isolation va à l'échec.</li>
       <li><b>Protéines, sommeil, pas.</b> Le programme n'en parlait pas, alors que la reprise en dépend. Ils deviennent ta quête quotidienne (protéines : environ 1,8 g par kg de poids de corps).</li>
@@ -1426,7 +1424,7 @@ function viewDungeon() {
       ${d.deload ? `<p class="sugg">Semaine allégée : moitié des séries, mêmes charges, 3 reps en réserve. Tu dois sortir frais.</p>` : ""}
       ${d.bonus ? `<p class="sugg">Donjon bonus de grosse semaine.</p>` : ""}
       ${d.week === 8 && !d.deload && TEST_EX[d.type] ? `<p class="sugg test">Semaine du bilan : les exercices marqués « Épreuve » mesurent ta progression depuis S4.</p>` : ""}
-      ${d.week === 1 && !d.deload ? `<p class="sugg">Première séance : tu réapprends les mouvements, rien de lourd. Les exercices marqués « Option » sont en bonus.</p>` : ""}
+      ${d.week === 1 && !d.deload ? `<p class="sugg">Première séance : tu réapprends les mouvements, rien de lourd. Que des gros mouvements : 2 pour les pecs, 2 pour le dos, 2 pour les jambes.</p>` : ""}
     </section>
     ${plan.map((it, i) => exCard(it, i, d)).join("")}
     <button class="btn primary wide big" data-act="finishAsk">Terminer le donjon</button>`;
