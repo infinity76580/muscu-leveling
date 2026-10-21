@@ -524,8 +524,14 @@ const EX = {
   triHigh:     {n: "Extension triceps poulie haute", kind: "iso", eq: "cable"},
   hammer:      {n: "Curl marteau", kind: "iso", eq: "db"},
   rdl:         {n: "Soulevé de terre roumain (haltères ou barre)", kind: "poly", eq: "db"},
+  dips:        {n: "Dips", kind: "poly", eq: "bw"},
+  pullupPro:   {n: "Tractions prise pronation, un peu plus large que les épaules", kind: "poly", eq: "bw"},
+  squat:       {n: "Squat barre (ou hack squat)", kind: "poly", eq: "bar"},
+  bulgarian:   {n: "Fentes bulgares", kind: "poly", eq: "db"},
+  skull:       {n: "Skullcrusher barre EZ", kind: "iso", eq: "bar"},
+  revPecDeck:  {n: "Reverse pec deck (oiseau à la machine)", kind: "iso", eq: "machine"},
 };
-const RESTTXT = {150: "2-3 min", 120: "2 min", 90: "90 s", 75: "60-90 s", 60: "60 s"};
+const RESTTXT = {180: "3 min", 150: "2-3 min", 120: "2 min", 90: "90 s", 75: "60-90 s", 60: "60 s"};
 const PULLUP_NOTE = " Note le lest en kg : 0 = poids du corps, négatif = assistance (ex. −20).";
 const SESS = {
   FB: [                                    // his call (2026-10-21): compound lifts only, 2 chest / 2 back / 2 legs, 3 sets
@@ -580,8 +586,62 @@ const SESS = {
     {ex: "legCurl", sets: 2, reps: [10, 12], rest: 90, maint: true, cue: "Entretien jambes : 3 reps en réserve."},
   ],
 };
+const DIPS_NOTE = " Lest en kg : 0 = poids du corps. Du lest dès que tu fais 3 × 10 au poids du corps.";
+const SESS_MATHIS = {                     // "Programme prise de muscle" (Gauthier for Mathis, 2026-10-21), 5 weeks stretched to 8
+  P: [
+    {ex: "bench", sets: 3, reps: [6, 8], rest: 150, cue: "Omoplates serrées et basses, pieds ancrés, barre au bas des pecs, descente contrôlée."},
+    {ex: "dips", sets: 3, reps: [8, 10], rest: 150, cue: "Buste légèrement penché en avant pour viser les pecs ; descends jusqu'à sentir l'étirement, sans douleur aux épaules." + DIPS_NOTE},
+    {ex: "latRaise", sets: 3, reps: [10, 15], rest: 75, perArm: true, cue: "Poulie réglée à hauteur de la main ; monte vers l'extérieur jusqu'à l'épaule, sans hausser les épaules."},
+    {ex: "ohTri", sets: 3, reps: [8, 12], rest: 90, cue: "Avec la barre, dos à la poulie, coudes près de la tête : descends loin derrière la tête pour étirer le triceps."},
+  ],
+  T: [
+    {ex: "pullupPro", sets: 3, reps: [6, 8], rest: 150, cue: "Pars bras complètement tendus, tire les coudes vers les côtes, menton au-dessus de la barre, sans balancier. Moins de 6 propres : poids du corps, une rep de plus chaque semaine. Du lest dès 3 × 8." + PULLUP_NOTE},
+    {ex: "csRow", sets: 3, reps: [8, 10], rest: 120, cue: "Laisse les omoplates s'écarter en bas pour l'étirement, puis tire les coudes vers l'arrière. C'est l'exercice dos n° 1 de Nippard."},
+    {ex: "revFly", sets: 3, reps: [12, 15], rest: 75, cue: "Poulies à hauteur d'épaules, tiens les câbles eux-mêmes, bras quasi tendus, tire en arc vers l'extérieur."},
+    {ex: "bayCurl", sets: 3, reps: [10, 12], rest: 90, cue: "Bras légèrement derrière le corps pour l'étirement, coude fixe."},
+  ],
+  HC: [
+    {ex: "inclDb", sets: 3, reps: [8, 10], rest: 120, cue: "Descends plus bas qu'avec une barre, haltères au niveau des pecs."},
+    {ex: "pullup", sets: 3, reps: [8, 10], rest: 120, cue: "Étirement complet en bas, coudes vers les hanches. Tirage vertical prise neutre si les coudes tirent." + PULLUP_NOTE},
+    {ex: "cableRow", sets: 3, reps: [10, 12], rest: 90, cue: "Laisse les épaules avancer pour étirer, puis tire et serre les omoplates."},
+    {ex: "flySeated", sets: 2, reps: [10, 15], rest: 90, cue: "Coudes légèrement fléchis et figés, ouvre en grand, serre 1 s devant la poitrine."},
+    {ex: "leanLatRaise", sets: 3, reps: [12, 15], rest: 60, perArm: true, cue: "Une main sur un support, buste penché vers l'extérieur : plus de tension en bas du mouvement."},
+    {ex: "pushdown", sets: 2, reps: [10, 12], rest: 60, superset: true, cue: "En superset avec le curl marteau : enchaîne les deux, puis repos. Coudes fixes."},
+    {ex: "hammer", sets: 2, reps: [10, 12], rest: 60, superset: true, cue: "Coude fixe : enchaîne avec le pushdown, puis 60 s de repos."},
+  ],
+  JX: [
+    {ex: "squat", sets: 4, reps: [6, 8], rest: 180, noFail: true, cue: "Descends au moins jusqu'à la parallèle, genoux dans l'axe des pieds, dos gainé."},
+    {ex: "rdl", sets: 3, reps: [8, 10], rest: 150, noFail: true, cue: "Fesses vers l'arrière, charge collée aux cuisses, descends jusqu'à sentir l'étirement des ischios ; dos neutre."},
+    {ex: "bulgarian", sets: 3, reps: [8, 10], rest: 120, perLeg: true, cue: "Pied arrière sur le banc, buste légèrement penché, genou avant qui avance."},
+    {ex: "legCurl", sets: 3, reps: [10, 12], rest: 90, cue: "Buste penché en avant pour étirer les ischios."},
+    {ex: "legExt", sets: 3, reps: [12, 15], rest: 90, cue: "Pause 1 s en haut, descente contrôlée."},
+    {ex: "calves", sets: 4, reps: [10, 15], rest: 60, cue: "Pause 1-2 s en bas, en étirement."},
+  ],
+  BE: [
+    {ex: "latRaise", sets: 3, reps: [12, 15], rest: 75, perArm: true, cue: "Comme le lundi : monte vers l'extérieur jusqu'à l'épaule, sans hausser les épaules."},
+    {ex: "skull", sets: 3, reps: [8, 12], rest: 90, cue: "Descends la barre derrière la tête, pas sur le front, pour étirer le triceps."},
+    {ex: "preacher", sets: 3, reps: [8, 12], rest: 90, cue: "Aisselle collée au pupitre, descente complète et contrôlée."},
+    {ex: "revPecDeck", sets: 3, reps: [12, 15], rest: 60, cue: "Assis de côté sur la machine pour un étirement plus profond."},
+    {ex: "calves", sets: 3, reps: [10, 15], rest: 60, opt: true, cue: "Pause 1-2 s en bas."},
+  ],
+};
+const SESS_FELIX = {                      // B trimmed for a fat-loss block: big shoulder press, fewer arm sets, arms in superset; legs without the shoulder bonus
+  J: SESS.J.filter(it => it.ex !== "latRaise"),
+  B: [
+    {ex: "shPress", sets: 3, reps: [8, 10], rest: 120, cue: "Dos bien calé, descends les poignées au niveau du menton."},
+    {ex: "latRaise", sets: 3, reps: [12, 15], rest: 75, perArm: true, cue: "Poulie réglée à hauteur de la main ; monte vers l'extérieur jusqu'à l'épaule, sans hausser les épaules."},
+    {ex: "revFly", sets: 2, reps: [12, 15], rest: 75, cue: "Poulies à hauteur d'épaules, tiens les câbles eux-mêmes, bras quasi tendus, tire en arc vers l'extérieur."},
+    {ex: "ohTri", sets: 2, reps: [10, 12], rest: 60, superset: true, cue: "En superset avec le curl : enchaîne les deux, puis 60 s de repos. Descends loin derrière la tête."},
+    {ex: "bayCurl", sets: 2, reps: [10, 12], rest: 60, superset: true, cue: "Bras légèrement derrière le corps, coude fixe."},
+  ],
+};
 const TYPES = {
   FB: {name: "Full body", day: 3, gate: "Portail d'éveil"},
+  P:  {name: "Poussée", day: 0, gate: "Forge de la poussée", solo: true},
+  T:  {name: "Tirage", day: 1, gate: "Puits du tirage", solo: true},
+  HC: {name: "Haut complet", day: 3, gate: "Bastion du haut", solo: true},
+  JX: {name: "Grosse séance Jambes", day: 5, gate: "Abîme des jambes", solo: true, chip: "J"},
+  BE: {name: "Bras et épaules", day: 5, gate: "Tour des bras", solo: true},
   A:  {name: "Pec / Dos lourd", day: 0, gate: "Donjon de fer"},
   B:  {name: "Épaules / Bras", day: 1, gate: "Tour des poulies"},
   C:  {name: "Pec / Dos étirement", day: 3, gate: "Caverne de l'étirement"},
@@ -605,6 +665,55 @@ const TEST_EX = {A: ["bench", "csRow"], C: ["inclBar", "pullup"]};
 const KEY_LIFTS = [["bench", "A", "Couché barre"], ["inclDb", "A", "Incliné haltères"], ["csRow", "A", "Rowing appuyé"], ["latpd", "A", "Tirage vertical"], ["inclBar", "C", "Incliné barre"], ["pullup", "C", "Tractions (lest)"], ["machPress", "C", "Développé machine"], ["shPress", "B", "Épaules machine"], ["hack", "Jambes", "Hack squat"]];
 const INC = {bar: 2.5, machine: 2.5, cable: 2.5, db: 2, bw: 2.5};
 const FEELINGS = ["Écrasé", "Dur", "Correct", "Bien", "Inarrêtable"];
+const BUILD = [{rank: "B"}, {rank: "B"}, {rank: "A"}, {rank: "A"}];
+const WEEKS_FELIX = [null,
+  {n: 1, phase: "Éveil", rank: "E", rirTxt: "3 partout : la technique avant la charge", setsTxt: "2 par exo"},
+  {n: 2, phase: "Apprentissage", rank: "D", rirTxt: "3 partout", setsTxt: "2 par exo"},
+  {n: 3, phase: "Apprentissage", rank: "C", rirTxt: "3 partout", setsTxt: "2 par exo"},
+  ...BUILD.map((b, i) => ({n: 4 + i, phase: "Construction", rank: b.rank, rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"})),
+  {n: 8, phase: "Bilan", rank: "S", rirTxt: "1-2, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
+];
+const WEEKS_MATHIS = [null,
+  {n: 1, phase: "Calibrage", rank: "E", rirTxt: "2 sur les gros exos, 1-2 sur l'isolation", setsTxt: "Comme écrit, Jambes : une série de moins"},
+  {n: 2, phase: "Progression", rank: "D", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
+  {n: 3, phase: "Progression", rank: "C", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
+  ...BUILD.map((b, i) => ({n: 4 + i, phase: "Intensification", rank: b.rank, rirTxt: "1, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"})),
+  {n: 8, phase: "Bilan", rank: "S", rirTxt: "1, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
+];
+const PLANS = {
+  base: {id: "base", label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: ["A", "C"], weeks: WEEKS, test: TEST_EX,
+    intro: "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat",
+    lead: "Lundi A, mardi B, jeudi C, vendredi Jambes ou Haut (une semaine sur deux). Mercredi, samedi et dimanche : repos. Grosse semaine : un 5e donjon en bonus.",
+    s1: "Première séance : tu réapprends les mouvements, rien de lourd. Que des gros mouvements : 2 pour les pecs, 2 pour le dos, 2 pour les jambes."},
+  felix: {id: "felix", label: "Perte de poids (programme de Félix)", goal: "fat", title: "Potentiel de malade", fbFirst: true, big: ["A", "C"], weeks: WEEKS_FELIX, test: TEST_EX, sess: SESS_FELIX, finisher: true,
+    intro: "Le Système a détecté un potentiel de malade, encore jamais exploité. C'est rare. Il te propose un contrat",
+    lead: "Première semaine : un full body le jeudi. Ensuite lundi A, mardi B, jeudi C, vendredi Jambes, et 10 min de marche inclinée à la fin de chaque séance. Mercredi, samedi et dimanche : repos.",
+    s1: "Tu apprends les mouvements : 2 séries par exercice, 3 reps en réserve, charges légères. La technique avant la charge."},
+  mathis: {id: "mathis", label: "Prise de muscle (programme de Mathis)", goal: "gain", title: "Guerrier assidu", fbFirst: false, big: [], weeks: WEEKS_MATHIS,
+    test: {P: ["bench", "dips"], T: ["pullupPro", "csRow"], HC: ["inclDb", "pullup"]}, sess: SESS_MATHIS,
+    keyLifts: [["bench", "Poussée", "Couché barre"], ["dips", "Poussée", "Dips (lest)"], ["pullupPro", "Tirage", "Tractions pronation (lest)"], ["csRow", "Tirage", "Rowing appuyé"], ["inclDb", "Haut complet", "Incliné haltères"], ["pullup", "Haut complet", "Tractions neutres (lest)"], ["squat", "Jambes", "Squat"], ["rdl", "Jambes", "Soulevé roumain"]],
+    intro: "Le Système a détecté un guerrier assidu, déjà habitué de la salle. Il te propose un contrat",
+    lead: "Lundi Poussée, mardi Tirage, jeudi Haut complet, samedi grosse séance Jambes (semaines impaires) ou Bras et épaules (semaines paires). Mercredi, vendredi et dimanche : repos.",
+    s1: "Semaine de calibrage : trouve tes charges dans les nouvelles fourchettes de reps, sans aller à l'échec."},
+};
+const cloudName = () => Cloud && Cloud.signedIn() ? Cloud.email() : "";
+function detectPlan(...names) {              // by name or pseudo, accents ignored; null when the Système can't tell
+  const k = names.map(normPseudo).join(" ");
+  return /felix/.test(k) ? "felix" : /mat+h?is/.test(k) ? "mathis" : /gauthier/.test(k) ? "base" : null;
+}
+const planOf = p => (p && PLANS[p.program]) ? p.program : (detectPlan(p?.name, cloudName()) || "base");
+const curPlan = () => PLANS[planOf(typeof S !== "undefined" ? S.profile : null)];
+const sessFor = ty => (curPlan().sess || {})[ty] || SESS[ty];
+const planTest = () => curPlan().test || {};
+const tyLabel = ty => ty === "FB" ? "Full body" : TYPES[ty]?.solo ? TYPES[ty].name : "Séance " + ty + " · " + (TYPES[ty]?.name || "");
+function planSched(info) {
+  const id = curPlan().id;
+  if (id === "mathis") return info.deload ? "Mêmes jours que d'habitude, moitié des séries, mêmes charges." : `Lundi Poussée, mardi Tirage, jeudi Haut complet, samedi ${TYPES[info.types[3]].name.toLowerCase()}. Mercredi, vendredi et dimanche : repos.`;
+  const fri = TYPES[id === "felix" ? "J" : sideType(info.p)].name;
+  return info.p === 1 && !info.deload ? (id === "felix" ? "Une seule séance cette semaine : le full body, jeudi." : "Une seule séance cette semaine : la reprise, jeudi.")
+    : info.deload ? `Mêmes jours que d'habitude (lundi A, mardi B, jeudi C, vendredi ${fri}), moitié des séries, mêmes charges.`
+    : `Lundi A, mardi B, jeudi C, vendredi ${fri}. Mercredi, samedi et dimanche : repos.`;
+}
 
 /* Calendar weeks (cw 1 = 19-25 oct.) are not program weeks: the deload joker pauses the program for one week. */
 const deloadWeeks = () => (Array.isArray(S.profile?.deloads) ? S.profile.deloads : []).map(Number).filter(n => n > 0);
@@ -614,16 +723,17 @@ const sideType = p => p % 2 === 0 ? "H" : "J";     // the Friday session: Haut o
 const sessionCw = s => Number(s.cw ?? s.week);
 function weekInfo(cw) {
   if (!(cw >= 1)) return null;
-  const p = progWeek(cw), deload = isDeload(cw);
-  if (deload) return {cw, p, deload, W: DELOAD, types: ["A", "B", "C", sideType(p)], bonus: null, after: p > PROGRAM_WEEKS};
+  const PL = curPlan(), p = progWeek(cw), deload = isDeload(cw);
+  const x = PL.id === "mathis" ? (p % 2 ? "JX" : "BE") : PL.id === "felix" ? "J" : sideType(p);
+  const main = PL.id === "mathis" ? ["P", "T", "HC", x] : ["A", "B", "C", x];
+  if (deload) return {cw, p, deload, W: DELOAD, types: main, bonus: null, after: p > PROGRAM_WEEKS};
   if (p > PROGRAM_WEEKS) return {cw, p, deload, W: null, types: [], bonus: null, after: true};
-  if (p === 1) return {cw, p, deload, W: WEEKS[1], types: ["FB"], bonus: null};
-  const x = sideType(p);
-  return {cw, p, deload, W: WEEKS[p], types: ["A", "B", "C", x], bonus: x === "H" ? "J" : "H"};
+  if (p === 1 && PL.fbFirst) return {cw, p, deload, W: PL.weeks[1], types: ["FB"], bonus: null};
+  return {cw, p, deload, W: PL.weeks[p], types: main, bonus: PL.id === "base" ? (x === "H" ? "J" : "H") : null};
 }
 const weekTitle = info => info.deload ? "Semaine allégée" : "Semaine S" + info.p;
 const sessLabel = s => (s.deload ? "Allégée" : "S" + s.week) + (s.bonus ? " · bonus" : "");
-const sessName = s => s.type === "FB" ? "Full body" : "Séance " + s.type + " · " + (TYPES[s.type]?.name || "");
+const sessName = s => tyLabel(s.type);
 const lastBlockWeek = () => PROGRAM_WEEKS + deloadWeeks().filter(d => progWeek(d) <= PROGRAM_WEEKS).length;
 const jokersUsed = () => deloadWeeks().filter(d => { const p = progWeek(d); return p >= 2 && p <= PROGRAM_WEEKS; }).length;
 function jokerState(cw) {
@@ -636,9 +746,12 @@ function jokerState(cw) {
   return {active: false, canUse: !started, reason: started ? "started" : ""};
 }
 
-function setsFor(p, it, idx, deload) {
+function setsFor(p, it, idx, deload, ty) {
   if (deload) return Math.ceil(it.sets / 2);
   if (it.maint) return 2;
+  const PL = curPlan().id;
+  if (PL === "felix") return p <= 3 ? Math.min(2, it.sets) : it.sets;              // newbie: 2 sets for 3 weeks
+  if (PL === "mathis") return p === 1 && ty === "JX" ? Math.max(1, it.sets - 1) : it.sets;  // first big leg day: one set less
   if (p === 1) return it.sets;
   if (p === 2) return 2;
   if (p === 3) return Math.min(it.sets, idx < 2 ? 3 : 2);
@@ -646,6 +759,15 @@ function setsFor(p, it, idx, deload) {
 }
 function rirFor(p, it, idx, ty, deload) {
   if (deload || it.maint) return {txt: "3 reps en réserve", fail: false};
+  const PL = curPlan().id, isPoly = EX[it.ex].kind === "poly";
+  if (PL === "felix" && p <= 3) return {txt: "3 reps en réserve", fail: false};
+  if (PL === "mathis") {
+    if (ty === "JX" && p === 1) return {txt: "2-3 reps en réserve", fail: false};
+    if (it.noFail) return {txt: "1-2 reps en réserve, jamais à l'échec", fail: false};
+    if (p === 1) return {txt: isPoly ? "2 reps en réserve" : "1-2 reps en réserve", fail: false};
+    if (p <= 3) return {txt: "1-2 reps en réserve", fail: !isPoly};
+    return {txt: "1 rep en réserve", fail: !isPoly};
+  }
   if (ty === "J") return {txt: "2 reps en réserve, jamais à l'échec", fail: false};
   if (p === 1) return {txt: EX[it.ex].kind === "poly" ? "4-5 reps en réserve" : "≈3 reps en réserve", fail: false};
   const poly = EX[it.ex].kind === "poly";
@@ -657,12 +779,12 @@ function planFor(cw, ty) {
   const info = weekInfo(cw) || {p: 1, deload: false};
   const legsDone = S.sessions.some(s => sessionCw(s) === cw && s.type === "J" && s.valid);
   const legMaint = S.profile?.legMaint !== false && !info.deload && !legsDone;
-  return (SESS[ty] || []).map((it, idx) => ({...it, idx})).filter(it => !it.maint || legMaint).map(it => ({
-    ...it, sets: setsFor(info.p, it, it.idx, info.deload), rir: rirFor(info.p, it, it.idx, ty, info.deload),
-    test: !info.deload && info.p === 8 && (TEST_EX[ty] || []).includes(it.ex),
+  return (sessFor(ty) || []).map((it, idx) => ({...it, idx})).filter(it => !it.maint || legMaint).map(it => ({
+    ...it, sets: setsFor(info.p, it, it.idx, info.deload, ty), rir: rirFor(info.p, it, it.idx, ty, info.deload),
+    test: !info.deload && info.p === 8 && (planTest()[ty] || []).includes(it.ex),
   }));
 }
-const repsTxt = it => (it.reps[0] === it.reps[1] ? it.reps[0] : it.reps[0] + "-" + it.reps[1]) + (it.perArm ? " par bras" : "");
+const repsTxt = it => (it.reps[0] === it.reps[1] ? it.reps[0] : it.reps[0] + "-" + it.reps[1]) + (it.perArm ? " par bras" : it.perLeg ? " par jambe" : "");
 const estMinutes = plan => Math.max(25, roundTo(12 + plan.reduce((n, it) => n + it.sets * (it.rest + 50) / 60, 0), 5));
 
 /* ================= rewards & achievements ================= */
@@ -693,14 +815,7 @@ const TIERS = [{k: "petite", name: "Petites récompenses"}, {k: "moyenne", name:
 const RANKS = ["E", "D", "C", "B", "A", "S"];
 const RANK_LEVEL = {E: 1, D: 5, C: 10, B: 17, A: 24, S: 30};
 const DEFAULT_TITLE = "Ancien chasseur";
-// starting titles of named friends (matched on the start of the player name or login pseudo, accents ignored)
-const NAME_INTROS = [
-  {re: /^felix/, title: "Potentiel de malade", intro: "Le Système a détecté un potentiel de malade, encore jamais exploité. C'est rare. Il te propose un contrat"},
-  {re: /^mat+h?is/, title: "Guerrier assidu", intro: "Le Système a détecté un guerrier assidu, déjà habitué de la salle. Il te propose un contrat"},
-];
-const nameIntro = (...names) => { for (const n of names) { const k = normPseudo(n); const hit = k && NAME_INTROS.find(x => x.re.test(k)); if (hit) return hit; } return null; };
-const playerIntro = () => nameIntro(S.profile?.name, Cloud && Cloud.signedIn() ? Cloud.email() : "");
-const baseTitle = () => playerIntro()?.title || DEFAULT_TITLE;
+const baseTitle = () => curPlan().title || DEFAULT_TITLE;   // Félix "Potentiel de malade", Mathis "Guerrier assidu" (his request)
 const ACH = [
   {id: "revenant", name: "Le Revenant", desc: "Terminer son premier donjon.", xp: 100, gold: 50, test: c => c.validSessions >= 1},
   {id: "premierSang", name: "Premier sang", desc: "Battre un premier record.", xp: 60, gold: 30, test: c => c.prCount >= 1},
@@ -989,17 +1104,18 @@ function calcPlan(p, w) {                     // Jeff Nippard recomp: deficit 10
   const bmr = h && age ? 10 * w + 6.25 * h - 5 * age + (p.sex === "f" ? -161 : 5) : null;
   const act = Number(p.activity) || 1.5;
   const tdee = bmr ? bmr * act : w * 33;
-  const bfx = bf ?? 22;
-  const deficit = bfx >= 25 ? 0.20 : bfx >= 20 ? 0.15 : bfx >= 15 ? 0.10 : 0;
-  const base = Math.round(tdee * (1 - deficit) + (Number(p.kcalAdj) || 0));
-  const freeOn = p.freeDay != null && Number(p.freeDay) >= 0 && p.freeComp !== false;
+  const bfx = bf ?? 22, goal = PLANS[planOf(p)].goal;
+  const deficit = goal === "gain" ? 0 : goal === "fat" ? (bfx >= 20 ? 0.20 : bfx >= 15 ? 0.15 : 0.10) : bfx >= 25 ? 0.20 : bfx >= 20 ? 0.15 : bfx >= 15 ? 0.10 : 0;
+  const surplus = goal === "gain" ? 0.10 : 0;      // Nippard lean bulk: +5-10 %, top of the range for a hard gainer
+  const base = Math.round(tdee * (1 - deficit + surplus) + (Number(p.kcalAdj) || 0));
+  const freeOn = goal !== "gain" && p.freeDay != null && Number(p.freeDay) >= 0 && p.freeComp !== false;
   let kcal = Number(p.kcalManual) > 0 ? Number(p.kcalManual) : roundTo(freeOn ? base - FREE_EXTRA / 6 : base, 10);
   const gPerLb = bfx >= 25 ? 1.2 : bfx >= 20 ? 1.3 : bfx >= 15 ? 1.4 : 1.5;
   const lbm = w * (1 - bfx / 100);
-  const protein = Number(p.proteinManual) > 0 ? Number(p.proteinManual) : roundTo(lbm * 2.2046 * gPerLb, 5);
+  const protein = Number(p.proteinManual) > 0 ? Number(p.proteinManual) : goal === "gain" ? roundTo(w * 2, 5) : roundTo(lbm * 2.2046 * gPerLb, 5);
   const fat = Math.round(kcal * 0.25 / 9);
   const carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4));
-  return {w, h, age, bf, bfHow: bfo ? bfo.how : null, bmr: bmr && Math.round(bmr), act, tdee: Math.round(tdee), deficit, base, kcal, protein, fat, carbs, gPerLb, lbm: r1(lbm), freeOn, precise: !!bmr};
+  return {w, h, age, bf, bfHow: bfo ? bfo.how : null, bmr: bmr && Math.round(bmr), act, tdee: Math.round(tdee), deficit, base, kcal, protein, fat, carbs, gPerLb, lbm: r1(lbm), freeOn, precise: !!bmr, goal, surplus};
 }
 const nutritionPlan = key => calcPlan(S.profile || {}, (avgWeight(key || today()) ?? Number(S.profile?.weight)) || 75);
 function weekValid(cw) {
@@ -1031,7 +1147,12 @@ function weekPlan(cw) {
   };
   return info.types.map(ty => mk(ty, false)).concat(info.bonus ? [mk(info.bonus, true)] : []);
 }
-function requiredSessions(info) { return !info || !info.types.length ? 0 : info.deload ? 2 : info.p === 1 ? 1 : 3; }
+function requiredSessions(info) {
+  if (!info || !info.types.length) return 0;
+  const want = info.deload ? 2 : info.types.length === 1 ? 1 : 3, created = S.profile?.createdDay;
+  if (!created || info.deload) return want;
+  return Math.min(want, info.types.filter(ty => toStr(addDays(weekStart(info.cw), TYPES[ty].day)) >= created).length);   // joined mid-week
+}
 const skipsInWeek = cw => S.purchases.filter(p => p.effect === "skip" && p.date && weekOfStr(p.date) === cw).length;
 function penaltyState() {
   const t = today(), curW = weekOfStr(t);
@@ -1068,7 +1189,7 @@ function compute() {
   const benchSess = sess.filter(s => s.week >= 2 && !s.deload && s.sets?.bench?.length);
   let benchGain = 0;
   if (benchSess.length >= 2) { const first = bestE1("bench", benchSess[0].sets.bench); const best = Math.max(...benchSess.map(s => bestE1("bench", s.sets.bench))); if (first > 0) benchGain = best / first - 1; }
-  const bilanDone = ["A", "C"].every(ty => sess.some(s => s.week === 8 && !s.deload && s.type === ty && s.valid));
+  const bilanDone = Object.keys(planTest()).every(ty => sess.some(s => s.week === 8 && !s.deload && s.type === ty && s.valid));
   const waistWeeks = new Set(dayKeys.filter(k => Number(S.days[k]?.waist) > 0).map(weekOfStr));
   xp += 10 * waistWeeks.size; gold += 5 * waistWeeks.size;
   const photoSessions = photoSessionDates().length;
@@ -1093,7 +1214,7 @@ function suggest(it, info) {
   const ex = EX[it.ex], lo = it.reps[0], hi = it.reps[1];
   const hist = perfHistory(it.ex), last = hist[hist.length - 1];
   const out = {kg: null, reps: [], text: "", kind: "", last};
-  if (info.p === 1 && !info.deload && it.ex === "bench") {
+  if (info.p === 1 && !info.deload && it.ex === "bench" && curPlan().fbFirst) {
     const ob = Number(S.profile?.oldBench);
     if (ob > 0) { out.kg = roundTo(ob * 0.55, 2.5); out.text = `Repère : ≈ 55 % de ton ancien max (${fmt(ob)} kg). Tu dois pouvoir en faire 10-12 : si 6 reps sont déjà dures, baisse.`; }
     else out.text = "Prends une charge que tu pourrais pousser 10-12 fois, et arrête-toi à 6.";
@@ -1177,6 +1298,7 @@ function render() {
   const focus = captureFocus();
   if (!S.profile) { if (!state.ob) startOnboarding(); state.view = "onboarding"; }
   else if (state.view === "onboarding") state.view = "status";
+  if (S.profile) seedPlan();
   if (state.view === "dungeon" && !(S.draft && S.draft.active)) state.view = "status";
   if (state.view === "results" && !state.results) state.view = "status";
   const P = compute(); afterCompute(P);
@@ -1231,7 +1353,7 @@ function nextRankInfo(P) {
 }
 
 /* ----- status ----- */
-function viewStatus(P) { return topbar() + penaltyWin(P) + draftWin() + statusWin(P) + portalWin() + questWin() + bodyNudge() + weekWin(); }
+function viewStatus(P) { return topbar() + programPickWin() + penaltyWin(P) + draftWin() + statusWin(P) + portalWin() + questWin() + bodyNudge() + weekWin(); }
 function statusWin(P) {
   const pct = Math.min(100, Math.round(P.into / P.need * 100)); const s = P.stats;
   const stat = (k, l, v, cap) => `<div class="stat"><span class="stat-k">${k}</span><span class="stat-l">${l}</span><small>${cap}</small><b class="stat-v">${v}</b></div>`;
@@ -1260,9 +1382,9 @@ function draftWin() {
 }
 const BIG = ["A", "C"];          // the two heavy chest/back sessions: his rule is 2 rest days between them
 function bigGap(ty) {
-  if (!BIG.includes(ty)) return "";
+  if (!curPlan().big.includes(ty)) return "";
   const t = today();
-  const last = sessionsSorted().filter(s => BIG.includes(s.type) && s.valid && !s.deload && s.date <= t).pop();
+  const last = sessionsSorted().filter(s => curPlan().big.includes(s.type) && s.valid && !s.deload && s.date <= t).pop();
   if (last) {
     const gap = dayDiff(fromStr(last.date), fromStr(t)) - 1;
     if (gap < 2) return `Ta dernière grosse séance (${last.type}) date ${gap < 0 ? "d'aujourd'hui" : gap === 0 ? "d'hier" : "d'avant-hier"}. Ta règle : 2 jours de repos entre deux grosses séances. Fais plutôt B ou Jambes aujourd'hui.`;
@@ -1281,13 +1403,13 @@ function portalCard(p, label, sub, compact) {
   if (compact) return `<div class="portal-mini" style="--rc:var(--r-${rank})"><span class="eyebrow">${label}</span><p><b>${esc(TYPES[p.ty].gate)}</b> · ${TYPES[p.ty].name}, environ ${estMinutes(plan)} min.</p>${sub ? `<p class="muted small">${sub}</p>` : ""}
     <div class="row"><button class="btn sm" data-act="enter" data-cw="${p.cw}" data-ty="${p.ty}">Entrer</button><button class="btn sm ghost" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}">Voir les exercices</button></div></div>`;
   return `<div class="portal" style="--rc:var(--r-${rank})"><div class="gate" aria-hidden="true"><div class="gate-ring"></div><div class="gate-core"></div></div>
-    <div><span class="eyebrow">${label} · <span class="nw">rang ${rank}</span></span><h3>${esc(TYPES[p.ty].gate)}</h3><p>${p.ty === "FB" ? "" : "Séance " + p.ty + " · "}${TYPES[p.ty].name}. ${plan.length} exercices, environ ${estMinutes(plan)} min.</p>${sub ? `<p class="muted small">${sub}</p>` : ""}${gapWarn(p.cw, p.ty, p.done)}</div>
+    <div><span class="eyebrow">${label} · <span class="nw">rang ${rank}</span></span><h3>${esc(TYPES[p.ty].gate)}</h3><p>${tyLabel(p.ty)}. ${plan.length} exercices, environ ${estMinutes(plan)} min.</p>${sub ? `<p class="muted small">${sub}</p>` : ""}${gapWarn(p.cw, p.ty, p.done)}</div>
     <div class="portal-actions"><button class="btn primary" data-act="enter" data-cw="${p.cw}" data-ty="${p.ty}">Entrer dans le donjon</button><button class="btn ghost" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}">Voir les exercices</button></div></div>`;
 }
 const CHIP_LABEL = {done: "Nettoyé", partial: "Partiel", missed: "Raté", today: "Ouvert", late: "Retard", open: "À venir", future: "Fermé", bonus: "Option", skipped: "Pas fait"};
 function chip(p) {
   if (p.bonus) return `<button class="chip chip-bonus st-${p.st}" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}"><b>+${p.ty}</b><span>Bonus grosse semaine : ${TYPES[p.ty].name}</span><i>${CHIP_LABEL[p.st]}</i></button>`;
-  return `<button class="chip st-${p.st}" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}"><b>${p.ty}</b><span>${fmtDay(fromStr(p.date), {weekday: "short", day: "numeric"})}</span><i>${CHIP_LABEL[p.st]}</i></button>`;
+  return `<button class="chip st-${p.st}" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}"><b>${TYPES[p.ty].chip || p.ty}</b><span>${fmtDay(fromStr(p.date), {weekday: "short", day: "numeric"})}</span><i>${CHIP_LABEL[p.st]}</i></button>`;
 }
 function portalWin() {
   if (S.draft && S.draft.active) return "";
@@ -1306,7 +1428,7 @@ function portalWin() {
     else if (dow === 4 && bonus && !bonus.done && legs && legs.done && legs.done.date < t) body = portalCard(bonus, "Bonus grosse semaine", "Jambes déjà faites cette semaine : Haut aujourd'hui pour finir la grosse semaine.");
     else if (open.length) { const nx = open[0]; body = `<div class="rest-day"><b>Jour de repos.</b> Le Système recommande : bien manger, bien dormir.<br>Prochain portail : <b>${fmtDay(fromStr(nx.date), {weekday: "long", day: "numeric", month: "long"})}</b>, ${TYPES[nx.ty].name}.</div>`; }
     else body = `<div class="rest-day"><b>Semaine nettoyée.</b> Tous les donjons prévus sont faits. Récupère.</div>`;
-    if (dow === 2 && legs && !legs.done && !info.deload) body += portalCard(legs, "Option grosse semaine", "Mercredi, c'est repos. Si tu veux une grosse semaine de 5 séances : Jambes aujourd'hui, Haut vendredi.", true);
+    if (dow === 2 && legs && !legs.done && !info.deload && info.bonus) body += portalCard(legs, "Option grosse semaine", "Mercredi, c'est repos. Si tu veux une grosse semaine de 5 séances : Jambes aujourd'hui, Haut vendredi.", true);
   }
   return wrap(body + `<div class="chips">${plan.map(chip).join("")}</div>`);
 }
@@ -1336,9 +1458,7 @@ function questWin() {
 function weekWin() {
   const cw = weekOfStr(today()), info = weekInfo(cw); if (!info || !info.types.length) return "";
   const c = weekCounts(cw), reqd = Math.max(0, requiredSessions(info) - skipsInWeek(cw)), W = info.W;
-  const sched = info.p === 1 && !info.deload ? "Une seule séance cette semaine : la reprise, jeudi."
-    : info.deload ? `Mêmes jours que d'habitude (lundi A, mardi B, jeudi C, vendredi ${TYPES[sideType(info.p)].name}), moitié des séries, mêmes charges.`
-    : `Lundi A, mardi B, jeudi C, vendredi ${TYPES[sideType(info.p)].name}. Mercredi, samedi et dimanche : repos.`;
+  const sched = planSched(info);
   return `<section class="win"><h2 class="win-title">${weekTitle(info)}</h2>
     <div class="wk-head"><b>${W.phase}</b><span>${c.main} / ${c.planned} donjons${c.bonusDone ? " + bonus" : ""}</span></div>
     <div class="xpbar thin" aria-hidden="true"><i style="width:${Math.round(c.main / c.planned * 100)}%"></i></div>
@@ -1370,7 +1490,35 @@ function viewDungeons() {
       <div class="chips">${weekPlan(cw).map(chip).join("")}</div></div>`);
   }
   const jl = jokersUsed() >= JOKERS ? "utilisé" : "disponible (onglet Statut, avant le premier donjon de la semaine)";
-  return topbar() + `<section class="win"><h2 class="win-title">Carte des donjons</h2><p class="lead">8 semaines de programme à partir du ${fmtDay(startDate(), {day: "numeric", month: "long"})}. Lundi A, mardi B, jeudi C, vendredi Jambes ou Haut (une semaine sur deux). Mercredi, samedi et dimanche : repos. Grosse semaine : un 5e donjon en bonus. Touche un donjon pour voir ses exercices.</p><p class="small">Joker semaine allégée : ${jl}.</p>${weeks.join("")}</section>` + grimoire();
+  return topbar() + `<section class="win"><h2 class="win-title">Carte des donjons</h2><p class="lead">8 semaines de programme à partir du ${fmtDay(startDate(), {day: "numeric", month: "long"})}. ${curPlan().lead} Touche un donjon pour voir ses exercices.</p><p class="small">Joker semaine allégée : ${jl}.</p>${weeks.join("")}</section>` + (curPlan().id === "base" ? grimoire() : planGrimoire());
+}
+function planGrimoire() {
+  const id = curPlan().id;
+  const own = id === "felix" ? [
+    "<b>Objectif : perdre du gras sans perdre de muscle.</b> Comme tu prends du muscle en même temps, la balance descend moins vite que ton tour de taille : juge tes progrès à ta taille et à ton carnet, pas à la seule balance.",
+    "<b>Tes séances</b> : A, B et C du programme de Gauthier, et Jambes chaque vendredi. Les jambes sont les plus gros muscles : c'est là que tu dépenses et construis le plus.",
+    "<b>3 premières semaines</b> : 2 séries par exercice, 3 reps en réserve, charges légères. La technique avant la charge : une mauvaise technique prise au début coûte des mois.",
+    "<b>Ensuite</b> : chaque semaine, une rep de plus ou un peu plus de charge sur chaque exercice. Le Système fait le calcul pour toi dans chaque donjon.",
+    "<b>Fin de séance</b> : 10 min de marche inclinée (+20 XP, +10 or). Ça brûle sans te fatiguer pour la séance suivante.",
+    "<b>En dehors de la salle</b> : 8 000 à 10 000 pas par jour et 7 à 9 h de sommeil. Quand on dort mal pendant un régime, une plus grande part du poids perdu est du muscle.",
+    "<b>Manger</b> : 10 à 20 % sous ta maintenance, beaucoup de protéines (4 repas avec 40-45 g chacun). Aucun aliment interdit : tes plats préférés existent en version légère dans l'onglet Repas, et en version complète à la Boutique.",
+    "<b>Tous les 15 jours</b>, le Système compare ta moyenne de poids et ton tour de taille, et te dit s'il faut changer tes calories.",
+  ] : [
+    "<b>Objectif : prendre du muscle.</b> Ce qui compte, c'est de finir chaque série près de l'échec, pas de faire beaucoup de reps.",
+    "<b>4 séances</b> : lundi Poussée, mardi Tirage, jeudi Haut complet, samedi grosse séance Jambes ou Bras et épaules, une semaine sur deux.",
+    "<b>2 exercices maximum pour un même muscle</b> dans une séance, mais pecs et dos deux fois par semaine. Rien pour l'avant d'épaule : les développés et les dips le travaillent déjà.",
+    "<b>6-10 reps sur les gros exos, 10-15 sur l'isolation.</b> Gros exos à 1-2 reps de l'échec ; dernière série d'isolation à l'échec à partir de S2. Squat et soulevé de terre roumain : jamais à l'échec.",
+    "<b>Double progression</b> : même charge jusqu'au haut de la fourchette sur toutes les séries, puis +2,5 kg. Tractions et dips : du lest dès que tu fais le haut de la fourchette au poids du corps (note le lest en kg).",
+    "<b>Ne rien ajouter</b> : pas d'exo bonus pour les pecs ou les épaules en fin de séance, c'est exactement ce qui te freinait. Repos : 2-3 min sur les gros exos, 60-90 s sur l'isolation.",
+    "<b>8 semaines au lieu de 5</b> : S1 calibrage, S2-S3 progression, S4-S7 on pousse fort, S8 bilan (épreuves sur les 2 premiers exos de Poussée, Tirage et Haut complet). Joker semaine allégée quand la fatigue s'accumule.",
+    "<b>Manger</b> : un petit surplus, +10 % au-dessus de ta maintenance. Sans surplus, le meilleur programme ne te fera pas grossir. Si ta moyenne de poids ne monte pas en 2 semaines, +150 kcal par jour, surtout en glucides.",
+  ];
+  return `<section class="win"><h2 class="win-title">Ton programme</h2><ul class="rules">${own.map(x => `<li>${x}</li>`).join("")}</ul>
+    <details class="fold"><summary>Reps en réserve</summary><div><p>C'est le nombre de reps que tu pourrais encore faire au moment où tu poses la charge. « 2 en réserve » : tu t'arrêtes 2 reps avant de ne plus pouvoir bouger la charge.</p></div></details>
+    <details class="fold"><summary>Monter les charges</summary><div><p>Tu gardes la même charge jusqu'à faire le haut de la fourchette de reps sur toutes les séries. Ensuite, +2,5 kg (ou l'haltère au-dessus). Sinon, vise une rep de plus que la dernière fois. Le Système fait ce calcul pour toi dans chaque donjon.</p></div></details>
+    <details class="fold"><summary>Joker : semaine allégée</summary><div><p>Une fois par bloc, la semaine de ton choix (onglet Statut, avant le premier donjon de la semaine). Moitié des séries, mêmes charges, 3 reps en réserve. Le programme fait une pause d'une semaine puis reprend. À prendre si tes perfs baissent deux séances de suite, si tu dors mal ou si tes articulations tirent.</p></div></details>
+    <details class="fold"><summary>Courbatures</summary><div><p>Si un muscle est encore courbaturé quand tu le retravailles, retire-lui une série cette fois-là. Le bouton est sous chaque exercice, dans le donjon.</p></div></details>
+    <details class="fold"><summary>Échauffement</summary><div><p>5 min de cardio léger, 2 séries de montée progressive sur le premier exercice, puis 1 série légère avant chaque nouveau mouvement.</p></div></details></section>`;
 }
 const rankBadgeInline = r => `<span class="tag" style="color:var(--r-${r});border-color:var(--r-${r})">Rang ${r}</span>`;
 function grimoire() {
@@ -1411,11 +1559,11 @@ function grimoire() {
 
 /* ----- dungeon run ----- */
 function viewDungeon() {
-  const d = S.draft, plan = planFor(d.cw, d.type), W = d.deload ? DELOAD : WEEKS[d.week];
+  const d = S.draft, plan = planFor(d.cw, d.type), W = d.deload ? DELOAD : curPlan().weeks[d.week];
   let planned = 0, doneReq = 0;
   for (const it of plan) { const n = it.sets - (d.minus[it.ex] || 0); if (!it.opt) { planned += n; doneReq += (d.sets[it.ex] || []).slice(0, n).filter(r => r.done).length; } }
   const pct = planned ? Math.round(doneReq / planned * 100) : 0;
-  return `<div class="dg-top"><button class="btn ghost sm" data-act="dgMenu">Pause</button><div class="dg-name">${sessLabel(d)} · ${d.type === "FB" ? "Full body" : d.type + " · " + TYPES[d.type].name}</div><div class="dg-clock" id="dgClock">00:00</div></div>
+  return `<div class="dg-top"><button class="btn ghost sm" data-act="dgMenu">Pause</button><div class="dg-name">${sessLabel(d)} · ${tyLabel(d.type)}</div><div class="dg-clock" id="dgClock">00:00</div></div>
     <div class="xpbar" role="progressbar" aria-label="Séries faites" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
     <section class="win"><h2 class="win-title">${esc(TYPES[d.type].gate)}</h2>
       <p class="sys-line">[Vous êtes entré dans un donjon de rang ${W.rank}.] ${doneReq} / ${planned} séries</p>
@@ -1423,10 +1571,11 @@ function viewDungeon() {
       <p class="muted small">5 min de cardio léger, 2 séries de montée progressive sur le premier exercice, puis 1 série légère avant chaque nouveau mouvement.</p>
       ${d.deload ? `<p class="sugg">Semaine allégée : moitié des séries, mêmes charges, 3 reps en réserve. Tu dois sortir frais.</p>` : ""}
       ${d.bonus ? `<p class="sugg">Donjon bonus de grosse semaine.</p>` : ""}
-      ${d.week === 8 && !d.deload && TEST_EX[d.type] ? `<p class="sugg test">Semaine du bilan : les exercices marqués « Épreuve » mesurent ta progression depuis S4.</p>` : ""}
-      ${d.week === 1 && !d.deload ? `<p class="sugg">Première séance : tu réapprends les mouvements, rien de lourd. Que des gros mouvements : 2 pour les pecs, 2 pour le dos, 2 pour les jambes.</p>` : ""}
+      ${d.week === 8 && !d.deload && planTest()[d.type] ? `<p class="sugg test">Semaine du bilan : les exercices marqués « Épreuve » mesurent ta progression depuis S4.</p>` : ""}
+      ${d.week === 1 && !d.deload ? `<p class="sugg">${curPlan().s1}</p>` : curPlan().id === "felix" && d.week <= 3 && !d.deload ? `<p class="sugg">${curPlan().s1}</p>` : ""}
     </section>
     ${plan.map((it, i) => exCard(it, i, d)).join("")}
+    ${curPlan().finisher ? `<section class="win"><h2 class="win-title">Finisher</h2><button class="q ${d.fin ? "on" : ""}" data-act="fin" role="checkbox" aria-checked="${!!d.fin}"><span class="box" aria-hidden="true"></span><span class="q-l">10 min de marche inclinée</span><span class="q-t">${d.fin ? "[Fait]" : "+20 XP · +10 or"}</span></button><p class="muted small">Sur tapis, pente 8 à 12 %, à un rythme où tu peux encore parler. Ça brûle sans te fatiguer pour la séance suivante.</p></section>` : ""}
     <button class="btn primary wide big" data-act="finishAsk">Terminer le donjon</button>`;
 }
 function exCard(it, i, d) {
@@ -1523,7 +1672,7 @@ function viewShopEdit() { return `<header class="top"><div class="brand"><span c
 
 /* ----- journal ----- */
 function viewJournal(P) {
-  const recRows = KEY_LIFTS.map(([ex, ses, short]) => {
+  const recRows = (curPlan().keyLifts || KEY_LIFTS).map(([ex, ses, short]) => {
     const h = perfHistory(ex);
     if (!h.length) return `<tr><td>${esc(short)}<br><small class="muted">Séance ${ses}</small></td><td class="num muted">—</td><td class="num muted">—</td><td class="num muted">—</td><td class="num muted">—</td></tr>`;
     const f = bestSet(ex, h[0].sets), l = bestSet(ex, h[h.length - 1].sets);
@@ -1533,7 +1682,7 @@ function viewJournal(P) {
   }).join("");
   const logs = sessionsSorted().reverse().map(s => {
     const lines = Object.entries(s.sets || {}).map(([ex, sets]) => `<div class="ln"><span>${esc(EX[ex]?.n || ex)}</span><span>${(sets || []).map(x => `${fmt(x.kg)}×${x.reps}`).join(" · ")}</span></div>`).join("");
-    return `<details class="log"><summary><b>${sessLabel(s)} · ${s.type === "FB" ? "Full body" : s.type + " · " + esc(TYPES[s.type]?.name || "")}</b><span class="log-r">+${s.xp} XP · +${s.gold} or</span>
+    return `<details class="log"><summary><b>${sessLabel(s)} · ${esc(tyLabel(s.type))}</b><span class="log-r">+${s.xp} XP · +${s.gold} or</span>
       <small>${fmtDay(fromStr(s.date), {weekday: "short", day: "numeric", month: "short"})} · ${s.doneReq}/${s.planned} séries · ${s.minutes} min${(s.prs || []).length ? " · " + plural(s.prs.length, "record") : ""}${s.feeling ? " · " + esc(s.feeling) : ""}</small><span class="log-r">${s.full ? "Nettoyé" : s.valid ? "Partiel" : "Retraite"}</span></summary>
       <div class="log-body">${lines || `<p class="muted">Aucune série notée.</p>`}${s.note ? `<p class="muted">« ${esc(s.note)} »</p>` : ""}<button class="link" data-act="delSession" data-id="${esc(s.id)}">Supprimer cette séance</button></div></details>`;
   }).join("");
@@ -1752,6 +1901,13 @@ const EXTRA_FOODS = [
   {n: "Tacos français, taille M (estimation)", k: 250, p: 10, c: 27, f: 11, unit: "tacos", ug: 400},
   {n: "Pinte de bière", k: 43, p: 0.4, c: 3.5, f: 0, unit: "pinte de 50 cl", ug: 500},
   {n: "Œuf entier, cuit", k: 145, p: 12.5, c: 0.5, f: 10, unit: "œuf", ug: 55},
+  {n: "Pâtes au saumon et emmental, version légère (estimation)", k: 147, p: 9.1, c: 12.5, f: 6.4, unit: "assiette", ug: 495, dish: true, how: "80 g de pâtes crues, 120 g de saumon, 5 cl de crème légère, 25 g d'emmental, des épinards"},
+  {n: "Burger maison léger : steak 5 %, cheddar (estimation)", k: 171, p: 13.4, c: 15.2, f: 6, unit: "burger", ug: 290, dish: true, how: "Pain burger, steak haché 5 %, 1 tranche de cheddar, sauce allégée, salade, tomate"},
+  {n: "Pizza maison pâte fine, jambon et mozzarella light (estimation)", k: 171, p: 10.2, c: 21.9, f: 4, unit: "pizza entière", ug: 530, dish: true, how: "Pâte fine, sauce tomate, jambon, une boule de mozzarella light, champignons"},
+  {n: "Wrap poulet et fromage maison (estimation)", k: 178, p: 19.4, c: 10.8, f: 5.7, unit: "wrap", ug: 315, dish: true, how: "Grande tortilla, 150 g de poulet, 25 g de fromage râpé, sauce au fromage blanc, crudités"},
+  {n: "Gratin de pâtes jambon et emmental, version légère (estimation)", k: 120, p: 8.1, c: 14.5, f: 3, unit: "assiette", ug: 470, dish: true, how: "80 g de pâtes crues, 80 g de jambon, béchamel au lait écrémé, 25 g d'emmental"},
+  {n: "Pâtes au saumon, crème et emmental, version resto (estimation)", k: 214, p: 9.8, c: 13.9, f: 12.9, unit: "assiette", ug: 660},
+  {n: "Raclette, assiette raisonnable (estimation)", k: 175, p: 11.7, c: 10, f: 9.2, unit: "assiette", ug: 360},
 ].map(f => ({...f, src: "extra"}));
 const mealSlots = items => SLOTS.filter(sl => sl.k !== "matin" || eatsBreakfast(S.profile) || (items || []).some(it => it.slot === "matin"));
 let FOODS = null, foodsLoading = null, foodQTimer = null;
@@ -1789,13 +1945,24 @@ function addEntries(date, slot, entries) {
   const e = dayEval(date); if (!before && e.full) toast(`[Quête quotidienne accomplie] +${e.xp} XP · +${e.gold} or`, "ok");
 }
 function kcalAdvice() {
-  const p = S.profile || {}, t = today(), pts = weighins();
-  if (Number(p.kcalManual) > 0 || pts.length < 6 || dayDiff(fromStr(pts[0].d), fromStr(t)) < 21) return null;
+  const p = S.profile || {}, t = today(), pts = weighins(), goal = curPlan().goal;
+  if (Number(p.kcalManual) > 0 || pts.length < 6 || dayDiff(fromStr(pts[0].d), fromStr(t)) < (goal === "gain" ? 14 : 21)) return null;
   if (p.kcalAdjDate && dayDiff(fromStr(p.kcalAdjDate), fromStr(t)) < 14) return null;
   const now = avgWeight(t), past = avgWeight(toStr(addDays(fromStr(t), -14)));
-  if (now == null || past == null || !nutritionPlan(t).deficit) return null;
-  const rate = (past - now) / past * 100 / 2;
-  if (rate < 0.2) return {adj: -150, txt: `Tu perds ${fmt(rate, 2)} % de ton poids par semaine : c'est lent. Le Système conseille 150 kcal de moins par jour.`};
+  if (now == null || past == null) return null;
+  const rate = (past - now) / past * 100 / 2;            // % of body weight lost per week (negative = gained)
+  const wl = waists(), wNow = wl.length ? wl[wl.length - 1] : null, wPast = wl.filter(x => x.d <= toStr(addDays(fromStr(t), -12))).pop();
+  const waistDown = !!(wNow && wPast && wNow.v <= wPast.v - 0.5);
+  if (goal === "gain") {
+    const g = -rate;
+    if (g < 0.1) return {adj: 150, txt: `Ta moyenne de poids ne monte pas (${g >= 0 ? "+" : "−"}${fmt(Math.abs(g), 2)} % par semaine). Le Système conseille 150 kcal de plus par jour, de préférence en glucides.`};
+    if (g > 0.6) return {adj: -150, txt: `Tu prends ${fmt(g, 2)} % de ton poids par semaine : trop vite, c'est surtout du gras. Le Système conseille 150 kcal de moins par jour.`};
+    return {adj: 0, txt: `Tu prends ${fmt(g, 2)} % de ton poids par semaine : bon rythme pour prendre du muscle, on ne touche à rien.`};
+  }
+  if (!nutritionPlan(t).deficit) return null;
+  if (rate < (goal === "fat" ? 0.4 : 0.2)) return waistDown
+    ? {adj: 0, txt: "La balance bouge peu, mais ton tour de taille baisse : tu perds du gras et tu prends du muscle en même temps. On ne touche à rien."}
+    : {adj: -150, txt: `Ta moyenne de poids bouge peu (${rate >= 0 ? "−" : "+"}${fmt(Math.abs(rate), 2)} % par semaine) et ta taille non plus : tu manges à ta maintenance. Le Système conseille 150 kcal de moins par jour, en glucides ou en lipides, jamais en protéines.`};
   if (rate > 1) return {adj: 150, txt: `Tu perds ${fmt(rate, 2)} % de ton poids par semaine : trop vite pour garder ton muscle. Le Système conseille 150 kcal de plus par jour.`};
   return {adj: 0, txt: `Tu perds ${fmt(rate, 2)} % de ton poids par semaine : bon rythme, on ne touche à rien.`};
 }
@@ -1809,7 +1976,7 @@ function freeToggle(key) {
 function planWin() {
   const p = S.profile || {}, w = (avgWeight(today()) ?? Number(p.weight)) || 75, adv = kcalAdvice();
   return `<section class="win"><h2 class="win-title">Ton plan (méthode Jeff Nippard)</h2>${planCard(p, w)}
-    ${adv ? `<p class="reading ${adv.adj ? "warn" : "good"}">${adv.txt}</p>${adv.adj ? `<button class="btn" data-act="kcalAdj" data-v="${adv.adj}">Appliquer ${adv.adj > 0 ? "+" : "−"}${Math.abs(adv.adj)} kcal par jour</button>` : ""}` : `<p class="muted small">Après 3 semaines de pesées, le Système vérifiera si tes calories sont bien réglées et te proposera un ajustement.</p>`}
+    ${adv ? `<p class="reading ${adv.adj ? "warn" : "good"}">${adv.txt}</p>${adv.adj ? `<button class="btn" data-act="kcalAdj" data-v="${adv.adj}">Appliquer ${adv.adj > 0 ? "+" : "−"}${Math.abs(adv.adj)} kcal par jour</button>` : ""}` : `<p class="muted small">${curPlan().goal === "gain" ? "Après 2 semaines" : "Après 3 semaines"} de pesées, le Système vérifiera si tes calories sont bien réglées et te proposera un ajustement.</p>`}
     ${Number(p.kcalAdj) ? `<p class="muted small">Ajustement en cours : ${p.kcalAdj > 0 ? "+" : "−"}${Math.abs(p.kcalAdj)} kcal par jour.</p>` : ""}
     ${!p.height || !p.age || !p.neck ? `<p class="muted small">Pour un calcul plus juste, indique ta taille, ton âge et ton tour de cou dans les Réglages.</p>` : ""}
     <button class="link" data-act="go" data-v="settings">Modifier dans les Réglages</button></section>`;
@@ -1821,6 +1988,29 @@ function fastWin(off) {
     <p class="sys-line">Fenêtre de repas : ${hm(fp.start)} → ${hm(fp.start + fp.len)}</p>
     ${off === 0 ? `<p class="reading ${st.open ? "good" : ""}" id="fastStatus">${st.txt}</p>` : ""}
     <p class="muted small">Le jeûne n'a rien de magique : ce qui fait perdre le gras, ce sont les calories de la journée, et ce qui garde le muscle, ce sont les protéines. C'est un outil pour manger moins sans y penser. Répartis tes protéines sur 2 ou 3 repas dans la fenêtre, et si tu t'entraînes avant de l'ouvrir, mange un repas riche en protéines juste après la séance.</p></section>`;
+}
+function dishesWin(key) {
+  if (curPlan().id !== "felix") return "";
+  return `<section class="win"><h2 class="win-title">Tes plats, version qui fait maigrir</h2><p class="muted small">Les plats que tu aimes, faits maison et allégés : même plaisir, beaucoup moins de calories. Les versions complètes se gagnent à la Boutique.</p>
+    <ul class="meal-list">${EXTRA_FOODS.filter(f => f.dish).map(f => `<li class="meal-it"><span class="n">${esc(f.n.replace(" (estimation)", ""))}<small>${esc(f.how)} · ${fmt(f.k * f.ug / 100, 0)} kcal · ${fmt(f.p * f.ug / 100, 0)} g de protéines</small></span><button class="btn sm" data-act="dishAdd" data-d="${key}" data-n="${esc(f.n)}">Ajouter</button></li>`).join("")}</ul></section>`;
+}
+function tipsWin() {
+  const g = curPlan().goal;
+  if (g === "fat") return `<section class="win"><details class="fold"><summary>Manger moins sans souffrir</summary><div><ul class="rules">
+    <li>Eau, boissons zéro et fruits entiers plutôt que soda, jus et alcool : les calories liquides ne calent presque pas, c'est le déficit le plus facile.</li>
+    <li>Huile mesurée (1 cuillère à soupe, environ 100 kcal) ; sauce tomate, moutarde, épices plutôt que sauces crémeuses.</li>
+    <li>Poulet, dinde, poisson, bœuf 5 %, œufs, skyr, fromage blanc plutôt que viande grasse et charcuterie : plus de protéines pour moins de calories.</li>
+    <li>En grignotage : skyr, fruits, pop-corn nature, légumes crus plutôt que chips et biscuits.</li>
+    <li>Le matin : œufs, ou skyr avec flocons d'avoine et fruits rouges. Des protéines dès le réveil, moins faim jusqu'à midi.</li>
+    <li>Fast-food : prévois-le dans les calories du jour, ou prends l'option la plus protéinée.</li>
+    <li>L'assiette type : une grosse portion de protéines, la moitié en légumes, une portion de féculents, peu de matière grasse ajoutée.</li></ul></div></details></section>`;
+  if (g === "gain") return `<section class="win"><details class="fold"><summary>Manger plus sans souffrir</summary><div><ul class="rules">
+    <li>Quelqu'un qui « a du mal à prendre » mange presque toujours moins qu'il ne le pense : note tout, au moins les premières semaines.</li>
+    <li>Des calories à boire : lait, smoothie avoine-banane-beurre de cacahuète.</li>
+    <li>4 repas plutôt que 3, et un repas riche en glucides avant et après la séance.</li>
+    <li>Si la balance ne monte pas, ce sont surtout les glucides qu'on augmente.</li>
+    <li>Créatine : 3 à 5 g par jour, tous les jours.</li></ul></div></details></section>`;
+  return "";
 }
 function viewMeals(P) {
   loadFoods();
@@ -1850,7 +2040,9 @@ function viewMeals(P) {
     ${fastWin(off)}
     ${ticketsWin}
     ${mealSlots(items).map(slotWin).join("")}
-    ${planWin()}`;
+    ${dishesWin(key)}
+    ${planWin()}
+    ${tipsWin()}`;
 }
 function modalFood(m) {
   const head = `<h2 class="win-title">Ajouter · ${SLOTS.find(x => x.k === m.slot)?.label || ""}</h2>`;
@@ -1896,7 +2088,7 @@ function useTicket(pid, date, slot) {
 /* ----- settings ----- */
 function viewSettings(P) {
   if (!state.setDraft) { const p = S.profile || {}, t = p.targets || {}, sv = v => v != null && v !== "" ? fmtIn(Number(v)) : "";
-    state.setDraft = {name: p.name || "", weight: sv(p.weight), oldBench: sv(p.oldBench), height: sv(p.height), age: sv(p.age), neck: sv(p.neck), bf: sv(p.bf), activity: String(p.activity || 1.5),
+    state.setDraft = {name: p.name || "", program: planOf(p), weight: sv(p.weight), oldBench: sv(p.oldBench), height: sv(p.height), age: sv(p.age), neck: sv(p.neck), bf: sv(p.bf), activity: String(p.activity || 1.5),
       freeDay: String(p.freeDay == null ? 5 : p.freeDay), freeComp: p.freeComp !== false, studyMin: String(t.studyMin ?? 60), steps: String(t.steps ?? 8000), sleep: fmtIn(t.sleep ?? 7), water: fmtIn(t.water ?? 2),
       kcalManual: sv(p.kcalManual), proteinManual: sv(p.proteinManual), fastH: String(p.fastH || ""), fastStart: p.fastStart || "12:00", legMaint: p.legMaint !== false, sound: p.sound !== false, title: p.title || "",
       breakfast: eatsBreakfast(p), qSteps: questOn(p, "steps"), qWater: questOn(p, "water"), qStudy: questOn(p, "study")}; }
@@ -1907,6 +2099,7 @@ function viewSettings(P) {
   return topbar() + `<section class="win"><h2 class="win-title">Réglages</h2>
       <div class="field"><label for="set-title">Titre affiché</label><select id="set-title" data-bind="set" data-f="title"><option value="">${esc(baseTitle())}</option>${owned.map(a => `<option value="${a.id}" ${s.title === a.id ? "selected" : ""}>${esc(a.name)}</option>`).join("")}</select><small>Les titres se gagnent dans le Journal.</small></div>
       <div class="field"><label for="set-name">Prénom ou pseudo</label><input id="set-name" data-bind="set" data-f="name" autocomplete="nickname" value="${esc(s.name)}"></div>
+      <div class="field"><label for="set-program">Programme</label><select id="set-program" data-bind="set" data-f="program">${Object.values(PLANS).map(x => `<option value="${x.id}" ${x.id === s.program ? "selected" : ""}>${esc(x.label)}</option>`).join("")}</select></div>
       <span class="lbl">Ton corps</span>
       <div class="grid2">${f("weight", "Poids de départ (kg)")}${f("height", "Taille (cm)", "numeric")}</div>
       <div class="grid2">${f("age", "Âge", "numeric")}${f("neck", "Tour de cou (cm)")}</div>
@@ -1935,12 +2128,41 @@ function viewSettings(P) {
 
 /* ----- onboarding ----- */
 function startOnboarding() {
-  state.ob = {step: 0, name: state.pendingName || (Cloud && Cloud.signedIn() && !Cloud.email().includes("@") ? Cloud.email() : ""), weight: "", height: "", age: "", oldBench: "", waist: "", neck: "", activity: "1.5", freeDay: "5", studyMin: "60", steps: "8000", sleep: "7", water: "2", fastH: "", fastStart: "12:00", breakfast: "1", qSteps: true, qWater: true, qStudy: false};
+  state.ob = {step: 0, program: "", name: state.pendingName || (Cloud && Cloud.signedIn() && !Cloud.email().includes("@") ? Cloud.email() : ""), weight: "", height: "", age: "", oldBench: "", waist: "", neck: "", activity: "1.5", freeDay: "5", studyMin: "60", steps: "8000", sleep: "7", water: "2", fastH: "", fastStart: "12:00", breakfast: "1", qSteps: true, qWater: true, qStudy: false};
   state.rw = {items: SUGGESTED.map((r, i) => ({...r, id: "r" + i, keep: false})), rank: {...RANK_DEFAULT}, newName: "", newCost: "", newTier: "petite"};
+}
+const obPlanId = o => PLANS[o.program] ? o.program : (detectPlan(o.name, cloudName()) || (CLOUD ? "mathis" : "base"));   // 3 players: Gauthier, Félix, and by elimination Mathis
+const FELIX_REWARDS = [
+  {tier: "moyenne", name: "Pâtes au saumon version resto, avec plein d'emmental", cost: 600, food: true},
+  {tier: "moyenne", name: "Un burger bien chargé avec des frites", cost: 700, food: true},
+  {tier: "moyenne", name: "Une raclette ou une tartiflette", cost: 900, food: true},
+  {tier: "grosse", name: "Un repas plaisir sans limite : ce que tu veux", cost: 1500, food: true},
+];
+function obAdvance(o) {
+  const pid = obPlanId(o);
+  if (o.step === 1 && pid === "felix" && o.steps === "8000") o.steps = "10000";
+  if (o.step === 2 && pid === "felix" && !state.rw.items.some(i => i.felix)) state.rw.items = [...FELIX_REWARDS.map((r, i) => ({...r, id: "fx" + i, keep: true, felix: true})), ...state.rw.items];
+}
+function seedPlan(force) {                    // once per load: remember a recognised program, give Félix his dishes
+  if ((state.seeded && !force) || !S.profile) return; state.seeded = true;
+  const p = S.profile, det = detectPlan(p.name, cloudName());
+  let next = !PLANS[p.program] && det ? {...clone(p), program: det} : null;
+  if ((next || p).program === "felix" && !(p.seeded || {}).felixDishes) {
+    const items = (S.rewards?.items || []).slice(), have = new Set(items.map(i => i.name));
+    const add = FELIX_REWARDS.filter(r => !have.has(r.name)).map((r, i) => ({...r, id: "fx" + i}));
+    if (add.length) { S.rewards = {rank: {...RANK_DEFAULT}, ...(S.rewards || {}), items: [...items, ...add]}; queueSet("game/rewards", S.rewards); }
+    next = {...(next || clone(p)), seeded: {...(p.seeded || {}), felixDishes: true}};
+  }
+  if (next) { S.profile = next; queueSet("game/profile", next); }
+}
+function programPickWin() {
+  if (!S.profile || PLANS[S.profile.program] || detectPlan(S.profile.name, cloudName())) return "";
+  return `<section class="win"><h2 class="win-title">Ton programme</h2><p class="sys-line">[Le Système doit savoir qui tu es.]</p><p class="small">Choisis ton programme : tes séances et tes calories en dépendent.</p>
+    ${Object.values(PLANS).map(x => `<button class="btn wide" data-act="pickPlan" data-p="${x.id}">${esc(x.label)}</button>`).join("")}</section>`;
 }
 function obProfile() {
   const o = state.ob, n = v => parseNum(v);
-  return {name: String(o.name || "").trim().slice(0, 24) || null, weight: n(o.weight) > 0 ? r1(n(o.weight)) : null, height: n(o.height) > 0 ? Math.round(n(o.height)) : null, age: n(o.age) > 0 ? Math.round(n(o.age)) : null,
+  return {name: String(o.name || "").trim().slice(0, 24) || null, program: obPlanId(o), weight: n(o.weight) > 0 ? r1(n(o.weight)) : null, height: n(o.height) > 0 ? Math.round(n(o.height)) : null, age: n(o.age) > 0 ? Math.round(n(o.age)) : null,
     waist: n(o.waist) > 0 ? r1(n(o.waist)) : null, neck: n(o.neck) > 0 ? r1(n(o.neck)) : null, sex: "m", activity: Number(o.activity) || 1.5,
     freeDay: Number(o.freeDay), freeComp: true, fastH: Number(o.fastH) || null, fastStart: /^\d{2}:\d{2}$/.test(o.fastStart || "") ? o.fastStart : "12:00", targets: {steps: Math.round(n(o.steps) || 8000), sleep: n(o.sleep) || 7, water: n(o.water) || 2, studyMin: Math.round(n(o.studyMin) || 60)},
     breakfast: o.breakfast !== "0", quests: {steps: !!o.qSteps, water: !!o.qWater, study: !!o.qStudy}};
@@ -1951,11 +2173,16 @@ function planCard(p, w) {
   return `<div class="plan">
     <div class="res-grid"><div class="res-cell"><b>${fmt(pl.kcal, 0)}</b><span>kcal / jour</span></div><div class="res-cell"><b>${pl.protein} g</b><span>Protéines</span></div><div class="res-cell"><b>${pl.fat} g · ${pl.carbs} g</b><span>Lipides · glucides</span></div></div>
     <ul class="rules small">
-      <li>Maintenance estimée : <b>${fmt(pl.tdee, 0)} kcal</b>${pl.precise ? ` (formule de Mifflin-St Jeor × activité ${fmt(pl.act, 2)})` : " (estimation grossière : indique ta taille et ton âge)"}.</li>
+      <li>Maintenance estimée : <b>${fmt(pl.tdee, 0)} kcal par jour</b>${pl.precise ? ` (formule de Mifflin-St Jeor × activité ${fmt(pl.act, 2)})` : " (estimation grossière : indique ta taille et ton âge)"}.</li>
       <li>Taux de gras : ${pl.bf != null ? `<b>${fmt(pl.bf, 1)} %</b>, ${pl.bfHow}` : "inconnu (le calcul suppose 22 % ; mesure ton tour de taille et ton tour de cou pour l'estimer)"}.</li>
-      <li>Méthode Jeff Nippard pour prendre du muscle en perdant du gras : manger 10 à 20 % sous la maintenance quand on a du gras à perdre, plus il y en a, plus le déficit est grand. Pour toi : <b>−${Math.round(pl.deficit * 100)} %</b>.</li>
-      <li>Protéines : 1,2 à 1,6 g par livre de masse maigre selon le taux de gras. Pour toi : ${fmt(pl.gPerLb, 1)} g × ${fmt(pl.lbm * 2.2046, 0)} lb de masse maigre = <b>${pl.protein} g</b>.</li>
+      ${pl.goal === "gain" ? `<li>Méthode Jeff Nippard pour ceux qui ont du mal à grossir : un petit surplus contrôlé, 5 à 10 % au-dessus de la maintenance. Pour toi : <b>+${Math.round(pl.surplus * 100)} %</b>. Prise de poids visée : 1 à 2 % de ton poids par mois, soit ${fmt(w * 0.01, 1)} à ${fmt(w * 0.02, 1)} kg.</li>
+      <li>Protéines : 1,6 à 2,2 g par kg de poids de corps. Pour toi : 2 g × ${fmt(w, 0)} kg = <b>${pl.protein} g</b>.</li>`
+      : pl.goal === "fat" ? `<li>Méthode Jeff Nippard pour perdre du gras en gardant (et en construisant) du muscle : 10 à 20 % sous la maintenance, plus il y a de gras à perdre, plus on se rapproche de 20 %. Pour toi : <b>−${Math.round(pl.deficit * 100)} %</b>. Rythme visé : environ ${fmt(w * 0.005, 1)} à ${fmt(w * 0.01, 1)} kg par semaine. La première semaine, la balance peut chuter d'un coup : c'est surtout de l'eau.</li>
+      <li>Protéines : 1,2 à 1,6 g par livre de masse maigre selon le taux de gras. Pour toi : ${fmt(pl.gPerLb, 1)} g × ${fmt(pl.lbm * 2.2046, 0)} lb de masse maigre = <b>${pl.protein} g</b>, soit 40-45 g à chacun de tes 4 repas.</li>`
+      : `<li>Méthode Jeff Nippard pour prendre du muscle en perdant du gras : manger 10 à 20 % sous la maintenance quand on a du gras à perdre, plus il y en a, plus le déficit est grand. Pour toi : <b>−${Math.round(pl.deficit * 100)} %</b>.</li>
+      <li>Protéines : 1,2 à 1,6 g par livre de masse maigre selon le taux de gras. Pour toi : ${fmt(pl.gPerLb, 1)} g × ${fmt(pl.lbm * 2.2046, 0)} lb de masse maigre = <b>${pl.protein} g</b>.</li>`}
       <li>Lipides : au moins 20 % des calories (ici 25 %), le reste en glucides.</li>
+      ${pl.goal === "gain" ? `<li>Pour manger plus sans souffrir : des calories à boire (lait, smoothie avoine-banane-beurre de cacahuète), 4 repas plutôt que 3, un repas riche en glucides avant et après la séance. La créatine (3 à 5 g par jour) aide aussi à prendre du poids et de la force.</li>` : ""}
       ${pl.freeOn ? `<li>Jour libre le ${DAYNAMES[fd]} : le Système compte environ ${fmt(FREE_EXTRA, 0)} kcal de plus ce jour-là et retire ${Math.round(FREE_EXTRA / 6)} kcal aux autres jours, pour que ta semaine reste dans la cible.</li>` : ""}
     </ul></div>`;
 }
@@ -1963,7 +2190,7 @@ function viewOnboarding() {
   const o = state.ob; const steps = `<div class="ob-steps" aria-hidden="true">${[0, 1, 2, 3].map(i => `<i class="${i <= o.step ? "on" : ""}"></i>`).join("")}</div>`;
   if (o.step === 0) return `<div class="ob">${steps}<section class="win"><h2 class="win-title">Notification</h2>
       <p class="ob-big">[Vous avez rempli les conditions secrètes pour devenir un Joueur.]</p>
-      <p>${esc(nameIntro(o.name)?.intro || "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat")} : chaque séance devient un donjon, chaque jour une quête, et l'or que tu gagnes s'échange contre de vraies récompenses.</p>
+      <p>${esc(PLANS[obPlanId(o)].intro)} : chaque séance devient un donjon, chaque jour une quête, et l'or que tu gagnes s'échange contre de vraies récompenses.</p>
       <p class="sys-line">[Acceptez-vous ?]</p>
       <button class="btn primary big" data-act="obNext">Accepter</button><p class="muted small">Refuser n'est pas prévu par le Système.</p>
       ${saveBadge()}</section></div>`;
@@ -1971,6 +2198,7 @@ function viewOnboarding() {
   if (o.step === 1) return `<div class="ob">${steps}<section class="win"><h2 class="win-title">Évaluation du Joueur</h2>
       <p class="muted small">Sert à calculer tes calories (méthode Jeff Nippard) et la charge de ta première séance. Tout se change plus tard dans les Réglages.</p>
       <div class="field"><label for="ob-name">Ton prénom ou pseudo</label><input id="ob-name" data-bind="ob" data-f="name" autocomplete="nickname" placeholder="Ex. Alex" value="${esc(o.name)}"></div>
+      <div class="field"><label for="ob-program">Ton programme</label><select id="ob-program" data-bind="ob" data-f="program">${Object.values(PLANS).map(x => `<option value="${x.id}" ${x.id === obPlanId(o) ? "selected" : ""}>${esc(x.label)}</option>`).join("")}</select><small>Le Système l'a deviné d'après ton prénom. Change-le si besoin.</small></div>
       <div class="grid2">${f("weight", "Poids (kg)", "Ex. 85")}${f("height", "Taille (cm)", "Ex. 180", "numeric")}</div>
       <div class="grid2">${f("age", "Âge", "Ex. 23", "numeric")}${f("oldBench", "Max au développé couché (kg)", "Si tu le connais")}</div>
       <div class="grid2">${f("waist", "Tour de taille (cm)", "Au nombril")}${f("neck", "Tour de cou (cm)", "Sous la pomme d'Adam")}</div>
@@ -1981,7 +2209,7 @@ function viewOnboarding() {
     const p = obProfile();
     const tg = (k, label, desc) => `<button class="q ${o[k] ? "on" : ""}" data-act="obToggle" data-k="${k}" role="checkbox" aria-checked="${!!o[k]}"><span class="box" aria-hidden="true"></span><span class="q-l">${label}<br><small class="muted" style="font-weight:400">${desc}</small></span><span class="q-t">${o[k] ? "[Oui]" : "[Non]"}</span></button>`;
     return `<div class="ob">${steps}<section class="win"><h2 class="win-title">Objectifs</h2>
-      <p class="sys-line">[Ton plan : prendre du muscle en perdant du gras]</p>
+      <p class="sys-line">[${{fat: "Ton plan : perdre du poids en gardant ton muscle", gain: "Ton plan : prendre du muscle"}[PLANS[p.program].goal] || "Ton plan : prendre du muscle en perdant du gras"}]</p>
       ${planCard({...p, waist: p.waist}, p.weight || 75)}
       <div class="field"><label for="ob-freeDay">Jour libre (grosse bouffe, sorties)</label><select id="ob-freeDay" data-bind="ob" data-f="freeDay"><option value="-1" ${o.freeDay === "-1" ? "selected" : ""}>Aucun</option>${DAYNAMES.map((d, i) => `<option value="${i}" ${String(i) === String(o.freeDay) ? "selected" : ""}>${d.charAt(0).toUpperCase() + d.slice(1)}</option>`).join("")}</select><small>Ce jour-là, pas besoin de noter tes repas, aucune pénalité.</small></div>
       <div class="grid2"><div class="field"><label for="ob-fastH">Jeûne intermittent</label><select id="ob-fastH" data-bind="ob" data-f="fastH">${FASTS.map(x => `<option value="${x.v}" ${String(o.fastH) === x.v ? "selected" : ""}>${x.label}</option>`).join("")}</select></div>
@@ -2026,7 +2254,7 @@ function modalPreview(m) {
   else if (cw < weekOfStr(today())) action = `<p class="muted small">Ce portail s'est refermé.</p>`;
   else action = `<p class="muted small">Ce portail s'ouvrira le lundi ${fmtDay(weekStart(cw), {day: "numeric", month: "long"})}.</p>`;
   const when = p.bonus ? "Bonus de grosse semaine (Jambes le mercredi, Haut le vendredi)" : p.date ? "Prévu " + fmtDay(fromStr(p.date), {weekday: "long", day: "numeric", month: "long"}) : "";
-  return `<div class="win"><h2 class="win-title">${esc(TYPES[ty].gate)}</h2><p class="sys-line">${info.deload ? "Semaine allégée" : "S" + info.p} · ${ty === "FB" ? "" : "Séance " + ty + " · "}${TYPES[ty].name} · rang ${info.W.rank}</p>
+  return `<div class="win"><h2 class="win-title">${esc(TYPES[ty].gate)}</h2><p class="sys-line">${info.deload ? "Semaine allégée" : "S" + info.p} · ${tyLabel(ty)} · rang ${info.W.rank}</p>
     <p class="muted small">${when} · environ ${estMinutes(plan)} min · échauffement d'abord</p>
     <ol class="pv-list">${rows}</ol>${can ? gapWarn(cw, ty, false) : ""}${action}<button class="btn ghost" data-act="closeModal">Fermer</button></div>`;
 }
@@ -2112,12 +2340,12 @@ async function finishDungeon() {
   const full = planned > 0 && doneReq >= planned, valid = planned > 0 && doneReq >= Math.ceil(planned / 2);
   const prs = [];
   for (const [ex, rows] of Object.entries(setsOut)) { const cur = bestE1(ex, rows), pb = prevBest(ex); if (pb > 0 && cur > pb + 0.05) prs.push({ex, e1: r1(cur), prev: r1(pb)}); }
-  const loot = valid ? rollLoot() : null;
-  const xp = done * 10 + (full ? 60 : valid ? 20 : 0) + prs.length * 25;
-  const gold = (full ? 50 : valid ? 20 : 0) + prs.length * 10 + (loot ? loot.gold : 0);
+  const loot = valid ? rollLoot() : null, fin = !!d.fin && !!curPlan().finisher;
+  const xp = done * 10 + (full ? 60 : valid ? 20 : 0) + prs.length * 25 + (fin ? 20 : 0);
+  const gold = (full ? 50 : valid ? 20 : 0) + prs.length * 10 + (loot ? loot.gold : 0) + (fin ? 10 : 0);
   const now = new Date();
   const doc = {key: d.key, cw: d.cw, week: d.week, deload: !!d.deload, bonus: !!d.bonus, type: d.type, date: today(), startedAt: d.startedAt, finishedAt: now.toISOString(), minutes: Math.max(1, Math.round((now - new Date(d.startedAt)) / 60000)),
-    sets: setsOut, planned, done, doneReq, full, valid, xp, gold, prs, loot, feeling: m.feeling || null, note: (m.note || "").slice(0, 500), minus: d.minus, warm: !!d.warm};
+    sets: setsOut, planned, done, doneReq, full, valid, xp, gold, prs, loot, feeling: m.feeling || null, note: (m.note || "").slice(0, 500), minus: d.minus, warm: !!d.warm, finisher: fin};
   const id = d.key + "-" + now.getTime().toString(36);
   try { await Store.db.collection("sessions").doc(id).set(doc); }
   catch (e) { writeError(e); return; }
@@ -2212,9 +2440,9 @@ function nextPortalText() {
 async function finishOnboarding() {
   const o = state.ob, m = state.rw, base = obProfile();
   const dowNow = (fromStr(today()).getDay() + 6) % 7, monday = addDays(fromStr(today()), -dowNow);
-  const startDay = toStr(dowNow <= 2 ? monday : addDays(monday, 7));   // joined Mon-Wed: this week counts; later: next Monday
+  const startDay = toStr(dowNow <= 3 ? monday : addDays(monday, 7));   // joined Mon-Thu: this week counts (Thursday session); later: next Monday
   const profile = {v: 2, startDay, createdAt: new Date().toISOString(), createdDay: today(), foodStart: toStr(addDays(fromStr(today()), 1)), ...base, oldBench: parseNum(o.oldBench) > 0 ? parseNum(o.oldBench) : null,
-    legMaint: true, sound: true, title: null};
+    legMaint: true, sound: true, title: null, seeded: {felixDishes: true}};
   const rewards = rewardsFromEditor(m); if (!rewards) return;
   if (!rewards.items.length) { toast("[Système] Coche au moins une récompense pour remplir ta boutique.", "red"); return; }
   try { await Store.db.doc("game/rewards").set(rewards); await Store.db.doc("game/profile").set(profile); }
@@ -2222,7 +2450,7 @@ async function finishOnboarding() {
   S.rewards = rewards; S.profile = profile; state.view = "status"; state.ob = null;
   if (base.waist) setDay(today(), {waist: base.waist});
   window.scrollTo(0, 0); render();
-  pushFx({kind: "level", eyebrow: "[Contrat signé]", mid: "Vous êtes désormais un Joueur.", sub: (playerIntro() ? "Titre obtenu : " + playerIntro().title + ". " : "") + (nextPortalText() || "Ton programme commence le " + fmtDay(startDate(), {weekday: "long", day: "numeric", month: "long"}) + ".") + " Ta quête quotidienne commence aujourd'hui."});
+  pushFx({kind: "level", eyebrow: "[Contrat signé]", mid: "Vous êtes désormais un Joueur.", sub: (curPlan().id !== "base" ? "Titre obtenu : " + curPlan().title + ". " : "") + (nextPortalText() || "Ton programme commence le " + fmtDay(startDate(), {weekday: "long", day: "numeric", month: "long"}) + ".") + " Ta quête quotidienne commence aujourd'hui."});
 }
 function rewardsFromEditor(m) {
   const items = [];
@@ -2310,6 +2538,11 @@ const ACTIONS = {
   q: a => toggleQuest(a.dataset.k),
   day: a => { state.dayOffset = Number(a.dataset.o); render(); },
   warm: () => { S.draft.warm = !S.draft.warm; saveDraft(); render(); },
+  fin: () => { S.draft.fin = !S.draft.fin; saveDraft(); render(); },
+  pickPlan: a => { if (!PLANS[a.dataset.p]) return; const next = {...clone(S.profile), program: a.dataset.p}; S.profile = next; queueSet("game/profile", next); seedPlan(true); render(); toast(`[Programme] ${esc(PLANS[a.dataset.p].label)}`, "ok"); },
+  dishAdd: a => { const f = EXTRA_FOODS.find(x => x.n === a.dataset.n); if (!f) return; const h = new Date().getHours();
+    const slot = h < 11 && eatsBreakfast(S.profile) ? "matin" : h < 16 ? "midi" : h < 18 ? "snack" : "soir";
+    state.modal = {kind: "food", date: a.dataset.d, slot, tab: "search", q: "", sel: f, grams: String(f.ug || 100), units: "1", mode: f.unit && f.ug ? "u" : "g"}; renderModal(); },
   set: a => toggleSet(a.dataset.ex, Number(a.dataset.i)),
   minus: a => { const ex = a.dataset.ex; S.draft.minus[ex] = (S.draft.minus[ex] || 0) + 1; saveDraft(); render(); },
   unminus: a => { const ex = a.dataset.ex; S.draft.minus[ex] = Math.max(0, (S.draft.minus[ex] || 0) - 1); saveDraft(); render(); },
@@ -2339,7 +2572,7 @@ const ACTIONS = {
       if (!(w >= 30 && w <= 250)) { toast("[Système] Indique ton poids, par exemple 85.", "red"); return; }
       if (o.height.trim() && !(h >= 120 && h <= 230)) { toast("[Système] Taille illisible : en centimètres, par exemple 180.", "red"); return; }
       if (o.age.trim() && !(a >= 12 && a <= 99)) { toast("[Système] Âge illisible.", "red"); return; } }
-    o.step++; window.scrollTo(0, 0); render(); },
+    obAdvance(o); o.step++; window.scrollTo(0, 0); render(); },
   obToggle: a => { state.ob[a.dataset.k] = !state.ob[a.dataset.k]; render(); },
   obBack: () => { state.ob.step = Math.max(0, state.ob.step - 1); window.scrollTo(0, 0); render(); },
   obFinish: () => finishOnboarding(),
@@ -2349,7 +2582,7 @@ const ACTIONS = {
     const pt = p.targets || {}, keep = (v, on, old) => v > 0 ? v : on ? null : old;   // a switched-off quest may keep an empty target
     const steps = keep(Math.round(n(s.steps)), s.qSteps, pt.steps ?? 8000), sleep = n(s.sleep), water = keep(n(s.water), s.qWater, pt.water ?? 2), studyMin = keep(Math.round(n(s.studyMin)), s.qStudy, pt.studyMin ?? 60);
     if (!(steps > 0 && sleep > 0 && water > 0 && studyMin > 0)) { toast("[Système] Un objectif est vide ou illisible.", "red"); return; }
-    const next = {...clone(p), name: String(s.name || "").trim().slice(0, 24) || null, weight: pos(s.weight) && r1(pos(s.weight)), oldBench: pos(s.oldBench), height: pos(s.height) && Math.round(pos(s.height)), age: pos(s.age) && Math.round(pos(s.age)),
+    const next = {...clone(p), name: String(s.name || "").trim().slice(0, 24) || null, program: PLANS[s.program] ? s.program : planOf(p), weight: pos(s.weight) && r1(pos(s.weight)), oldBench: pos(s.oldBench), height: pos(s.height) && Math.round(pos(s.height)), age: pos(s.age) && Math.round(pos(s.age)),
       neck: pos(s.neck) && r1(pos(s.neck)), bf: pos(s.bf), activity: Number(s.activity) || 1.5, freeDay: Number(s.freeDay), freeComp: !!s.freeComp,
       kcalManual: pos(s.kcalManual) && Math.round(pos(s.kcalManual)), proteinManual: pos(s.proteinManual) && Math.round(pos(s.proteinManual)),
       fastH: Number(s.fastH) || null, fastStart: /^\d{2}:\d{2}$/.test(s.fastStart || "") ? s.fastStart : "12:00",
