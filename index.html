@@ -4,13 +4,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="G. Leveling">
+<meta name="apple-mobile-web-app-title" content="Muscu Leveling">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}[hidden]{display:none!important}</style>
 <script>window.GL_CLOUD = {"url": "https://dggtdutqcxakvbakezgq.supabase.co", "key": "sb_publishable_sE26taI8YshVMQxx97ui8Q_uZgirnY4"};</script>
-</head><body><title>Gauthier Leveling</title>
+</head><body><title>Muscu Leveling</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -878,7 +878,7 @@ async function flushQueue(path) {
 }
 function writeError(e) {
   const code = e && e.code;
-  if (Store.mode === "server") toast("[Système] Le PC n'a pas pu enregistrer. Relance Gauthier Leveling depuis le raccourci du bureau.", "red");
+  if (Store.mode === "server") toast("[Système] Le PC n'a pas pu enregistrer. Relance Muscu Leveling depuis le raccourci du bureau.", "red");
   else if (code === "invalid_argument") toast("[Système] Écriture refusée : cette page est en lecture seule pour toi.", "red");
   else if (code === "quota_exceeded") toast("[Système] Stockage plein. Préviens Claude pour faire de la place.", "red");
   else toast("[Système] Sauvegarde impossible pour l'instant. Réessaie dans un moment.", "red");
@@ -1182,7 +1182,7 @@ function viewLogin() {
   const l = state.login || (state.login = {email: "", password: "", busy: false, err: ""});
   return `<div class="ob"><section class="win"><h2 class="win-title">Connexion au Système</h2>
     <p class="sys-line">[Identifie-toi, Joueur.]</p>
-    <p class="muted small">Ton compte Gauthier Leveling (celui créé dans ton projet Supabase). Une seule connexion par appareil : ensuite l'appli se souvient de toi.</p>
+    <p class="muted small">Ton compte Muscu Leveling (celui créé dans ton projet Supabase). Une seule connexion par appareil : ensuite l'appli se souvient de toi.</p>
     <div class="field"><label for="lg-email">E-mail</label><input id="lg-email" data-bind="login" data-f="email" type="email" autocomplete="username" value="${esc(l.email)}"></div>
     <div class="field"><label for="lg-pass">Mot de passe</label><input id="lg-pass" data-bind="login" data-f="password" type="password" autocomplete="current-password" value=""></div>
     ${l.err ? `<p class="malus">${esc(l.err)}</p>` : ""}
@@ -1602,7 +1602,7 @@ function viewBody(P) {
     ${photosWin()}`;
 }
 function photosWin() {
-  if (Store.mode !== "server" && Store.mode !== "cloud") return `<section class="win"><h2 class="win-title">Photos</h2><p class="muted small">Les photos se gardent sur ton PC ou dans ton espace synchronisé : ouvre Gauthier Leveling depuis le raccourci du bureau ou l'appli de ton téléphone pour les ajouter.</p></section>`;
+  if (Store.mode !== "server" && Store.mode !== "cloud") return `<section class="win"><h2 class="win-title">Photos</h2><p class="muted small">Les photos se gardent sur ton PC ou dans ton espace synchronisé : ouvre Muscu Leveling depuis le raccourci du bureau ou l'appli de ton téléphone pour les ajouter.</p></section>`;
   const t = today(), date = state.phDate || t, cur = S.photos[date] || {}, ds = photoDates();
   const last = ds[ds.length - 1], since = last ? dayDiff(fromStr(last), fromStr(t)) : null;
   const due = since == null ? "Aucune photo pour l'instant : fais les premières avant ta séance de reprise, elles serviront de point de départ." : since >= 14 ? `Dernières photos il y a ${plural(since, "jour")} : c'est le moment d'en refaire.` : `Dernières photos il y a ${plural(since, "jour")}. Prochaines dans ${plural(14 - since, "jour")}.`;
@@ -1683,7 +1683,7 @@ async function uploadPhoto(file, pose) {
 }
 async function importBackup(file) {
   let data; try { data = JSON.parse(await file.text()); } catch (e) { toast("[Système] Fichier illisible : choisis un fichier progression.json.", "red"); return; }
-  if (!data || typeof data !== "object" || !data["game/profile"]) { toast("[Système] Ce fichier ne contient pas de progression Gauthier Leveling.", "red"); return; }
+  if (!data || typeof data !== "object" || !data["game/profile"]) { toast("[Système] Ce fichier ne contient pas de progression Muscu Leveling.", "red"); return; }
   confirmModal({title: "Importer", danger: true, body: `Remplacer ta progression actuelle par ce fichier (${plural(Object.keys(data).length, "élément")}) ?`, yes: "Importer", run: async () => {
     const paths = Object.keys(data).filter(p => /^[A-Za-z0-9_\-.~:@+]+(\/[A-Za-z0-9_\-.~:@+]+)+$/.test(p) && p.split("/").length % 2 === 0);
     const cur = Store.db.all ? Object.keys(Store.db.all()) : [];
@@ -1892,7 +1892,7 @@ function viewSettings(P) {
       <p class="small">Télécharge toute ta progression dans un fichier, ou recharge un fichier (par exemple <b>donnees\\progression.json</b> de la version PC) pour tout reprendre ici.</p>
       <div class="row"><button class="btn ghost" data-act="exportData">Télécharger une copie</button><label class="btn ghost" for="importFile">Importer un fichier<input type="file" id="importFile" accept=".json,application/json" hidden></label></div></section>` : ""}
     ${Store.mode === "cloud" ? `<section class="win"><h2 class="win-title">Compte</h2><p class="small">Connecté en tant que <b>${esc(Cloud.email())}</b>. Ta progression se synchronise entre ton téléphone et ton PC.</p><button class="btn ghost" data-act="logout">Se déconnecter de cet appareil</button></section>` : ""}
-    <section class="win"><h2 class="win-title">Sauvegarde</h2><p class="small">${Store.mode === "cloud" ? "Tout est enregistré dans ton espace privé en ligne (ton projet Supabase). Sans réseau à la salle, l'appli garde tes séries et les envoie dès que la connexion revient. Claude peut lire ta progression pour ajuster le programme." : Store.mode === "server" ? "Ta progression est enregistrée sur ton PC, dans le dossier gauthier-leveling\\donnees, avec une copie de sécurité par jour. Claude peut la lire pour ajuster le programme." : Store.mode === "db" ? "Ta progression est sauvegardée en ligne, sur ton compte Claude. Claude peut la lire pour ajuster le programme." : "Ta progression est gardée dans ce navigateur seulement. Lance plutôt Gauthier Leveling depuis le raccourci du bureau : tout est alors enregistré dans un fichier sur ton PC."}</p></section>`;
+    <section class="win"><h2 class="win-title">Sauvegarde</h2><p class="small">${Store.mode === "cloud" ? "Tout est enregistré dans ton espace privé en ligne (ton projet Supabase). Sans réseau à la salle, l'appli garde tes séries et les envoie dès que la connexion revient. Claude peut lire ta progression pour ajuster le programme." : Store.mode === "server" ? "Ta progression est enregistrée sur ton PC, dans le dossier gauthier-leveling\\donnees, avec une copie de sécurité par jour. Claude peut la lire pour ajuster le programme." : Store.mode === "db" ? "Ta progression est sauvegardée en ligne, sur ton compte Claude. Claude peut la lire pour ajuster le programme." : "Ta progression est gardée dans ce navigateur seulement. Lance plutôt Muscu Leveling depuis le raccourci du bureau : tout est alors enregistré dans un fichier sur ton PC."}</p></section>`;
 }
 
 /* ----- onboarding ----- */
@@ -2194,7 +2194,7 @@ const ACTIONS = {
     catch (e) { l.busy = false; l.password = ""; l.err = e.code === "offline" ? "Pas de connexion internet." : e.code === "auth" ? "E-mail ou mot de passe incorrect." : "Le serveur ne répond pas, réessaie dans un instant."; render(); } },
   logout: () => confirmModal({title: "Déconnexion", body: "Te déconnecter de cet appareil ? Ta progression reste en sécurité dans ton espace en ligne.", yes: "Se déconnecter", run: async () => { Cloud.signOut(); location.reload(); }}),
   exportData: () => { const data = Store.db && Store.db.all ? Store.db.all() : null; if (!data) { toast("[Système] Export impossible ici.", "red"); return; }
-    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], {type: "application/json"})); a.download = `gauthier-leveling-${today()}.json`; document.body.appendChild(a); a.click(); a.remove(); },
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], {type: "application/json"})); a.download = `muscu-leveling-${today()}.json`; document.body.appendChild(a); a.click(); a.remove(); },
   mealDay: a => { state.mealOffset = Number(a.dataset.o); render(); },
   foodOpen: a => { loadFoods(); state.modal = {kind: "food", date: a.dataset.d, slot: a.dataset.slot, tab: "search", q: "", grams: "100", units: "1"}; renderModal(); setTimeout(() => document.getElementById("food-q")?.focus(), 30); },
   foodTab: a => { Object.assign(state.modal, {tab: a.dataset.t, sel: null}); renderModal(); },
