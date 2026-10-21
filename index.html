@@ -445,6 +445,42 @@ figcaption{font:600 11px var(--font-display);letter-spacing:.08em;color:var(--mu
 .loading{min-height:80vh;display:grid;place-items:center}
 .loading .win{max-width:360px;text-align:center;animation:pulse 2s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.stats2{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:4px}
+.stat2{border:1px solid var(--faint);padding:8px 2px 7px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0}
+.stat2 .stat-k{font:700 12px var(--font-display);color:var(--glow);letter-spacing:.1em}
+.stat2 .stat-v{font:700 21px var(--font-display);font-variant-numeric:tabular-nums;line-height:1.1}
+.stat2 .stat-l{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.st-how{margin-top:2px}
+.stat-gain{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;font:700 16px var(--font-display);color:var(--ok);margin-top:4px}
+.stat-gain b{color:var(--glow);margin-right:5px;letter-spacing:.08em}
+.sleep-pick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
+.sleep-pick button{min-height:44px;border:1px solid var(--line);background:rgba(10,30,70,.45);color:var(--text);font:600 15px var(--font-display);font-variant-numeric:tabular-nums;cursor:pointer}
+.sleep-pick button.on{background:rgba(60,140,255,.35);border-color:var(--glow);color:#fff}
+.ring-row{display:grid;grid-template-columns:132px minmax(0,1fr);gap:16px;align-items:center;margin:4px 0}
+.ring{width:132px;height:132px;display:block}
+.ring-bg{fill:none;stroke:rgba(40,80,150,.35);stroke-width:11}
+.ring-fg{fill:none;stroke:var(--blue);stroke-width:11;stroke-linecap:round}
+.ring.ok .ring-fg{stroke:var(--ok)}
+.ring.over .ring-fg{stroke:var(--orange)}
+.ring-n{font:700 27px var(--font-display);fill:var(--text)}
+.ring-l{font:600 8.5px var(--font-display);letter-spacing:.06em;text-transform:uppercase;fill:var(--muted)}
+.ring-side{display:grid;gap:12px;min-width:0}
+.ring-side div{display:flex;flex-direction:column}
+.ring-side b{font:700 24px var(--font-display);font-variant-numeric:tabular-nums}
+.ring-side span{font:600 10px var(--font-display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.macs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.mac-h{display:flex;flex-direction:column;gap:1px;margin-bottom:4px}
+.mac-h span{font:600 10px var(--font-display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.mac-h b{font:600 13px var(--font-display);font-variant-numeric:tabular-nums}
+.mac .kbar{height:8px}
+.slot-rows{list-style:none;margin:2px 0 0;padding:0;display:grid;border-top:1px solid var(--faint)}
+.slot-row{display:grid;grid-template-columns:minmax(0,1fr) auto 44px;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--faint)}
+.slot-n{font-weight:600;min-width:0}
+.slot-n small{display:block;color:var(--muted);font-size:12px;font-weight:400}
+.slot-k{font:600 16px var(--font-display);font-variant-numeric:tabular-nums}
+.slot-row .btn{min-width:44px;min-height:40px;padding:0;font-size:20px;line-height:1}
+.slot-det{display:grid;gap:4px;margin-bottom:12px}
+.slot-det:last-child{margin-bottom:0}
 </style>
 
 <div id="app" class="wrap"></div>
@@ -1202,7 +1238,7 @@ function compute() {
   let L = 1, rem = xp; while (rem >= reqXp(L)) { rem -= reqXp(L); L++; }
   return {
     xp, level: L, into: rem, need: reqXp(L), rank: rankOf(L, bilanDone), gold: gold - spent, earned: gold, spent, streak, bestStreak,
-    stats: {FOR: 10 + prCount, VIT: 10 + st.sleep, AGI: 10 + st.steps, INT: 10 + st.study, PER: 10 + st.food}, malusXp,
+    stats: {FOR: 10 + validSessions + prCount, VIT: 10 + validSessions + st.sleep, AGI: 10 + validSessions + st.steps, INT: 10 + st.study, PER: 10 + st.food}, malusXp,   // every dungeon: +1 FOR, VIT, AGI
     ach, achIds: new Set(ach.map(a => a.id)), c, penalty: penaltyState(),
   };
 }
@@ -1353,10 +1389,10 @@ function nextRankInfo(P) {
 }
 
 /* ----- status ----- */
-function viewStatus(P) { return topbar() + programPickWin() + penaltyWin(P) + draftWin() + statusWin(P) + portalWin() + questWin() + bodyNudge() + weekWin(); }
+function viewStatus(P) { return topbar() + programPickWin() + penaltyWin(P) + draftWin() + statusWin(P) + sleepWin() + portalWin() + questWin() + bodyNudge() + weekWin(); }
 function statusWin(P) {
   const pct = Math.min(100, Math.round(P.into / P.need * 100)); const s = P.stats;
-  const stat = (k, l, v, cap) => `<div class="stat"><span class="stat-k">${k}</span><span class="stat-l">${l}</span><small>${cap}</small><b class="stat-v">${v}</b></div>`;
+  const stat = (k, l, v) => `<div class="stat2"><span class="stat-k">${k}</span><b class="stat-v">${v}</b><span class="stat-l">${l}</span></div>`;
   return `<section class="win" aria-label="Statut du Joueur"><h2 class="win-title">Statut</h2>
     <div class="st-head"><div class="st-id"><div class="st-name">${esc(S.profile?.name || "Joueur")}</div><div class="st-title">Titre : <b>${esc(currentTitle(P))}</b></div>
       <div class="st-rank">${rankBadge(P.rank)}<span>Chasseur de rang ${P.rank}</span></div></div>
@@ -1364,7 +1400,8 @@ function statusWin(P) {
     <div class="xpbar" role="progressbar" aria-label="Expérience" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
     <div class="xp-line"><span>XP ${fmt(P.into, 0)} / ${fmt(P.need, 0)}</span><span>${nextRankInfo(P)}</span></div>
     <div class="money"><i class="coin"></i><b>${fmt(P.gold, 0)}</b> or <span class="muted">· série de quêtes : ${plural(P.streak, "jour")}</span></div>
-    <div class="stats">${stat("FOR", "Force", s.FOR, "+1 par record battu")}${stat("VIT", "Vitalité", s.VIT, "+1 par nuit assez longue")}${stat("AGI", "Agilité", s.AGI, "+1 par jour d'objectif de pas")}${stat("INT", "Intelligence", s.INT, "+1 par jour de révisions")}${stat("PER", "Perception", s.PER, "+1 par jour de repas notés")}</div>
+    <div class="stats2">${stat("FOR", "Force", s.FOR)}${stat("VIT", "Vitalité", s.VIT)}${stat("AGI", "Agilité", s.AGI)}${stat("INT", "Intell.", s.INT)}${stat("PER", "Percep.", s.PER)}</div>
+    <details class="fold st-how"><summary>Comment montent les stats</summary><div><ul class="rules small"><li>Chaque donjon terminé : +1 en Force, Vitalité et Agilité. Chaque record battu : +1 Force en plus.</li><li>Vitalité : +1 par nuit assez longue. Agilité : +1 par jour d'objectif de pas.</li><li>Intelligence : +1 par jour de révisions. Perception : +1 par jour de repas notés.</li></ul></div></details>
   </section>`;
 }
 function penaltyWin(P) {
@@ -1438,13 +1475,21 @@ function blockDoneWin(cw) {
     <p>Le Système conseille une semaine allégée, puis un nouveau bloc. Demande à Claude de le préparer à partir de ton Journal. Ta quête quotidienne continue.</p>
     ${js && js.canUse ? `<button class="btn" data-act="jokerAsk" data-cw="${cw}">Lancer la semaine allégée de fin de bloc</button>` : ""}</section>`;
 }
+const SLEEP_CHOICES = [4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
+const sleepPicker = (key, cur) => `<div class="sleep-pick">${SLEEP_CHOICES.map(h => `<button class="${cur === h ? "on" : ""}" data-act="sleepPick" data-d="${key}" data-h="${h}">${fmt(h, 1)} h</button>`).join("")}</div>`;
+function sleepWin() {
+  const t = today(), d = S.days[t] || {};
+  if (Number(d.sleepH) > 0 || d.sleep === true) return "";
+  return `<section class="win sleep-win"><h2 class="win-title">Réveil</h2><p class="sys-line">[Combien d'heures as-tu dormi cette nuit ?]</p>${sleepPicker(t, null)}<p class="muted small">Un toucher suffit. Objectif : ${fmt(Number(S.profile?.targets?.sleep) || 7, 1)} h.</p></section>`;
+}
 function questWin() {
   const off = state.dayOffset; const key = toStr(addDays(fromStr(today()), off)); const d = S.days[key] || {}; const e = dayEval(key), I = e.items;
   const box = '<span class="box" aria-hidden="true"></span>';
   const auto = (k, label) => `<li><button class="q ${I[k].done ? "on" : ""} ${I[k].req || I[k].done ? "" : "na"}" data-act="go" data-v="meals">${box}<span class="q-l">${label}</span><span class="q-t">[ ${I[k].txt} ]</span></button></li>`;
   const check = (k, label) => I[k].off ? "" : `<li><button class="q ${I[k].done ? "on" : ""} ${I[k].req || I[k].done ? "" : "na"}" data-act="q" data-k="${k}" role="checkbox" aria-checked="${I[k].done}">${box}<span class="q-l">${label}</span><span class="q-t">${I[k].done ? "[Complété]" : "[ " + I[k].txt + " ]"}</span></button></li>`;
   const sv = state.sleepDraft[key] ?? (Number(d.sleepH) > 0 ? fmtIn(Number(d.sleepH)) : "");
-  const sleepRow = `<li><div class="q qin ${I.sleep.done ? "on" : ""}">${box}<label class="q-l" for="sleepIn">Sommeil <small class="muted">(nuit d'avant)</small></label><span class="q-in"><input id="sleepIn" data-bind="sleep" data-key="${key}" inputmode="decimal" autocomplete="off" placeholder="h" value="${esc(sv)}" aria-label="Heures dormies"><span class="q-t">/ ${fmt(Number(S.profile?.targets?.sleep) || 7, 1)} h</span></span></div></li>`;
+  const sl = Number(d.sleepH) || 0, tgt = Number(S.profile?.targets?.sleep) || 7;
+  const sleepRow = `<li><button class="q ${I.sleep.done ? "on" : ""}" data-act="sleepOpen" data-d="${key}">${box}<span class="q-l">Sommeil <small class="muted">(nuit d'avant)</small></span><span class="q-t">${sl ? `[ ${fmt(sl, 1)} / ${fmt(tgt, 1)} h ]` : "[ Toucher pour noter ]"}</span></button>${state.sleepOpen === key ? sleepPicker(key, sl) : ""}</li>`;
   const wv = state.weighDraft[key] ?? (Number(d.weight) > 0 ? fmtIn(Number(d.weight)) : "");
   return `<section class="win quest ${e.full ? "is-done" : ""}"><h2 class="win-title">Quête quotidienne</h2>
     <p class="sys-line">[Préparation du corps du Joueur]${e.free ? " · Jour libre" : ""}</p>
@@ -1452,7 +1497,8 @@ function questWin() {
     <ul class="qlist">${auto("food", "Repas notés")}${auto("protein", "Protéines")}${sleepRow}${check("steps", "Pas")}${check("water", "Eau")}${check("study", "Révisions")}${I.fast.off ? "" : check("fast", "Jeûne " + fastPlan(S.profile).label + " respecté")}</ul>
     ${e.malus.map(m => `<p class="malus">[Malus] ${m.txt} : −${Math.abs(m.xp)} XP</p>`).join("")}
     <div class="weigh"><label for="weighIn">Pesée du matin, à jeun (3-4 fois par semaine)</label><div class="weigh-in"><input id="weighIn" data-bind="weigh" data-key="${key}" inputmode="decimal" autocomplete="off" placeholder="—" value="${esc(wv)}"><span>kg</span></div></div>
-    ${e.full ? `<p class="done-line">[Quête accomplie] +${e.xp} XP · +${e.gold} or</p>` : `<p class="warn">Tout faire : +${e.maxXp} XP. Une quête incomplète remet ta série à zéro. Moins de ${fmt((Number(S.profile?.targets?.sleep) || 7) - 1, 1)} h de sommeil : −40 XP. Une journée sans repas notés : −25 XP.${off === 0 ? ` Temps restant : <b id="qTimer">--:--:--</b>` : ""}</p>`}
+    ${e.full ? `<p class="done-line">[Quête accomplie] +${e.xp} XP · +${e.gold} or</p>` : `<p class="warn">Tout faire : +${e.maxXp} XP${off === 0 ? ` · temps restant <b id="qTimer">--:--:--</b>` : ""}</p>`}
+    <details class="fold"><summary>Règles de la quête</summary><div><p class="small">Une quête incomplète remet ta série à zéro. Moins de ${fmt((Number(S.profile?.targets?.sleep) || 7) - 1, 1)} h de sommeil : −40 XP. Une journée sans repas notés : −25 XP.</p></div></details>
   </section>`;
 }
 function weekWin() {
@@ -1617,6 +1663,7 @@ function viewResults() {
       <p class="sys-line" style="text-align:center">${sessLabel(d)} · ${sessName(d)}</p>
       <div class="res-grid"><div class="res-cell"><b>${d.doneReq}/${d.planned}</b><span>Séries</span></div><div class="res-cell"><b>${d.minutes}</b><span>Minutes</span></div><div class="res-cell"><b>${(d.prs || []).length}</b><span>Records</span></div></div>
       <div class="gain"><span class="x">+${d.xp} XP</span><span class="g">+${d.gold - (d.loot && !r.opened ? d.loot.gold : 0)} or${d.loot && !r.opened ? " + coffre" : ""}</span></div>
+      ${(() => { const sd = ["FOR", "VIT", "AGI", "INT", "PER"].map(k => [k, r.after.stats[k] - r.before.stats[k]]).filter(x => x[1] > 0); return sd.length ? `<div class="stat-gain">${sd.map(([k, v]) => `<span><b>${k}</b>+${v}</span>`).join("")}</div>` : ""; })()}
       ${r.wb && r.wb.xp > 0 ? `<p class="done-line" style="text-align:center">[${r.wb.big ? "Grosse semaine" : r.wb.perfect ? "Semaine complète" : "Bonus de semaine"}] +${r.wb.xp} XP · +${r.wb.gold} or</p>` : ""}
       ${d.valid ? "" : `<p class="muted small" style="text-align:center">Moins de la moitié des séries : ce donjon ne compte pas pour la semaine.</p>`}
     </section>
@@ -1974,10 +2021,12 @@ function freeToggle(key) {
   return `<button class="link" data-act="freeSet" data-d="${key}" data-v="on">Prendre mon jour libre aujourd'hui${other ? ` (au lieu de ${fmtDay(fromStr(other), {weekday: "long"})})` : ""}</button>`;
 }
 function planWin() {
-  const p = S.profile || {}, w = (avgWeight(today()) ?? Number(p.weight)) || 75, adv = kcalAdvice();
-  return `<section class="win"><h2 class="win-title">Ton plan (méthode Jeff Nippard)</h2>${planCard(p, w)}
+  const p = S.profile || {}, w = (avgWeight(today()) ?? Number(p.weight)) || 75, adv = kcalAdvice(), pl = calcPlan(p, w);
+  return `<section class="win"><h2 class="win-title">Ton objectif par jour</h2>
+    <p class="sys-line">${fmt(pl.kcal, 0)} kcal · ${pl.protein} g de protéines · ${pl.carbs} g de glucides · ${pl.fat} g de lipides</p>
     ${adv ? `<p class="reading ${adv.adj ? "warn" : "good"}">${adv.txt}</p>${adv.adj ? `<button class="btn" data-act="kcalAdj" data-v="${adv.adj}">Appliquer ${adv.adj > 0 ? "+" : "−"}${Math.abs(adv.adj)} kcal par jour</button>` : ""}` : `<p class="muted small">${curPlan().goal === "gain" ? "Après 2 semaines" : "Après 3 semaines"} de pesées, le Système vérifiera si tes calories sont bien réglées et te proposera un ajustement.</p>`}
     ${Number(p.kcalAdj) ? `<p class="muted small">Ajustement en cours : ${p.kcalAdj > 0 ? "+" : "−"}${Math.abs(p.kcalAdj)} kcal par jour.</p>` : ""}
+    <details class="fold"><summary>Comment le Système calcule (méthode Jeff Nippard)</summary><div>${planCard(p, w)}</div></details>
     ${!p.height || !p.age || !p.neck ? `<p class="muted small">Pour un calcul plus juste, indique ta taille, ton âge et ton tour de cou dans les Réglages.</p>` : ""}
     <button class="link" data-act="go" data-v="settings">Modifier dans les Réglages</button></section>`;
 }
@@ -2012,6 +2061,12 @@ function tipsWin() {
     <li>Créatine : 3 à 5 g par jour, tous les jours.</li></ul></div></details></section>`;
   return "";
 }
+function kcalRing(eaten, target, cls) {
+  const R = 52, C = 2 * Math.PI * R, f = target > 0 ? Math.min(1, eaten / target) : 0, left = Math.round(target - eaten);
+  return `<svg class="ring ${cls}" viewBox="0 0 128 128" role="img" aria-label="${fmt(eaten, 0)} kcal mangées sur ${fmt(target, 0)}">
+    <circle cx="64" cy="64" r="${R}" class="ring-bg"/><circle cx="64" cy="64" r="${R}" class="ring-fg" stroke-dasharray="${(C * f).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 64 64)"/>
+    <text x="64" y="64" text-anchor="middle" class="ring-n">${fmt(Math.abs(left), 0)}</text><text x="64" y="82" text-anchor="middle" class="ring-l">${left >= 0 ? "kcal restantes" : "kcal en trop"}</text></svg>`;
+}
 function viewMeals(P) {
   loadFoods();
   const off = state.mealOffset, key = toStr(addDays(fromStr(today()), off)), plan = nutritionPlan(key), m = mealTotals(key), free = isFreeDay(key);
@@ -2022,24 +2077,29 @@ function viewMeals(P) {
     : pct > 1.15 ? `Au-dessus de la cible (+${Math.round((pct - 1) * 100)} %). Pas grave de temps en temps : c'est la moyenne de la semaine qui compte.`
     : pct >= 0.85 ? "Dans la cible. Calories validées pour aujourd'hui."
     : `Encore ${fmt(plan.kcal - m.kcal, 0)} kcal pour atteindre ta cible.`;
-  const slotWin = sl => { const list = items.filter(it => (it.slot || "midi") === sl.k); const kc = list.filter(x => !x.reward).reduce((n, x) => n + (Number(x.kcal) || 0), 0);
-    return `<section class="win"><h2 class="win-title">${sl.label}</h2>
-      ${list.length ? `<ul class="meal-list">${list.map(it => `<li class="meal-it ${it.reward ? "rw" : ""}"><span class="n">${esc(it.name)}<small>${it.reward ? "Récompense · hors compteur" : (it.u ? fmt(it.u, 2) + " × " + esc(it.unit || "") : fmt(it.g, 0) + " g") + " · " + fmt(it.prot, 1) + " g de protéines"}</small></span><span class="k">${it.reward ? "Validé" : fmt(it.kcal, 0) + " kcal"}</span><button class="x" data-act="mealDel" data-d="${key}" data-id="${esc(it.id)}" aria-label="Retirer ${esc(it.name)}">✕</button></li>`).join("")}</ul><p class="muted small">Total : ${fmt(kc, 0)} kcal</p>` : `<p class="muted small">Rien pour l'instant.</p>`}
-      <div class="row"><button class="btn sm" data-act="foodOpen" data-d="${key}" data-slot="${sl.k}">Ajouter</button>${list.filter(x => !x.reward).length >= 2 ? `<button class="btn sm ghost" data-act="tplSaveAsk" data-d="${key}" data-slot="${sl.k}">Garder comme repas type</button>` : ""}</div></section>`; };
+  const slots = mealSlots(items), inSlot = k => items.filter(it => (it.slot || "midi") === k);
+  const slotKcal = k => inSlot(k).filter(x => !x.reward).reduce((n, x) => n + (Number(x.kcal) || 0), 0);
+  const macro = (label, v, t) => `<div class="mac"><div class="mac-h"><span>${label}</span><b>${fmt(v, 0)} / ${fmt(t, 0)} g</b></div><div class="kbar ${t > 0 && v >= t * 0.9 ? "ok" : ""}" aria-hidden="true"><i style="width:${t > 0 ? Math.min(100, v / t * 100) : 0}%"></i></div></div>`;
+  const rows = slots.map(sl => { const n = inSlot(sl.k).length;
+    return `<li class="slot-row"><span class="slot-n">${sl.label}<small>${n ? plural(n, "aliment") : "Rien pour l'instant"}</small></span><b class="slot-k">${fmt(slotKcal(sl.k), 0)} kcal</b><button class="btn sm" data-act="foodOpen" data-d="${key}" data-slot="${sl.k}" aria-label="Ajouter : ${sl.label}">+</button></li>`; }).join("");
+  const detail = slots.filter(sl => inSlot(sl.k).length).map(sl => { const list = inSlot(sl.k);
+    return `<div class="slot-det"><span class="lbl">${sl.label} · ${fmt(slotKcal(sl.k), 0)} kcal</span><ul class="meal-list">${list.map(it => `<li class="meal-it ${it.reward ? "rw" : ""}"><span class="n">${esc(it.name)}<small>${it.reward ? "Récompense · hors compteur" : (it.u ? fmt(it.u, 2) + " × " + esc(it.unit || "") : fmt(it.g, 0) + " g") + " · " + fmt(it.prot, 1) + " g de protéines"}</small></span><span class="k">${it.reward ? "Validé" : fmt(it.kcal, 0) + " kcal"}</span><button class="x" data-act="mealDel" data-d="${key}" data-id="${esc(it.id)}" aria-label="Retirer ${esc(it.name)}">✕</button></li>`).join("")}</ul>
+      ${list.filter(x => !x.reward).length >= 2 ? `<button class="link" data-act="tplSaveAsk" data-d="${key}" data-slot="${sl.k}">Garder comme repas type</button>` : ""}</div>`; }).join("");
   const tickets = S.purchases.filter(p => (p.food || p.kind === "rank") && !p.usedOn);
   const ticketsWin = tickets.length ? `<section class="win"><h2 class="win-title">Tickets repas</h2><p class="muted small">Tes récompenses gagnées à la Boutique. Valide-la le jour où tu la manges : le repas compte comme noté et ses calories ne comptent pas.</p>
       ${tickets.map(t => `<div class="ticket"><span>${esc(t.name)}</span><button class="btn sm gold" data-act="ticketUse" data-pid="${esc(t.id)}" data-d="${key}">Valider</button></div>`).join("")}</section>` : "";
   return topbar() + `<section class="win"><h2 class="win-title">Repas</h2>
       <div class="seg" role="group" aria-label="Jour"><button class="${off === -1 ? "on" : ""}" data-act="mealDay" data-o="-1">Hier</button><button class="${off === 0 ? "on" : ""}" data-act="mealDay" data-o="0">Aujourd'hui</button></div>
       ${free ? `<p class="sys-line">[Jour libre]</p>` : ""}
-      <div class="res-grid"><div class="res-cell"><b>${fmt(m.kcal, 0)}</b><span>/ ${fmt(plan.kcal, 0)} kcal</span></div><div class="res-cell"><b>${fmt(m.prot, 0)} g</b><span>/ ${plan.protein} g de prot.</span></div><div class="res-cell"><b>${fmt(m.carbs, 0)} · ${fmt(m.fat, 0)}</b><span>Gluc. · lip. (g)</span></div></div>
-      ${free ? "" : `<div class="kbar ${cls}" aria-hidden="true"><i style="width:${Math.min(100, pct / 1.3 * 100)}%"></i><span class="mark" style="left:${(100 / 1.3).toFixed(1)}%"></span></div>`}
+      <div class="ring-row">${kcalRing(m.kcal, plan.kcal, cls)}<div class="ring-side"><div><b>${fmt(m.kcal, 0)}</b><span>kcal mangées</span></div><div><b>${fmt(plan.kcal, 0)}</b><span>kcal à manger par jour</span></div></div></div>
+      <div class="macs">${macro("Protéines", m.prot, plan.protein)}${macro("Glucides", m.carbs, plan.carbs)}${macro("Lipides", m.fat, plan.fat)}</div>
+      <ul class="slot-rows">${rows}</ul>
       <p class="small">${status}</p>
       ${freeToggle(key)}
     </section>
-    ${fastWin(off)}
     ${ticketsWin}
-    ${mealSlots(items).map(slotWin).join("")}
+    ${detail ? `<section class="win"><h2 class="win-title">Ce que tu as mangé</h2>${detail}</section>` : ""}
+    ${fastWin(off)}
     ${dishesWin(key)}
     ${planWin()}
     ${tipsWin()}`;
@@ -2539,6 +2599,8 @@ const ACTIONS = {
   day: a => { state.dayOffset = Number(a.dataset.o); render(); },
   warm: () => { S.draft.warm = !S.draft.warm; saveDraft(); render(); },
   fin: () => { S.draft.fin = !S.draft.fin; saveDraft(); render(); },
+  sleepPick: a => { state.sleepOpen = null; saveSleep(a.dataset.d, a.dataset.h); },
+  sleepOpen: a => { state.sleepOpen = state.sleepOpen === a.dataset.d ? null : a.dataset.d; render(); },
   pickPlan: a => { if (!PLANS[a.dataset.p]) return; const next = {...clone(S.profile), program: a.dataset.p}; S.profile = next; queueSet("game/profile", next); seedPlan(true); render(); toast(`[Programme] ${esc(PLANS[a.dataset.p].label)}`, "ok"); },
   dishAdd: a => { const f = EXTRA_FOODS.find(x => x.n === a.dataset.n); if (!f) return; const h = new Date().getHours();
     const slot = h < 11 && eatsBreakfast(S.profile) ? "matin" : h < 16 ? "midi" : h < 18 ? "snack" : "soir";
