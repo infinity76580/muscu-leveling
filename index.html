@@ -688,6 +688,14 @@ const TIERS = [{k: "petite", name: "Petites récompenses"}, {k: "moyenne", name:
 const RANKS = ["E", "D", "C", "B", "A", "S"];
 const RANK_LEVEL = {E: 1, D: 5, C: 10, B: 17, A: 24, S: 30};
 const DEFAULT_TITLE = "Ancien chasseur";
+// starting titles of named friends (matched on the start of the player name or login pseudo, accents ignored)
+const NAME_INTROS = [
+  {re: /^felix/, title: "Potentiel de malade", intro: "Le Système a détecté un potentiel de malade, encore jamais exploité. C'est rare. Il te propose un contrat"},
+  {re: /^matis+e/, title: "Guerrier assidu", intro: "Le Système a détecté un guerrier assidu, déjà habitué de la salle. Il te propose un contrat"},
+];
+const nameIntro = (...names) => { for (const n of names) { const k = normPseudo(n); const hit = k && NAME_INTROS.find(x => x.re.test(k)); if (hit) return hit; } return null; };
+const playerIntro = () => nameIntro(S.profile?.name, Cloud && Cloud.signedIn() ? Cloud.email() : "");
+const baseTitle = () => playerIntro()?.title || DEFAULT_TITLE;
 const ACH = [
   {id: "revenant", name: "Le Revenant", desc: "Terminer son premier donjon.", xp: 100, gold: 50, test: c => c.validSessions >= 1},
   {id: "premierSang", name: "Premier sang", desc: "Battre un premier record.", xp: 60, gold: 30, test: c => c.prCount >= 1},
@@ -1207,7 +1215,7 @@ function topbar() {
   return `<header class="top"><div class="brand"><span class="brand-mark">SYSTÈME</span>${saveBadge()}</div><div class="top-btns"><button class="icon-btn ${state.view === "journal" ? "on" : ""}" data-act="go" data-v="journal" aria-label="Journal">${ICON.book}</button><button class="icon-btn" data-act="go" data-v="settings" aria-label="Réglages">${ICON.gear}</button></div></header>`;
 }
 const rankBadge = r => `<span class="rank-badge" style="--rc:var(--r-${r})"><span>${r}</span></span>`;
-function currentTitle(P) { const t = S.profile?.title; const a = ACH.find(x => x.id === t); return a && P.achIds.has(a.id) ? a.name : DEFAULT_TITLE; }
+function currentTitle(P) { const t = S.profile?.title; const a = ACH.find(x => x.id === t); return a && P.achIds.has(a.id) ? a.name : baseTitle(); }
 function nextRankInfo(P) {
   if (P.rank === "S") return "Rang maximal";
   if (P.level >= 30) return "Rang S : réussir les épreuves de S8";
@@ -1885,7 +1893,7 @@ function viewSettings(P) {
   const tg = (k, label, desc) => `<button class="q ${s[k] ? "on" : ""}" data-act="setToggle" data-k="${k}" role="checkbox" aria-checked="${s[k]}"><span class="box" aria-hidden="true"></span><span class="q-l">${label}<br><small class="muted" style="font-weight:400">${desc}</small></span><span class="q-t">${s[k] ? "[Oui]" : "[Non]"}</span></button>`;
   const f = (id, label, mode, ph) => `<div class="field"><label for="set-${id}">${label}</label><input id="set-${id}" data-bind="set" data-f="${id}" inputmode="${mode || "decimal"}" placeholder="${ph || ""}" value="${esc(s[id])}"></div>`;
   return topbar() + `<section class="win"><h2 class="win-title">Réglages</h2>
-      <div class="field"><label for="set-title">Titre affiché</label><select id="set-title" data-bind="set" data-f="title"><option value="">${DEFAULT_TITLE}</option>${owned.map(a => `<option value="${a.id}" ${s.title === a.id ? "selected" : ""}>${esc(a.name)}</option>`).join("")}</select><small>Les titres se gagnent dans le Journal.</small></div>
+      <div class="field"><label for="set-title">Titre affiché</label><select id="set-title" data-bind="set" data-f="title"><option value="">${esc(baseTitle())}</option>${owned.map(a => `<option value="${a.id}" ${s.title === a.id ? "selected" : ""}>${esc(a.name)}</option>`).join("")}</select><small>Les titres se gagnent dans le Journal.</small></div>
       <div class="field"><label for="set-name">Prénom ou pseudo</label><input id="set-name" data-bind="set" data-f="name" autocomplete="nickname" value="${esc(s.name)}"></div>
       <span class="lbl">Ton corps</span>
       <div class="grid2">${f("weight", "Poids de départ (kg)")}${f("height", "Taille (cm)", "numeric")}</div>
@@ -1940,7 +1948,7 @@ function viewOnboarding() {
   const o = state.ob; const steps = `<div class="ob-steps" aria-hidden="true">${[0, 1, 2, 3].map(i => `<i class="${i <= o.step ? "on" : ""}"></i>`).join("")}</div>`;
   if (o.step === 0) return `<div class="ob">${steps}<section class="win"><h2 class="win-title">Notification</h2>
       <p class="ob-big">[Vous avez rempli les conditions secrètes pour devenir un Joueur.]</p>
-      <p>Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat : chaque séance devient un donjon, chaque jour une quête, et l'or que tu gagnes s'échange contre de vraies récompenses.</p>
+      <p>${esc(nameIntro(o.name)?.intro || "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat")} : chaque séance devient un donjon, chaque jour une quête, et l'or que tu gagnes s'échange contre de vraies récompenses.</p>
       <p class="sys-line">[Acceptez-vous ?]</p>
       <button class="btn primary big" data-act="obNext">Accepter</button><p class="muted small">Refuser n'est pas prévu par le Système.</p>
       ${saveBadge()}</section></div>`;
@@ -2192,7 +2200,7 @@ async function finishOnboarding() {
   S.rewards = rewards; S.profile = profile; state.view = "status"; state.ob = null;
   if (base.waist) setDay(today(), {waist: base.waist});
   window.scrollTo(0, 0); render();
-  pushFx({kind: "level", eyebrow: "[Contrat signé]", mid: "Vous êtes désormais un Joueur.", sub: (nextPortalText() || "Ton programme commence le " + fmtDay(startDate(), {weekday: "long", day: "numeric", month: "long"}) + ".") + " Ta quête quotidienne commence aujourd'hui."});
+  pushFx({kind: "level", eyebrow: "[Contrat signé]", mid: "Vous êtes désormais un Joueur.", sub: (playerIntro() ? "Titre obtenu : " + playerIntro().title + ". " : "") + (nextPortalText() || "Ton programme commence le " + fmtDay(startDate(), {weekday: "long", day: "numeric", month: "long"}) + ".") + " Ta quête quotidienne commence aujourd'hui."});
 }
 function rewardsFromEditor(m) {
   const items = [];
