@@ -9,7 +9,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}[hidden]{display:none!important}</style>
-<script>window.GL_FILES = {"aliments": "aliments-ca9d28aa6d.json", "marques": "marques-7e6b903f30.json"};</script>
+<script>window.GL_FILES = {"aliments": "aliments-1476f37b0d.json", "marques": "marques-7e6b903f30.json"};</script>
 <script>window.GL_CLOUD = {"url": "https://dggtdutqcxakvbakezgq.supabase.co", "key": "sb_publishable_sE26taI8YshVMQxx97ui8Q_uZgirnY4"};</script>
 </head><body><title>Muscu Leveling</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -482,6 +482,33 @@ figcaption{font:600 11px var(--font-display);letter-spacing:.08em;color:var(--mu
 .slot-row .btn{min-width:44px;min-height:40px;padding:0;font-size:20px;line-height:1}
 .slot-det{display:grid;gap:4px;margin-bottom:12px}
 .slot-det:last-child{margin-bottom:0}
+.food-tabs.seg.seg-wrap button{flex:1 1 30%;padding:8px 4px;font-size:11px;letter-spacing:.05em;min-height:38px}
+.qty-chips{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 4px}
+.qty-chips button{flex:1 1 0;min-width:44px;min-height:40px;border:1px solid var(--line);background:rgba(10,30,70,.45);color:var(--text);font:600 14px var(--font-display);cursor:pointer;padding:0 6px}
+.qty-chips button.on{background:rgba(60,140,255,.35);border-color:var(--glow);color:#fff}
+.food-calc b{color:var(--text);font-size:17px}
+.food-res.mine li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--faint)}
+.food-res.mine li small{display:block;color:var(--muted);font-size:12px}
+.plan-seg{margin:2px 0 8px}
+.plan-days{display:grid;gap:4px}
+.pday{width:100%;display:grid;grid-template-columns:62px minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 10px;border:1px solid rgba(90,170,255,.25);background:rgba(10,30,70,.4);color:var(--text);text-align:left;font:inherit;cursor:pointer}
+.pday.rest{background:transparent;border-style:dashed;border-color:var(--faint);color:var(--muted);cursor:default;padding:5px 10px}
+.pday.today{border-color:var(--glow);box-shadow:0 0 12px rgba(120,200,255,.35)}
+.pday .d{font:600 12px var(--font-display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.pday .s{min-width:0}
+.pday .s b{display:block;font-weight:600}
+.pday .s small{display:block;color:var(--muted);font-size:12px}
+.pday .st{font:600 11px var(--font-display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right}
+.pday.st-done .st{color:var(--ok)}.pday.st-done{border-color:rgba(94,240,184,.5)}
+.pday.st-partial .st,.pday.st-late .st{color:var(--orange)}
+.pday.st-missed .st{color:var(--red-soft)}
+.pday.st-today .st{color:var(--glow)}
+.pday.bonus{margin-top:4px;border-style:dashed;border-color:rgba(245,201,90,.5)}
+.pday.bonus .st{color:var(--gold)}
+.modal .win .m-actions{position:sticky;bottom:-18px;z-index:3;margin:2px -16px -18px;padding:10px 16px 14px;display:flex;flex-wrap:wrap;gap:8px;background:linear-gradient(180deg,rgba(4,12,28,.75),rgba(4,12,28,.98) 30%);border-top:1px solid var(--faint)}
+.modal .win .m-actions>*{flex:1 1 auto;margin:0}
+.modal .win .m-actions .btn.wide{flex-basis:100%}
+.modal .win .m-actions p{flex-basis:100%}
 </style>
 
 <div id="app" class="wrap"></div>
@@ -1474,7 +1501,23 @@ function portalWin() {
     else body = `<div class="rest-day"><b>Semaine nettoyée.</b> Tous les donjons prévus sont faits. Récupère.</div>`;
     if (dow === 2 && legs && !legs.done && !info.deload && info.bonus) body += portalCard(legs, "Option grosse semaine", "Mercredi, c'est repos. Si tu veux une grosse semaine de 5 séances : Jambes aujourd'hui, Haut vendredi.", true);
   }
-  return wrap(body + `<div class="chips">${plan.map(chip).join("")}</div>`);
+  return wrap(body + weekPlanning(cw));
+}
+const PLAN_ST = {done: "Nettoyé", partial: "Partiel", missed: "Raté", today: "Aujourd'hui", late: "En retard", open: "À venir", future: "À venir", skipped: "Pas fait"};
+function weekPlanning(cw0) {
+  const off = state.planOffset || 0, cw = cw0 + off, info = weekInfo(cw), t = today();
+  const seg = `<div class="seg plan-seg" role="group" aria-label="Semaine"><button class="${off ? "" : "on"}" data-act="planWeek" data-o="0">Cette semaine</button><button class="${off ? "on" : ""}" data-act="planWeek" data-o="1">Semaine prochaine</button></div>`;
+  if (!info || !info.types.length) return `<span class="lbl">Planning</span>${seg}<p class="muted small">Pas de séance prévue cette semaine-là.</p>`;
+  const plan = weekPlan(cw), main = plan.filter(p => !p.bonus), bonus = plan.find(p => p.bonus);
+  const rows = [...Array(7)].map((_, i) => {
+    const day = addDays(weekStart(cw), i), key = toStr(day), dl = fmtDay(day, {weekday: "short", day: "numeric"});
+    const ses = main.filter(p => p.date === key), isToday = key === t;
+    if (!ses.length) return `<div class="pday rest ${isToday ? "today" : ""}"><span class="d">${dl}</span><span class="s">Repos</span><span class="st">${isToday ? "Aujourd'hui" : ""}</span></div>`;
+    return ses.map(p => `<button class="pday st-${p.st} ${isToday ? "today" : ""}" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}"><span class="d">${dl}</span><span class="s"><b>${esc(tyLabel(p.ty))}</b><small>${esc(TYPES[p.ty].gate)}${p.done && p.done.date !== key ? " · fait " + fmtDay(fromStr(p.done.date), {weekday: "long"}) : ""}</small></span><span class="st">${PLAN_ST[p.st] || ""}</span></button>`).join("");
+  }).join("");
+  return `<span class="lbl">Planning</span>${seg}<div class="plan-days">${rows}</div>
+    ${bonus ? `<button class="pday bonus st-${bonus.st}" data-act="preview" data-cw="${bonus.cw}" data-ty="${bonus.ty}"><span class="d">Bonus</span><span class="s"><b>${esc(TYPES[bonus.ty].name)}</b><small>Grosse semaine, si tu veux (Jambes le mercredi, Haut le vendredi)</small></span><span class="st">${bonus.done ? "Nettoyé" : "Option"}</span></button>` : ""}
+    <p class="muted small">Touche une séance pour voir ses exercices.</p>`;
 }
 function blockDoneWin(cw) {
   const js = jokerState(cw);
@@ -1982,7 +2025,7 @@ function recentFoods() {
   const seen = new Set(), out = [];
   for (const k of Object.keys(S.meals).sort().reverse()) for (const it of (S.meals[k].items || [])) {
     if (it.reward || it.k100 == null || seen.has(it.name)) continue; seen.add(it.name);
-    out.push({n: it.name, k: it.k100, p: it.p100, c: it.c100, f: it.f100, unit: it.unit, ug: it.ug, src: it.src === "ciqual" ? "ciqual" : it.src || "extra", lastG: it.g, lastU: it.u});
+    out.push({n: it.name, k: it.k100, p: it.p100, c: it.c100, f: it.f100, unit: it.unit, ug: it.ug, unitOnly: !!it.uo, src: it.src === "ciqual" ? "ciqual" : it.src || "extra", lastG: it.g, lastU: it.u});
     if (out.length >= 25) return out;
   }
   return out;
@@ -2002,7 +2045,7 @@ function searchFoods(q) {
 }
 function entryFrom(f, g, u) {
   return {id: uid(), name: f.n, g: r1(g), u: u || null, kcal: Math.round(f.k * g / 100), prot: r1(f.p * g / 100), carbs: r1((f.c || 0) * g / 100), fat: r1((f.f || 0) * g / 100),
-    k100: f.k, p100: f.p, c100: f.c || 0, f100: f.f || 0, unit: f.unit || null, ug: f.ug || null, src: f.src};
+    k100: f.k, p100: f.p, c100: f.c || 0, f100: f.f || 0, unit: f.unit || null, ug: f.ug || null, src: f.src, ...(f.unitOnly ? {uo: 1} : {})};
 }
 function saveMeals(date, items) { const doc = {date, items}; S.meals = {...S.meals, [date]: doc}; queueSet("meals/" + date, doc); }
 function addEntries(date, slot, entries) {
@@ -2125,38 +2168,53 @@ function viewMeals(P) {
     ${tipsWin()}`;
 }
 function modalFood(m) {
-  const head = `<h2 class="win-title">Ajouter · ${SLOTS.find(x => x.k === m.slot)?.label || ""}</h2>`;
+  const slotName = SLOTS.find(x => x.k === m.slot)?.label || "";
+  const auSlot = {matin: "au petit-déjeuner", midi: "au midi", soir: "au soir", snack: "aux collations"}[m.slot] || "";
+  const head = `<h2 class="win-title">Ajouter · ${slotName}</h2>`;
   if (m.sel) {
-    const f = m.sel, hasU = !!(f.unit && f.ug > 0), useU = hasU && m.mode !== "g";
-    const qty = parseNum(useU ? m.units : m.grams), g = (qty || 0) * (useU ? f.ug : 1);
-    return `<div class="win">${head}<p><b>${esc(f.n)}</b><br><small class="muted">Pour 100 g : ${fmt(f.k, 0)} kcal · ${fmt(f.p, 1)} g prot. · ${fmt(f.c || 0, 1)} g gluc. · ${fmt(f.f || 0, 1)} g lip.</small></p>
-      ${hasU ? `<div class="seg" role="group" aria-label="Unité"><button class="${useU ? "on" : ""}" data-act="foodMode" data-m="u">${esc(f.unit)}</button><button class="${useU ? "" : "on"}" data-act="foodMode" data-m="g">Grammes</button></div>` : ""}
-      <div class="field"><label for="food-qty">${useU ? "Combien" : "Quantité (g, ou ml pour une boisson)"}</label><input id="food-qty" data-bind="food" data-f="${useU ? "units" : "grams"}" data-live="1" inputmode="decimal" autocomplete="off" value="${esc(useU ? m.units : m.grams)}"></div>
-      <p class="sys-line">${g > 0 ? `≈ ${fmt(Math.round(f.k * g / 100), 0)} kcal · ${fmt(f.p * g / 100, 1)} g de protéines` : "Indique une quantité."}</p>
-      <div class="row"><button class="btn ghost" data-act="foodBack">Retour</button><button class="btn primary" data-act="foodAdd" ${g > 0 ? "" : "disabled"}>Ajouter</button></div></div>`;
+    const f = m.sel, hasU = !!(f.unit && f.ug > 0), useU = hasU && (f.unitOnly || m.mode !== "g");
+    const qty = parseNum(useU ? m.units : m.grams), g = (qty || 0) * (useU ? f.ug : 1), x = v => v * g / 100;
+    const chips = useU ? [0.5, 1, 2, 3, 4] : [30, 50, 100, 150, 200, 250];
+    return `<div class="win">${head}<p><b>${esc(f.n)}</b><br><small class="muted">${f.unitOnly ? `Pour 1 ${esc(f.unit)}` : "Pour 100 g"} : ${fmt(f.k, 0)} kcal · ${fmt(f.p, 1)} g prot. · ${fmt(f.c || 0, 1)} g gluc. · ${fmt(f.f || 0, 1)} g lip.${hasU && !f.unitOnly ? `<br>1 ${esc(f.unit)} = ${fmt(f.ug, 1)} g` : ""}</small></p>
+      ${hasU && !f.unitOnly ? `<div class="seg" role="group" aria-label="Unité"><button class="${useU ? "on" : ""}" data-act="foodMode" data-m="u">${esc(f.unit)}</button><button class="${useU ? "" : "on"}" data-act="foodMode" data-m="g">Grammes</button></div>` : ""}
+      <div class="field"><label for="food-qty">${useU ? `Combien de « ${esc(f.unit)} »` : "Quantité en grammes (ou ml pour une boisson)"}</label><input id="food-qty" data-bind="food" data-f="${useU ? "units" : "grams"}" data-live="1" inputmode="decimal" autocomplete="off" value="${esc(useU ? m.units : m.grams)}"></div>
+      <div class="qty-chips">${chips.map(v => `<button class="${qty === v ? "on" : ""}" data-act="foodQty" data-v="${v}">${useU ? (v === 0.5 ? "½" : v) : v + " g"}</button>`).join("")}</div>
+      <p class="sys-line food-calc">${g > 0 ? `= <b>${fmt(Math.round(x(f.k)), 0)} kcal</b> · ${fmt(x(f.p), 1)} g prot. · ${fmt(x(f.c || 0), 1)} g gluc. · ${fmt(x(f.f || 0), 1)} g lip.` : "Indique une quantité."}</p>
+      <div class="m-actions"><button class="btn ghost" data-act="foodBack">Retour</button><button class="btn primary" data-act="foodAdd" ${g > 0 ? "" : "disabled"}>Ajouter ${auSlot}</button></div></div>`;
   }
-  const tabs = [["search", "Chercher"], ["recent", "Récents"], ["tpl", "Repas types"], ["quick", "Saisie rapide"], ["custom", "Créer"]].concat(Store.mode === "server" ? [["off", "Marques"]] : Store.mode === "cloud" ? [["code", "Code-barres"]] : []);
-  const list = (arr, empty) => { m.list = arr; return arr.length ? `<ul class="food-res">${arr.map((f, i) => `<li><button data-act="foodPick" data-i="${i}"><span>${esc(f.n)}${f.src === "perso" ? ' <span class="src">perso</span>' : f.src === "extra" ? ' <span class="src">repère</span>' : f.src === "off" ? ' <span class="src">marque</span>' : ""}</span><small>${fmt(f.k, 0)} kcal /100 g${f.unit && f.ug ? `<br>${esc(f.unit)} : ${fmt(f.k * f.ug / 100, 0)} kcal` : ""}</small></button></li>`).join("")}</ul>` : `<p class="muted small">${empty}</p>`; };
+  const tabs = [["search", "Chercher"], ["recent", "Récents"], ["tpl", "Mes repas"], ["quick", "Libre"], ["custom", "Mon aliment"]].concat(Store.mode === "server" ? [["off", "Marques"]] : Store.mode === "cloud" ? [["code", "Code-barres"]] : []);
+  const tag = f => f.src === "perso" ? ' <span class="src">à moi</span>' : f.src === "extra" ? ' <span class="src">repère</span>' : f.src === "off" ? ' <span class="src">marque</span>' : "";
+  const list = (arr, empty) => { m.list = arr; return arr.length ? `<ul class="food-res">${arr.map((f, i) => `<li><button data-act="foodPick" data-i="${i}"><span>${esc(f.n)}${tag(f)}</span><small>${f.unitOnly ? `${fmt(f.k, 0)} kcal / ${esc(f.unit)}` : `${fmt(f.k, 0)} kcal /100 g${f.unit && f.ug ? `<br>${esc(f.unit)} : ${fmt(f.k * f.ug / 100, 0)} kcal` : ""}`}</small></button></li>`).join("")}</ul>` : `<p class="muted small">${empty}</p>`; };
   const inp = (id, label, mode, ph) => `<div class="field"><label for="fm-${id}">${label}</label><input id="fm-${id}" data-bind="food" data-f="${id}" inputmode="${mode || "text"}" autocomplete="off" placeholder="${ph || ""}" value="${esc(m[id] || "")}"></div>`;
+  const yours = q => `<button class="btn ghost wide" data-act="foodCreateFrom">＋ ${q ? `Ajouter « ${esc(q)} » moi-même` : "Ajouter mon propre aliment"}</button>`;
+  const ad = m.added || [], last = ad[ad.length - 1];
+  const added = ad.length ? `<p class="reading good">${ad.length > 1 ? `${ad.length} aliments ajoutés ${auSlot} (${fmt(ad.reduce((n, a) => n + a.kcal, 0), 0)} kcal). Dernier : ` : `Ajouté ${auSlot} : `}${esc(last.n)} (${fmt(last.kcal, 0)} kcal). Ajoute autre chose ou touche « Terminé ».</p>` : "";
   let body = "";
   if (m.tab === "search") body = `<div class="field"><label for="food-q">Aliment</label><input id="food-q" data-bind="foodQ" autocomplete="off" placeholder="Ex. poulet cru, skyr, whey myprotein, Nutella…" value="${esc(m.q || "")}"></div>
-      ${!FOODS ? `<p class="muted small">Chargement de la base d'aliments…</p>` : ""}${m.q ? list(searchFoods(m.q), FOODS ? "Rien trouvé. Essaie un autre mot, la saisie rapide ou « Créer »." : "") : ""}
+      ${!FOODS ? `<p class="muted small">Chargement de la base d'aliments…</p>` : ""}${m.q ? list(searchFoods(m.q), FOODS ? "Rien trouvé avec ces mots." : "") : ""}
       ${FOODS && !BRANDS ? `<p class="muted small">Chargement des produits de marque…</p>` : ""}
-      <p class="muted small">Aliments simples : table Ciqual 2025 de l'Anses. Produits de marque : ${BRANDS && BRANDS.length ? fmt(BRANDS.length, 0) + " produits vendus en France, " : ""}base libre Open Food Facts (licence ODbL), vérifie l'étiquette en cas de doute. Introuvable ? Onglet « Code-barres » ou « Créer ».</p>`;
+      <p class="muted small">Aliments simples : table Ciqual 2025 de l'Anses. Produits de marque : ${BRANDS && BRANDS.length ? fmt(BRANDS.length, 0) + " produits vendus en France, " : ""}base libre Open Food Facts (licence ODbL), vérifie l'étiquette en cas de doute.</p>`;
   else if (m.tab === "recent") body = list(recentFoods(), "Tes aliments déjà notés apparaîtront ici.");
-  else if (m.tab === "tpl") { const tp = S.mealtpl?.items || []; body = tp.length ? `<ul class="food-res">${tp.map(t => `<li><button data-act="tplAdd" data-id="${esc(t.id)}"><span>${esc(t.name)}<br><small>${t.items.length} aliments</small></span><small>${fmt(t.items.reduce((n, x) => n + (x.kcal || 0), 0), 0)} kcal</small></button></li>`).join("")}</ul>${tp.map(t => `<button class="link" data-act="tplDel" data-id="${esc(t.id)}">Supprimer « ${esc(t.name)} »</button>`).join("")}` : `<p class="muted small">Note un repas que tu manges souvent, puis appuie sur « Garder comme repas type » : il s'ajoutera ensuite en un geste.</p>`; }
-  else if (m.tab === "quick") body = `${inp("qName", "Quoi", "text", "Ex. Pizza chez Lolo et Zaza")}<div class="grid2">${inp("qKcal", "Calories", "numeric", "kcal")}${inp("qProt", "Protéines (g)", "decimal", "0")}</div>
-      <p class="muted small">Pour un resto ou un plat que tu connais. Une estimation suffit.</p><button class="btn primary" data-act="foodQuick">Ajouter</button>`;
-  else if (m.tab === "custom") body = `${inp("cName", "Nom", "text", "Ex. Mon wrap poulet")}<p class="muted small">Valeurs pour 100 g (sur l'emballage).</p>
-      <div class="grid2">${inp("cK", "Calories", "numeric")}${inp("cP", "Protéines (g)", "decimal")}</div><div class="grid2">${inp("cC", "Glucides (g)", "decimal")}${inp("cF", "Lipides (g)", "decimal")}</div>
-      <div class="grid2">${inp("cUnit", "Portion (facultatif)", "text", "Ex. wrap")}${inp("cUg", "Poids d'une portion (g)", "decimal")}</div><button class="btn primary" data-act="foodCustom">Enregistrer l'aliment</button>`;
+  else if (m.tab === "tpl") { const tp = S.mealtpl?.items || []; body = tp.length ? `<ul class="food-res">${tp.map(t => `<li><button data-act="tplAdd" data-id="${esc(t.id)}"><span>${esc(t.name)}<br><small>${t.items.length} aliments</small></span><small>${fmt(t.items.reduce((n, x) => n + (x.kcal || 0), 0), 0)} kcal</small></button></li>`).join("")}</ul>${tp.map(t => `<button class="link" data-act="tplDel" data-id="${esc(t.id)}">Supprimer « ${esc(t.name)} »</button>`).join("")}` : `<p class="muted small">Note un repas que tu manges souvent, puis appuie sur « Garder comme repas type » sous ce repas : il s'ajoutera ensuite en un geste.</p>`; }
+  else if (m.tab === "quick") body = `<p class="muted small">N'importe quoi : un resto, un plat de ta mère, un truc introuvable. Une estimation suffit.</p>
+      ${inp("qName", "Quoi", "text", "Ex. Pizza chez Lolo et Zaza")}<div class="grid2">${inp("qKcal", "Calories", "numeric", "kcal")}${inp("qProt", "Protéines (g)", "decimal", "Facultatif")}</div>
+      <button class="q ${m.qKeep ? "on" : ""}" data-act="foodQuickKeep" role="checkbox" aria-checked="${!!m.qKeep}"><span class="box" aria-hidden="true"></span><span class="q-l">Garder dans mes aliments<br><small class="muted" style="font-weight:400">Pour le retrouver en un geste la prochaine fois</small></span><span class="q-t">${m.qKeep ? "[Oui]" : "[Non]"}</span></button>`;
+  else if (m.tab === "custom") { const per = m.cPer === "portion", mine = S.foods?.items || [];
+    body = `${inp("cName", "Nom", "text", "Ex. Pâtes saumon de Félix, shaker whey + lait…")}
+      <div class="seg" role="group" aria-label="Valeurs pour"><button class="${per ? "" : "on"}" data-act="foodPer" data-v="100">Pour 100 g</button><button class="${per ? "on" : ""}" data-act="foodPer" data-v="portion">Pour 1 portion</button></div>
+      <p class="muted small">${per ? "Recopie les valeurs d'une portion (une assiette, un shaker, une part…). Le poids est facultatif." : "Recopie le tableau « pour 100 g » de l'emballage."}</p>
+      <div class="grid2">${inp("cK", "Calories", "numeric", "kcal")}${inp("cP", "Protéines (g)", "decimal", "0")}</div><div class="grid2">${inp("cC", "Glucides (g)", "decimal", "Facultatif")}${inp("cF", "Lipides (g)", "decimal", "Facultatif")}</div>
+      <div class="grid2">${inp("cUnit", per ? "Nom de la portion" : "Portion (facultatif)", "text", per ? "Ex. assiette, shaker" : "Ex. pot, tranche")}${inp("cUg", per ? "Poids de la portion (g, facultatif)" : "Poids d'une portion (g)", "decimal", per ? "Facultatif" : "")}</div>
+      ${mine.length ? `<span class="lbl">Mes aliments</span><ul class="food-res mine">${mine.map(f => `<li><span>${esc(f.n)}<small>${f.unitOnly ? `${fmt(f.k, 0)} kcal / ${esc(f.unit)}` : `${fmt(f.k, 0)} kcal /100 g${f.unit ? ` · ${esc(f.unit)} = ${fmt(f.ug, 1)} g` : ""}`}</small></span><button class="x" data-act="foodDel" data-id="${esc(f.id)}" aria-label="Supprimer ${esc(f.n)}">✕</button></li>`).join("")}</ul>` : ""}`; }
   else if (m.tab === "code") body = `<div class="field"><label for="fm-code">Code-barres du produit</label><input id="fm-code" data-bind="food" data-f="code" inputmode="numeric" autocomplete="off" placeholder="Les chiffres sous les barres, ex. 3033490004521" value="${esc(m.code || "")}"></div>
-      <button class="btn" data-act="codeSearch">${m.offBusy ? "Recherche…" : "Trouver le produit"}</button>${m.offErr ? `<p class="malus">${m.offErr}</p>` : ""}${m.offRes ? list(m.offRes, "Produit introuvable.") : ""}
+      <button class="btn" data-act="codeSearch">${m.offBusy ? "Recherche…" : "Trouver le produit"}</button>${m.offErr ? `<p class="malus">${m.offErr}</p>` : ""}${m.offRes ? list(m.offRes, "Produit introuvable dans Open Food Facts.") : ""}
       <p class="muted small">Base libre Open Food Facts, alimentée par ses utilisateurs : vérifie l'étiquette en cas de doute.</p>`;
   else if (m.tab === "off") body = `<div class="field"><label for="fm-offQ">Produit de marque</label><input id="fm-offQ" data-bind="food" data-f="offQ" autocomplete="off" placeholder="Ex. skyr, granola, Monster mango" value="${esc(m.offQ || "")}"></div>
       <button class="btn" data-act="offSearch">${m.offBusy ? "Recherche…" : "Chercher dans Open Food Facts"}</button>${m.offErr ? `<p class="malus">${m.offErr}</p>` : ""}${m.offRes ? list(m.offRes, "Aucun produit trouvé.") : ""}
       <p class="muted small">Base libre de produits du commerce, alimentée par ses utilisateurs : vérifie l'étiquette en cas de doute.</p>`;
-  return `<div class="win">${head}<div class="seg seg-wrap" role="group" aria-label="Façon d'ajouter">${tabs.map(([k, l]) => `<button class="${m.tab === k ? "on" : ""}" data-act="foodTab" data-t="${k}">${l}</button>`).join("")}</div>${body}<button class="btn ghost" data-act="closeModal">Fermer</button></div>`;
+  const main = m.tab === "search" ? (m.q && FOODS ? yours(m.q) : "") : m.tab === "quick" ? `<button class="btn primary" data-act="foodQuick">Ajouter ${auSlot}</button>`
+    : m.tab === "custom" ? `<button class="btn primary" data-act="foodCustom">Enregistrer et ajouter</button>` : m.tab === "code" && m.offRes && !m.offRes.length ? yours("") : "";
+  return `<div class="win">${head}${added}<div class="seg seg-wrap food-tabs" role="group" aria-label="Façon d'ajouter">${tabs.map(([k, l]) => `<button class="${m.tab === k ? "on" : ""}" data-act="foodTab" data-t="${k}">${l}</button>`).join("")}</div>${body}<div class="m-actions">${main}<button class="btn ${m.added && m.added.length ? "primary" : "ghost"}" data-act="closeModal">${m.added && m.added.length ? "Terminé" : "Fermer"}</button></div></div>`;
 }
 function useTicket(pid, date, slot) {
   const p = S.purchases.find(x => x.id === pid); if (!p) return;
@@ -2339,7 +2397,7 @@ function modalPreview(m) {
   const when = p.bonus ? "Bonus de grosse semaine (Jambes le mercredi, Haut le vendredi)" : p.date ? "Prévu " + fmtDay(fromStr(p.date), {weekday: "long", day: "numeric", month: "long"}) : "";
   return `<div class="win"><h2 class="win-title">${esc(TYPES[ty].gate)}</h2><p class="sys-line">${info.deload ? "Semaine allégée" : "S" + info.p} · ${tyLabel(ty)} · rang ${info.W.rank}</p>
     <p class="muted small">${when} · environ ${estMinutes(plan)} min · échauffement d'abord</p>
-    <ol class="pv-list">${rows}</ol>${can ? gapWarn(cw, ty, false) : ""}${action}<button class="btn ghost" data-act="closeModal">Fermer</button></div>`;
+    <ol class="pv-list">${rows}</ol>${can ? gapWarn(cw, ty, false) : ""}<div class="m-actions">${action}<button class="btn ghost" data-act="closeModal">Fermer</button></div></div>`;
 }
 function draftCounts() {
   const d = S.draft, plan = planFor(d.cw, d.type); let planned = 0, doneReq = 0;
@@ -2353,7 +2411,7 @@ function modalFinish(m) {
     ${left > 0 ? `<p class="sys-line">[Il reste ${plural(left, "série")}.]</p><p class="muted small">${valid ? "Tu peux sortir quand même : récompense partielle." : "Moins de la moitié des séries : ce donjon ne comptera pas pour la semaine."}</p>` : `<p class="sys-line">[Toutes les séries sont faites.]</p>`}
     <div class="field"><span class="lbl">Ressenti</span><div class="feel">${FEELINGS.map(f => `<button class="${m.feeling === f ? "on" : ""}" data-act="feel" data-f="${f}">${f}</button>`).join("")}</div></div>
     <div class="field"><label for="fin-note">Note (facultatif)</label><textarea id="fin-note" data-bind="finNote" placeholder="Douleur, machine prise, sensation…">${esc(m.note || "")}</textarea></div>
-    <div class="row"><button class="btn ghost" data-act="closeModal">Continuer le donjon</button><button class="btn primary" data-act="finish">Sortir du donjon</button></div></div>`;
+    <div class="m-actions"><button class="btn ghost" data-act="closeModal">Continuer le donjon</button><button class="btn primary" data-act="finish">Sortir du donjon</button></div></div>`;
 }
 function canEnter(cw, ty) { const info = weekInfo(cw); return !!info && cw === weekOfStr(today()) && (info.types.includes(ty) || info.bonus === ty) && !weekValid(cw)[ty] && !(S.draft && S.draft.active); }
 
@@ -2569,30 +2627,47 @@ const ACTIONS = {
   mealDay: a => { state.mealOffset = Number(a.dataset.o); render(); },
   foodOpen: a => { loadFoods(); state.modal = {kind: "food", date: a.dataset.d, slot: a.dataset.slot, tab: "search", q: "", grams: "100", units: "1"}; renderModal(); setTimeout(() => document.getElementById("food-q")?.focus(), 30); },
   foodTab: a => { Object.assign(state.modal, {tab: a.dataset.t, sel: null}); renderModal(); },
-  foodPick: a => { const m = state.modal, f = m.list && m.list[Number(a.dataset.i)]; if (!f) return; Object.assign(m, {sel: f, grams: String(f.lastG || 100), units: String(f.lastU || 1), mode: f.unit && f.ug ? (f.lastU || !f.lastG ? "u" : "g") : "g"}); renderModal(); setTimeout(() => { const i = document.getElementById("food-qty"); if (i) { i.focus(); i.select(); } }, 30); },
+  foodPick: a => { const m = state.modal, f = m.list && m.list[Number(a.dataset.i)]; if (!f) return; Object.assign(m, {sel: f, grams: String(f.lastG || 100), units: String(f.lastU || 1), mode: f.unit && f.ug ? (f.unitOnly || f.lastU || !f.lastG ? "u" : "g") : "g"}); renderModal(); setTimeout(() => { const i = document.getElementById("food-qty"); if (i) { i.focus(); i.select(); } }, 30); },
   foodMode: a => { state.modal.mode = a.dataset.m; renderModal(); },
+  foodQty: a => { const m = state.modal, f = m.sel, useU = f.unit && f.ug > 0 && (f.unitOnly || m.mode !== "g"); m[useU ? "units" : "grams"] = fmtIn(Number(a.dataset.v)); renderModal(); },
   foodBack: () => { state.modal.sel = null; renderModal(); },
-  foodAdd: () => { const m = state.modal, f = m.sel, useU = f.unit && f.ug > 0 && m.mode !== "g", q = parseNum(useU ? m.units : m.grams); if (!(q > 0)) return;
-    if (useU && q > 20) { toast(`[Système] ${fmt(q, 0)} × « ${esc(f.unit)} » ? Pour une quantité en grammes, touche d'abord « Grammes ».`, "red"); return; }
-    const e = entryFrom(f, useU ? q * f.ug : q, useU ? q : null); addEntries(m.date, m.slot, [e]); state.modal = null; render(); toast(`[Ajouté] ${esc(f.n)} · ${fmt(e.kcal, 0)} kcal`, "ok"); },
+  foodCreateFrom: () => { const m = state.modal; Object.assign(m, {tab: "custom", sel: null, cName: m.q || m.cName || ""}); renderModal(); setTimeout(() => document.getElementById(m.cName ? "fm-cK" : "fm-cName")?.focus(), 30); },
+  foodPer: a => { state.modal.cPer = a.dataset.v; renderModal(); },
+  foodQuickKeep: () => { state.modal.qKeep = !state.modal.qKeep; renderModal(); },
+  foodAdd: () => { const m = state.modal, f = m.sel, useU = f.unit && f.ug > 0 && (f.unitOnly || m.mode !== "g"), q = parseNum(useU ? m.units : m.grams); if (!(q > 0)) return;
+    if (useU && q > 20) { toast(`[Système] ${fmt(q, 0)} × « ${esc(f.unit)} » ? ${f.unitOnly ? "Vérifie la quantité." : "Pour une quantité en grammes, touche d'abord « Grammes »."}`, "red"); return; }
+    if (!useU && q > 3000) { toast("[Système] Plus de 3 kg d'un coup ? Vérifie la quantité.", "red"); return; }
+    const e = entryFrom(f, useU ? q * f.ug : q, useU ? q : null); addEntries(m.date, m.slot, [e]);
+    Object.assign(m, {sel: null, tab: "search", q: "", added: [...(m.added || []), {n: f.n, kcal: e.kcal}]});    // stay: a meal is often several foods
+    render(); setTimeout(() => document.getElementById("food-q")?.focus(), 30); },
   foodQuick: () => { const m = state.modal, name = String(m.qName || "").trim(), k = parseNum(m.qKcal), p = parseNum(m.qProt) || 0;
-    if (!name) { toast("[Système] Écris ce que tu as mangé.", "red"); return; } if (!(k >= 0)) { toast("[Système] Indique les calories (une estimation suffit).", "red"); return; }
-    addEntries(m.date, m.slot, [{id: uid(), name, g: 0, kcal: Math.round(k), prot: r1(p), carbs: 0, fat: 0, src: "quick"}]); state.modal = null; render(); toast(`[Ajouté] ${esc(name)} · ${fmt(k, 0)} kcal`, "ok"); },
-  foodCustom: () => { const m = state.modal, name = String(m.cName || "").trim(), k = parseNum(m.cK);
-    if (!name || !(k >= 0)) { toast("[Système] Il faut au moins un nom et les calories pour 100 g.", "red"); return; }
-    const ug = parseNum(m.cUg), unit = String(m.cUnit || "").trim();
-    const f = {id: "f" + uid(), n: name.slice(0, 80), k: Math.round(k), p: parseNum(m.cP) || 0, c: parseNum(m.cC) || 0, f: parseNum(m.cF) || 0, ...(unit && ug > 0 ? {unit: unit.slice(0, 30), ug} : {})};
+    if (!name) { toast("[Système] Écris ce que tu as mangé.", "red"); return; } if (!(k >= 0 && k <= 5000)) { toast("[Système] Indique les calories (une estimation suffit).", "red"); return; }
+    addEntries(m.date, m.slot, [{id: uid(), name, g: 0, kcal: Math.round(k), prot: r1(p), carbs: 0, fat: 0, src: "quick"}]);
+    if (m.qKeep) { const f = {id: "f" + uid(), n: name.slice(0, 80), k: Math.round(k), p: r1(p), c: 0, f: 0, unit: "portion", ug: 100, unitOnly: true};
+      const doc = {items: [...(S.foods?.items || []).map(x => ({...x})), f]}; S.foods = doc; queueSet("game/foods", doc); }
+    Object.assign(m, {tab: "search", q: "", qName: "", qKcal: "", qProt: "", qKeep: false, added: [...(m.added || []), {n: name, kcal: Math.round(k)}]}); render(); },
+  foodCustom: () => { const m = state.modal, name = String(m.cName || "").trim(), k = parseNum(m.cK), per = m.cPer === "portion";
+    if (!name || !(k >= 0)) { toast(`[Système] Il faut au moins un nom et les calories ${per ? "d'une portion" : "pour 100 g"}.`, "red"); return; }
+    if (!per && k > 950) { toast("[Système] Plus de 950 kcal pour 100 g, c'est impossible : ce sont peut-être les valeurs d'une portion ? Choisis « Pour 1 portion ».", "red"); return; }
+    const p = parseNum(m.cP) || 0, c = parseNum(m.cC) || 0, fa = parseNum(m.cF) || 0, ug = parseNum(m.cUg), unit = String(m.cUnit || "").trim().slice(0, 30);
+    let f;
+    if (!per) f = {k: Math.round(k), p: r1(p), c: r1(c), f: r1(fa), ...(unit && ug > 0 ? {unit, ug} : {})};
+    else if (ug > 0) { const r = 100 / ug; f = {k: Math.round(k * r), p: r1(p * r), c: r1(c * r), f: r1(fa * r), unit: unit || "portion", ug}; }   // per portion with its weight: stored per 100 g
+    else f = {k: Math.round(k), p: r1(p), c: r1(c), f: r1(fa), unit: unit || "portion", ug: 100, unitOnly: true};                     // no weight: counted in portions only
+    f = {id: "f" + uid(), n: name.slice(0, 80), ...f};
     const doc = {items: [...(S.foods?.items || []).map(x => ({...x})), f]}; S.foods = doc; queueSet("game/foods", doc);
-    Object.assign(m, {sel: {...f, src: "perso"}, grams: "100", units: "1", mode: f.unit ? "u" : "g"}); renderModal(); toast(`[Aliment créé] ${esc(f.n)}`, "ok"); },
+    Object.assign(m, {sel: {...f, src: "perso"}, grams: "100", units: "1", mode: f.unit ? "u" : "g", cName: "", cK: "", cP: "", cC: "", cF: "", cUnit: "", cUg: ""}); renderModal(); toast(`[Aliment enregistré] ${esc(f.n)}`, "ok"); },
+  foodDel: a => { const it = (S.foods?.items || []).find(x => x.id === a.dataset.id); if (!it) return;
+    const doc = {items: (S.foods?.items || []).filter(x => x.id !== a.dataset.id).map(x => ({...x}))}; S.foods = doc; queueSet("game/foods", doc); renderModal(); toast(`[Supprimé] ${esc(it.n)}`, "red"); },
   offSearch: async () => { const m = state.modal, q = String(m.offQ || "").trim(); if (!q) return; Object.assign(m, {offBusy: true, offErr: null}); renderModal();
     try { const r = await fetch("api/off?q=" + encodeURIComponent(q)); const j = await r.json(); if (!r.ok) throw new Error(j.error); m.offRes = (j.results || []).map(x => ({...x, src: "off"})); }
     catch (e) { m.offErr = "Open Food Facts ne répond pas (connexion internet ?). Utilise la saisie rapide."; m.offRes = null; }
     m.offBusy = false; if (state.modal === m) renderModal(); },
   codeSearch: async () => { const m = state.modal, code = String(m.code || "").replace(/\D/g, ""); if (code.length < 8) { m.offErr = "Un code-barres fait 8 ou 13 chiffres."; renderModal(); return; }
     Object.assign(m, {offBusy: true, offErr: null}); renderModal();
-    try { const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,product_name_fr,brands,nutriments`); const j = await r.json();
+    try { const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,product_name_fr,brands,nutriments,serving_quantity`); const j = await r.json();
       const p = j.product, n = p && p.nutriments; const k = n && (n["energy-kcal_100g"] ?? (n.energy_100g != null ? n.energy_100g / 4.184 : null));
-      m.offRes = p && k != null ? [{n: (p.product_name_fr || p.product_name || "Produit " + code) + (p.brands ? " (" + String(p.brands).split(",")[0] + ")" : ""), k: Math.round(k), p: r1(Number(n.proteins_100g) || 0), c: r1(Number(n.carbohydrates_100g) || 0), f: r1(Number(n.fat_100g) || 0), src: "off"}] : []; }
+      m.offRes = p && k != null ? [{n: (p.product_name_fr || p.product_name || "Produit " + code) + (p.brands ? " (" + String(p.brands).split(",")[0] + ")" : ""), k: Math.round(k), p: r1(Number(n.proteins_100g) || 0), c: r1(Number(n.carbohydrates_100g) || 0), f: r1(Number(n.fat_100g) || 0), src: "off", ...(Number(p.serving_quantity) > 0 && Number(p.serving_quantity) <= 1000 ? {unit: "portion (" + fmt(Number(p.serving_quantity), 1) + " g)", ug: Number(p.serving_quantity)} : {})}] : []; }
     catch (e) { m.offErr = "Open Food Facts ne répond pas (connexion internet ?). Utilise la saisie rapide."; m.offRes = null; }
     m.offBusy = false; if (state.modal === m) renderModal(); },
   tplSaveAsk: a => { state.modal = {kind: "tplSave", date: a.dataset.d, slot: a.dataset.slot, tplName: ""}; renderModal(); setTimeout(() => document.getElementById("fm-tplName")?.focus(), 30); },
@@ -2623,6 +2698,7 @@ const ACTIONS = {
   day: a => { state.dayOffset = Number(a.dataset.o); render(); },
   warm: () => { S.draft.warm = !S.draft.warm; saveDraft(); render(); },
   fin: () => { S.draft.fin = !S.draft.fin; saveDraft(); render(); },
+  planWeek: a => { state.planOffset = Number(a.dataset.o) || 0; render(); },
   sleepPick: a => { state.sleepOpen = null; saveSleep(a.dataset.d, a.dataset.h); },
   sleepOpen: a => { state.sleepOpen = state.sleepOpen === a.dataset.d ? null : a.dataset.d; render(); },
   pickPlan: a => { if (!PLANS[a.dataset.p]) return; const next = {...clone(S.profile), program: a.dataset.p}; S.profile = next; queueSet("game/profile", next); seedPlan(true); render(); toast(`[Programme] ${esc(PLANS[a.dataset.p].label)}`, "ok"); },

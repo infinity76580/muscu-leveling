@@ -1,5 +1,5 @@
-const CACHE = "gl-20261021-235404";
-const DATA = {"aliments": "aliments-ca9d28aa6d.json", "marques": "marques-7e6b903f30.json"};   // content-hashed food tables: kept across app updates, refreshed only when they change
+const CACHE = "gl-20261022-000628";
+const DATA = {"aliments": "aliments-1476f37b0d.json", "marques": "marques-7e6b903f30.json"};   // content-hashed food tables: kept across app updates, refreshed only when they change
 const SHELL = ["./", "index.html", DATA.aliments, "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 const isData = p => /\/(aliments|marques)-[0-9a-f]{10}\.json$/.test(p);
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
