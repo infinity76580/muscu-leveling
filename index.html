@@ -9,6 +9,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}[hidden]{display:none!important}</style>
+<script>window.GL_FILES = {"aliments": "aliments-ca9d28aa6d.json", "marques": "marques-7e6b903f30.json"};</script>
 <script>window.GL_CLOUD = {"url": "https://dggtdutqcxakvbakezgq.supabase.co", "key": "sb_publishable_sE26taI8YshVMQxx97ui8Q_uZgirnY4"};</script>
 </head><body><title>Muscu Leveling</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -1963,12 +1964,18 @@ const EXTRA_FOODS = [
   {n: "Raclette, assiette raisonnable (estimation)", k: 175, p: 11.7, c: 10, f: 9.2, unit: "assiette", ug: 360},
 ].map(f => ({...f, src: "extra"}));
 const mealSlots = items => SLOTS.filter(sl => sl.k !== "matin" || eatsBreakfast(S.profile) || (items || []).some(it => it.slot === "matin"));
-let FOODS = null, foodsLoading = null, foodQTimer = null;
+let BRANDS = null, FOODS = null, foodsLoading = null, foodQTimer = null;
+const DATA_FILES = window.GL_FILES || {aliments: "aliments.json", marques: "marques.json"};   // the site build gives hashed names
+const getJson = u => fetch(u).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
 function loadFoods() {
   if (FOODS || foodsLoading) return;
-  foodsLoading = fetch("aliments.json").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(j => { FOODS = j.foods.map(f => ({n: f[0], k: f[1], p: f[2], c: f[3], f: f[4], grp: f[5], src: "ciqual"})); if (state.modal && state.modal.kind === "food") renderModal(); })
+  const redraw = () => { if (state.modal && state.modal.kind === "food") renderModal(); };
+  foodsLoading = getJson(DATA_FILES.aliments)
+    .then(j => { FOODS = j.foods.map(f => ({n: f[0], k: f[1], p: f[2], c: f[3], f: f[4], grp: f[5], src: "ciqual", ...(f[6] && f[7] > 0 ? {unit: f[6], ug: f[7]} : {})})); redraw(); })
     .catch(() => { FOODS = []; toast("[Système] Base d'aliments introuvable : la saisie rapide reste possible.", "red"); });
+  getJson(DATA_FILES.marques)                  // ~60 000 products sold in France (Open Food Facts), most scanned first
+    .then(j => { BRANDS = j.foods.map((f, i) => ({n: f[1] ? f[0] + " · " + f[1] : f[0], k: f[2], p: f[3], c: f[4], f: f[5], src: "off", rank: i, ...(f[6] > 0 ? {unit: "portion (" + fmt(f[6], 1) + " g)", ug: f[6]} : {})})); redraw(); })
+    .catch(() => { BRANDS = []; });
 }
 const customFoods = () => (S.foods?.items || []).map(f => ({...f, src: "perso"}));
 function recentFoods() {
@@ -1981,11 +1988,17 @@ function recentFoods() {
   return out;
 }
 function searchFoods(q) {
-  const toks = norm(q).split(/[^a-z0-9]+/).filter(Boolean); if (!toks.length) return [];
-  const res = [];
-  for (const f of [...customFoods(), ...EXTRA_FOODS, ...(FOODS || [])]) { const n = f._s || (f._s = norm(f.n)); if (toks.every(t => n.includes(t))) res.push(f); }
-  const score = f => (f.src === "perso" ? 0 : f.src === "extra" ? (/\(estimation\)/.test(f.n) ? 2100 : 1000) : 2000) + (f._s.startsWith(toks[0]) ? 0 : 1500) + f.n.length;
-  return res.sort((a, b) => score(a) - score(b)).slice(0, 40);
+  // every word must appear (accents, case and a final s/x ignored: "oeufs" finds "Oeuf cru")
+  const raw = norm(q).split(/[^a-z0-9]+/).filter(Boolean), toks = raw.map(t => t.length > 3 ? t.replace(/[sx]$/, "") : t); if (!toks.length) return [];
+  const res = [], nb = BRANDS ? BRANDS.length : 1;
+  for (const list of [customFoods(), EXTRA_FOODS, FOODS || [], BRANDS || []]) for (const f of list) {
+    const n = f._s || (f._s = " " + norm(f.n).replace(/[^a-z0-9]+/g, " ")); if (toks.every(t => n.includes(t))) res.push(f); }
+  const base = f => f.src === "perso" ? 0 : f.src === "extra" ? (/\(estimation\)/.test(f.n) ? 2100 : 1000) : f.src === "ciqual" ? 2000 : 3000;
+  const r0 = raw[0], t0 = toks[0];   // the word as typed beats its singular ("pâtes" before "pâté")
+  const fit = s => { const w = s + " "; return w.startsWith(" " + r0 + " ") ? 0 : w.includes(" " + r0 + " ") ? 300 : w.startsWith(" " + t0 + " ") ? 400 : w.includes(" " + t0 + " ") ? 500 : w.includes(" " + t0) ? 700 : 1500; };
+  const staple = f => f.src === "ciqual" && f.unit ? 500 : 0;   // generic foods with a usual portion = everyday staples (egg, banana, milk…)
+  const score = f => { const ft = fit(f._s); return base(f) + ft - (ft === 0 || ft === 400 ? staple(f) : 0) + (f.src === "off" ? 400 * f.rank / nb : f.n.length); };   // staple boost only when the name starts with the word   // whole word first, then generic before brands
+  return res.sort((a, b) => score(a) - score(b)).slice(0, 50);
 }
 function entryFrom(f, g, u) {
   return {id: uid(), name: f.n, g: r1(g), u: u || null, kcal: Math.round(f.k * g / 100), prot: r1(f.p * g / 100), carbs: r1((f.c || 0) * g / 100), fat: r1((f.f || 0) * g / 100),
@@ -2123,12 +2136,13 @@ function modalFood(m) {
       <div class="row"><button class="btn ghost" data-act="foodBack">Retour</button><button class="btn primary" data-act="foodAdd" ${g > 0 ? "" : "disabled"}>Ajouter</button></div></div>`;
   }
   const tabs = [["search", "Chercher"], ["recent", "Récents"], ["tpl", "Repas types"], ["quick", "Saisie rapide"], ["custom", "Créer"]].concat(Store.mode === "server" ? [["off", "Marques"]] : Store.mode === "cloud" ? [["code", "Code-barres"]] : []);
-  const list = (arr, empty) => { m.list = arr; return arr.length ? `<ul class="food-res">${arr.map((f, i) => `<li><button data-act="foodPick" data-i="${i}"><span>${esc(f.n)}${f.src === "perso" ? ' <span class="src">perso</span>' : f.src === "extra" ? ' <span class="src">repère</span>' : f.src === "off" ? ' <span class="src">marque</span>' : ""}</span><small>${fmt(f.k, 0)} kcal${f.unit ? "" : " /100 g"}</small></button></li>`).join("")}</ul>` : `<p class="muted small">${empty}</p>`; };
+  const list = (arr, empty) => { m.list = arr; return arr.length ? `<ul class="food-res">${arr.map((f, i) => `<li><button data-act="foodPick" data-i="${i}"><span>${esc(f.n)}${f.src === "perso" ? ' <span class="src">perso</span>' : f.src === "extra" ? ' <span class="src">repère</span>' : f.src === "off" ? ' <span class="src">marque</span>' : ""}</span><small>${fmt(f.k, 0)} kcal /100 g${f.unit && f.ug ? `<br>${esc(f.unit)} : ${fmt(f.k * f.ug / 100, 0)} kcal` : ""}</small></button></li>`).join("")}</ul>` : `<p class="muted small">${empty}</p>`; };
   const inp = (id, label, mode, ph) => `<div class="field"><label for="fm-${id}">${label}</label><input id="fm-${id}" data-bind="food" data-f="${id}" inputmode="${mode || "text"}" autocomplete="off" placeholder="${ph || ""}" value="${esc(m[id] || "")}"></div>`;
   let body = "";
-  if (m.tab === "search") body = `<div class="field"><label for="food-q">Aliment</label><input id="food-q" data-bind="foodQ" autocomplete="off" placeholder="Ex. poulet, riz, entrecôte, Monster…" value="${esc(m.q || "")}"></div>
+  if (m.tab === "search") body = `<div class="field"><label for="food-q">Aliment</label><input id="food-q" data-bind="foodQ" autocomplete="off" placeholder="Ex. poulet cru, skyr, whey myprotein, Nutella…" value="${esc(m.q || "")}"></div>
       ${!FOODS ? `<p class="muted small">Chargement de la base d'aliments…</p>` : ""}${m.q ? list(searchFoods(m.q), FOODS ? "Rien trouvé. Essaie un autre mot, la saisie rapide ou « Créer »." : "") : ""}
-      <p class="muted small">Valeurs pour 100 g. Source : table Ciqual 2025 de l'Anses (+ quelques repères ajoutés par le Système).</p>`;
+      ${FOODS && !BRANDS ? `<p class="muted small">Chargement des produits de marque…</p>` : ""}
+      <p class="muted small">Aliments simples : table Ciqual 2025 de l'Anses. Produits de marque : ${BRANDS && BRANDS.length ? fmt(BRANDS.length, 0) + " produits vendus en France, " : ""}base libre Open Food Facts (licence ODbL), vérifie l'étiquette en cas de doute. Introuvable ? Onglet « Code-barres » ou « Créer ».</p>`;
   else if (m.tab === "recent") body = list(recentFoods(), "Tes aliments déjà notés apparaîtront ici.");
   else if (m.tab === "tpl") { const tp = S.mealtpl?.items || []; body = tp.length ? `<ul class="food-res">${tp.map(t => `<li><button data-act="tplAdd" data-id="${esc(t.id)}"><span>${esc(t.name)}<br><small>${t.items.length} aliments</small></span><small>${fmt(t.items.reduce((n, x) => n + (x.kcal || 0), 0), 0)} kcal</small></button></li>`).join("")}</ul>${tp.map(t => `<button class="link" data-act="tplDel" data-id="${esc(t.id)}">Supprimer « ${esc(t.name)} »</button>`).join("")}` : `<p class="muted small">Note un repas que tu manges souvent, puis appuie sur « Garder comme repas type » : il s'ajoutera ensuite en un geste.</p>`; }
   else if (m.tab === "quick") body = `${inp("qName", "Quoi", "text", "Ex. Pizza chez Lolo et Zaza")}<div class="grid2">${inp("qKcal", "Calories", "numeric", "kcal")}${inp("qProt", "Protéines (g)", "decimal", "0")}</div>
