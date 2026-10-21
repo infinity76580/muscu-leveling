@@ -1951,7 +1951,7 @@ const EXTRA_FOODS = [
   {n: "Tacos français, taille M (estimation)", k: 250, p: 10, c: 27, f: 11, unit: "tacos", ug: 400},
   {n: "Pinte de bière", k: 43, p: 0.4, c: 3.5, f: 0, unit: "pinte de 50 cl", ug: 500},
   {n: "Œuf entier, cuit", k: 145, p: 12.5, c: 0.5, f: 10, unit: "œuf", ug: 55},
-  {n: "Pâtes au saumon et emmental, version légère (estimation)", k: 147, p: 9.1, c: 12.5, f: 6.4, unit: "assiette", ug: 495, dish: true, how: "80 g de pâtes crues, 120 g de saumon, 5 cl de crème légère, 25 g d'emmental, des épinards"},
+  {n: "Pâtes au saumon et emmental, version légère (estimation)", k: 147, p: 9.1, c: 12.5, f: 6.4, unit: "assiette", ug: 495, how: "80 g de pâtes crues, 120 g de saumon, 5 cl de crème légère, 25 g d'emmental, des épinards"},
   {n: "Burger maison léger : steak 5 %, cheddar (estimation)", k: 171, p: 13.4, c: 15.2, f: 6, unit: "burger", ug: 290, dish: true, how: "Pain burger, steak haché 5 %, 1 tranche de cheddar, sauce allégée, salade, tomate"},
   {n: "Pizza maison pâte fine, jambon et mozzarella light (estimation)", k: 171, p: 10.2, c: 21.9, f: 4, unit: "pizza entière", ug: 530, dish: true, how: "Pâte fine, sauce tomate, jambon, une boule de mozzarella light, champignons"},
   {n: "Wrap poulet et fromage maison (estimation)", k: 178, p: 19.4, c: 10.8, f: 5.7, unit: "wrap", ug: 315, dish: true, how: "Grande tortilla, 150 g de poulet, 25 g de fromage râpé, sauce au fromage blanc, crudités"},
@@ -2044,6 +2044,7 @@ function fastWin(off) {
 function dishesWin(key) {
   if (curPlan().id !== "felix") return "";
   return `<section class="win"><h2 class="win-title">Tes plats, version qui fait maigrir</h2><p class="muted small">Les plats que tu aimes, faits maison et allégés : même plaisir, beaucoup moins de calories. Les versions complètes se gagnent à la Boutique.</p>
+    <p class="sugg">Tes pâtes saumon-emmental, c'est une récompense : elles s'échangent contre de l'or à la Boutique, et le jour où tu les manges, tu valides le ticket ici. Elles ne comptent pas dans tes calories.</p>
     <ul class="meal-list">${EXTRA_FOODS.filter(f => f.dish).map(f => `<li class="meal-it"><span class="n">${esc(f.n.replace(" (estimation)", ""))}<small>${esc(f.how)} · ${fmt(f.k * f.ug / 100, 0)} kcal · ${fmt(f.p * f.ug / 100, 0)} g de protéines</small></span><button class="btn sm" data-act="dishAdd" data-d="${key}" data-n="${esc(f.n)}">Ajouter</button></li>`).join("")}</ul></section>`;
 }
 function tipsWin() {
@@ -2196,8 +2197,8 @@ function startOnboarding() {
 }
 const obPlanId = o => PLANS[o.program] ? o.program : (detectPlan(o.name, cloudName()) || (CLOUD ? "mathis" : "base"));   // 3 players: Gauthier, Félix, and by elimination Mathis
 const FELIX_REWARDS = [
-  {tier: "moyenne", name: "Pâtes au saumon version resto, avec plein d'emmental", cost: 600, food: true},
-  {tier: "moyenne", name: "Un burger bien chargé avec des frites", cost: 700, food: true},
+  {tier: "moyenne", name: "Pâtes au saumon et emmental maison, bien chargées", cost: 500, food: true},
+  {tier: "moyenne", name: "Un burger maison bien chargé avec des frites", cost: 600, food: true},
   {tier: "moyenne", name: "Une raclette ou une tartiflette", cost: 900, food: true},
   {tier: "grosse", name: "Un repas plaisir sans limite : ce que tu veux", cost: 1500, food: true},
 ];
@@ -2210,11 +2211,13 @@ function seedPlan(force) {                    // once per load: remember a recog
   if ((state.seeded && !force) || !S.profile) return; state.seeded = true;
   const p = S.profile, det = detectPlan(p.name, cloudName());
   let next = !PLANS[p.program] && det ? {...clone(p), program: det} : null;
-  if ((next || p).program === "felix" && !(p.seeded || {}).felixDishes) {
-    const items = (S.rewards?.items || []).slice(), have = new Set(items.map(i => i.name));
-    const add = FELIX_REWARDS.filter(r => !have.has(r.name)).map((r, i) => ({...r, id: "fx" + i}));
-    if (add.length) { S.rewards = {rank: {...RANK_DEFAULT}, ...(S.rewards || {}), items: [...items, ...add]}; queueSet("game/rewards", S.rewards); }
-    next = {...(next || clone(p)), seeded: {...(p.seeded || {}), felixDishes: true}};
+  if ((next || p).program === "felix" && !(p.seeded || {}).felixDishes2) {
+    const OLD = {"Pâtes au saumon version resto, avec plein d'emmental": [0, 600], "Un burger bien chargé avec des frites": [1, 700]};   // first wording -> home dishes
+    let items = (S.rewards?.items || []).map(i => OLD[i.name] ? {...i, name: FELIX_REWARDS[OLD[i.name][0]].name, cost: i.cost === OLD[i.name][1] ? FELIX_REWARDS[OLD[i.name][0]].cost : i.cost} : i);
+    const have = new Set(items.map(i => i.name)), want = (p.seeded || {}).felixDishes ? FELIX_REWARDS.slice(0, 1) : FELIX_REWARDS;   // the pasta stays a reward no matter what
+    items = [...items, ...want.filter(r => !have.has(r.name)).map((r, i) => ({...r, id: "fx" + i + "b"}))];
+    S.rewards = {rank: {...RANK_DEFAULT}, ...(S.rewards || {}), items}; queueSet("game/rewards", S.rewards);
+    next = {...(next || clone(p)), seeded: {...(p.seeded || {}), felixDishes: true, felixDishes2: true}};
   }
   if (next) { S.profile = next; queueSet("game/profile", next); }
 }
@@ -2505,7 +2508,7 @@ async function finishOnboarding() {
   const dowNow = (fromStr(today()).getDay() + 6) % 7, monday = addDays(fromStr(today()), -dowNow);
   const startDay = toStr(dowNow <= 3 ? monday : addDays(monday, 7));   // joined Mon-Thu: this week counts (Thursday session); later: next Monday
   const profile = {v: 2, startDay, createdAt: new Date().toISOString(), createdDay: today(), foodStart: toStr(addDays(fromStr(today()), 1)), ...base, oldBench: parseNum(o.oldBench) > 0 ? parseNum(o.oldBench) : null,
-    legMaint: true, sound: true, title: null, seeded: {felixDishes: true}};
+    legMaint: true, sound: true, title: null, seeded: {felixDishes: true, felixDishes2: true}};
   const rewards = rewardsFromEditor(m); if (!rewards) return;
   if (!rewards.items.length) { toast("[Système] Coche au moins une récompense pour remplir ta boutique.", "red"); return; }
   try { await Store.db.doc("game/rewards").set(rewards); await Store.db.doc("game/profile").set(profile); }
