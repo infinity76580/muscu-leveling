@@ -1,0 +1,22 @@
+{
+ "name": "Gauthier Leveling",
+ "short_name": "G. Leveling",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#03060d",
+ "theme_color": "#03060d",
+ "lang": "fr",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  }
+ ]
+}
