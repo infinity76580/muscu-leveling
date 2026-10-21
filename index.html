@@ -669,21 +669,29 @@ const repsTxt = it => (it.reps[0] === it.reps[1] ? it.reps[0] : it.reps[0] + "-"
 const estMinutes = plan => Math.max(25, roundTo(12 + plan.reduce((n, it) => n + it.sets * (it.rest + 50) / 60, 0), 5));
 
 /* ================= rewards & achievements ================= */
-const SUGGESTED = [
-  {tier: "petite", name: "Un café en terrasse", cost: 150, food: true},
-  {tier: "petite", name: "Une Monster bien fraîche", cost: 200, food: true},
-  {tier: "petite", name: "Un dessert de ton choix", cost: 250, food: true},
-  {tier: "petite", name: "Pizza maison", cost: 350, food: true},
-  {tier: "moyenne", name: "Un kebab ou un tacos", cost: 500, food: true},
-  {tier: "moyenne", name: "Pizza chez Lolo et Zaza", cost: 700, food: true},
-  {tier: "moyenne", name: "Une entrecôte", cost: 700, food: true},
-  {tier: "moyenne", name: "Soirée au bar avec les potes", cost: 900, food: true},
-  {tier: "grosse", name: "Un nouveau pot de whey", cost: 1500},
-  {tier: "grosse", name: "Un équipement de salle (tout sauf des gants)", cost: 1800},
+const SUGGESTED = [                          // sign-up catalog: nothing pre-ticked, each player picks what motivates him
+  {tier: "petite", name: "Un café ou un chocolat en terrasse", cost: 150, food: true},
+  {tier: "petite", name: "Une boisson énergisante ou un soda", cost: 200, food: true},
+  {tier: "petite", name: "Un dessert ou une pâtisserie", cost: 250, food: true},
+  {tier: "petite", name: "Un snack ou des bonbons que tu aimes", cost: 250, food: true},
+  {tier: "petite", name: "Une soirée film ou série sans culpabilité", cost: 300},
+  {tier: "petite", name: "Une soirée jeux vidéo", cost: 300},
+  {tier: "petite", name: "Une pizza maison", cost: 350, food: true},
+  {tier: "moyenne", name: "Un fast-food : burger, kebab ou tacos", cost: 500, food: true},
+  {tier: "moyenne", name: "Un manga ou un livre", cost: 500},
+  {tier: "moyenne", name: "Une place de cinéma", cost: 600},
+  {tier: "moyenne", name: "Une pizza au restaurant", cost: 700, food: true},
+  {tier: "moyenne", name: "Un resto avec les potes", cost: 800, food: true},
+  {tier: "moyenne", name: "Un t-shirt ou un short de sport", cost: 800},
+  {tier: "moyenne", name: "Une soirée au bar avec les potes", cost: 900, food: true},
+  {tier: "grosse", name: "Un pot de whey", cost: 1500},
+  {tier: "grosse", name: "Un équipement de salle : chaussures, ceinture, sac…", cost: 1800},
+  {tier: "grosse", name: "Une sortie au choix : karting, laser game, escape game…", cost: 2000},
+  {tier: "grosse", name: "Une nouvelle tenue de sport", cost: 2000},
   {tier: "grosse", name: "Un jeu vidéo", cost: 2500},
   {tier: "grosse", name: "Sauter une séance sans pénalité", cost: 3000, effect: "skip"},
 ];
-const RANK_DEFAULT = {D: "Pizza chez Lolo et Zaza", C: "Un nouveau pot de whey", B: "Un jeu vidéo", A: "Une nouvelle paire de chaussures de salle", S: "La grosse récompense : à toi de la choisir"};
+const RANK_DEFAULT = {D: "Un bon resto de ton choix", C: "Un pot de whey", B: "Un jeu vidéo ou l'objet de ton choix", A: "Une nouvelle paire de chaussures de salle", S: "La grosse récompense : à toi de la choisir"};
 const TIERS = [{k: "petite", name: "Petites récompenses"}, {k: "moyenne", name: "Récompenses moyennes"}, {k: "grosse", name: "Grosses récompenses"}];
 const RANKS = ["E", "D", "C", "B", "A", "S"];
 const RANK_LEVEL = {E: 1, D: 5, C: 10, B: 17, A: 24, S: 30};
@@ -691,7 +699,7 @@ const DEFAULT_TITLE = "Ancien chasseur";
 // starting titles of named friends (matched on the start of the player name or login pseudo, accents ignored)
 const NAME_INTROS = [
   {re: /^felix/, title: "Potentiel de malade", intro: "Le Système a détecté un potentiel de malade, encore jamais exploité. C'est rare. Il te propose un contrat"},
-  {re: /^matis+e/, title: "Guerrier assidu", intro: "Le Système a détecté un guerrier assidu, déjà habitué de la salle. Il te propose un contrat"},
+  {re: /^mat+h?is/, title: "Guerrier assidu", intro: "Le Système a détecté un guerrier assidu, déjà habitué de la salle. Il te propose un contrat"},
 ];
 const nameIntro = (...names) => { for (const n of names) { const k = normPseudo(n); const hit = k && NAME_INTROS.find(x => x.re.test(k)); if (hit) return hit; } return null; };
 const playerIntro = () => nameIntro(S.profile?.name, Cloud && Cloud.signedIn() ? Cloud.email() : "");
@@ -723,6 +731,8 @@ const DAILY = [
   {k: "study", label: "Révisions"},
   {k: "fast", label: "Jeûne"},
 ];
+const questOn = (p, k) => !(p && p.quests && p.quests[k] === false);   // no "quests" field (Gauthier's profile) = all on
+const eatsBreakfast = p => !!(p && p.breakfast === true);              // no field = skips breakfast (Gauthier)
 const FASTS = [{v: "", label: "Non"}, {v: "16", label: "16:8 (8 h pour manger)"}, {v: "18", label: "18:6 (6 h pour manger)"}, {v: "20", label: "20:4 (4 h pour manger)"}];
 function fastPlan(p) {                         // {h: fasting hours, start: minutes after midnight, end}
   const h = Number(p?.fastH) || 0; if (!h) return null;
@@ -955,9 +965,10 @@ function dayEval(key) {
   I.protein = {req: !free, done: m.prot >= plan.protein * 0.9, txt: (m.count ? fmt(m.prot, 0) + " / " : "") + plan.protein + " g"};
   const sl = Number(d.sleepH) || 0;
   I.sleep = {req: true, done: sl >= sleepT || (d.sleep === true && !sl), txt: (sl ? fmt(sl, 1) + " / " : "") + fmt(sleepT, 1) + " h"};
-  I.steps = {req: true, done: !!d.steps, txt: fmt(p.targets?.steps ?? 8000, 0)};
-  I.water = {req: true, done: !!d.water, txt: fmt(p.targets?.water ?? 2, 1) + " L"};
-  I.study = {req: dow <= 4, done: !!d.study, txt: dow <= 4 ? (studyMin % 60 ? studyMin + " min" : studyMin / 60 + " h") : "Week-end, en bonus"};
+  const OFF = {req: false, done: false, txt: "", off: true};
+  I.steps = questOn(p, "steps") ? {req: true, done: !!d.steps, txt: fmt(p.targets?.steps ?? 8000, 0)} : OFF;
+  I.water = questOn(p, "water") ? {req: true, done: !!d.water, txt: fmt(p.targets?.water ?? 2, 1) + " L"} : OFF;
+  I.study = questOn(p, "study") ? {req: dow <= 4, done: !!d.study, txt: dow <= 4 ? (studyMin % 60 ? studyMin + " min" : studyMin / 60 + " h") : "Week-end, en bonus"} : OFF;
   const fp = fastPlan(p);
   I.fast = fp ? {req: !free, done: !!d.fast, txt: free ? "Jour libre, en bonus" : fp.label} : {req: false, done: false, txt: "", off: true};
   const malus = [];
@@ -1312,7 +1323,7 @@ function questWin() {
   const off = state.dayOffset; const key = toStr(addDays(fromStr(today()), off)); const d = S.days[key] || {}; const e = dayEval(key), I = e.items;
   const box = '<span class="box" aria-hidden="true"></span>';
   const auto = (k, label) => `<li><button class="q ${I[k].done ? "on" : ""} ${I[k].req || I[k].done ? "" : "na"}" data-act="go" data-v="meals">${box}<span class="q-l">${label}</span><span class="q-t">[ ${I[k].txt} ]</span></button></li>`;
-  const check = (k, label) => `<li><button class="q ${I[k].done ? "on" : ""} ${I[k].req || I[k].done ? "" : "na"}" data-act="q" data-k="${k}" role="checkbox" aria-checked="${I[k].done}">${box}<span class="q-l">${label}</span><span class="q-t">${I[k].done ? "[Complété]" : "[ " + I[k].txt + " ]"}</span></button></li>`;
+  const check = (k, label) => I[k].off ? "" : `<li><button class="q ${I[k].done ? "on" : ""} ${I[k].req || I[k].done ? "" : "na"}" data-act="q" data-k="${k}" role="checkbox" aria-checked="${I[k].done}">${box}<span class="q-l">${label}</span><span class="q-t">${I[k].done ? "[Complété]" : "[ " + I[k].txt + " ]"}</span></button></li>`;
   const sv = state.sleepDraft[key] ?? (Number(d.sleepH) > 0 ? fmtIn(Number(d.sleepH)) : "");
   const sleepRow = `<li><div class="q qin ${I.sleep.done ? "on" : ""}">${box}<label class="q-l" for="sleepIn">Sommeil <small class="muted">(nuit d'avant)</small></label><span class="q-in"><input id="sleepIn" data-bind="sleep" data-key="${key}" inputmode="decimal" autocomplete="off" placeholder="h" value="${esc(sv)}" aria-label="Heures dormies"><span class="q-t">/ ${fmt(Number(S.profile?.targets?.sleep) || 7, 1)} h</span></span></div></li>`;
   const wv = state.weighDraft[key] ?? (Number(d.weight) > 0 ? fmtIn(Number(d.weight)) : "");
@@ -1499,6 +1510,7 @@ function rewardEditor() {
       <div class="ed-cost"><input id="rwc-${esc(i.id)}" data-bind="rwCost" data-id="${esc(i.id)}" value="${esc(i.cost)}" inputmode="numeric" aria-label="Prix en or"><span>or</span></div>
       <button class="ed-food ${i.food ? "on" : ""}" data-act="rwFood" data-id="${esc(i.id)}" aria-pressed="${!!i.food}">${i.food ? "Repas ✓" : "Repas ?"}</button></div>`).join("") || `<p class="muted small">Aucune.</p>`}</div></div>`).join("");
   return `<section class="win"><h2 class="win-title">Tes récompenses</h2>
+      ${state.ob ? `<p class="sys-line">[Rien n'est coché : choisis celles qui te motivent vraiment.]</p>` : ""}
       <p class="muted small">Coche celles que tu veux garder, change le nom ou le prix en or. Repère : une semaine complète rapporte environ 700 à 900 or. Petite ≈ quelques jours, moyenne ≈ une semaine, grosse ≈ trois semaines. « Repas » : la récompense devient un ticket que tu valides dans l'onglet Repas, hors calories.</p>
       ${tiers}
       <div class="field"><span class="lbl">Ajouter la tienne</span><div class="ed-add">
@@ -1531,7 +1543,7 @@ function viewJournal(P) {
       <p class="muted small">1RM estimé : la charge que tu pourrais soulever une fois, calculée sur ta meilleure série (charge × (1 + reps ÷ 30)).</p>
       <div class="tbl-wrap"><table><thead><tr><th>Mouvement</th><th class="num">Départ</th><th class="num">Dernière</th><th class="num">1RM est.</th><th class="num">Progr.</th></tr></thead><tbody>${recRows}</tbody></table></div></section>
     <section class="win"><h2 class="win-title">Journal des donjons</h2>${logs ? `<div class="logs">${logs}</div>` : `<p class="empty">Aucun donjon terminé. Ta première séance apparaîtra ici avec chaque série notée.</p>`}</section>
-    <section class="win"><h2 class="win-title">Titres</h2><div class="ach">${ACH.map(a => `<div class="ach-i ${P.achIds.has(a.id) ? "" : "off"}"><div><b>${esc(a.name)}</b><br><small>${esc(a.desc)} +${a.xp} XP, +${a.gold} or</small></div><span class="tag ${P.achIds.has(a.id) ? "test" : ""}">${P.achIds.has(a.id) ? "Obtenu" : "Verrouillé"}</span></div>`).join("")}</div></section>`;
+    <section class="win"><h2 class="win-title">Titres</h2><div class="ach">${ACH.filter(a => a.id !== "erudit" || questOn(S.profile, "study") || P.achIds.has(a.id)).map(a => `<div class="ach-i ${P.achIds.has(a.id) ? "" : "off"}"><div><b>${esc(a.name)}</b><br><small>${esc(a.desc)} +${a.xp} XP, +${a.gold} or</small></div><span class="tag ${P.achIds.has(a.id) ? "test" : ""}">${P.achIds.has(a.id) ? "Obtenu" : "Verrouillé"}</span></div>`).join("")}</div></section>`;
 }
 /* ----- body: weight, waist, photos ----- */
 const PHOTO_POSES = [{k: "face", label: "Face"}, {k: "profil", label: "Profil"}, {k: "dos", label: "Dos"}];
@@ -1729,7 +1741,7 @@ function bodyNudge() {
 }
 
 /* ----- meals: food log (Ciqual 2025 + repères + aliments perso + Open Food Facts) ----- */
-const SLOTS = [{k: "midi", label: "Midi"}, {k: "soir", label: "Soir"}, {k: "snack", label: "Collations"}];
+const SLOTS = [{k: "matin", label: "Petit-déjeuner"}, {k: "midi", label: "Midi"}, {k: "soir", label: "Soir"}, {k: "snack", label: "Collations"}];
 const norm = s => String(s || "").toLowerCase().replace(/œ/g, "oe").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 const EXTRA_FOODS = [
   {n: "Whey protéine (poudre)", k: 380, p: 75, c: 8, f: 6, unit: "dose de 30 g", ug: 30},
@@ -1743,6 +1755,7 @@ const EXTRA_FOODS = [
   {n: "Pinte de bière", k: 43, p: 0.4, c: 3.5, f: 0, unit: "pinte de 50 cl", ug: 500},
   {n: "Œuf entier, cuit", k: 145, p: 12.5, c: 0.5, f: 10, unit: "œuf", ug: 55},
 ].map(f => ({...f, src: "extra"}));
+const mealSlots = items => SLOTS.filter(sl => sl.k !== "matin" || eatsBreakfast(S.profile) || (items || []).some(it => it.slot === "matin"));
 let FOODS = null, foodsLoading = null, foodQTimer = null;
 function loadFoods() {
   if (FOODS || foodsLoading) return;
@@ -1817,7 +1830,7 @@ function viewMeals(P) {
   const items = S.meals[key]?.items || [];
   const pct = plan.kcal ? m.kcal / plan.kcal : 0, cls = pct > 1.15 ? "over" : pct >= 0.85 ? "ok" : "";
   const status = free ? "Jour libre : profite avec tes potes, rien à compter aujourd'hui. Tu peux quand même noter tes repas, ça ne pénalise jamais."
-    : !m.count ? "Rien de noté pour l'instant. Tu ne manges pas le matin : commence par ton repas de midi."
+    : !m.count ? (eatsBreakfast(S.profile) ? "Rien de noté pour l'instant : commence par ton petit-déjeuner." : "Rien de noté pour l'instant. Tu ne manges pas le matin : commence par ton repas de midi.")
     : pct > 1.15 ? `Au-dessus de la cible (+${Math.round((pct - 1) * 100)} %). Pas grave de temps en temps : c'est la moyenne de la semaine qui compte.`
     : pct >= 0.85 ? "Dans la cible. Calories validées pour aujourd'hui."
     : `Encore ${fmt(plan.kcal - m.kcal, 0)} kcal pour atteindre ta cible.`;
@@ -1838,7 +1851,7 @@ function viewMeals(P) {
     </section>
     ${fastWin(off)}
     ${ticketsWin}
-    ${SLOTS.map(slotWin).join("")}
+    ${mealSlots(items).map(slotWin).join("")}
     ${planWin()}`;
 }
 function modalFood(m) {
@@ -1887,7 +1900,8 @@ function viewSettings(P) {
   if (!state.setDraft) { const p = S.profile || {}, t = p.targets || {}, sv = v => v != null && v !== "" ? fmtIn(Number(v)) : "";
     state.setDraft = {name: p.name || "", weight: sv(p.weight), oldBench: sv(p.oldBench), height: sv(p.height), age: sv(p.age), neck: sv(p.neck), bf: sv(p.bf), activity: String(p.activity || 1.5),
       freeDay: String(p.freeDay == null ? 5 : p.freeDay), freeComp: p.freeComp !== false, studyMin: String(t.studyMin ?? 60), steps: String(t.steps ?? 8000), sleep: fmtIn(t.sleep ?? 7), water: fmtIn(t.water ?? 2),
-      kcalManual: sv(p.kcalManual), proteinManual: sv(p.proteinManual), fastH: String(p.fastH || ""), fastStart: p.fastStart || "12:00", legMaint: p.legMaint !== false, sound: p.sound !== false, title: p.title || ""}; }
+      kcalManual: sv(p.kcalManual), proteinManual: sv(p.proteinManual), fastH: String(p.fastH || ""), fastStart: p.fastStart || "12:00", legMaint: p.legMaint !== false, sound: p.sound !== false, title: p.title || "",
+      breakfast: eatsBreakfast(p), qSteps: questOn(p, "steps"), qWater: questOn(p, "water"), qStudy: questOn(p, "study")}; }
   const s = state.setDraft;
   const owned = ACH.filter(a => P.achIds.has(a.id));
   const tg = (k, label, desc) => `<button class="q ${s[k] ? "on" : ""}" data-act="setToggle" data-k="${k}" role="checkbox" aria-checked="${s[k]}"><span class="box" aria-hidden="true"></span><span class="q-l">${label}<br><small class="muted" style="font-weight:400">${desc}</small></span><span class="q-t">${s[k] ? "[Oui]" : "[Non]"}</span></button>`;
@@ -1898,15 +1912,17 @@ function viewSettings(P) {
       <span class="lbl">Ton corps</span>
       <div class="grid2">${f("weight", "Poids de départ (kg)")}${f("height", "Taille (cm)", "numeric")}</div>
       <div class="grid2">${f("age", "Âge", "numeric")}${f("neck", "Tour de cou (cm)")}</div>
-      <div class="grid2">${f("oldBench", "Ancien max couché (kg)")}${f("bf", "Taux de gras (%)", "decimal", "Auto")}</div>
+      <div class="grid2">${f("oldBench", "Max au couché (kg)")}${f("bf", "Taux de gras (%)", "decimal", "Auto")}</div>
       <div class="field"><label for="set-activity">Activité en dehors de la salle</label><select id="set-activity" data-bind="set" data-f="activity">${ACTIVITY.map(a => `<option value="${a.v}" ${String(a.v) === String(s.activity) ? "selected" : ""}>${a.label}</option>`).join("")}</select></div>
       <span class="lbl">Nutrition</span>
       <div class="field"><label for="set-freeDay">Jour libre</label><select id="set-freeDay" data-bind="set" data-f="freeDay"><option value="-1" ${s.freeDay === "-1" ? "selected" : ""}>Aucun</option>${DAYNAMES.map((d, i) => `<option value="${i}" ${String(i) === String(s.freeDay) ? "selected" : ""}>${d.charAt(0).toUpperCase() + d.slice(1)}</option>`).join("")}</select></div>
+      ${tg("breakfast", "Je prends un petit-déjeuner", "Ajoute un repas du matin dans l'onglet Repas")}
       ${tg("freeComp", "Compenser le jour libre", "Retire environ " + Math.round(FREE_EXTRA / 6) + " kcal aux autres jours de la semaine")}
       <div class="grid2">${f("kcalManual", "Calories imposées", "numeric", "Auto (Nippard)")}${f("proteinManual", "Protéines imposées (g)", "numeric", "Auto (Nippard)")}</div>
       <div class="grid2"><div class="field"><label for="set-fastH">Jeûne intermittent</label><select id="set-fastH" data-bind="set" data-f="fastH">${FASTS.map(x => `<option value="${x.v}" ${String(s.fastH) === x.v ? "selected" : ""}>${x.label}</option>`).join("")}</select></div>
       <div class="field"><label for="set-fastStart">Début de la fenêtre de repas</label><input type="time" id="set-fastStart" data-bind="set" data-f="fastStart" value="${esc(s.fastStart)}"></div></div>
       <span class="lbl">Quête quotidienne</span>
+      ${tg("qSteps", "Marcher", "Case « Pas » dans la quête")}${tg("qWater", "Boire de l'eau", "Case « Eau » dans la quête")}${tg("qStudy", "Réviser ou travailler", "Case « Révisions », du lundi au vendredi")}
       <div class="grid2">${f("studyMin", "Révisions (min / jour)", "numeric")}${f("sleep", "Sommeil visé (h)")}</div>
       <div class="grid2">${f("steps", "Pas par jour", "numeric")}${f("water", "Eau (L)")}</div>
       ${tg("legMaint", "Un peu de jambes chaque semaine", "2 séries de presse + 2 de leg curl à la fin de la séance Haut, les semaines sans Jambes")}
@@ -1921,14 +1937,15 @@ function viewSettings(P) {
 
 /* ----- onboarding ----- */
 function startOnboarding() {
-  state.ob = {step: 0, name: state.pendingName || (Cloud && Cloud.signedIn() && !Cloud.email().includes("@") ? Cloud.email() : ""), weight: "", height: "", age: "", oldBench: "", waist: "", neck: "", activity: "1.5", freeDay: "5", studyMin: "60", steps: "8000", sleep: "7", water: "2", fastH: "", fastStart: "12:00"};
-  state.rw = {items: SUGGESTED.map((r, i) => ({...r, id: "r" + i, keep: true})), rank: {...RANK_DEFAULT}, newName: "", newCost: "", newTier: "petite"};
+  state.ob = {step: 0, name: state.pendingName || (Cloud && Cloud.signedIn() && !Cloud.email().includes("@") ? Cloud.email() : ""), weight: "", height: "", age: "", oldBench: "", waist: "", neck: "", activity: "1.5", freeDay: "5", studyMin: "60", steps: "8000", sleep: "7", water: "2", fastH: "", fastStart: "12:00", breakfast: "1", qSteps: true, qWater: true, qStudy: false};
+  state.rw = {items: SUGGESTED.map((r, i) => ({...r, id: "r" + i, keep: false})), rank: {...RANK_DEFAULT}, newName: "", newCost: "", newTier: "petite"};
 }
 function obProfile() {
   const o = state.ob, n = v => parseNum(v);
   return {name: String(o.name || "").trim().slice(0, 24) || null, weight: n(o.weight) > 0 ? r1(n(o.weight)) : null, height: n(o.height) > 0 ? Math.round(n(o.height)) : null, age: n(o.age) > 0 ? Math.round(n(o.age)) : null,
     waist: n(o.waist) > 0 ? r1(n(o.waist)) : null, neck: n(o.neck) > 0 ? r1(n(o.neck)) : null, sex: "m", activity: Number(o.activity) || 1.5,
-    freeDay: Number(o.freeDay), freeComp: true, fastH: Number(o.fastH) || null, fastStart: /^\d{2}:\d{2}$/.test(o.fastStart || "") ? o.fastStart : "12:00", targets: {steps: Math.round(n(o.steps) || 8000), sleep: n(o.sleep) || 7, water: n(o.water) || 2, studyMin: Math.round(n(o.studyMin) || 60)}};
+    freeDay: Number(o.freeDay), freeComp: true, fastH: Number(o.fastH) || null, fastStart: /^\d{2}:\d{2}$/.test(o.fastStart || "") ? o.fastStart : "12:00", targets: {steps: Math.round(n(o.steps) || 8000), sleep: n(o.sleep) || 7, water: n(o.water) || 2, studyMin: Math.round(n(o.studyMin) || 60)},
+    breakfast: o.breakfast !== "0", quests: {steps: !!o.qSteps, water: !!o.qWater, study: !!o.qStudy}};
 }
 function planCard(p, w) {
   const pl = calcPlan(p, w);
@@ -1955,23 +1972,29 @@ function viewOnboarding() {
   const f = (id, label, ph, mode) => `<div class="field"><label for="ob-${id}">${label}</label><input id="ob-${id}" data-bind="ob" data-f="${id}" inputmode="${mode || "decimal"}" placeholder="${ph}" value="${esc(o[id])}"></div>`;
   if (o.step === 1) return `<div class="ob">${steps}<section class="win"><h2 class="win-title">Évaluation du Joueur</h2>
       <p class="muted small">Sert à calculer tes calories (méthode Jeff Nippard) et la charge de ta première séance. Tout se change plus tard dans les Réglages.</p>
-      <div class="field"><label for="ob-name">Ton prénom ou pseudo</label><input id="ob-name" data-bind="ob" data-f="name" autocomplete="nickname" placeholder="Ex. Gauthier" value="${esc(o.name)}"></div>
+      <div class="field"><label for="ob-name">Ton prénom ou pseudo</label><input id="ob-name" data-bind="ob" data-f="name" autocomplete="nickname" placeholder="Ex. Alex" value="${esc(o.name)}"></div>
       <div class="grid2">${f("weight", "Poids (kg)", "Ex. 85")}${f("height", "Taille (cm)", "Ex. 180", "numeric")}</div>
-      <div class="grid2">${f("age", "Âge", "Ex. 23", "numeric")}${f("oldBench", "Ancien max couché (kg)", "Facultatif")}</div>
+      <div class="grid2">${f("age", "Âge", "Ex. 23", "numeric")}${f("oldBench", "Max au développé couché (kg)", "Si tu le connais")}</div>
       <div class="grid2">${f("waist", "Tour de taille (cm)", "Au nombril")}${f("neck", "Tour de cou (cm)", "Sous la pomme d'Adam")}</div>
       <p class="muted small">Tour de taille et tour de cou : avec ta taille, ils donnent une estimation de ton taux de gras (méthode de l'armée américaine). Facultatif, mais le calcul est plus juste.</p>
       <div class="field"><label for="ob-activity">Activité en dehors de la salle</label><select id="ob-activity" data-bind="ob" data-f="activity">${ACTIVITY.map(a => `<option value="${a.v}" ${String(a.v) === String(o.activity) ? "selected" : ""}>${a.label}</option>`).join("")}</select></div>
       <div class="row"><button class="btn ghost" data-act="obBack">Retour</button><button class="btn primary" data-act="obNext">Continuer</button></div></section></div>`;
   if (o.step === 2) {
     const p = obProfile();
+    const tg = (k, label, desc) => `<button class="q ${o[k] ? "on" : ""}" data-act="obToggle" data-k="${k}" role="checkbox" aria-checked="${!!o[k]}"><span class="box" aria-hidden="true"></span><span class="q-l">${label}<br><small class="muted" style="font-weight:400">${desc}</small></span><span class="q-t">${o[k] ? "[Oui]" : "[Non]"}</span></button>`;
     return `<div class="ob">${steps}<section class="win"><h2 class="win-title">Objectifs</h2>
-      <p class="sys-line">[Plan de reprise : prendre du muscle en perdant du gras]</p>
+      <p class="sys-line">[Ton plan : prendre du muscle en perdant du gras]</p>
       ${planCard({...p, waist: p.waist}, p.weight || 75)}
       <div class="field"><label for="ob-freeDay">Jour libre (grosse bouffe, sorties)</label><select id="ob-freeDay" data-bind="ob" data-f="freeDay"><option value="-1" ${o.freeDay === "-1" ? "selected" : ""}>Aucun</option>${DAYNAMES.map((d, i) => `<option value="${i}" ${String(i) === String(o.freeDay) ? "selected" : ""}>${d.charAt(0).toUpperCase() + d.slice(1)}</option>`).join("")}</select><small>Ce jour-là, pas besoin de noter tes repas, aucune pénalité.</small></div>
       <div class="grid2"><div class="field"><label for="ob-fastH">Jeûne intermittent</label><select id="ob-fastH" data-bind="ob" data-f="fastH">${FASTS.map(x => `<option value="${x.v}" ${String(o.fastH) === x.v ? "selected" : ""}>${x.label}</option>`).join("")}</select></div>
       <div class="field"><label for="ob-fastStart">Début de la fenêtre de repas</label><input type="time" id="ob-fastStart" data-bind="ob" data-f="fastStart" value="${esc(o.fastStart)}"></div></div>
-      <div class="grid2">${f("studyMin", "Révisions (minutes / jour)", "60", "numeric")}${f("sleep", "Sommeil visé (h)", "7")}</div>
-      <div class="grid2">${f("steps", "Pas par jour", "8000", "numeric")}${f("water", "Eau par jour (L)", "2")}</div>
+      <div class="field"><label for="ob-breakfast">Le matin</label><select id="ob-breakfast" data-bind="ob" data-f="breakfast"><option value="1" ${o.breakfast !== "0" ? "selected" : ""}>Je prends un petit-déjeuner</option><option value="0" ${o.breakfast === "0" ? "selected" : ""}>Je ne mange pas le matin</option></select></div>
+      <span class="lbl">Ta quête quotidienne</span>
+      <p class="muted small">Chaque jour : noter tes repas, tes protéines et ton sommeil. Coche en plus ce qui te parle : chaque case remplie rapporte de l'XP et de l'or.</p>
+      ${f("sleep", "Sommeil visé (heures par nuit)", "7")}
+      ${tg("qSteps", "Marcher", "Un nombre de pas par jour")}${o.qSteps ? f("steps", "Pas par jour", "8000", "numeric") : ""}
+      ${tg("qWater", "Boire de l'eau", "Un objectif en litres par jour")}${o.qWater ? f("water", "Eau par jour (L)", "2") : ""}
+      ${tg("qStudy", "Réviser ou travailler", "Cours, devoirs, projet perso : du lundi au vendredi")}${o.qStudy ? f("studyMin", "Minutes par jour", "60", "numeric") : ""}
       <div class="row"><button class="btn ghost" data-act="obBack">Retour</button><button class="btn primary" data-act="obNext">Continuer</button></div></section></div>`;
   }
   return `<div class="ob">${steps}${rewardEditor()}<div class="row"><button class="btn ghost" data-act="obBack">Retour</button><button class="btn primary" data-act="obFinish">Signer le contrat</button></div></div>`;
@@ -1991,7 +2014,7 @@ function renderModal() {
   else if (m.kind === "confirm") h = `<div class="win ${m.danger ? "red" : ""}"><h2 class="win-title">${m.title}</h2><p>${m.body}</p><div class="row"><button class="btn ghost" data-act="closeModal">Annuler</button><button class="btn ${m.danger ? "danger" : "gold"}" data-act="confirmYes">${m.yes}</button></div></div>`;
   else if (m.kind === "food") h = modalFood(m);
   else if (m.kind === "tplSave") h = `<div class="win"><h2 class="win-title">Repas type</h2><div class="field"><label for="fm-tplName">Nom du repas</label><input id="fm-tplName" data-bind="food" data-f="tplName" autocomplete="off" placeholder="Ex. Poulet riz du midi" value="${esc(m.tplName || "")}"></div><div class="row"><button class="btn ghost" data-act="closeModal">Annuler</button><button class="btn primary" data-act="tplSave">Enregistrer</button></div></div>`;
-  else if (m.kind === "ticket") { const p = S.purchases.find(x => x.id === m.pid); h = `<div class="win"><h2 class="win-title">Ticket repas</h2><p>Valider « ${esc(p ? p.name : "")} » ${m.date === today() ? "aujourd'hui" : "le " + fmtDay(fromStr(m.date), {day: "numeric", month: "long"})} ? Le repas compte comme noté, ses calories ne comptent pas.</p><div class="row">${SLOTS.map(sl => `<button class="btn gold" data-act="ticketSlot" data-slot="${sl.k}">${sl.label}</button>`).join("")}</div><button class="btn ghost" data-act="closeModal">Annuler</button></div>`; }
+  else if (m.kind === "ticket") { const p = S.purchases.find(x => x.id === m.pid); h = `<div class="win"><h2 class="win-title">Ticket repas</h2><p>Valider « ${esc(p ? p.name : "")} » ${m.date === today() ? "aujourd'hui" : "le " + fmtDay(fromStr(m.date), {day: "numeric", month: "long"})} ? Le repas compte comme noté, ses calories ne comptent pas.</p><div class="row">${mealSlots([]).map(sl => `<button class="btn gold" data-act="ticketSlot" data-slot="${sl.k}">${sl.label}</button>`).join("")}</div><button class="btn ghost" data-act="closeModal">Annuler</button></div>`; }
   el.innerHTML = h; el.hidden = false; restoreFocus(focus);
 }
 function modalPreview(m) {
@@ -2195,6 +2218,7 @@ async function finishOnboarding() {
   const profile = {v: 2, startDay, createdAt: new Date().toISOString(), createdDay: today(), foodStart: toStr(addDays(fromStr(today()), 1)), ...base, oldBench: parseNum(o.oldBench) > 0 ? parseNum(o.oldBench) : null,
     legMaint: true, sound: true, title: null};
   const rewards = rewardsFromEditor(m); if (!rewards) return;
+  if (!rewards.items.length) { toast("[Système] Coche au moins une récompense pour remplir ta boutique.", "red"); return; }
   try { await Store.db.doc("game/rewards").set(rewards); await Store.db.doc("game/profile").set(profile); }
   catch (e) { writeError(e); return; }
   S.rewards = rewards; S.profile = profile; state.view = "status"; state.ob = null;
@@ -2318,18 +2342,21 @@ const ACTIONS = {
       if (o.height.trim() && !(h >= 120 && h <= 230)) { toast("[Système] Taille illisible : en centimètres, par exemple 180.", "red"); return; }
       if (o.age.trim() && !(a >= 12 && a <= 99)) { toast("[Système] Âge illisible.", "red"); return; } }
     o.step++; window.scrollTo(0, 0); render(); },
+  obToggle: a => { state.ob[a.dataset.k] = !state.ob[a.dataset.k]; render(); },
   obBack: () => { state.ob.step = Math.max(0, state.ob.step - 1); window.scrollTo(0, 0); render(); },
   obFinish: () => finishOnboarding(),
   setToggle: a => { state.setDraft[a.dataset.k] = !state.setDraft[a.dataset.k]; render(); },
   setSave: () => {
     const s = state.setDraft, p = S.profile || {}, n = v => parseNum(v), pos = v => n(v) > 0 ? n(v) : null;
-    const steps = Math.round(n(s.steps)), sleep = n(s.sleep), water = n(s.water), studyMin = Math.round(n(s.studyMin));
-    if (!(steps > 0 && sleep > 0 && water > 0 && studyMin >= 0)) { toast("[Système] Un objectif est vide ou illisible.", "red"); return; }
+    const pt = p.targets || {}, keep = (v, on, old) => v > 0 ? v : on ? null : old;   // a switched-off quest may keep an empty target
+    const steps = keep(Math.round(n(s.steps)), s.qSteps, pt.steps ?? 8000), sleep = n(s.sleep), water = keep(n(s.water), s.qWater, pt.water ?? 2), studyMin = keep(Math.round(n(s.studyMin)), s.qStudy, pt.studyMin ?? 60);
+    if (!(steps > 0 && sleep > 0 && water > 0 && studyMin > 0)) { toast("[Système] Un objectif est vide ou illisible.", "red"); return; }
     const next = {...clone(p), name: String(s.name || "").trim().slice(0, 24) || null, weight: pos(s.weight) && r1(pos(s.weight)), oldBench: pos(s.oldBench), height: pos(s.height) && Math.round(pos(s.height)), age: pos(s.age) && Math.round(pos(s.age)),
       neck: pos(s.neck) && r1(pos(s.neck)), bf: pos(s.bf), activity: Number(s.activity) || 1.5, freeDay: Number(s.freeDay), freeComp: !!s.freeComp,
       kcalManual: pos(s.kcalManual) && Math.round(pos(s.kcalManual)), proteinManual: pos(s.proteinManual) && Math.round(pos(s.proteinManual)),
       fastH: Number(s.fastH) || null, fastStart: /^\d{2}:\d{2}$/.test(s.fastStart || "") ? s.fastStart : "12:00",
-      targets: {...(p.targets || {}), steps, sleep, water, studyMin}, legMaint: !!s.legMaint, sound: !!s.sound, title: s.title || null};
+      targets: {...(p.targets || {}), steps, sleep, water, studyMin}, legMaint: !!s.legMaint, sound: !!s.sound, title: s.title || null,
+      breakfast: !!s.breakfast, quests: {steps: !!s.qSteps, water: !!s.qWater, study: !!s.qStudy}};
     if (!next.foodStart) next.foodStart = toStr(addDays(fromStr(today()), 1));
     S.profile = next; queueSet("game/profile", next); state.setDraft = null; state.view = "status"; window.scrollTo(0, 0); render(); toast("[Réglages enregistrés]", "ok");
   },
