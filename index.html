@@ -509,6 +509,13 @@ figcaption{font:600 11px var(--font-display);letter-spacing:.08em;color:var(--mu
 .modal .win .m-actions>*{flex:1 1 auto;margin:0}
 .modal .win .m-actions .btn.wide{flex-basis:100%}
 .modal .win .m-actions p{flex-basis:100%}
+.day-pick{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.day-pick button{min-height:46px;border:1px solid var(--line);background:rgba(10,30,70,.45);color:var(--text);font:600 11px var(--font-display);text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0}
+.day-pick button small{font-size:13px;color:var(--muted)}
+.day-pick button.on{background:rgba(60,140,255,.35);border-color:var(--glow)}
+.day-pick button:disabled{opacity:.35;cursor:default}
+.m-main{display:contents}
+.shop .rw.idea .btn{min-width:44px;font-size:18px;padding:0}
 </style>
 
 <div id="app" class="wrap"></div>
@@ -572,7 +579,7 @@ const EX = {
   preacher:    {n: "Curl pupitre (barre EZ ou machine)", kind: "iso", eq: "bar"},
   inclBar:     {n: "Développé incliné barre ou Smith (~30°)", kind: "poly", eq: "bar"},
   pullup:      {n: "Tractions prise neutre (ou tirage prise neutre)", kind: "poly", eq: "bw"},
-  machPress:   {n: "Développé machine assis", kind: "poly", eq: "machine"},
+  machPress:   {n: "Chest press (développé assis à la machine)", kind: "poly", eq: "machine"},
   cableRow:    {n: "Rowing poulie assis", kind: "poly", eq: "cable"},
   pecDeck:     {n: "Pec deck", kind: "iso", eq: "machine"},
   uniPd:       {n: "Tirage unilatéral demi-agenouillé", kind: "poly", eq: "cable"},
@@ -588,6 +595,9 @@ const EX = {
   triHigh:     {n: "Extension triceps poulie haute", kind: "iso", eq: "cable"},
   hammer:      {n: "Curl marteau", kind: "iso", eq: "db"},
   rdl:         {n: "Soulevé de terre roumain (haltères ou barre)", kind: "poly", eq: "db"},
+  latpdNeutral:{n: "Tirage vertical prise neutre", kind: "poly", eq: "cable"},
+  inclMach:    {n: "Développé incliné à la machine", kind: "poly", eq: "machine"},
+  kickback:    {n: "Kickback fessier (machine ou poulie)", kind: "iso", eq: "machine"},
   dips:        {n: "Dips", kind: "poly", eq: "bw"},
   pullupPro:   {n: "Tractions prise pronation, un peu plus large que les épaules", kind: "poly", eq: "bw"},
   squat:       {n: "Squat barre (ou hack squat)", kind: "poly", eq: "bar"},
@@ -603,8 +613,8 @@ const SESS = {
     {ex: "csRow", sets: 3, reps: [10, 12], rest: 120, cue: "Dos n° 1. Poitrine collée au pad, coudes vers l'arrière, serre les omoplates."},
     {ex: "inclDb", sets: 3, reps: [10, 12], rest: 120, cue: "Descends profond, haltères au niveau des pecs."},
     {ex: "latpd", sets: 3, reps: [10, 12], rest: 120, cue: "Dos n° 2. Poitrine haute, coudes vers les côtes, remonte bras tendus pour étirer le dos."},
-    {ex: "legPress", sets: 3, reps: [10, 12], rest: 120, cue: "Descente profonde, bas du dos collé au dossier."},
-    {ex: "rdl", sets: 3, reps: [10, 12], rest: 120, cue: "Genoux légèrement fléchis, dos bien droit : pousse les fesses en arrière jusqu'à sentir l'étirement derrière les cuisses, puis remonte en serrant les fessiers."},
+    {ex: "legExt", sets: 3, reps: [12, 15], rest: 90, cue: "Pause 1 s en haut, descente contrôlée."},
+    {ex: "kickback", sets: 3, reps: [12, 15], rest: 75, perLeg: true, cue: "Bassin calé contre l'appui, pousse la jambe vers l'arrière en serrant le fessier, sans cambrer le dos."},
   ],
   A: [
     {ex: "bench", sets: 3, reps: [6, 8], rest: 150, cue: "Omoplates serrées et basses, léger arc, pieds ancrés ; barre au bas des pecs, touche sans rebond."},
@@ -625,17 +635,17 @@ const SESS = {
   ],
   C: [
     {ex: "inclBar", sets: 3, reps: [6, 8], rest: 150, cue: "Barre vers le haut des pecs, avant-bras verticaux."},
-    {ex: "pullup", sets: 3, reps: [6, 10], rest: 120, cue: "Étirement complet en bas, tire les coudes vers les hanches." + PULLUP_NOTE},
+    {ex: "latpdNeutral", sets: 3, reps: [8, 10], rest: 120, cue: "Prise neutre (paumes face à face) : étirement complet en haut, tire les coudes vers les hanches."},
     {ex: "machPress", sets: 3, reps: [8, 12], rest: 120, cue: "Siège réglé pour que les poignées arrivent au milieu des pecs ; amplitude complète."},
     {ex: "cableRow", sets: 3, reps: [10, 12], rest: 90, cue: "Laisse les épaules avancer pour étirer, puis tire et serre les omoplates."},
     {ex: "pecDeck", sets: 2, reps: [12, 15], rest: 90, cue: "Épaules plaquées en arrière, contraction 1 s."},
     {ex: "uniPd", sets: 2, reps: [10, 12], rest: 75, perArm: true, cue: "Coude vers la hanche ; en haut, laisse l'épaule monter pour étirer."},
   ],
   J: [
-    {ex: "hack", sets: 3, reps: [8, 10], rest: 150, cue: "Dos collé au dossier, descends profond, genoux dans l'axe des pieds."},
+    {ex: "legPress", sets: 3, reps: [8, 10], rest: 150, cue: "Pieds au milieu de la plateforme, descente profonde sans décoller le bas du dos."},
     {ex: "legCurl", sets: 3, reps: [10, 12], rest: 90, cue: "Buste penché en avant pour étirer les ischios."},
-    {ex: "legPress", sets: 2, reps: [10, 12], rest: 120, cue: "Descente profonde sans décoller le bas du dos."},
-    {ex: "legExt", sets: 2, reps: [12, 15], rest: 90, cue: "Pause 1 s en haut, descente contrôlée."},
+    {ex: "legExt", sets: 3, reps: [12, 15], rest: 90, cue: "Pause 1 s en haut, descente contrôlée."},
+    {ex: "kickback", sets: 2, reps: [12, 15], rest: 75, perLeg: true, cue: "Bassin calé contre l'appui, pousse la jambe vers l'arrière en serrant le fessier, sans cambrer le dos."},
     {ex: "calves", sets: 3, reps: [10, 15], rest: 60, cue: "Pause 1-2 s en bas, en étirement."},
     {ex: "latRaise", sets: 2, reps: [12, 15], rest: 60, perArm: true, cue: "Bonus haut du corps : comme en séance B."},
   ],
@@ -674,11 +684,10 @@ const SESS_MATHIS = {                     // "Programme prise de muscle" (Gauthi
     {ex: "hammer", sets: 2, reps: [10, 12], rest: 60, superset: true, cue: "Coude fixe : enchaîne avec le pushdown, puis 60 s de repos."},
   ],
   JX: [
-    {ex: "squat", sets: 4, reps: [6, 8], rest: 180, noFail: true, cue: "Descends au moins jusqu'à la parallèle, genoux dans l'axe des pieds, dos gainé."},
-    {ex: "rdl", sets: 3, reps: [8, 10], rest: 150, noFail: true, cue: "Fesses vers l'arrière, charge collée aux cuisses, descends jusqu'à sentir l'étirement des ischios ; dos neutre."},
-    {ex: "bulgarian", sets: 3, reps: [8, 10], rest: 120, perLeg: true, cue: "Pied arrière sur le banc, buste légèrement penché, genou avant qui avance."},
+    {ex: "legPress", sets: 4, reps: [8, 10], rest: 150, noFail: true, cue: "Pieds au milieu de la plateforme, descente profonde sans décoller le bas du dos. Jamais à l'échec."},
     {ex: "legCurl", sets: 3, reps: [10, 12], rest: 90, cue: "Buste penché en avant pour étirer les ischios."},
     {ex: "legExt", sets: 3, reps: [12, 15], rest: 90, cue: "Pause 1 s en haut, descente contrôlée."},
+    {ex: "kickback", sets: 3, reps: [12, 15], rest: 75, perLeg: true, cue: "Bassin calé contre l'appui, pousse la jambe vers l'arrière en serrant le fessier, sans cambrer le dos."},
     {ex: "calves", sets: 4, reps: [10, 15], rest: 60, cue: "Pause 1-2 s en bas, en étirement."},
   ],
   BE: [
@@ -689,7 +698,14 @@ const SESS_MATHIS = {                     // "Programme prise de muscle" (Gauthi
     {ex: "calves", sets: 3, reps: [10, 15], rest: 60, opt: true, cue: "Pause 1-2 s en bas."},
   ],
 };
+const FELIX_MACHINE = {                   // weak wrists (Gauthier, 2026-10-26): presses on machines only
+  bench: {ex: "machPress", cue: "Chest press : siège réglé pour que les poignées arrivent au milieu des pecs, poignets bien droits, amplitude complète."},
+  inclDb: {ex: "inclMach", cue: "Machine inclinée : poignets droits dans le prolongement des avant-bras, descends jusqu'à sentir l'étirement des pecs."},
+  inclBar: {ex: "inclMach", cue: "Machine inclinée : poignets droits dans le prolongement des avant-bras, descends jusqu'à sentir l'étirement des pecs."},
+};
+const felixSess = list => list.map(it => FELIX_MACHINE[it.ex] ? {...it, ...FELIX_MACHINE[it.ex]} : it);
 const SESS_FELIX = {                      // B trimmed for a fat-loss block: big shoulder press, fewer arm sets, arms in superset; legs without the shoulder bonus
+  FB: felixSess(SESS.FB), A: felixSess(SESS.A), C: felixSess(SESS.C),
   J: SESS.J.filter(it => it.ex !== "latRaise"),
   B: [
     {ex: "shPress", sets: 3, reps: [8, 10], rest: 120, cue: "Dos bien calé, descends les poignées au niveau du menton."},
@@ -716,46 +732,47 @@ const PROGRAM_WEEKS = 8;
 const JOKERS = 1;
 const WEEKS = [null,
   {n: 1, phase: "Initiation", rank: "E", rirTxt: "3 partout (que des gros mouvements)", setsTxt: "2 par exo"},
-  {n: 2, phase: "Réintroduction", rank: "D", rirTxt: "3-4 sur les gros mouvements, 2-3 sur l'isolation", setsTxt: "2 par exo"},
-  {n: 3, phase: "Transition", rank: "C", rirTxt: "2-3 sur les gros mouvements, 1-2 sur l'isolation", setsTxt: "3 sur les 2 premiers exos, 2 ailleurs"},
-  {n: 4, phase: "Construction", rank: "B", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
-  {n: 5, phase: "Construction", rank: "B", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
-  {n: 6, phase: "Construction", rank: "A", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
-  {n: 7, phase: "Construction", rank: "A", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
-  {n: 8, phase: "Bilan", rank: "S", rirTxt: "1-2, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
+  {n: 2, phase: "Réintroduction", rank: "E", rirTxt: "3-4 sur les gros mouvements, 2-3 sur l'isolation", setsTxt: "2 par exo"},
+  {n: 3, phase: "Transition", rank: "D", rirTxt: "2-3 sur les gros mouvements, 1-2 sur l'isolation", setsTxt: "3 sur les 2 premiers exos, 2 ailleurs"},
+  {n: 4, phase: "Construction", rank: "D", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
+  {n: 5, phase: "Construction", rank: "D", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
+  {n: 6, phase: "Construction", rank: "C", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
+  {n: 7, phase: "Construction", rank: "C", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
+  {n: 8, phase: "Bilan", rank: "C", rirTxt: "1-2, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
 ];
 const DELOAD = {phase: "Semaine allégée", rank: "D", rirTxt: "3 partout, mêmes charges, jamais à l'échec", setsTxt: "Moitié des séries"};
-const TEST_EX = {A: ["bench", "csRow"], C: ["inclBar", "pullup"]};
-const KEY_LIFTS = [["bench", "A", "Couché barre"], ["inclDb", "A", "Incliné haltères"], ["csRow", "A", "Rowing appuyé"], ["latpd", "A", "Tirage vertical"], ["inclBar", "C", "Incliné barre"], ["pullup", "C", "Tractions (lest)"], ["machPress", "C", "Développé machine"], ["shPress", "B", "Épaules machine"], ["hack", "Jambes", "Hack squat"]];
+const TEST_EX = {A: ["bench", "csRow"], C: ["inclBar", "latpdNeutral"]};
+const KEY_LIFTS = [["bench", "A", "Couché barre"], ["inclDb", "A", "Incliné haltères"], ["csRow", "A", "Rowing appuyé"], ["latpd", "A", "Tirage vertical"], ["inclBar", "C", "Incliné barre"], ["latpdNeutral", "C", "Tirage prise neutre"], ["machPress", "C", "Chest press"], ["shPress", "B", "Épaules machine"], ["legPress", "Jambes", "Presse à cuisses"]];
 const INC = {bar: 2.5, machine: 2.5, cable: 2.5, db: 2, bw: 2.5};
 const FEELINGS = ["Écrasé", "Dur", "Correct", "Bien", "Inarrêtable"];
-const BUILD = [{rank: "B"}, {rank: "B"}, {rank: "A"}, {rank: "A"}];
+const BUILD = [{rank: "D"}, {rank: "D"}, {rank: "C"}, {rank: "C"}];
 const WEEKS_FELIX = [null,
   {n: 1, phase: "Éveil", rank: "E", rirTxt: "3 partout : la technique avant la charge", setsTxt: "2 par exo"},
-  {n: 2, phase: "Apprentissage", rank: "D", rirTxt: "3 partout", setsTxt: "2 par exo"},
-  {n: 3, phase: "Apprentissage", rank: "C", rirTxt: "3 partout", setsTxt: "2 par exo"},
+  {n: 2, phase: "Apprentissage", rank: "E", rirTxt: "3 partout", setsTxt: "2 par exo"},
+  {n: 3, phase: "Apprentissage", rank: "D", rirTxt: "3 partout", setsTxt: "2 par exo"},
   ...BUILD.map((b, i) => ({n: 4 + i, phase: "Construction", rank: b.rank, rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"})),
-  {n: 8, phase: "Bilan", rank: "S", rirTxt: "1-2, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
+  {n: 8, phase: "Bilan", rank: "C", rirTxt: "1-2, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
 ];
 const WEEKS_MATHIS = [null,
   {n: 1, phase: "Calibrage", rank: "E", rirTxt: "2 sur les gros exos, 1-2 sur l'isolation", setsTxt: "Jeudi full body commun : 2 par exo ; Jambes : une série de moins"},
-  {n: 2, phase: "Progression", rank: "D", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
-  {n: 3, phase: "Progression", rank: "C", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
+  {n: 2, phase: "Progression", rank: "E", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
+  {n: 3, phase: "Progression", rank: "D", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
   ...BUILD.map((b, i) => ({n: 4 + i, phase: "Intensification", rank: b.rank, rirTxt: "1, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"})),
-  {n: 8, phase: "Bilan", rank: "S", rirTxt: "1, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
+  {n: 8, phase: "Bilan", rank: "C", rirTxt: "1, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
 ];
 const PLANS = {
   base: {id: "base", label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: ["A", "C"], weeks: WEEKS, test: TEST_EX,
     intro: "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat",
     lead: "Lundi A, mardi B, jeudi C, vendredi Jambes ou Haut (une semaine sur deux). Mercredi, samedi et dimanche : repos. Grosse semaine : un 5e donjon en bonus.",
     s1: "Première séance : tu réapprends les mouvements, rien de lourd. Que des gros mouvements : 2 pour les pecs, 2 pour le dos, 2 pour les jambes."},
-  felix: {id: "felix", label: "Perte de poids (programme de Félix)", goal: "fat", title: "Potentiel de malade", fbFirst: true, big: ["A", "C"], weeks: WEEKS_FELIX, test: TEST_EX, sess: SESS_FELIX, finisher: true,
+  felix: {id: "felix", label: "Perte de poids (programme de Félix)", goal: "fat", title: "Potentiel de malade", fbFirst: true, big: ["A", "C"], weeks: WEEKS_FELIX, test: {A: ["machPress", "csRow"], C: ["inclMach", "latpdNeutral"]}, sess: SESS_FELIX,
+    keyLifts: [["machPress", "A", "Chest press"], ["inclMach", "A", "Incliné machine"], ["csRow", "A", "Rowing appuyé"], ["latpd", "A", "Tirage vertical"], ["latpdNeutral", "C", "Tirage prise neutre"], ["shPress", "B", "Épaules machine"], ["legPress", "Jambes", "Presse à cuisses"]], finisher: true,
     intro: "Le Système a détecté un potentiel de malade, encore jamais exploité. C'est rare. Il te propose un contrat",
     lead: "Première semaine : un full body le jeudi. Ensuite lundi A, mardi B, jeudi C, vendredi Jambes, et 10 min de marche inclinée à la fin de chaque séance. Mercredi, samedi et dimanche : repos.",
     s1: "Tu apprends les mouvements : 2 séries par exercice, 3 reps en réserve, charges légères. La technique avant la charge."},
   mathis: {id: "mathis", label: "Prise de muscle (programme de Mathis)", goal: "gain", title: "Guerrier assidu", fbFirst: false, big: [], weeks: WEEKS_MATHIS,
     test: {P: ["bench", "dips"], T: ["pullupPro", "csRow"], HC: ["inclDb", "pullup"]}, sess: SESS_MATHIS,
-    keyLifts: [["bench", "Poussée", "Couché barre"], ["dips", "Poussée", "Dips (lest)"], ["pullupPro", "Tirage", "Tractions pronation (lest)"], ["csRow", "Tirage", "Rowing appuyé"], ["inclDb", "Haut complet", "Incliné haltères"], ["pullup", "Haut complet", "Tractions neutres (lest)"], ["squat", "Jambes", "Squat"], ["rdl", "Jambes", "Soulevé roumain"]],
+    keyLifts: [["bench", "Poussée", "Couché barre"], ["dips", "Poussée", "Dips (lest)"], ["pullupPro", "Tirage", "Tractions pronation (lest)"], ["csRow", "Tirage", "Rowing appuyé"], ["inclDb", "Haut complet", "Incliné haltères"], ["pullup", "Haut complet", "Tractions neutres (lest)"], ["legPress", "Jambes", "Presse à cuisses"]],
     intro: "Le Système a détecté un guerrier assidu, déjà habitué de la salle. Il te propose un contrat",
     lead: "Lundi Poussée, mardi Tirage, jeudi Haut complet, samedi grosse séance Jambes (semaines impaires) ou Bras et épaules (semaines paires). Mercredi, vendredi et dimanche : repos.",
     s1: "Semaine de calibrage : trouve tes charges dans les nouvelles fourchettes de reps, sans aller à l'échec."},
@@ -881,9 +898,33 @@ const SUGGESTED = [                          // sign-up catalog: nothing pre-tic
   {tier: "grosse", name: "Sauter une séance sans pénalité", cost: 3000, effect: "skip"},
 ];
 const RANK_DEFAULT = {D: "Un bon resto de ton choix", C: "Un pot de whey", B: "Un jeu vidéo ou l'objet de ton choix", A: "Une nouvelle paire de chaussures de salle", S: "La grosse récompense : à toi de la choisir"};
-const TIERS = [{k: "petite", name: "Petites récompenses"}, {k: "moyenne", name: "Récompenses moyennes"}, {k: "grosse", name: "Grosses récompenses"}];
+const TIERS = [{k: "petite", name: "Petites récompenses"}, {k: "moyenne", name: "Récompenses moyennes"}, {k: "grosse", name: "Grosses récompenses"}, {k: "legendaire", name: "Récompenses légendaires"}];
+const R = (tier, name, cost, food, effect) => ({tier, name, cost, ...(food ? {food: true} : {}), ...(effect ? {effect} : {})});
+const GAUTHIER_SHOP = [                     // his tastes (food, bar, whey, gear but never gloves, video games, skipping a session)
+  R("petite", "Un café en terrasse", 150, 1), R("petite", "Une Monster bien fraîche", 200, 1), R("petite", "Un dessert de ton choix", 250, 1),
+  R("petite", "Une crêpe ou une gaufre au Nutella", 250, 1), R("petite", "Un milkshake", 300, 1), R("petite", "Pizza maison", 350, 1), R("petite", "Un nouveau shaker", 400),
+  R("moyenne", "Un kebab ou un tacos", 500, 1), R("moyenne", "Un burger au resto", 650, 1), R("moyenne", "Pizza chez Lolo et Zaza", 700, 1), R("moyenne", "Une entrecôte", 700, 1),
+  R("moyenne", "Des sushis à volonté", 800, 1), R("moyenne", "Un t-shirt ou un short de sport", 800), R("moyenne", "Soirée au bar avec les potes", 900, 1),
+  R("grosse", "Des sangles de tirage", 1000), R("grosse", "Un pot de créatine", 1200), R("grosse", "Un nouveau pot de whey", 1500), R("grosse", "Un resto avec les potes, tu choisis l'endroit", 1500, 1),
+  R("grosse", "Un équipement de salle (tout sauf des gants)", 1800), R("grosse", "Une ceinture de musculation", 2200), R("grosse", "Un jeu vidéo", 2500),
+  R("grosse", "Sauter une séance sans pénalité", 3000, 0, "skip"), R("grosse", "Une nouvelle paire de chaussures de salle", 3500),
+  R("legendaire", "Une tenue de salle complète neuve", 5000), R("legendaire", "Un gros jeu vidéo en édition deluxe à sa sortie", 6000),
+  R("legendaire", "Un week-end entre potes", 9000), R("legendaire", "La récompense de fin d'aventure : à toi de la choisir", 12000),
+];
+const IDEAS_EXTRA = [R("petite", "Une crêpe ou une gaufre au Nutella", 250, 1), R("petite", "Un milkshake", 300, 1), R("petite", "Un nouveau shaker", 400),
+  R("moyenne", "Un burger au resto", 650, 1), R("moyenne", "Des sushis à volonté", 800, 1),
+  R("grosse", "Des sangles de tirage", 1000), R("grosse", "Un pot de créatine", 1200), R("grosse", "Un resto avec les potes, tu choisis l'endroit", 1500, 1),
+  R("grosse", "Une ceinture de musculation", 2200), R("grosse", "Une nouvelle paire de chaussures de salle", 3500),
+  R("legendaire", "Une tenue de salle complète neuve", 5000), R("legendaire", "Un gros jeu vidéo en édition deluxe à sa sortie", 6000),
+  R("legendaire", "Un week-end entre potes", 9000), R("legendaire", "La récompense de fin d'aventure : à toi de la choisir", 12000)];
+function rewardIdeas() {                      // everything the player could add in one tap, minus what his shop already has
+  const have = new Set((S.rewards?.items || []).map(i => normPseudo(i.name))), seen = new Set(), out = [];
+  for (const r of [...(curPlan().id === "base" ? GAUTHIER_SHOP : []), ...(curPlan().id === "felix" ? FELIX_REWARDS : []), ...SUGGESTED, ...IDEAS_EXTRA]) {
+    const k = normPseudo(r.name); if (have.has(k) || seen.has(k)) continue; seen.add(k); out.push(r); }
+  return out;
+}
 const RANKS = ["E", "D", "C", "B", "A", "S"];
-const RANK_LEVEL = {E: 1, D: 5, C: 10, B: 17, A: 24, S: 30};
+const RANK_LEVEL = {E: 1, D: 10, C: 20, B: 30, A: 40, S: 50};
 const DEFAULT_TITLE = "Ancien chasseur";
 const baseTitle = () => curPlan().title || DEFAULT_TITLE;   // Félix "Potentiel de malade", Mathis "Guerrier assidu" (his request)
 const ACH = [
@@ -1107,7 +1148,7 @@ const state = {
 try { const v = localStorage.getItem("gl-tab"); if (["status", "dungeons", "meals", "body", "shop", "journal"].includes(v)) state.view = v; } catch (e) {}
 
 /* ================= derived numbers ================= */
-const reqXp = L => 100 + 20 * L;
+const reqXp = L => 150 + 40 * L;   // ~6-month adventure (2026-10-26): rank D ~2 weeks, C ~5, B ~10, A ~17, S ~26 weeks at full pace
 const sessionsSorted = () => [...S.sessions].sort((a, b) => String(a.finishedAt || "").localeCompare(String(b.finishedAt || "")));
 function bodyWeight() {
   const ks = Object.keys(S.days).sort().reverse();
@@ -1153,6 +1194,7 @@ function dayEval(key) {
   I.study = questOn(p, "study") ? {req: dow <= 4, done: !!d.study, txt: dow <= 4 ? (studyMin % 60 ? studyMin + " min" : studyMin / 60 + " h") : "Week-end, en bonus"} : OFF;
   const fp = fastPlan(p);
   I.fast = fp ? {req: !free, done: !!d.fast, txt: free ? "Jour libre, en bonus" : fp.label} : {req: false, done: false, txt: "", off: true};
+  if (d.sick) { for (const k in I) I[k].req = false; return {items: I, free, full: true, sick: true, done: 0, malus: [], malusXp: 0, logged: m.count > 0, xp: 0, gold: 0, maxXp: 0}; }
   const malus = [];
   if (sl > 0 && sl < sleepT - 1) malus.push({txt: "Nuit trop courte (" + fmt(sl, 1) + " h)", xp: -40});
   const foodStart = p.foodStart || p.createdDay || t;
@@ -1205,11 +1247,12 @@ function weekBonus(cw) {
   if (out.perfect && c.bonusDone) { out.big = true; out.xp += 100; out.gold += 75; }
   return out;
 }
+const plannedDate = (cw, ty) => S.profile?.moves?.[cw]?.[ty] || toStr(addDays(weekStart(cw), TYPES[ty].day));   // moved by the player, or the usual day
 function weekPlan(cw) {
   const info = weekInfo(cw); if (!info || !info.types.length) return [];
   const v = weekValid(cw), t = today(), curW = weekOfStr(t);
   const mk = (ty, bonus) => {
-    const date = bonus ? null : toStr(addDays(weekStart(cw), TYPES[ty].day)); const done = v[ty]; let st;
+    const date = bonus ? null : plannedDate(cw, ty); const done = v[ty]; let st;
     if (done) st = done.full ? "done" : "partial";
     else if (bonus) st = cw < curW ? "skipped" : cw > curW ? "future" : "bonus";
     else if (cw < curW) st = "missed"; else if (cw > curW) st = "future"; else if (date === t) st = "today"; else if (date < t) st = "late"; else st = "open";
@@ -1221,7 +1264,7 @@ function requiredSessions(info) {
   if (!info || !info.types.length) return 0;
   const want = info.deload ? 2 : info.types.length === 1 ? 1 : 3, created = S.profile?.createdDay;
   if (!created || info.deload) return want;
-  return Math.min(want, info.types.filter(ty => toStr(addDays(weekStart(info.cw), TYPES[ty].day)) >= created).length);   // joined mid-week
+  return Math.min(want, info.types.filter(ty => plannedDate(info.cw, ty) >= created).length);   // joined mid-week
 }
 const skipsInWeek = cw => S.purchases.filter(p => p.effect === "skip" && p.date && weekOfStr(p.date) === cw).length;
 function penaltyState() {
@@ -1235,7 +1278,7 @@ function penaltyState() {
   }
   return null;
 }
-function rankOf(L, bilan) { if (L >= 30 && bilan) return "S"; if (L >= 24) return "A"; if (L >= 17) return "B"; if (L >= 10) return "C"; if (L >= 5) return "D"; return "E"; }
+function rankOf(L, bilan) { if (L >= RANK_LEVEL.S && bilan) return "S"; for (const r of ["A", "B", "C", "D"]) if (L >= RANK_LEVEL[r]) return r; return "E"; }
 function compute() {
   const sess = sessionsSorted();
   let xp = 0, gold = 0, prCount = 0, setsLogged = 0, validSessions = 0;
@@ -1516,7 +1559,7 @@ function weekPlanning(cw0) {
     return ses.map(p => `<button class="pday st-${p.st} ${isToday ? "today" : ""}" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}"><span class="d">${dl}</span><span class="s"><b>${esc(tyLabel(p.ty))}</b><small>${esc(TYPES[p.ty].gate)}${p.done && p.done.date !== key ? " · fait " + fmtDay(fromStr(p.done.date), {weekday: "long"}) : ""}</small></span><span class="st">${PLAN_ST[p.st] || ""}</span></button>`).join("");
   }).join("");
   return `<span class="lbl">Planning</span>${seg}<div class="plan-days">${rows}</div>
-    ${bonus ? `<button class="pday bonus st-${bonus.st}" data-act="preview" data-cw="${bonus.cw}" data-ty="${bonus.ty}"><span class="d">Bonus</span><span class="s"><b>${esc(TYPES[bonus.ty].name)}</b><small>Grosse semaine, si tu veux (Jambes le mercredi, Haut le vendredi)</small></span><span class="st">${bonus.done ? "Nettoyé" : "Option"}</span></button>` : ""}
+    ${bonus ? `<button class="pday bonus st-${bonus.st}" data-act="preview" data-cw="${bonus.cw}" data-ty="${bonus.ty}"><span class="d">Bonus</span><span class="s"><b>${esc(TYPES[bonus.ty].name)}</b><small>Grosse semaine, si tu veux : un 5e donjon, le jour qui t'arrange</small></span><span class="st">${bonus.done ? "Nettoyé" : "Option"}</span></button>` : ""}
     <p class="muted small">Touche une séance pour voir ses exercices.</p>`;
 }
 function blockDoneWin(cw) {
@@ -1529,7 +1572,7 @@ const SLEEP_CHOICES = [4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
 const sleepPicker = (key, cur) => `<div class="sleep-pick">${SLEEP_CHOICES.map(h => `<button class="${cur === h ? "on" : ""}" data-act="sleepPick" data-d="${key}" data-h="${h}">${fmt(h, 1)} h</button>`).join("")}</div>`;
 function sleepWin() {
   const t = today(), d = S.days[t] || {};
-  if (Number(d.sleepH) > 0 || d.sleep === true) return "";
+  if (Number(d.sleepH) > 0 || d.sleep === true || d.sick) return "";
   return `<section class="win sleep-win"><h2 class="win-title">Réveil</h2><p class="sys-line">[Combien d'heures as-tu dormi cette nuit ?]</p>${sleepPicker(t, null)}<p class="muted small">Un toucher suffit. Objectif : ${fmt(Number(S.profile?.targets?.sleep) || 7, 1)} h.</p></section>`;
 }
 function questWin() {
@@ -1547,7 +1590,8 @@ function questWin() {
     <ul class="qlist">${auto("food", "Repas notés")}${auto("protein", "Protéines")}${sleepRow}${check("steps", "Pas")}${check("water", "Eau")}${check("study", "Révisions")}${I.fast.off ? "" : check("fast", "Jeûne " + fastPlan(S.profile).label + " respecté")}</ul>
     ${e.malus.map(m => `<p class="malus">[Malus] ${m.txt} : −${Math.abs(m.xp)} XP</p>`).join("")}
     <div class="weigh"><label for="weighIn">Pesée du matin, à jeun (3-4 fois par semaine)</label><div class="weigh-in"><input id="weighIn" data-bind="weigh" data-key="${key}" inputmode="decimal" autocomplete="off" placeholder="—" value="${esc(wv)}"><span>kg</span></div></div>
-    ${e.full ? `<p class="done-line">[Quête accomplie] +${e.xp} XP · +${e.gold} or</p>` : `<p class="warn">Tout faire : +${e.maxXp} XP${off === 0 ? ` · temps restant <b id="qTimer">--:--:--</b>` : ""}</p>`}
+    ${e.sick ? `<p class="reading">[Malade] Quête en pause aujourd'hui : pas de malus et ta série est gardée. Repose-toi, et décale tes donjons si besoin (touche une séance du planning).</p>` : e.full ? `<p class="done-line">[Quête accomplie] +${e.xp} XP · +${e.gold} or</p>` : `<p class="warn">Tout faire : +${e.maxXp} XP${off === 0 ? ` · temps restant <b id="qTimer">--:--:--</b>` : ""}</p>`}
+    <button class="link" data-act="sickDay" data-d="${key}" data-v="${e.sick ? 0 : 1}">${e.sick ? "Je ne suis plus malade" : off === 0 ? "Je suis malade aujourd'hui" : "J'étais malade ce jour-là"}</button>
     <details class="fold"><summary>Règles de la quête</summary><div><p class="small">Une quête incomplète remet ta série à zéro. Moins de ${fmt((Number(S.profile?.targets?.sleep) || 7) - 1, 1)} h de sommeil : −40 XP. Une journée sans repas notés : −25 XP.</p></div></details>
   </section>`;
 }
@@ -1593,6 +1637,7 @@ function planGrimoire() {
   const own = id === "felix" ? [
     "<b>Objectif : perdre du gras sans perdre de muscle.</b> Comme tu prends du muscle en même temps, la balance descend moins vite que ton tour de taille : juge tes progrès à ta taille et à ton carnet, pas à la seule balance.",
     "<b>Tes séances</b> : A, B et C du programme de Gauthier, et Jambes chaque vendredi. Les jambes sont les plus gros muscles : c'est là que tu dépenses et construis le plus.",
+    "<b>Tes poignets d'abord</b> : tous les développés se font à la machine (chest press, incliné machine, épaules machine). Pas de barre ni d'haltères pour pousser.",
     "<b>3 premières semaines</b> : 2 séries par exercice, 3 reps en réserve, charges légères. La technique avant la charge : une mauvaise technique prise au début coûte des mois.",
     "<b>Ensuite</b> : chaque semaine, une rep de plus ou un peu plus de charge sur chaque exercice. Le Système fait le calcul pour toi dans chaque donjon.",
     "<b>Fin de séance</b> : 10 min de marche inclinée (+20 XP, +10 or). Ça brûle sans te fatiguer pour la séance suivante.",
@@ -1603,7 +1648,7 @@ function planGrimoire() {
     "<b>Objectif : prendre du muscle.</b> Ce qui compte, c'est de finir chaque série près de l'échec, pas de faire beaucoup de reps.",
     "<b>4 séances</b> : lundi Poussée, mardi Tirage, jeudi Haut complet, samedi grosse séance Jambes ou Bras et épaules, une semaine sur deux.",
     "<b>2 exercices maximum pour un même muscle</b> dans une séance, mais pecs et dos deux fois par semaine. Rien pour l'avant d'épaule : les développés et les dips le travaillent déjà.",
-    "<b>6-10 reps sur les gros exos, 10-15 sur l'isolation.</b> Gros exos à 1-2 reps de l'échec ; dernière série d'isolation à l'échec à partir de S2. Squat et soulevé de terre roumain : jamais à l'échec.",
+    "<b>6-10 reps sur les gros exos, 10-15 sur l'isolation.</b> Gros exos à 1-2 reps de l'échec ; dernière série d'isolation à l'échec à partir de S2. Presse à cuisses : jamais à l'échec. Ni squat ni soulevé de terre.",
     "<b>Double progression</b> : même charge jusqu'au haut de la fourchette sur toutes les séries, puis +2,5 kg. Tractions et dips : du lest dès que tu fais le haut de la fourchette au poids du corps (note le lest en kg).",
     "<b>Ne rien ajouter</b> : pas d'exo bonus pour les pecs ou les épaules en fin de séance, c'est exactement ce qui te freinait. Repos : 2-3 min sur les gros exos, 60-90 s sur l'isolation.",
     "<b>8 semaines au lieu de 5</b> : S1 calibrage, S2-S3 progression, S4-S7 on pousse fort, S8 bilan (épreuves sur les 2 premiers exos de Poussée, Tirage et Haut complet). Joker semaine allégée quand la fatigue s'accumule.",
@@ -1628,14 +1673,14 @@ function grimoire() {
       <li>Semaine allégée quand la fatigue s'accumule.</li></ul></div></details>
     <details class="fold"><summary>Reps en réserve</summary><div><p>C'est le nombre de reps que tu pourrais encore faire au moment où tu poses la charge. « 2 en réserve » : tu t'arrêtes 2 reps avant de ne plus pouvoir bouger la barre.</p></div></details>
     <details class="fold"><summary>Monter les charges</summary><div><p>Tu gardes la même charge jusqu'à faire le haut de la fourchette de reps sur toutes les séries. Ensuite, +2,5 kg (ou l'haltère au-dessus). Sinon, vise une rep de plus que la dernière fois. Le Système fait ce calcul pour toi dans chaque donjon.</p></div></details>
-    <details class="fold"><summary>L'échec, à partir de S4</summary><div><p>La dernière série de chaque exercice d'isolation va jusqu'à l'échec. Les gros mouvements (couché, incliné, tractions, rowings, presses, hack squat) restent à 1-2 reps en réserve. Jambes : jamais à l'échec.</p></div></details>
+    <details class="fold"><summary>L'échec, à partir de S4</summary><div><p>La dernière série de chaque exercice d'isolation va jusqu'à l'échec. Les gros mouvements (couché, incliné, tirages, rowings, presses) restent à 1-2 reps en réserve. Jambes : jamais à l'échec.</p></div></details>
     <details class="fold"><summary>Ta semaine</summary><div><p>Lundi A, mardi B, jeudi C, vendredi Jambes ou Haut (une semaine sur deux). Mercredi, samedi et dimanche : repos, avec deux jours d'affilée le week-end. Règle d'or : au moins 2 jours de repos entre tes deux grosses séances pec/dos (A et C). Les donjons ne sont pas bloqués sur leur jour : un donjon prévu mardi peut se faire mercredi, et le Système te prévient si un décalage casse la règle d'or.</p></div></details>
     <details class="fold"><summary>Grosse semaine : 5 séances</summary><div><p>Optionnel. Tu ajoutes le donjon bonus de la semaine : Jambes le mercredi, Haut le vendredi. Si toute la semaine est faite, +100 XP et +75 or en plus.</p></div></details>
     <details class="fold"><summary>Semaine chargée : 3 séances</summary><div><p>Garde A et C pour faire pecs et dos deux fois. Semaine Jambes : A, C, Jambes, et ajoute à la séance Jambes 2 séries d'extension triceps au-dessus de la tête et 2 de curl bayésien. Semaine Haut : A, B, C. 3 donjons suffisent pour éviter la pénalité.</p></div></details>
     <details class="fold"><summary>Joker : semaine allégée</summary><div><p>Une fois par bloc, la semaine de ton choix (à activer dans l'onglet Statut, avant le premier donjon de la semaine). Moitié des séries, mêmes charges, 3 reps en réserve, jamais à l'échec. Le programme fait une pause d'une semaine puis reprend là où tu l'as laissé. 2 donjons suffisent cette semaine-là. À prendre quand la fatigue s'accumule : perfs qui baissent deux séances de suite, sommeil moyen, articulations qui tirent.</p></div></details>
     <details class="fold"><summary>Courbatures</summary><div><p>Si un muscle est encore courbaturé quand tu le retravailles, retire-lui une série cette fois-là. Le bouton est sous chaque exercice, dans le donjon.</p></div></details>
     <details class="fold"><summary>Échauffement</summary><div><p>5 min de cardio léger, 2 séries de montée progressive sur le premier exercice, puis 1 série légère avant chaque nouveau mouvement.</p></div></details>
-    <details class="fold"><summary>Bilan de S8</summary><div><p>Au couché et au rowing poitrine appuyée (séance A), à l'incliné barre et aux tractions (séance C) : première série avec ta charge de S4 et un maximum de reps propres. Ensuite, le Système conseille une semaine allégée avant le bloc suivant.</p></div></details>
+    <details class="fold"><summary>Bilan de S8</summary><div><p>Au couché et au rowing poitrine appuyée (séance A), à l'incliné barre et au tirage prise neutre (séance C) : première série avec ta charge de S4 et un maximum de reps propres. Ensuite, le Système conseille une semaine allégée avant le bloc suivant.</p></div></details>
   </section>
   <section class="win"><h2 class="win-title">Ce que le Système a réajusté</h2>
     <ol class="steps">
@@ -1648,7 +1693,7 @@ function grimoire() {
       <li><b>Couché de la première séance.</b> Le repère de 55 % de ton ancien max peut être trop lourd après un long arrêt. La règle qui compte : une charge que tu pourrais pousser 10-12 fois, arrêtée à 6.</li>
       <li><b>Les rowings, tirages et presses à la machine</b> comptent comme des gros mouvements : ils restent à 1-2 reps en réserve. Seule l'isolation va à l'échec.</li>
       <li><b>Protéines, sommeil, pas.</b> Le programme n'en parlait pas, alors que la reprise en dépend. Ils deviennent ta quête quotidienne (protéines : environ 1,8 g par kg de poids de corps).</li>
-      <li><b>Tractions :</b> note le lest en kg (0 = poids du corps, négatif = assistance).</li>
+      <li><b>Ni squat, ni soulevé de terre, ni tractions, ni dips</b> (vos choix) : la presse à cuisses, le kickback fessier et le tirage prise neutre les remplacent.</li>
       <li><b>Programme recentré sur toi</b> : les consignes pour ton pote sont retirées.</li>
     </ol></section>`;
 }
@@ -1744,6 +1789,8 @@ function viewShop(P) {
     ${tiers || `<section class="win"><p class="empty">Aucune récompense dans la boutique. Ajoute les tiennes avec le bouton ci-dessous.</p></section>`}
     <section class="win"><h2 class="win-title">Récompenses de rang</h2><p class="muted small">Gratuites : chaque nouveau rang débloque la sienne.</p><ul class="shop">${rankRows}</ul></section>
     <section class="win"><h2 class="win-title">Historique</h2>${hist.length ? `<ul class="hist-list">${hist.map(p => `<li><span>${fmtDay(fromStr(p.date), {day: "numeric", month: "short"})} · ${esc(p.name)}${p.usedOn ? ' <small class="muted">(mangé le ' + fmtDay(fromStr(p.usedOn), {day: "numeric", month: "short"}) + ")</small>" : ""}</span><span>${p.kind === "rank" ? "Rang " + p.rank : "−" + fmt(p.cost, 0) + " or"}</span></li>`).join("")}</ul>` : `<p class="empty">Rien d'échangé pour l'instant. Ta première récompense t'attend après quelques donjons.</p>`}</section>
+    ${(() => { const ideas = rewardIdeas(); state.ideas = ideas; return ideas.length ? `<section class="win"><h2 class="win-title">Idées de récompenses</h2><p class="muted small">Touche « + » pour l'ajouter à ta boutique. Tu peux ensuite changer son nom ou son prix avec « Modifier mes récompenses ».</p>
+      ${TIERS.map(t => { const l = ideas.map((r, i) => ({r, i})).filter(x => x.r.tier === t.k); return l.length ? `<span class="lbl">${t.name}</span><ul class="shop">${l.map(({r, i}) => `<li class="rw idea"><span class="rw-n">${esc(r.name)}${r.food ? ' <span class="tag">Repas</span>' : ""}</span><span class="rw-c"><i class="coin"></i>${fmt(r.cost, 0)}</span><button class="btn sm" data-act="rwIdea" data-i="${i}" aria-label="Ajouter ${esc(r.name)}">+</button></li>`).join("")}</ul>` : ""; }).join("")}</section>` : ""; })()}
     <button class="btn ghost wide" data-act="editShop">Modifier mes récompenses</button>`;
 }
 function rewardEditor() {
@@ -1762,7 +1809,7 @@ function rewardEditor() {
         <input id="rw-new-cost" data-bind="rwNew" data-f="newCost" placeholder="Or" inputmode="numeric" value="${esc(m.newCost)}" aria-label="Prix en or">
         <select id="rw-new-tier" data-bind="rwNew" data-f="newTier" aria-label="Catégorie">${TIERS.map(t => `<option value="${t.k}" ${m.newTier === t.k ? "selected" : ""}>${t.name}</option>`).join("")}</select>
         <button class="btn sm" data-act="rwAdd">Ajouter</button></div></div></section>
-    <section class="win"><h2 class="win-title">Récompenses de rang</h2><p class="muted small">Une grosse récompense gratuite à chaque nouveau rang. Rang D vers la fin de la 1re semaine, rang S à la fin du programme si tu tiens le rythme.</p>
+    <section class="win"><h2 class="win-title">Récompenses de rang</h2><p class="muted small">Une grosse récompense gratuite à chaque nouveau rang. Rang D après environ deux semaines, rang S au bout d'environ six mois si tu tiens le rythme.</p>
       ${["D", "C", "B", "A", "S"].map(r => `<div class="rank-ed">${rankBadge(r)}<input id="rk-${r}" data-bind="rwRank" data-r="${r}" value="${esc(m.rank[r])}" aria-label="Récompense du rang ${r}"></div>`).join("")}</section>`;
 }
 function viewShopEdit() { return `<header class="top"><div class="brand"><span class="brand-mark">SYSTÈME</span></div></header>` + rewardEditor() + `<div class="row"><button class="btn ghost" data-act="go" data-v="shop">Annuler</button><button class="btn primary" data-act="rwSave">Enregistrer</button></div>`; }
@@ -2012,7 +2059,7 @@ const DATA_FILES = window.GL_FILES || {aliments: "aliments.json", marques: "marq
 const getJson = u => fetch(u).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
 function loadFoods() {
   if (FOODS || foodsLoading) return;
-  const redraw = () => { if (state.modal && state.modal.kind === "food") renderModal(); };
+  const redraw = () => { if (state.modal && state.modal.kind === "food") foodSearchRefresh(); };
   foodsLoading = getJson(DATA_FILES.aliments)
     .then(j => { FOODS = j.foods.map(f => ({n: f[0], k: f[1], p: f[2], c: f[3], f: f[4], grp: f[5], src: "ciqual", ...(f[6] && f[7] > 0 ? {unit: f[6], ug: f[7]} : {})})); redraw(); })
     .catch(() => { FOODS = []; toast("[Système] Base d'aliments introuvable : la saisie rapide reste possible.", "red"); });
@@ -2167,33 +2214,54 @@ function viewMeals(P) {
     ${planWin()}
     ${tipsWin()}`;
 }
+const foodTag = f => f.src === "perso" ? ' <span class="src">à moi</span>' : f.src === "extra" ? ' <span class="src">repère</span>' : f.src === "off" ? ' <span class="src">marque</span>' : "";
+function foodList(m, arr, empty) {
+  m.list = arr;
+  return arr.length ? `<ul class="food-res">${arr.map((f, i) => `<li><button data-act="foodPick" data-i="${i}"><span>${esc(f.n)}${foodTag(f)}</span><small>${f.unitOnly ? `${fmt(f.k, 0)} kcal / ${esc(f.unit)}` : `${fmt(f.k, 0)} kcal /100 g${f.unit && f.ug ? `<br>${esc(f.unit)} : ${fmt(f.k * f.ug / 100, 0)} kcal` : ""}`}</small></button></li>`).join("")}</ul>` : `<p class="muted small">${empty}</p>`;
+}
+const foodYours = q => `<button class="btn ghost wide" data-act="foodCreateFrom">＋ ${q ? `Ajouter « ${esc(q)} » moi-même` : "Ajouter mon propre aliment"}</button>`;
+function foodResults(m) {
+  return `${!FOODS ? `<p class="muted small">Chargement de la base d'aliments…</p>` : ""}${m.q ? foodList(m, searchFoods(m.q), FOODS ? "Rien trouvé avec ces mots." : "") : ""}
+      ${FOODS && !BRANDS ? `<p class="muted small">Chargement des produits de marque…</p>` : ""}
+      <p class="muted small">Aliments simples : table Ciqual 2025 de l'Anses. Produits de marque : ${BRANDS && BRANDS.length ? fmt(BRANDS.length, 0) + " produits vendus en France, " : ""}base libre Open Food Facts (licence ODbL), vérifie l'étiquette en cas de doute.</p>`;
+}
+function foodSearchRefresh() {                // redraw only the results: the field being typed in is never replaced
+  const m = state.modal; if (!m || m.kind !== "food") return;
+  const box = document.getElementById("food-results"), main = document.getElementById("food-main");
+  if (m.sel || m.tab !== "search" || !box) { renderModal(); return; }
+  box.innerHTML = foodResults(m); if (main) main.innerHTML = m.q && FOODS ? foodYours(m.q) : "";
+}
+function foodCalc(m) { const f = m.sel, hasU = !!(f.unit && f.ug > 0), useU = hasU && (f.unitOnly || m.mode !== "g"), qty = parseNum(useU ? m.units : m.grams); return {f, hasU, useU, qty, g: (qty || 0) * (useU ? f.ug : 1)}; }
+function foodCalcLine(c) { const {f, g} = c, x = v => v * g / 100; return g > 0 ? `= <b>${fmt(Math.round(x(f.k)), 0)} kcal</b> · ${fmt(x(f.p), 1)} g prot. · ${fmt(x(f.c || 0), 1)} g gluc. · ${fmt(x(f.f || 0), 1)} g lip.` : "Indique une quantité."; }
+function foodCalcRefresh() {                  // live total while typing the amount, without redrawing the field
+  const m = state.modal; if (!m || !m.sel) return; const c = foodCalc(m);
+  const line = document.querySelector("#modal .food-calc"); if (line) line.innerHTML = foodCalcLine(c);
+  document.querySelectorAll("#modal .qty-chips button").forEach(b => b.classList.toggle("on", Number(b.dataset.v) === c.qty));
+  const add = document.querySelector('#modal [data-act="foodAdd"]'); if (add) add.disabled = !(c.g > 0);
+}
 function modalFood(m) {
   const slotName = SLOTS.find(x => x.k === m.slot)?.label || "";
   const auSlot = {matin: "au petit-déjeuner", midi: "au midi", soir: "au soir", snack: "aux collations"}[m.slot] || "";
   const head = `<h2 class="win-title">Ajouter · ${slotName}</h2>`;
   if (m.sel) {
-    const f = m.sel, hasU = !!(f.unit && f.ug > 0), useU = hasU && (f.unitOnly || m.mode !== "g");
-    const qty = parseNum(useU ? m.units : m.grams), g = (qty || 0) * (useU ? f.ug : 1), x = v => v * g / 100;
+    const c = foodCalc(m), {f, hasU, useU, qty, g} = c;
     const chips = useU ? [0.5, 1, 2, 3, 4] : [30, 50, 100, 150, 200, 250];
     return `<div class="win">${head}<p><b>${esc(f.n)}</b><br><small class="muted">${f.unitOnly ? `Pour 1 ${esc(f.unit)}` : "Pour 100 g"} : ${fmt(f.k, 0)} kcal · ${fmt(f.p, 1)} g prot. · ${fmt(f.c || 0, 1)} g gluc. · ${fmt(f.f || 0, 1)} g lip.${hasU && !f.unitOnly ? `<br>1 ${esc(f.unit)} = ${fmt(f.ug, 1)} g` : ""}</small></p>
       ${hasU && !f.unitOnly ? `<div class="seg" role="group" aria-label="Unité"><button class="${useU ? "on" : ""}" data-act="foodMode" data-m="u">${esc(f.unit)}</button><button class="${useU ? "" : "on"}" data-act="foodMode" data-m="g">Grammes</button></div>` : ""}
       <div class="field"><label for="food-qty">${useU ? `Combien de « ${esc(f.unit)} »` : "Quantité en grammes (ou ml pour une boisson)"}</label><input id="food-qty" data-bind="food" data-f="${useU ? "units" : "grams"}" data-live="1" inputmode="decimal" autocomplete="off" value="${esc(useU ? m.units : m.grams)}"></div>
       <div class="qty-chips">${chips.map(v => `<button class="${qty === v ? "on" : ""}" data-act="foodQty" data-v="${v}">${useU ? (v === 0.5 ? "½" : v) : v + " g"}</button>`).join("")}</div>
-      <p class="sys-line food-calc">${g > 0 ? `= <b>${fmt(Math.round(x(f.k)), 0)} kcal</b> · ${fmt(x(f.p), 1)} g prot. · ${fmt(x(f.c || 0), 1)} g gluc. · ${fmt(x(f.f || 0), 1)} g lip.` : "Indique une quantité."}</p>
+      <p class="sys-line food-calc">${foodCalcLine(c)}</p>
       <div class="m-actions"><button class="btn ghost" data-act="foodBack">Retour</button><button class="btn primary" data-act="foodAdd" ${g > 0 ? "" : "disabled"}>Ajouter ${auSlot}</button></div></div>`;
   }
   const tabs = [["search", "Chercher"], ["recent", "Récents"], ["tpl", "Mes repas"], ["quick", "Libre"], ["custom", "Mon aliment"]].concat(Store.mode === "server" ? [["off", "Marques"]] : Store.mode === "cloud" ? [["code", "Code-barres"]] : []);
-  const tag = f => f.src === "perso" ? ' <span class="src">à moi</span>' : f.src === "extra" ? ' <span class="src">repère</span>' : f.src === "off" ? ' <span class="src">marque</span>' : "";
-  const list = (arr, empty) => { m.list = arr; return arr.length ? `<ul class="food-res">${arr.map((f, i) => `<li><button data-act="foodPick" data-i="${i}"><span>${esc(f.n)}${tag(f)}</span><small>${f.unitOnly ? `${fmt(f.k, 0)} kcal / ${esc(f.unit)}` : `${fmt(f.k, 0)} kcal /100 g${f.unit && f.ug ? `<br>${esc(f.unit)} : ${fmt(f.k * f.ug / 100, 0)} kcal` : ""}`}</small></button></li>`).join("")}</ul>` : `<p class="muted small">${empty}</p>`; };
+  const list = (arr, empty) => foodList(m, arr, empty);
   const inp = (id, label, mode, ph) => `<div class="field"><label for="fm-${id}">${label}</label><input id="fm-${id}" data-bind="food" data-f="${id}" inputmode="${mode || "text"}" autocomplete="off" placeholder="${ph || ""}" value="${esc(m[id] || "")}"></div>`;
-  const yours = q => `<button class="btn ghost wide" data-act="foodCreateFrom">＋ ${q ? `Ajouter « ${esc(q)} » moi-même` : "Ajouter mon propre aliment"}</button>`;
+  const yours = foodYours;
   const ad = m.added || [], last = ad[ad.length - 1];
   const added = ad.length ? `<p class="reading good">${ad.length > 1 ? `${ad.length} aliments ajoutés ${auSlot} (${fmt(ad.reduce((n, a) => n + a.kcal, 0), 0)} kcal). Dernier : ` : `Ajouté ${auSlot} : `}${esc(last.n)} (${fmt(last.kcal, 0)} kcal). Ajoute autre chose ou touche « Terminé ».</p>` : "";
   let body = "";
-  if (m.tab === "search") body = `<div class="field"><label for="food-q">Aliment</label><input id="food-q" data-bind="foodQ" autocomplete="off" placeholder="Ex. poulet cru, skyr, whey myprotein, Nutella…" value="${esc(m.q || "")}"></div>
-      ${!FOODS ? `<p class="muted small">Chargement de la base d'aliments…</p>` : ""}${m.q ? list(searchFoods(m.q), FOODS ? "Rien trouvé avec ces mots." : "") : ""}
-      ${FOODS && !BRANDS ? `<p class="muted small">Chargement des produits de marque…</p>` : ""}
-      <p class="muted small">Aliments simples : table Ciqual 2025 de l'Anses. Produits de marque : ${BRANDS && BRANDS.length ? fmt(BRANDS.length, 0) + " produits vendus en France, " : ""}base libre Open Food Facts (licence ODbL), vérifie l'étiquette en cas de doute.</p>`;
+  if (m.tab === "search") body = `<div class="field"><label for="food-q">Aliment</label><input id="food-q" data-bind="foodQ" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="Ex. poulet cru, skyr, whey myprotein, Nutella…" value="${esc(m.q || "")}"></div>
+      <div id="food-results">${foodResults(m)}</div>`;
   else if (m.tab === "recent") body = list(recentFoods(), "Tes aliments déjà notés apparaîtront ici.");
   else if (m.tab === "tpl") { const tp = S.mealtpl?.items || []; body = tp.length ? `<ul class="food-res">${tp.map(t => `<li><button data-act="tplAdd" data-id="${esc(t.id)}"><span>${esc(t.name)}<br><small>${t.items.length} aliments</small></span><small>${fmt(t.items.reduce((n, x) => n + (x.kcal || 0), 0), 0)} kcal</small></button></li>`).join("")}</ul>${tp.map(t => `<button class="link" data-act="tplDel" data-id="${esc(t.id)}">Supprimer « ${esc(t.name)} »</button>`).join("")}` : `<p class="muted small">Note un repas que tu manges souvent, puis appuie sur « Garder comme repas type » sous ce repas : il s'ajoutera ensuite en un geste.</p>`; }
   else if (m.tab === "quick") body = `<p class="muted small">N'importe quoi : un resto, un plat de ta mère, un truc introuvable. Une estimation suffit.</p>
@@ -2214,7 +2282,7 @@ function modalFood(m) {
       <p class="muted small">Base libre de produits du commerce, alimentée par ses utilisateurs : vérifie l'étiquette en cas de doute.</p>`;
   const main = m.tab === "search" ? (m.q && FOODS ? yours(m.q) : "") : m.tab === "quick" ? `<button class="btn primary" data-act="foodQuick">Ajouter ${auSlot}</button>`
     : m.tab === "custom" ? `<button class="btn primary" data-act="foodCustom">Enregistrer et ajouter</button>` : m.tab === "code" && m.offRes && !m.offRes.length ? yours("") : "";
-  return `<div class="win">${head}${added}<div class="seg seg-wrap food-tabs" role="group" aria-label="Façon d'ajouter">${tabs.map(([k, l]) => `<button class="${m.tab === k ? "on" : ""}" data-act="foodTab" data-t="${k}">${l}</button>`).join("")}</div>${body}<div class="m-actions">${main}<button class="btn ${m.added && m.added.length ? "primary" : "ghost"}" data-act="closeModal">${m.added && m.added.length ? "Terminé" : "Fermer"}</button></div></div>`;
+  return `<div class="win">${head}${added}<div class="seg seg-wrap food-tabs" role="group" aria-label="Façon d'ajouter">${tabs.map(([k, l]) => `<button class="${m.tab === k ? "on" : ""}" data-act="foodTab" data-t="${k}">${l}</button>`).join("")}</div>${body}<div class="m-actions"><div id="food-main" class="m-main">${main}</div><button class="btn ${m.added && m.added.length ? "primary" : "ghost"}" data-act="closeModal">${m.added && m.added.length ? "Terminé" : "Fermer"}</button></div></div>`;
 }
 function useTicket(pid, date, slot) {
   const p = S.purchases.find(x => x.id === pid); if (!p) return;
@@ -2282,17 +2350,43 @@ function obAdvance(o) {
   if (o.step === 1 && pid === "felix" && o.steps === "8000") o.steps = "10000";
   if (o.step === 2 && pid === "felix" && !state.rw.items.some(i => i.felix)) state.rw.items = [...FELIX_REWARDS.map((r, i) => ({...r, id: "fx" + i, keep: true, felix: true})), ...state.rw.items];
 }
-function seedPlan(force) {                    // once per load: remember a recognised program, give Félix his dishes
+function seedPlan(force) {                    // once per load: remember the program, Félix's dishes, fixes from Gauthier's feedback
   if ((state.seeded && !force) || !S.profile) return; state.seeded = true;
   const p = S.profile, det = detectPlan(p.name, cloudName());
   let next = !PLANS[p.program] && det ? {...clone(p), program: det} : null;
-  if ((next || p).program === "felix" && !(p.seeded || {}).felixDishes2) {
+  const prof = () => next || (next = clone(p)), mark = k => { prof().seeded = {...(prof().seeded || {}), [k]: true}; }, done = k => !!((next || p).seeded || {})[k];
+  const pid = (next || p).program;
+  const saveRewards = items => { S.rewards = {rank: {...RANK_DEFAULT}, ...(S.rewards || {}), items}; queueSet("game/rewards", S.rewards); };
+  if (pid === "felix" && !done("felixDishes2")) {
     const OLD = {"Pâtes au saumon version resto, avec plein d'emmental": [0, 600], "Un burger bien chargé avec des frites": [1, 700]};   // first wording -> home dishes
     let items = (S.rewards?.items || []).map(i => OLD[i.name] ? {...i, name: FELIX_REWARDS[OLD[i.name][0]].name, cost: i.cost === OLD[i.name][1] ? FELIX_REWARDS[OLD[i.name][0]].cost : i.cost} : i);
-    const have = new Set(items.map(i => i.name)), want = (p.seeded || {}).felixDishes ? FELIX_REWARDS.slice(0, 1) : FELIX_REWARDS;   // the pasta stays a reward no matter what
+    const have = new Set(items.map(i => i.name)), want = done("felixDishes") ? FELIX_REWARDS.slice(0, 1) : FELIX_REWARDS;   // the pasta stays a reward no matter what
     items = [...items, ...want.filter(r => !have.has(r.name)).map((r, i) => ({...r, id: "fx" + i + "b"}))];
-    S.rewards = {rank: {...RANK_DEFAULT}, ...(S.rewards || {}), items}; queueSet("game/rewards", S.rewards);
-    next = {...(next || clone(p)), seeded: {...(p.seeded || {}), felixDishes: true, felixDishes2: true}};
+    saveRewards(items); mark("felixDishes"); mark("felixDishes2");
+  }
+  if (!done("fbFix1")) {                       // 22 Oct full body as really done: leg extension (typed in the leg-press rows), no RDL; Félix used the chest press
+    for (const ses of S.sessions.filter(x => x.type === "FB")) {
+      const sets = {...(ses.sets || {})}; let changed = false;
+      if (sets.rdl) { delete sets.rdl; changed = true; }
+      if (sets.legPress && !sets.legExt) { sets.legExt = sets.legPress; delete sets.legPress; changed = true; }
+      if (pid === "felix" && sets.bench && !sets.machPress) { sets.machPress = sets.bench; delete sets.bench; changed = true; }
+      if (changed) { const doc = {...ses, sets}; delete doc.id; S.sessions = S.sessions.map(x => x.id === ses.id ? {id: ses.id, ...doc} : x); queueSet("sessions/" + ses.id, doc); }
+    }
+    mark("fbFix1");
+  }
+  if (pid === "base" && !done("shop2")) {     // "il n'y a quasiment rien" (26 Oct): fill his shop with what he likes
+    const items = (S.rewards?.items || []).slice(), have = new Set(items.map(i => normPseudo(i.name)));
+    saveRewards([...items, ...GAUTHIER_SHOP.filter(r => !have.has(normPseudo(r.name))).map((r, i) => ({...r, id: "g" + i}))]); mark("shop2");
+  }
+  if (pid === "base" && !done("sick1026")) {  // sick on Mon 26 Oct: that day paused, week moved to Tue A / Wed B / Fri C / Sat Haut (his usual rhythm, one day later)
+    const cw = weekOfStr("2026-10-26"), t = today();
+    const wi = weekInfo(cw);
+    if (t >= "2026-10-26" && t <= "2026-10-27" && wi && !wi.deload && wi.types.length === 4 && wi.types[0] === "A" && !S.sessions.some(x => sessionCw(x) === cw)) {
+      const side = weekInfo(cw).types[3];
+      prof().moves = {...(prof().moves || {}), [cw]: {A: "2026-10-27", B: "2026-10-28", C: "2026-10-30", [side]: "2026-10-31"}};
+      const d = {...(S.days["2026-10-26"] || {}), date: "2026-10-26", sick: true}; delete d.id; S.days = {...S.days, "2026-10-26": d}; queueSet("days/2026-10-26", d);
+    }
+    mark("sick1026");
   }
   if (next) { S.profile = next; queueSet("game/profile", next); }
 }
@@ -2384,6 +2478,14 @@ function renderModal() {
   else if (m.kind === "ticket") { const p = S.purchases.find(x => x.id === m.pid); h = `<div class="win"><h2 class="win-title">Ticket repas</h2><p>Valider « ${esc(p ? p.name : "")} » ${m.date === today() ? "aujourd'hui" : "le " + fmtDay(fromStr(m.date), {day: "numeric", month: "long"})} ? Le repas compte comme noté, ses calories ne comptent pas.</p><div class="row">${mealSlots([]).map(sl => `<button class="btn gold" data-act="ticketSlot" data-slot="${sl.k}">${sl.label}</button>`).join("")}</div><button class="btn ghost" data-act="closeModal">Annuler</button></div>`; }
   el.innerHTML = h; el.hidden = false; restoreFocus(focus);
 }
+function moveRow(cw, ty, p) {                 // change the day of a session this week or next (sick, busy...)
+  if (p.bonus || p.done || cw < weekOfStr(today()) || (S.draft && S.draft.active && S.draft.cw === cw && S.draft.type === ty)) return "";
+  const days = [...Array(7)].map((_, i) => toStr(addDays(weekStart(cw), i)));
+  const big = curPlan().big || [], other = big.includes(ty) ? big.find(x => x !== ty) : null;
+  const od = other && weekInfo(cw)?.types.includes(other) ? plannedDate(cw, other) : null;
+  const warn = od && p.date && Math.abs(dayDiff(fromStr(p.date), fromStr(od))) - 1 < 2 ? `<p class="gap-warn">${other} est prévu ${fmtDay(fromStr(od), {weekday: "long"})} : moins de 2 jours de repos entre tes deux grosses séances.</p>` : "";
+  return `<div class="field"><span class="lbl">Changer de jour</span><div class="day-pick">${days.map(d => `<button class="${d === p.date ? "on" : ""}" data-act="moveSes" data-cw="${cw}" data-ty="${ty}" data-d="${d}" ${d < today() ? "disabled" : ""}>${fmtDay(fromStr(d), {weekday: "short"}).replace(".", "")}<small>${fromStr(d).getDate()}</small></button>`).join("")}</div>${warn}</div>`;
+}
 function modalPreview(m) {
   const {cw, ty} = m; const info = weekInfo(cw); if (!info) return "";
   const plan = planFor(cw, ty), p = weekPlan(cw).find(x => x.ty === ty) || {}, can = canEnter(cw, ty);
@@ -2397,7 +2499,7 @@ function modalPreview(m) {
   const when = p.bonus ? "Bonus de grosse semaine (Jambes le mercredi, Haut le vendredi)" : p.date ? "Prévu " + fmtDay(fromStr(p.date), {weekday: "long", day: "numeric", month: "long"}) : "";
   return `<div class="win"><h2 class="win-title">${esc(TYPES[ty].gate)}</h2><p class="sys-line">${info.deload ? "Semaine allégée" : "S" + info.p} · ${tyLabel(ty)} · rang ${info.W.rank}</p>
     <p class="muted small">${when} · environ ${estMinutes(plan)} min · échauffement d'abord</p>
-    <ol class="pv-list">${rows}</ol>${can ? gapWarn(cw, ty, false) : ""}<div class="m-actions">${action}<button class="btn ghost" data-act="closeModal">Fermer</button></div></div>`;
+    <ol class="pv-list">${rows}</ol>${can ? gapWarn(cw, ty, false) : ""}${moveRow(cw, ty, p)}<div class="m-actions">${action}<button class="btn ghost" data-act="closeModal">Fermer</button></div></div>`;
 }
 function draftCounts() {
   const d = S.draft, plan = planFor(d.cw, d.type); let planned = 0, doneReq = 0;
@@ -2629,7 +2731,8 @@ const ACTIONS = {
   foodTab: a => { Object.assign(state.modal, {tab: a.dataset.t, sel: null}); renderModal(); },
   foodPick: a => { const m = state.modal, f = m.list && m.list[Number(a.dataset.i)]; if (!f) return; Object.assign(m, {sel: f, grams: String(f.lastG || 100), units: String(f.lastU || 1), mode: f.unit && f.ug ? (f.unitOnly || f.lastU || !f.lastG ? "u" : "g") : "g"}); renderModal(); setTimeout(() => { const i = document.getElementById("food-qty"); if (i) { i.focus(); i.select(); } }, 30); },
   foodMode: a => { state.modal.mode = a.dataset.m; renderModal(); },
-  foodQty: a => { const m = state.modal, f = m.sel, useU = f.unit && f.ug > 0 && (f.unitOnly || m.mode !== "g"); m[useU ? "units" : "grams"] = fmtIn(Number(a.dataset.v)); renderModal(); },
+  foodQty: a => { const m = state.modal, f = m.sel, useU = f.unit && f.ug > 0 && (f.unitOnly || m.mode !== "g"), v = fmtIn(Number(a.dataset.v)); m[useU ? "units" : "grams"] = v;
+    const inp = document.getElementById("food-qty"); if (inp) inp.value = v; foodCalcRefresh(); },
   foodBack: () => { state.modal.sel = null; renderModal(); },
   foodCreateFrom: () => { const m = state.modal; Object.assign(m, {tab: "custom", sel: null, cName: m.q || m.cName || ""}); renderModal(); setTimeout(() => document.getElementById(m.cName ? "fm-cK" : "fm-cName")?.focus(), 30); },
   foodPer: a => { state.modal.cPer = a.dataset.v; renderModal(); },
@@ -2699,6 +2802,14 @@ const ACTIONS = {
   warm: () => { S.draft.warm = !S.draft.warm; saveDraft(); render(); },
   fin: () => { S.draft.fin = !S.draft.fin; saveDraft(); render(); },
   planWeek: a => { state.planOffset = Number(a.dataset.o) || 0; render(); },
+  moveSes: a => { const cw = Number(a.dataset.cw), ty = a.dataset.ty, d = a.dataset.d, p = clone(S.profile), usual = toStr(addDays(weekStart(cw), TYPES[ty].day));
+    p.moves = {...(p.moves || {})}; p.moves[cw] = {...(p.moves[cw] || {}), [ty]: d}; if (d === usual) delete p.moves[cw][ty];
+    S.profile = p; queueSet("game/profile", p); render(); toast(`[Planning] ${esc(tyLabel(ty))} : ${fmtDay(fromStr(d), {weekday: "long", day: "numeric"})}`, "ok"); },
+  sickDay: a => { const d = a.dataset.d;
+    if (a.dataset.v === "1") confirmModal({title: "Jour de maladie", body: "La quête de ce jour est mise en pause : pas de malus, et ta série de quêtes est gardée. Tes donjons, tu peux les décaler : touche une séance du planning puis choisis un autre jour.", yes: "Je suis malade", run: async () => setDay(d, {sick: true})});
+    else { setDay(d, {sick: undefined}); render(); } },
+  rwIdea: a => { const r = (state.ideas || [])[Number(a.dataset.i)]; if (!r) return; const items = [...(S.rewards?.items || []).map(x => ({...x})), {...r, id: "i" + uid()}];
+    S.rewards = {rank: {...RANK_DEFAULT}, ...(S.rewards || {}), items}; queueSet("game/rewards", S.rewards); render(); toast(`[Ajoutée à ta boutique] ${esc(r.name)}`, "ok"); },
   sleepPick: a => { state.sleepOpen = null; saveSleep(a.dataset.d, a.dataset.h); },
   sleepOpen: a => { state.sleepOpen = state.sleepOpen === a.dataset.d ? null : a.dataset.d; render(); },
   pickPlan: a => { if (!PLANS[a.dataset.p]) return; const next = {...clone(S.profile), program: a.dataset.p}; S.profile = next; queueSet("game/profile", next); seedPlan(true); render(); toast(`[Programme] ${esc(PLANS[a.dataset.p].label)}`, "ok"); },
@@ -2773,8 +2884,8 @@ function onField(e) {
   else if (b === "weigh") state.weighDraft[el.dataset.key] = v;
   else if (b === "waist") state.waistDraft[el.dataset.key] = v;
   else if (b === "sleep") state.sleepDraft[el.dataset.key] = v;
-  else if (b === "foodQ") { if (state.modal) { state.modal.q = v; clearTimeout(foodQTimer); foodQTimer = setTimeout(renderModal, 120); } }
-  else if (b === "food") { if (state.modal) { state.modal[el.dataset.f] = v; if (el.dataset.live) { clearTimeout(foodQTimer); foodQTimer = setTimeout(renderModal, 150); } } }
+  else if (b === "foodQ") { if (state.modal) { state.modal.q = v; clearTimeout(foodQTimer); foodQTimer = setTimeout(foodSearchRefresh, 120); } }
+  else if (b === "food") { if (state.modal) { state.modal[el.dataset.f] = v; if (el.dataset.live) foodCalcRefresh(); } }
   else if (b === "phDate") { if (e.type === "change") { state.phDate = v || null; render(); } }
   else if (b === "cmp") { state.cmp = {...state.cmp, [el.dataset.f]: v}; if (e.type === "change") render(); }
   else if (b === "finNote") { if (state.modal) state.modal.note = v; }
