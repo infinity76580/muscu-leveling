@@ -583,7 +583,8 @@ const EX = {
   cableRow:    {n: "Rowing poulie assis", kind: "poly", eq: "cable"},
   pecDeck:     {n: "Pec deck", kind: "iso", eq: "machine"},
   uniPd:       {n: "Tirage unilatéral demi-agenouillé", kind: "poly", eq: "cable"},
-  hack:        {n: "Hack squat (ou squat Smith)", kind: "poly", eq: "machine"},
+  hack:        {n: "Hack squat (machine)", kind: "poly", eq: "machine"},
+  pendulum:    {n: "Pendulum squat (machine pendule)", kind: "poly", eq: "machine"},
   legCurl:     {n: "Leg curl assis", kind: "iso", eq: "machine"},
   legPress:    {n: "Presse à cuisses 45°", kind: "poly", eq: "machine"},
   legExt:      {n: "Leg extension", kind: "iso", eq: "machine"},
@@ -642,9 +643,10 @@ const SESS = {
     {ex: "uniPd", sets: 2, reps: [10, 12], rest: 75, perArm: true, cue: "Coude vers la hanche ; en haut, laisse l'épaule monter pour étirer."},
   ],
   J: [
-    {ex: "legPress", sets: 3, reps: [8, 10], rest: 150, cue: "Pieds au milieu de la plateforme, descente profonde sans décoller le bas du dos."},
+    {ex: "hack", sets: 3, reps: [8, 10], rest: 150, cue: "Dos collé au dossier, descends profond, genoux dans l'axe des pieds."},
+    {ex: "pendulum", sets: 2, reps: [10, 12], rest: 120, cue: "Descends le plus bas possible en gardant le dos collé, genoux qui avancent : c'est l'étirement en bas qui fait le travail."},
     {ex: "legCurl", sets: 3, reps: [10, 12], rest: 90, cue: "Buste penché en avant pour étirer les ischios."},
-    {ex: "legExt", sets: 3, reps: [12, 15], rest: 90, cue: "Pause 1 s en haut, descente contrôlée."},
+    {ex: "legExt", sets: 2, reps: [12, 15], rest: 90, cue: "Pause 1 s en haut, descente contrôlée."},
     {ex: "kickback", sets: 2, reps: [12, 15], rest: 75, perLeg: true, cue: "Bassin calé contre l'appui, pousse la jambe vers l'arrière en serrant le fessier, sans cambrer le dos."},
     {ex: "calves", sets: 3, reps: [10, 15], rest: 60, cue: "Pause 1-2 s en bas, en étirement."},
     {ex: "latRaise", sets: 2, reps: [12, 15], rest: 60, perArm: true, cue: "Bonus haut du corps : comme en séance B."},
@@ -684,7 +686,8 @@ const SESS_MATHIS = {                     // "Programme prise de muscle" (Gauthi
     {ex: "hammer", sets: 2, reps: [10, 12], rest: 60, superset: true, cue: "Coude fixe : enchaîne avec le pushdown, puis 60 s de repos."},
   ],
   JX: [
-    {ex: "legPress", sets: 4, reps: [8, 10], rest: 150, noFail: true, cue: "Pieds au milieu de la plateforme, descente profonde sans décoller le bas du dos. Jamais à l'échec."},
+    {ex: "hack", sets: 4, reps: [6, 8], rest: 180, noFail: true, cue: "Dos collé au dossier, descends au moins jusqu'à la parallèle, genoux dans l'axe des pieds. Jamais à l'échec."},
+    {ex: "pendulum", sets: 3, reps: [8, 10], rest: 150, noFail: true, cue: "Descends le plus bas possible en gardant le dos collé, genoux qui avancent : c'est l'étirement en bas qui fait le travail. Jamais à l'échec."},
     {ex: "legCurl", sets: 3, reps: [10, 12], rest: 90, cue: "Buste penché en avant pour étirer les ischios."},
     {ex: "legExt", sets: 3, reps: [12, 15], rest: 90, cue: "Pause 1 s en haut, descente contrôlée."},
     {ex: "kickback", sets: 3, reps: [12, 15], rest: 75, perLeg: true, cue: "Bassin calé contre l'appui, pousse la jambe vers l'arrière en serrant le fessier, sans cambrer le dos."},
@@ -742,7 +745,7 @@ const WEEKS = [null,
 ];
 const DELOAD = {phase: "Semaine allégée", rank: "D", rirTxt: "3 partout, mêmes charges, jamais à l'échec", setsTxt: "Moitié des séries"};
 const TEST_EX = {A: ["bench", "csRow"], C: ["inclBar", "latpdNeutral"]};
-const KEY_LIFTS = [["bench", "A", "Couché barre"], ["inclDb", "A", "Incliné haltères"], ["csRow", "A", "Rowing appuyé"], ["latpd", "A", "Tirage vertical"], ["inclBar", "C", "Incliné barre"], ["latpdNeutral", "C", "Tirage prise neutre"], ["machPress", "C", "Chest press"], ["shPress", "B", "Épaules machine"], ["legPress", "Jambes", "Presse à cuisses"]];
+const KEY_LIFTS = [["bench", "A", "Couché barre"], ["inclDb", "A", "Incliné haltères"], ["csRow", "A", "Rowing appuyé"], ["latpd", "A", "Tirage vertical"], ["inclBar", "C", "Incliné barre"], ["latpdNeutral", "C", "Tirage prise neutre"], ["machPress", "C", "Chest press"], ["shPress", "B", "Épaules machine"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]];
 const INC = {bar: 2.5, machine: 2.5, cable: 2.5, db: 2, bw: 2.5};
 const FEELINGS = ["Écrasé", "Dur", "Correct", "Bien", "Inarrêtable"];
 const BUILD = [{rank: "D"}, {rank: "D"}, {rank: "C"}, {rank: "C"}];
@@ -766,13 +769,13 @@ const PLANS = {
     lead: "Lundi A, mardi B, jeudi C, vendredi Jambes ou Haut (une semaine sur deux). Mercredi, samedi et dimanche : repos. Grosse semaine : un 5e donjon en bonus.",
     s1: "Première séance : tu réapprends les mouvements, rien de lourd. Que des gros mouvements : 2 pour les pecs, 2 pour le dos, 2 pour les jambes."},
   felix: {id: "felix", label: "Perte de poids (programme de Félix)", goal: "fat", title: "Potentiel de malade", fbFirst: true, big: ["A", "C"], weeks: WEEKS_FELIX, test: {A: ["machPress", "csRow"], C: ["inclMach", "latpdNeutral"]}, sess: SESS_FELIX,
-    keyLifts: [["machPress", "A", "Chest press"], ["inclMach", "A", "Incliné machine"], ["csRow", "A", "Rowing appuyé"], ["latpd", "A", "Tirage vertical"], ["latpdNeutral", "C", "Tirage prise neutre"], ["shPress", "B", "Épaules machine"], ["legPress", "Jambes", "Presse à cuisses"]], finisher: true,
+    keyLifts: [["machPress", "A", "Chest press"], ["inclMach", "A", "Incliné machine"], ["csRow", "A", "Rowing appuyé"], ["latpd", "A", "Tirage vertical"], ["latpdNeutral", "C", "Tirage prise neutre"], ["shPress", "B", "Épaules machine"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]], finisher: true,
     intro: "Le Système a détecté un potentiel de malade, encore jamais exploité. C'est rare. Il te propose un contrat",
     lead: "Première semaine : un full body le jeudi. Ensuite lundi A, mardi B, jeudi C, vendredi Jambes, et 10 min de marche inclinée à la fin de chaque séance. Mercredi, samedi et dimanche : repos.",
     s1: "Tu apprends les mouvements : 2 séries par exercice, 3 reps en réserve, charges légères. La technique avant la charge."},
   mathis: {id: "mathis", label: "Prise de muscle (programme de Mathis)", goal: "gain", title: "Guerrier assidu", fbFirst: false, big: [], weeks: WEEKS_MATHIS,
     test: {P: ["bench", "dips"], T: ["pullupPro", "csRow"], HC: ["inclDb", "pullup"]}, sess: SESS_MATHIS,
-    keyLifts: [["bench", "Poussée", "Couché barre"], ["dips", "Poussée", "Dips (lest)"], ["pullupPro", "Tirage", "Tractions pronation (lest)"], ["csRow", "Tirage", "Rowing appuyé"], ["inclDb", "Haut complet", "Incliné haltères"], ["pullup", "Haut complet", "Tractions neutres (lest)"], ["legPress", "Jambes", "Presse à cuisses"]],
+    keyLifts: [["bench", "Poussée", "Couché barre"], ["dips", "Poussée", "Dips (lest)"], ["pullupPro", "Tirage", "Tractions pronation (lest)"], ["csRow", "Tirage", "Rowing appuyé"], ["inclDb", "Haut complet", "Incliné haltères"], ["pullup", "Haut complet", "Tractions neutres (lest)"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]],
     intro: "Le Système a détecté un guerrier assidu, déjà habitué de la salle. Il te propose un contrat",
     lead: "Lundi Poussée, mardi Tirage, jeudi Haut complet, samedi grosse séance Jambes (semaines impaires) ou Bras et épaules (semaines paires). Mercredi, vendredi et dimanche : repos.",
     s1: "Semaine de calibrage : trouve tes charges dans les nouvelles fourchettes de reps, sans aller à l'échec."},
@@ -1648,7 +1651,7 @@ function planGrimoire() {
     "<b>Objectif : prendre du muscle.</b> Ce qui compte, c'est de finir chaque série près de l'échec, pas de faire beaucoup de reps.",
     "<b>4 séances</b> : lundi Poussée, mardi Tirage, jeudi Haut complet, samedi grosse séance Jambes ou Bras et épaules, une semaine sur deux.",
     "<b>2 exercices maximum pour un même muscle</b> dans une séance, mais pecs et dos deux fois par semaine. Rien pour l'avant d'épaule : les développés et les dips le travaillent déjà.",
-    "<b>6-10 reps sur les gros exos, 10-15 sur l'isolation.</b> Gros exos à 1-2 reps de l'échec ; dernière série d'isolation à l'échec à partir de S2. Presse à cuisses : jamais à l'échec. Ni squat ni soulevé de terre.",
+    "<b>6-10 reps sur les gros exos, 10-15 sur l'isolation.</b> Gros exos à 1-2 reps de l'échec ; dernière série d'isolation à l'échec à partir de S2. Hack squat et pendule : jamais à l'échec. Pas de squat à la barre ni de soulevé de terre.",
     "<b>Double progression</b> : même charge jusqu'au haut de la fourchette sur toutes les séries, puis +2,5 kg. Tractions et dips : du lest dès que tu fais le haut de la fourchette au poids du corps (note le lest en kg).",
     "<b>Ne rien ajouter</b> : pas d'exo bonus pour les pecs ou les épaules en fin de séance, c'est exactement ce qui te freinait. Repos : 2-3 min sur les gros exos, 60-90 s sur l'isolation.",
     "<b>8 semaines au lieu de 5</b> : S1 calibrage, S2-S3 progression, S4-S7 on pousse fort, S8 bilan (épreuves sur les 2 premiers exos de Poussée, Tirage et Haut complet). Joker semaine allégée quand la fatigue s'accumule.",
@@ -1673,7 +1676,7 @@ function grimoire() {
       <li>Semaine allégée quand la fatigue s'accumule.</li></ul></div></details>
     <details class="fold"><summary>Reps en réserve</summary><div><p>C'est le nombre de reps que tu pourrais encore faire au moment où tu poses la charge. « 2 en réserve » : tu t'arrêtes 2 reps avant de ne plus pouvoir bouger la barre.</p></div></details>
     <details class="fold"><summary>Monter les charges</summary><div><p>Tu gardes la même charge jusqu'à faire le haut de la fourchette de reps sur toutes les séries. Ensuite, +2,5 kg (ou l'haltère au-dessus). Sinon, vise une rep de plus que la dernière fois. Le Système fait ce calcul pour toi dans chaque donjon.</p></div></details>
-    <details class="fold"><summary>L'échec, à partir de S4</summary><div><p>La dernière série de chaque exercice d'isolation va jusqu'à l'échec. Les gros mouvements (couché, incliné, tirages, rowings, presses) restent à 1-2 reps en réserve. Jambes : jamais à l'échec.</p></div></details>
+    <details class="fold"><summary>L'échec, à partir de S4</summary><div><p>La dernière série de chaque exercice d'isolation va jusqu'à l'échec. Les gros mouvements (couché, incliné, tirages, rowings, presses, hack squat, pendule) restent à 1-2 reps en réserve. Jambes : jamais à l'échec.</p></div></details>
     <details class="fold"><summary>Ta semaine</summary><div><p>Lundi A, mardi B, jeudi C, vendredi Jambes ou Haut (une semaine sur deux). Mercredi, samedi et dimanche : repos, avec deux jours d'affilée le week-end. Règle d'or : au moins 2 jours de repos entre tes deux grosses séances pec/dos (A et C). Les donjons ne sont pas bloqués sur leur jour : un donjon prévu mardi peut se faire mercredi, et le Système te prévient si un décalage casse la règle d'or.</p></div></details>
     <details class="fold"><summary>Grosse semaine : 5 séances</summary><div><p>Optionnel. Tu ajoutes le donjon bonus de la semaine : Jambes le mercredi, Haut le vendredi. Si toute la semaine est faite, +100 XP et +75 or en plus.</p></div></details>
     <details class="fold"><summary>Semaine chargée : 3 séances</summary><div><p>Garde A et C pour faire pecs et dos deux fois. Semaine Jambes : A, C, Jambes, et ajoute à la séance Jambes 2 séries d'extension triceps au-dessus de la tête et 2 de curl bayésien. Semaine Haut : A, B, C. 3 donjons suffisent pour éviter la pénalité.</p></div></details>
@@ -1693,7 +1696,7 @@ function grimoire() {
       <li><b>Couché de la première séance.</b> Le repère de 55 % de ton ancien max peut être trop lourd après un long arrêt. La règle qui compte : une charge que tu pourrais pousser 10-12 fois, arrêtée à 6.</li>
       <li><b>Les rowings, tirages et presses à la machine</b> comptent comme des gros mouvements : ils restent à 1-2 reps en réserve. Seule l'isolation va à l'échec.</li>
       <li><b>Protéines, sommeil, pas.</b> Le programme n'en parlait pas, alors que la reprise en dépend. Ils deviennent ta quête quotidienne (protéines : environ 1,8 g par kg de poids de corps).</li>
-      <li><b>Ni squat, ni soulevé de terre, ni tractions, ni dips</b> (vos choix) : la presse à cuisses, le kickback fessier et le tirage prise neutre les remplacent.</li>
+      <li><b>Pas de squat à la barre ni de soulevé de terre</b> (vos choix) : aux jambes, hack squat, pendule et kickback fessier. <b>Pas de tractions ni de dips</b> : le tirage prise neutre les remplace.</li>
       <li><b>Programme recentré sur toi</b> : les consignes pour ton pote sont retirées.</li>
     </ol></section>`;
 }
