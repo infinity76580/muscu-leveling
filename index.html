@@ -662,6 +662,23 @@ const SESS = {
     {ex: "legCurl", sets: 2, reps: [10, 12], rest: 90, maint: true, cue: "Entretien jambes : 3 reps en réserve."},
   ],
 };
+SESS.P = [                                // push-pull-legs weeks (Gauthier & Félix): Poussée
+  {ex: "bench", sets: 3, reps: [6, 8], rest: 150, cue: "Omoplates serrées et basses, pieds ancrés ; barre au bas des pecs, touche sans rebond."},
+  {ex: "inclDb", sets: 3, reps: [8, 10], rest: 120, cue: "Descends profond, haltères au niveau des pecs."},
+  {ex: "shPress", sets: 3, reps: [8, 10], rest: 120, cue: "Dos bien calé, descends les poignées au niveau du menton."},
+  {ex: "latRaise", sets: 3, reps: [12, 15], rest: 75, perArm: true, cue: "Poulie réglée à hauteur de la main ; monte vers l'extérieur jusqu'à l'épaule, sans hausser les épaules."},
+  {ex: "ohTri", sets: 2, reps: [10, 12], rest: 90, cue: "Dos à la poulie, coudes près de la tête, descends loin derrière la tête pour étirer le triceps."},
+  {ex: "pushdown", sets: 2, reps: [10, 12], rest: 60, cue: "Coudes collés au corps, extension complète."},
+];
+SESS.T = [                                // Tirage
+  {ex: "csRow", sets: 3, reps: [8, 10], rest: 120, cue: "Laisse les omoplates s'écarter en bas pour l'étirement, puis tire les coudes vers l'arrière."},
+  {ex: "latpd", sets: 3, reps: [8, 10], rest: 120, cue: "Poitrine haute, coudes vers les côtes, pas de balancier ; remonte bras tendus."},
+  {ex: "cableRow", sets: 2, reps: [10, 12], rest: 90, cue: "Laisse les épaules avancer pour étirer, puis tire et serre les omoplates."},
+  {ex: "revFly", sets: 2, reps: [12, 15], rest: 75, cue: "Poulies à hauteur d'épaules, tiens les câbles eux-mêmes, bras quasi tendus, tire en arc vers l'extérieur."},
+  {ex: "bayCurl", sets: 2, reps: [10, 12], rest: 90, cue: "Bras légèrement derrière le corps pour l'étirement, coude fixe."},
+  {ex: "hammer", sets: 2, reps: [10, 12], rest: 60, cue: "Coude fixe, montée contrôlée."},
+];
+SESS.L = SESS.J.filter(it => it.ex !== "latRaise");   // Jambes
 const DIPS_NOTE = " Lest en kg : 0 = poids du corps. Du lest dès que tu fais 3 × 10 au poids du corps.";
 const SESS_MATHIS = {                     // "Programme prise de muscle" (Gauthier for Mathis, 2026-10-21), 5 weeks stretched to 8
   P: [
@@ -709,6 +726,7 @@ const FELIX_MACHINE = {                   // weak wrists (Gauthier, 2026-10-26):
 const felixSess = list => list.map(it => FELIX_MACHINE[it.ex] ? {...it, ...FELIX_MACHINE[it.ex]} : it);
 const SESS_FELIX = {                      // B trimmed for a fat-loss block: big shoulder press, fewer arm sets, arms in superset; legs without the shoulder bonus
   FB: felixSess(SESS.FB), A: felixSess(SESS.A), C: felixSess(SESS.C),
+  P: felixSess(SESS.P), T: SESS.T.filter(it => it.ex !== "hammer"),   // push on machines, no dumbbell curl
   J: SESS.J.filter(it => it.ex !== "latRaise"),
   B: [
     {ex: "shPress", sets: 3, reps: [8, 10], rest: 120, cue: "Dos bien calé, descends les poignées au niveau du menton."},
@@ -724,6 +742,7 @@ const TYPES = {
   T:  {name: "Tirage", day: 1, gate: "Puits du tirage", solo: true},
   HC: {name: "Haut complet", day: 3, gate: "Bastion du haut", solo: true},
   JX: {name: "Grosse séance Jambes", day: 5, gate: "Abîme des jambes", solo: true, chip: "J"},
+  L:  {name: "Jambes", day: 5, gate: "Gouffre des jambes", solo: true},
   BE: {name: "Bras et épaules", day: 5, gate: "Tour des bras", solo: true},
   A:  {name: "Pec / Dos lourd", day: 0, gate: "Donjon de fer"},
   B:  {name: "Épaules / Bras", day: 1, gate: "Tour des poulies"},
@@ -795,6 +814,7 @@ const planTest = () => curPlan().test || {};
 const tyLabel = ty => ty === "FB" ? "Full body" : TYPES[ty]?.solo ? TYPES[ty].name : "Séance " + ty + " · " + (TYPES[ty]?.name || "");
 function planSched(info) {
   const id = curPlan().id;
+  if (info.custom) return "Cette semaine : " + info.types.map(ty => `${TYPES[ty].name.toLowerCase()} ${fmtDay(fromStr(plannedDate(info.cw, ty)), {weekday: "long"})}`).join(", ") + ". Une séance peut aussi se faire plus tôt dans la semaine si tu te sens bien.";
   if (id === "mathis" && info.p === 1 && !info.deload) return "Cette semaine : full body jeudi avec Gauthier et Félix, puis grosse séance Jambes samedi. Poussée et Tirage restent ouverts si tu veux les rattraper.";
   if (id === "mathis") return info.deload ? "Mêmes jours que d'habitude, moitié des séries, mêmes charges." : `Lundi Poussée, mardi Tirage, jeudi Haut complet, samedi ${TYPES[info.types[3]].name.toLowerCase()}. Mercredi, vendredi et dimanche : repos.`;
   const fri = TYPES[id === "felix" ? "J" : sideType(info.p)].name;
@@ -814,6 +834,8 @@ function weekInfo(cw) {
   const PL = curPlan(), p = progWeek(cw), deload = isDeload(cw);
   const x = PL.id === "mathis" ? (p % 2 ? "JX" : "BE") : PL.id === "felix" ? "J" : sideType(p);
   const main = PL.id === "mathis" ? ["P", "T", p === 1 && !deload ? "FB" : "HC", x] : ["A", "B", "C", x];   // week 1 Thursday: full body with the others
+  const own = S.profile?.weekTypes?.[cw];
+  if (own && !deload && p <= PROGRAM_WEEKS) return {cw, p, deload, W: PL.weeks[p], types: own, bonus: null, custom: true};
   if (deload) return {cw, p, deload, W: DELOAD, types: main, bonus: null, after: p > PROGRAM_WEEKS};
   if (p > PROGRAM_WEEKS) return {cw, p, deload, W: null, types: [], bonus: null, after: true};
   if (p === 1 && PL.fbFirst) return {cw, p, deload, W: PL.weeks[1], types: ["FB"], bonus: null};
@@ -858,7 +880,7 @@ function rirFor(p, it, idx, ty, deload) {
     if (p <= 3) return {txt: "1-2 reps en réserve", fail: !isPoly};
     return {txt: "1 rep en réserve", fail: !isPoly};
   }
-  if (ty === "J") return {txt: "2 reps en réserve, jamais à l'échec", fail: false};
+  if (ty === "J" || ty === "L") return {txt: "2 reps en réserve, jamais à l'échec", fail: false};
   if (p === 1) return {txt: EX[it.ex].kind === "poly" ? "4-5 reps en réserve" : "≈3 reps en réserve", fail: false};
   const poly = EX[it.ex].kind === "poly";
   if (p === 2) return {txt: poly ? "3-4 reps en réserve" : "2-3 reps en réserve", fail: false};
@@ -1267,7 +1289,7 @@ const sickDays = cw => [...Array(7)].filter((_, i) => S.days[toStr(addDays(weekS
 function requiredSessions(info) {
   if (!info || !info.types.length) return 0;
   const created = S.profile?.createdDay;
-  let want = info.deload ? 2 : info.types.length === 1 ? 1 : 3;
+  let want = info.deload ? 2 : info.types.length === 1 ? 1 : info.custom ? Math.max(1, info.types.length - 1) : 3;   // a 3-session week: 2 required
   if (created && !info.deload) want = Math.min(want, info.types.filter(ty => plannedDate(info.cw, ty) >= created).length);   // joined mid-week
   return want > 0 ? Math.max(1, want - sickDays(info.cw)) : 0;   // each sick day: one session less required
 }
@@ -2401,6 +2423,14 @@ function seedPlan(force) {                    // once per load: remember the pro
       for (const k of ["2026-10-26", "2026-10-27"]) { const d = {...(S.days[k] || {}), date: k, sick: true}; delete d.id; S.days = {...S.days, [k]: d}; queueSet("days/" + k, d); }
     }
     mark("sick1027");
+  }
+  if ((pid === "base" || pid === "felix") && !done("ppl1027")) {   // 27 Oct: "passe en 3 jours, au pire un push-pull legs", for him and Félix
+    const cw = weekOfStr("2026-10-26"), t = today(), wi = weekInfo(cw);
+    if (t >= "2026-10-27" && t <= "2026-10-30" && wi && !wi.deload && !S.sessions.some(x => sessionCw(x) === cw)) {
+      prof().weekTypes = {...(prof().weekTypes || {}), [cw]: ["P", "T", "L"]};
+      prof().moves = {...(prof().moves || {}), [cw]: {P: "2026-10-29", T: "2026-10-30", L: "2026-10-31"}};
+    }
+    mark("ppl1027");
   }
   if (next) { S.profile = next; queueSet("game/profile", next); }
 }
