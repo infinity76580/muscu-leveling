@@ -517,6 +517,27 @@ figcaption{font:600 11px var(--font-display);letter-spacing:.08em;color:var(--mu
 .m-main{display:contents}
 .shop .rw.idea .btn{min-width:44px;font-size:18px;padding:0}
 .stale{opacity:.5}
+.modal.top{align-items:flex-start}
+@media (max-height:520px){.modal.top .win .m-actions{position:static}}
+.kb .modal.top .win .m-actions{position:static}
+.modal .win .sticky-q{position:sticky;top:-18px;z-index:3;margin:-4px -16px 0;padding:8px 16px;background:rgba(6,18,42,.97);border-bottom:1px solid var(--faint)}
+.set-links{display:flex;flex-wrap:wrap;gap:4px 16px}
+.body-map{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-width:360px;margin:0 auto}
+.bm-fig{margin:0;text-align:center}
+.bm-fig svg{width:100%;height:auto;display:block}
+.bm-fig figcaption{font:600 11px var(--font-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.bm-m{stroke:rgba(200,225,255,.55);stroke-width:.8}
+.bm-m.top{filter:drop-shadow(0 0 4px rgba(190,140,255,.9))}
+.bm-n{stroke:rgba(140,180,255,.25);stroke-width:.6}
+.bm-legend{display:flex;align-items:center;gap:8px;width:100%;max-width:360px;margin:6px auto 2px;font:700 12px var(--font-display)}
+.bm-legend span:first-child{color:hsl(212 80% 55%)}.bm-legend span:last-child{color:hsl(275 92% 66%)}
+.bm-legend i{flex:1;height:8px;border-radius:4px;background:linear-gradient(90deg,hsl(212 80% 40%),hsl(243 86% 51%),hsl(275 92% 62%))}
+.bm-list{list-style:none;margin:6px 0 0;padding:0;display:grid}
+.bm-list li{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:2px 10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--faint)}
+.bm-dot{width:12px;height:12px;border-radius:50%;grid-row:1/span 2}
+.bm-name{font-weight:600}
+.bm-list small{grid-column:2;color:var(--muted);font-size:12px}
+.bm-rank{grid-column:3;grid-row:1/span 2;font:700 20px var(--font-display)}
 </style>
 
 <div id="app" class="wrap"></div>
@@ -598,6 +619,7 @@ const EX = {
   hammer:      {n: "Curl marteau", kind: "iso", eq: "db"},
   rdl:         {n: "Soulevé de terre roumain (haltères ou barre)", kind: "poly", eq: "db"},
   latpdNeutral:{n: "Tirage vertical prise neutre", kind: "poly", eq: "cable"},
+  latRaiseMach:{n: "Élévation latérale à la machine", kind: "iso", eq: "machine"},
   inclMach:    {n: "Développé incliné à la machine", kind: "poly", eq: "machine"},
   kickback:    {n: "Kickback fessier (machine ou poulie)", kind: "iso", eq: "machine"},
   dips:        {n: "Dips", kind: "poly", eq: "bw"},
@@ -621,14 +643,14 @@ const SESS = {
   A: [
     {ex: "bench", sets: 3, reps: [6, 8], rest: 150, cue: "Omoplates serrées et basses, léger arc, pieds ancrés ; barre au bas des pecs, touche sans rebond."},
     {ex: "csRow", sets: 3, reps: [8, 10], rest: 120, cue: "Laisse les omoplates s'écarter en bas pour l'étirement, puis tire les coudes vers l'arrière."},
-    {ex: "inclDb", sets: 3, reps: [8, 10], rest: 120, cue: "Descends plus bas qu'avec une barre : c'est l'étirement qui fait grossir les pecs."},
+    {ex: "inclMach", sets: 3, reps: [8, 10], rest: 120, cue: "Machine inclinée (allongé ou assis) : poignées au niveau du haut des pecs, descends jusqu'à bien sentir l'étirement, pousse sans décoller les épaules."},
     {ex: "latpd", sets: 3, reps: [8, 10], rest: 120, cue: "Poitrine haute, coudes vers les côtes, pas de balancier ; remonte bras tendus."},
     {ex: "flySeated", sets: 2, reps: [10, 12], rest: 90, cue: "Coudes figés légèrement fléchis, ouvre en grand, serre 1 s devant la poitrine."},
     {ex: "pullover", sets: 2, reps: [12, 15], rest: 90, cue: "Bassin en arrière, ramène la barre vers les cuisses en pensant « coudes vers les poches »."},
   ],
   B: [
     {ex: "shPress", sets: 3, reps: [8, 10], rest: 120, cue: "Dos bien calé, descends les poignées au niveau du menton."},
-    {ex: "latRaise", sets: 3, reps: [12, 15], rest: 75, perArm: true, cue: "Poulie réglée à hauteur de la main ; monte vers l'extérieur jusqu'à l'épaule, sans hausser les épaules."},
+    {ex: "latRaiseMach", sets: 3, reps: [12, 15], rest: 75, cue: "Machine : coudes légèrement fléchis, monte jusqu'à l'horizontale sans hausser les épaules, descente lente."},
     {ex: "revFly", sets: 3, reps: [12, 15], rest: 75, cue: "Poulies à hauteur d'épaules, tiens les câbles eux-mêmes (pas les poignées), bras quasi tendus, tire en arc vers l'extérieur."},
     {ex: "ohTri", sets: 3, reps: [10, 12], rest: 90, cue: "Dos à la poulie, coudes près de la tête, descends loin derrière la tête pour étirer la longue portion."},
     {ex: "bayCurl", sets: 3, reps: [10, 12], rest: 90, cue: "Bras légèrement derrière le corps pour l'étirement, coude fixe."},
@@ -650,13 +672,13 @@ const SESS = {
     {ex: "legExt", sets: 2, reps: [12, 15], rest: 90, cue: "Pause 1 s en haut, descente contrôlée."},
     {ex: "kickback", sets: 2, reps: [12, 15], rest: 75, perLeg: true, cue: "Bassin calé contre l'appui, pousse la jambe vers l'arrière en serrant le fessier, sans cambrer le dos."},
     {ex: "calves", sets: 3, reps: [10, 15], rest: 60, cue: "Pause 1-2 s en bas, en étirement."},
-    {ex: "latRaise", sets: 2, reps: [12, 15], rest: 60, perArm: true, cue: "Bonus haut du corps : comme en séance B."},
+    {ex: "latRaiseMach", sets: 2, reps: [12, 15], rest: 60, cue: "Bonus haut du corps : comme en séance B."},
   ],
   H: [
     {ex: "dbBench", sets: 3, reps: [8, 10], rest: 120, cue: "Descends les haltères sous la ligne de la poitrine pour un étirement maximal."},
     {ex: "dbRow", sets: 3, reps: [10, 12], rest: 90, perArm: true, cue: "Tire le coude vers la hanche, laisse l'épaule descendre en bas."},
     {ex: "lowHighFly", sets: 2, reps: [12, 15], rest: 90, cue: "Poulies basses, mains qui montent vers le menton : haut des pecs."},
-    {ex: "leanLatRaise", sets: 3, reps: [12, 15], rest: 60, perArm: true, cue: "Une main sur un support, buste penché : plus de tension en bas du mouvement."},
+    {ex: "latRaiseMach", sets: 3, reps: [12, 15], rest: 60, cue: "Machine : coudes légèrement fléchis, monte jusqu'à l'horizontale sans hausser les épaules, descente lente."},
     {ex: "triHigh", sets: 2, reps: [10, 12], rest: 60, superset: true, cue: "En superset avec le curl marteau : enchaîne les deux, puis 60 s de repos."},
     {ex: "hammer", sets: 2, reps: [10, 12], rest: 60, superset: true, cue: "Coude fixe : il développe le brachial, qui pousse le biceps vers le haut."},
     {ex: "legPress", sets: 2, reps: [10, 12], rest: 120, maint: true, cue: "Entretien jambes : 3 reps en réserve, juste pour garder l'habitude."},
@@ -665,9 +687,10 @@ const SESS = {
 };
 SESS.P = [                                // push-pull-legs weeks (Gauthier & Félix): Poussée
   {ex: "bench", sets: 3, reps: [6, 8], rest: 150, cue: "Omoplates serrées et basses, pieds ancrés ; barre au bas des pecs, touche sans rebond."},
-  {ex: "inclDb", sets: 3, reps: [8, 10], rest: 120, cue: "Descends profond, haltères au niveau des pecs."},
+  {ex: "inclMach", sets: 3, reps: [8, 10], rest: 120, cue: "Machine inclinée (allongé ou assis) : poignées au niveau du haut des pecs, descends jusqu'à bien sentir l'étirement, pousse sans décoller les épaules."},
+  {ex: "flySeated", sets: 2, reps: [12, 15], rest: 90, cue: "Écarté poulie assis ou pec deck : coudes légèrement fléchis et figés, ouvre en grand pour l'étirement, serre 1 s devant la poitrine."},
   {ex: "shPress", sets: 3, reps: [8, 10], rest: 120, cue: "Dos bien calé, descends les poignées au niveau du menton."},
-  {ex: "latRaise", sets: 3, reps: [12, 15], rest: 75, perArm: true, cue: "Poulie réglée à hauteur de la main ; monte vers l'extérieur jusqu'à l'épaule, sans hausser les épaules."},
+  {ex: "latRaiseMach", sets: 3, reps: [12, 15], rest: 75, cue: "Machine : coudes légèrement fléchis, monte jusqu'à l'horizontale sans hausser les épaules, descente lente."},
   {ex: "ohTri", sets: 2, reps: [10, 12], rest: 90, cue: "Dos à la poulie, coudes près de la tête, descends loin derrière la tête pour étirer le triceps."},
   {ex: "pushdown", sets: 2, reps: [10, 12], rest: 60, cue: "Coudes collés au corps, extension complète."},
 ];
@@ -679,13 +702,13 @@ SESS.T = [                                // Tirage
   {ex: "bayCurl", sets: 2, reps: [10, 12], rest: 90, cue: "Bras légèrement derrière le corps pour l'étirement, coude fixe."},
   {ex: "hammer", sets: 2, reps: [10, 12], rest: 60, cue: "Coude fixe, montée contrôlée."},
 ];
-SESS.L = SESS.J.filter(it => it.ex !== "latRaise");   // Jambes
+SESS.L = SESS.J.filter(it => it.ex !== "latRaiseMach");   // Jambes
 const DIPS_NOTE = " Lest en kg : 0 = poids du corps. Du lest dès que tu fais 3 × 10 au poids du corps.";
 const SESS_MATHIS = {                     // "Programme prise de muscle" (Gauthier for Mathis, 2026-10-21), 5 weeks stretched to 8
   P: [
     {ex: "bench", sets: 3, reps: [6, 8], rest: 150, cue: "Omoplates serrées et basses, pieds ancrés, barre au bas des pecs, descente contrôlée."},
     {ex: "dips", sets: 3, reps: [8, 10], rest: 150, cue: "Buste légèrement penché en avant pour viser les pecs ; descends jusqu'à sentir l'étirement, sans douleur aux épaules." + DIPS_NOTE},
-    {ex: "latRaise", sets: 3, reps: [10, 15], rest: 75, perArm: true, cue: "Poulie réglée à hauteur de la main ; monte vers l'extérieur jusqu'à l'épaule, sans hausser les épaules."},
+    {ex: "latRaiseMach", sets: 3, reps: [10, 15], rest: 75, cue: "Machine : coudes légèrement fléchis, monte jusqu'à l'horizontale sans hausser les épaules, descente lente."},
     {ex: "ohTri", sets: 3, reps: [8, 12], rest: 90, cue: "Avec la barre, dos à la poulie, coudes près de la tête : descends loin derrière la tête pour étirer le triceps."},
   ],
   T: [
@@ -712,7 +735,7 @@ const SESS_MATHIS = {                     // "Programme prise de muscle" (Gauthi
     {ex: "calves", sets: 4, reps: [10, 15], rest: 60, cue: "Pause 1-2 s en bas, en étirement."},
   ],
   BE: [
-    {ex: "latRaise", sets: 3, reps: [12, 15], rest: 75, perArm: true, cue: "Comme le lundi : monte vers l'extérieur jusqu'à l'épaule, sans hausser les épaules."},
+    {ex: "latRaiseMach", sets: 3, reps: [12, 15], rest: 75, cue: "Machine : coudes légèrement fléchis, monte jusqu'à l'horizontale sans hausser les épaules, descente lente."},
     {ex: "skull", sets: 3, reps: [8, 12], rest: 90, cue: "Descends la barre derrière la tête, pas sur le front, pour étirer le triceps."},
     {ex: "preacher", sets: 3, reps: [8, 12], rest: 90, cue: "Aisselle collée au pupitre, descente complète et contrôlée."},
     {ex: "revPecDeck", sets: 3, reps: [12, 15], rest: 60, cue: "Assis de côté sur la machine pour un étirement plus profond."},
@@ -728,10 +751,10 @@ const felixSess = list => list.map(it => FELIX_MACHINE[it.ex] ? {...it, ...FELIX
 const SESS_FELIX = {                      // B trimmed for a fat-loss block: big shoulder press, fewer arm sets, arms in superset; legs without the shoulder bonus
   FB: felixSess(SESS.FB), A: felixSess(SESS.A), C: felixSess(SESS.C),
   P: felixSess(SESS.P), T: SESS.T.filter(it => it.ex !== "hammer"),   // push on machines, no dumbbell curl
-  J: SESS.J.filter(it => it.ex !== "latRaise"),
+  J: SESS.J.filter(it => it.ex !== "latRaiseMach"),
   B: [
     {ex: "shPress", sets: 3, reps: [8, 10], rest: 120, cue: "Dos bien calé, descends les poignées au niveau du menton."},
-    {ex: "latRaise", sets: 3, reps: [12, 15], rest: 75, perArm: true, cue: "Poulie réglée à hauteur de la main ; monte vers l'extérieur jusqu'à l'épaule, sans hausser les épaules."},
+    {ex: "latRaiseMach", sets: 3, reps: [12, 15], rest: 75, cue: "Machine : coudes légèrement fléchis, monte jusqu'à l'horizontale sans hausser les épaules, descente lente."},
     {ex: "revFly", sets: 2, reps: [12, 15], rest: 75, cue: "Poulies à hauteur d'épaules, tiens les câbles eux-mêmes, bras quasi tendus, tire en arc vers l'extérieur."},
     {ex: "ohTri", sets: 2, reps: [10, 12], rest: 60, superset: true, cue: "En superset avec le curl : enchaîne les deux, puis 60 s de repos. Descends loin derrière la tête."},
     {ex: "bayCurl", sets: 2, reps: [10, 12], rest: 60, superset: true, cue: "Bras légèrement derrière le corps, coude fixe."},
@@ -765,7 +788,7 @@ const WEEKS = [null,
 ];
 const DELOAD = {phase: "Semaine allégée", rank: "D", rirTxt: "3 partout, mêmes charges, jamais à l'échec", setsTxt: "Moitié des séries"};
 const TEST_EX = {A: ["bench", "csRow"], C: ["inclBar", "latpdNeutral"]};
-const KEY_LIFTS = [["bench", "A", "Couché barre"], ["inclDb", "A", "Incliné haltères"], ["csRow", "A", "Rowing appuyé"], ["latpd", "A", "Tirage vertical"], ["inclBar", "C", "Incliné barre"], ["latpdNeutral", "C", "Tirage prise neutre"], ["machPress", "C", "Chest press"], ["shPress", "B", "Épaules machine"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]];
+const KEY_LIFTS = [["bench", "A", "Couché barre"], ["inclMach", "A", "Incliné machine"], ["csRow", "A", "Rowing appuyé"], ["latpd", "A", "Tirage vertical"], ["inclBar", "C", "Incliné barre"], ["latpdNeutral", "C", "Tirage prise neutre"], ["machPress", "C", "Chest press"], ["shPress", "B", "Épaules machine"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]];
 const INC = {bar: 2.5, machine: 2.5, cable: 2.5, db: 2, bw: 2.5};
 const FEELINGS = ["Écrasé", "Dur", "Correct", "Bien", "Inarrêtable"];
 const BUILD = [{rank: "D"}, {rank: "D"}, {rank: "C"}, {rank: "C"}];
@@ -791,7 +814,7 @@ const PLANS = {
   felix: {id: "felix", label: "Perte de poids (programme de Félix)", goal: "fat", title: "Potentiel de malade", fbFirst: true, big: ["A", "C"], weeks: WEEKS_FELIX, test: {A: ["machPress", "csRow"], C: ["inclMach", "latpdNeutral"]}, sess: SESS_FELIX,
     keyLifts: [["machPress", "A", "Chest press"], ["inclMach", "A", "Incliné machine"], ["csRow", "A", "Rowing appuyé"], ["latpd", "A", "Tirage vertical"], ["latpdNeutral", "C", "Tirage prise neutre"], ["shPress", "B", "Épaules machine"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]], finisher: true,
     intro: "Le Système a détecté un potentiel de malade, encore jamais exploité. C'est rare. Il te propose un contrat",
-    lead: "Première semaine : un full body le jeudi. Ensuite lundi A, mardi B, jeudi C, vendredi Jambes, et 10 min de marche inclinée à la fin de chaque séance. Mercredi, samedi et dimanche : repos.",
+    lead: "Première semaine : un full body le jeudi. Ensuite lundi A, mardi B, jeudi C, vendredi Jambes, et 10 à 15 min de cardio (marche inclinée ou rameur) à la fin de chaque séance. Mercredi, samedi et dimanche : repos.",
     s1: "Tu apprends les mouvements : 2 séries par exercice, 3 reps en réserve, charges légères. La technique avant la charge."},
   mathis: {id: "mathis", label: "Prise de muscle (programme de Mathis)", goal: "gain", title: "Guerrier assidu", fbFirst: false, big: [], weeks: WEEKS_MATHIS,
     test: {P: ["bench", "dips"], T: ["pullupPro", "csRow"], HC: ["inclDb", "pullup"]}, sess: SESS_MATHIS,
@@ -1183,7 +1206,7 @@ function bodyWeight() {
 }
 function e1rm(exId, kg, reps) {
   reps = Number(reps) || 0; if (reps <= 0) return 0;
-  let load = Number(kg) || 0; if (exId === "pullup") load += bodyWeight();
+  let load = Number(kg) || 0; if (exId === "pullup" || exId === "pullupPro" || exId === "dips") load += bodyWeight();
   return load > 0 ? load * (1 + reps / 30) : 0;
 }
 const bestE1 = (exId, sets) => Math.max(0, ...(Array.isArray(sets) ? sets : []).map(s => e1rm(exId, s.kg, s.reps)));
@@ -1231,7 +1254,10 @@ function dayEval(key) {
     xp: 15 * done + (full ? 40 : 0) + (Number(d.weight) > 0 ? 5 : 0) + malusXp, gold: 5 * done + (full ? 15 : 0),
     maxXp: 15 * DAILY.filter(it => I[it.k].req).length + 40};
 }
-function bodyFat(p) {                         // manual value, else the US Navy tape estimate (waist, neck, height)
+const bfReadings = () => Object.keys(S.days).sort().filter(k => Number(S.days[k].bf) > 0).map(k => ({d: k, v: Number(S.days[k].bf)}));
+function bodyFat(p) {                         // scale reading (last 45 days), else the manual value, else the US Navy tape estimate
+  const sc = bfReadings().pop();
+  if (sc && dayDiff(fromStr(sc.d), fromStr(today())) <= 45) return {v: sc.v, how: "mesuré par ta balance"};
   if (Number(p.bf) > 0) return {v: Number(p.bf), how: "indiqué par toi"};
   const wl = waists(), wa = wl.length ? wl[wl.length - 1].v : Number(p.waist), ne = Number(p.neck), h = Number(p.height);
   if (wa > 0 && ne > 0 && h > 0 && wa > ne) { const v = 495 / (1.0324 - 0.19077 * Math.log10(wa - ne) + 0.15456 * Math.log10(h)) - 450; if (v > 3 && v < 60) return {v: r1(v), how: "estimé avec ton tour de taille et ton tour de cou"}; }
@@ -1669,7 +1695,7 @@ function planGrimoire() {
     "<b>Tes poignets d'abord</b> : tous les développés se font à la machine (chest press, incliné machine, épaules machine). Pas de barre ni d'haltères pour pousser.",
     "<b>3 premières semaines</b> : 2 séries par exercice, 3 reps en réserve, charges légères. La technique avant la charge : une mauvaise technique prise au début coûte des mois.",
     "<b>Ensuite</b> : chaque semaine, une rep de plus ou un peu plus de charge sur chaque exercice. Le Système fait le calcul pour toi dans chaque donjon.",
-    "<b>Fin de séance</b> : 10 min de marche inclinée (+20 XP, +10 or). Ça brûle sans te fatiguer pour la séance suivante.",
+    "<b>Fin de séance</b> : 10 à 15 min de cardio, marche inclinée ou rameur (+20 XP, +10 or). Ça brûle sans te fatiguer pour la séance suivante.",
     "<b>En dehors de la salle</b> : 8 000 à 10 000 pas par jour et 7 à 9 h de sommeil. Quand on dort mal pendant un régime, une plus grande part du poids perdu est du muscle.",
     "<b>Manger</b> : 10 à 20 % sous ta maintenance, beaucoup de protéines (4 repas avec 40-45 g chacun). Aucun aliment interdit : tes plats préférés existent en version légère dans l'onglet Repas, et en version complète à la Boutique.",
     "<b>Tous les 15 jours</b>, le Système compare ta moyenne de poids et ton tour de taille, et te dit s'il faut changer tes calories.",
@@ -1731,7 +1757,7 @@ function grimoire() {
 function viewDungeon() {
   const d = S.draft, plan = planFor(d.cw, d.type), W = d.deload ? DELOAD : curPlan().weeks[d.week];
   let planned = 0, doneReq = 0;
-  for (const it of plan) { const n = it.sets - (d.minus[it.ex] || 0); if (!it.opt) { planned += n; doneReq += (d.sets[it.ex] || []).slice(0, n).filter(r => r.done).length; } }
+  for (const it of plan) { const n = setsTarget(it, d); if (!it.opt) { planned += n; doneReq += (d.sets[it.ex] || []).slice(0, n).filter(r => r.done).length; } }
   const pct = planned ? Math.round(doneReq / planned * 100) : 0;
   return `<div class="dg-top"><button class="btn ghost sm" data-act="dgMenu">Pause</button><div class="dg-name">${sessLabel(d)} · ${tyLabel(d.type)}</div><div class="dg-clock" id="dgClock">00:00</div></div>
     <div class="xpbar" role="progressbar" aria-label="Séries faites" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
@@ -1745,11 +1771,12 @@ function viewDungeon() {
       ${d.week === 1 && !d.deload ? `<p class="sugg">${curPlan().s1}</p>` : curPlan().id === "felix" && d.week <= 3 && !d.deload ? `<p class="sugg">${curPlan().s1}</p>` : ""}
     </section>
     ${plan.map((it, i) => exCard(it, i, d)).join("")}
-    ${curPlan().finisher ? `<section class="win"><h2 class="win-title">Finisher</h2><button class="q ${d.fin ? "on" : ""}" data-act="fin" role="checkbox" aria-checked="${!!d.fin}"><span class="box" aria-hidden="true"></span><span class="q-l">10 min de marche inclinée</span><span class="q-t">${d.fin ? "[Fait]" : "+20 XP · +10 or"}</span></button><p class="muted small">Sur tapis, pente 8 à 12 %, à un rythme où tu peux encore parler. Ça brûle sans te fatiguer pour la séance suivante.</p></section>` : ""}
+    ${curPlan().finisher ? `<section class="win"><h2 class="win-title">Finisher</h2><button class="q ${d.fin ? "on" : ""}" data-act="fin" role="checkbox" aria-checked="${!!d.fin}"><span class="box" aria-hidden="true"></span><span class="q-l">10 à 15 min de cardio</span><span class="q-t">${d.fin ? "[Fait]" : "+20 XP · +10 or"}</span></button><p class="muted small">Marche inclinée (pente 8 à 12 %) ou rameur, à un rythme où tu peux encore parler. Ça brûle sans te fatiguer pour la séance suivante.</p></section>` : ""}
     <button class="btn primary wide big" data-act="finishAsk">Terminer le donjon</button>`;
 }
+const setsTarget = (it, d) => it.sets - (d.minus[it.ex] || 0) + ((d.plus || {})[it.ex] || 0);   // planned, minus sore-muscle sets, plus extra sets
 function exCard(it, i, d) {
-  const ex = EX[it.ex], n = it.sets - (d.minus[it.ex] || 0), rows = d.sets[it.ex] || [];
+  const ex = EX[it.ex], n = setsTarget(it, d), rows = d.sets[it.ex] || [];
   const sg = suggest(it, {p: d.week, deload: !!d.deload});
   const done = rows.slice(0, n).filter(r => r.done).length, cleared = done >= n;
   const tags = [i === 0 ? `<span class="tag boss">Boss</span>` : "", it.test ? `<span class="tag test">Épreuve</span>` : "", `<span class="tag">${ex.kind === "poly" ? "Gros mouvement" : "Isolation"}</span>`, `<span class="tag">Repos ${RESTTXT[it.rest]}</span>`, it.opt ? `<span class="tag">Option</span>` : "", it.maint ? `<span class="tag">Entretien</span>` : "", it.superset ? `<span class="tag">Superset</span>` : ""].join("");
@@ -1762,15 +1789,16 @@ function exCard(it, i, d) {
       <input id="rp-${it.ex}-${k}" data-bind="dg" data-f="reps" data-ex="${it.ex}" data-i="${k}" inputmode="numeric" autocomplete="off" value="${esc(r.reps)}" placeholder="${ph(k)}" aria-label="Reps, série ${k + 1}">
       <button class="chk" data-act="set" data-ex="${it.ex}" data-i="${k}" aria-label="Valider la série ${k + 1}" aria-pressed="${!!r.done}">${ICON.check}</button></div>`).join("");
   const m = d.minus[it.ex] || 0, lastRow = rows[n - 1];
-  const minus = (n > 1 && !(lastRow && lastRow.done)) ? `<button class="link" data-act="minus" data-ex="${it.ex}">Encore courbaturé ? Retirer une série</button>` : "";
+  const minus = (n > 1 && !(lastRow && lastRow.done)) ? `<button class="link" data-act="minus" data-ex="${it.ex}">${(d.plus || {})[it.ex] > 0 ? "Retirer la série ajoutée" : "Encore courbaturé ? Retirer une série"}</button>` : "";
   const unminus = m > 0 ? `<button class="link" data-act="unminus" data-ex="${it.ex}">Remettre la série retirée</button>` : "";
+  const plus = !d.deload && n < it.sets + 2 ? `<button class="link" data-act="plus" data-ex="${it.ex}">En forme ? Ajouter une série</button>` : "";
   return `<article class="ex ${i === 0 ? "boss" : ""} ${cleared ? "cleared" : ""}" id="ex-${it.ex}">
     <div class="ex-h"><span class="ex-n">${pad(i + 1)}</span><div><h3>${esc(ex.n)}</h3><div class="tags">${tags}</div></div></div>
     <div class="target"><b>${n} × ${repsTxt(it)}</b> · ${it.rir.txt}</div>
     ${it.rir.fail ? `<div class="fail">Dernière série : jusqu'à l'échec</div>` : ""}
     <p class="cue">${esc(it.cue)}</p>${last}${sugg}
     <div class="sets"><div class="set-row head" aria-hidden="true"><span></span><span>${ex.eq === "bw" ? "Lest kg" : "kg"}</span><span>Reps</span><span></span></div>${setRows}</div>
-    ${minus}${unminus}</article>`;
+    <div class="set-links">${plus}${minus}${unminus}</div></article>`;
 }
 
 /* ----- results ----- */
@@ -1882,7 +1910,8 @@ const photoDates = () => Object.keys(S.photos).filter(k => PHOTO_POSES.some(p =>
 function bodyDue() {
   const t = today(), items = [];
   if (Store.mode === "server" || Store.mode === "cloud") { const ds = photoDates(), last = ds[ds.length - 1]; if (!last || dayDiff(fromStr(last), fromStr(t)) >= 14) items.push("séance photo (toutes les 2 semaines)"); }
-  if (!waists().some(x => weekOfStr(x.d) === weekOfStr(t))) items.push("tour de taille de la semaine");
+  const scale = S.profile?.bfScale || bfReadings().length;
+  if (scale ? !bfReadings().some(x => weekOfStr(x.d) === weekOfStr(t)) : !waists().some(x => weekOfStr(x.d) === weekOfStr(t))) items.push(scale ? "masse grasse de la semaine (balance)" : "tour de taille de la semaine");
   return items;
 }
 function bodyReading() {
@@ -1904,6 +1933,24 @@ function bodyReading() {
   else { verdict = "Pas de changement net pour l'instant."; tone = ""; }
   const prs = S.sessions.filter(s => s.date > first.d).reduce((n, s) => n + (s.prs || []).length, 0);
   return {ok: true, verdict, tone, dw, dt, from: first.d, to: last.d, prs};
+}
+function bfReading() {                       // fat mass vs everything else, from the scale's body fat and the weight averages
+  const bl = bfReadings();
+  if (bl.length < 2) return {ok: false, text: "La lecture demande 2 mesures de masse grasse à au moins 2 semaines d'écart, et des pesées autour de ces dates."};
+  const last = bl[bl.length - 1], first = [...bl].reverse().find(x => dayDiff(fromStr(x.d), fromStr(last.d)) >= 14);
+  if (!first) return {ok: false, text: `Encore un peu de patience : première lecture possible à partir du ${fmtDay(addDays(fromStr(bl[0].d), 14), {weekday: "long", day: "numeric", month: "long"})}.`};
+  const w1 = avgWeight(first.d) ?? avgWeight(first.d, 14), w2 = avgWeight(last.d) ?? avgWeight(last.d, 14);
+  if (w1 == null || w2 == null) return {ok: false, text: "Il manque des pesées autour des dates de mesure de la masse grasse."};
+  const f1 = w1 * first.v / 100, f2 = w2 * last.v / 100, df = f2 - f1, dl = (w2 - f2) - (w1 - f1);
+  let verdict, tone;
+  if (df <= -0.3 && dl >= -0.2) { verdict = dl >= 0.3 ? "Moins de gras et plus de muscle : recomposition en cours." : "Tu perds du gras en gardant ton muscle."; tone = "good"; }
+  else if (df <= -0.3) { verdict = "Tu perds du gras, mais aussi un peu de muscle : vérifie tes protéines et garde tes charges."; tone = "warn"; }
+  else if (df >= 0.3 && dl >= 0.3) { verdict = "Muscle et gras en hausse : normal en prise de masse, mange un peu moins si le gras monte vite."; tone = "warn"; }
+  else if (df >= 0.3) { verdict = "Le gras remonte : regarde tes calories de la semaine."; tone = "warn"; }
+  else if (dl >= 0.3) { verdict = "Gras stable et muscle en hausse : très bon signe."; tone = "good"; }
+  else { verdict = "Pas de changement net pour l'instant."; tone = ""; }
+  const prs = S.sessions.filter(x => x.date > first.d).reduce((n, x) => n + (x.prs || []).length, 0);
+  return {ok: true, scale: true, verdict, tone, dw: w2 - w1, df, dl, from: first.d, to: last.d, prs};
 }
 function weightChart(pts) {
   if (pts.length < 2) return "";
@@ -1938,23 +1985,89 @@ function viewBody(P) {
   const weekRows = avgs.slice(-8).reverse().map((a, i, arr) => { const prevA = arr[i + 1]; const diff = prevA ? a.avg - prevA.avg : null; return `<tr><td>${fmtDay(weekStart(a.w), {day: "numeric", month: "short"})}</td><td class="num">${fmt(a.avg, 1)} kg</td><td class="num">${a.n}</td><td class="num">${diff == null ? "—" : (diff > 0 ? "+" : "") + fmt(diff, 1)}</td></tr>`; }).join("");
   const wl = waists().slice(-6).reverse();
   const waistRows = wl.map((x, i) => { const p = wl[i + 1]; const diff = p ? x.v - p.v : null; return `<tr><td>${fmtDay(fromStr(x.d), {day: "numeric", month: "short"})}</td><td class="num">${fmt(x.v, 1)} cm</td><td class="num">${diff == null ? "—" : (diff > 0 ? "+" : "") + fmt(diff, 1)}</td></tr>`; }).join("");
-  const R = bodyReading();
+  state.bfDraft = state.bfDraft || {};
+  const bv = state.bfDraft[t] ?? (Number(d.bf) > 0 ? fmtIn(Number(d.bf)) : ""), bfl = bfReadings(), scale = S.profile?.bfScale || bfl.length > 0;
+  const bfRows = bfl.slice(-6).reverse().map((x, i, arr) => { const p = arr[i + 1], w = avgWeight(x.d) ?? avgWeight(x.d, 14); const diff = p ? x.v - p.v : null;
+    return `<tr><td>${fmtDay(fromStr(x.d), {day: "numeric", month: "short"})}</td><td class="num">${fmt(x.v, 1)} %</td><td class="num">${w == null ? "—" : fmt(w * x.v / 100, 1) + " kg"}</td><td class="num">${diff == null ? "—" : (diff > 0 ? "+" : "") + fmt(diff, 1)}</td></tr>`; }).join("");
+  const R = scale ? bfReading() : bodyReading();
   const reading = R.ok
-    ? `<p class="reading ${R.tone}">${esc(R.verdict)}</p><p class="muted small">Du ${fmtDay(fromStr(R.from), {day: "numeric", month: "short"})} au ${fmtDay(fromStr(R.to), {day: "numeric", month: "short"})} : poids ${sign(R.dw)}, tour de taille ${(R.dt > 0 ? "+" : "") + fmt(R.dt, 1)} cm${R.prs ? `, et ${plural(R.prs, "record battu", "records battus")} à la salle` : ""}. C'est un repère : les photos et tes perfs le confirment ou non.</p>`
+    ? `<p class="reading ${R.tone}">${esc(R.verdict)}</p><p class="muted small">Du ${fmtDay(fromStr(R.from), {day: "numeric", month: "short"})} au ${fmtDay(fromStr(R.to), {day: "numeric", month: "short"})} : poids ${sign(R.dw)}, ${R.scale ? `gras ${sign(R.df)}, muscle et reste ${sign(R.dl)}` : `tour de taille ${(R.dt > 0 ? "+" : "") + fmt(R.dt, 1)} cm`}${R.prs ? `, et ${plural(R.prs, "record battu", "records battus")} à la salle` : ""}. C'est un repère : les photos et tes perfs le confirment ou non.</p>`
     : `<p class="muted small">${R.text}</p>`;
   return topbar() + `<section class="win"><h2 class="win-title">Poids de corps</h2>
       <div class="weigh"><label for="bodyWeighIn">Pesée de ce matin, à jeun</label><div class="weigh-in"><input id="bodyWeighIn" data-bind="weigh" data-key="${t}" inputmode="decimal" autocomplete="off" placeholder="—" value="${esc(wv)}"><span>kg</span></div></div>
+      <div class="weigh"><label for="bodyBfIn">Masse grasse de ta balance${scale ? "" : " (si elle la donne)"}</label><div class="weigh-in"><input id="bodyBfIn" data-bind="bf" data-key="${t}" inputmode="decimal" autocomplete="off" placeholder="—" value="${esc(bv)}"><span>%</span></div></div>
       <div class="res-grid"><div class="res-cell"><b>${now == null ? "—" : fmt(now, 1)}</b><span>Moyenne 7 j</span></div><div class="res-cell"><b>${now == null || prev == null ? "—" : sign(now - prev)}</b><span>Sur 7 jours</span></div><div class="res-cell"><b>${now == null || start == null ? "—" : sign(now - start)}</b><span>Depuis le début</span></div></div>
       ${pts.length >= 2 ? weightChart(pts) : `<p class="empty">Pèse-toi 3 ou 4 matins par semaine, à jeun, après être passé aux toilettes. La courbe apparaît dès la 2e pesée.</p>`}
       ${weekRows ? `<div class="tbl-wrap"><table><thead><tr><th>Semaine du</th><th class="num">Moyenne</th><th class="num">Pesées</th><th class="num">Écart</th></tr></thead><tbody>${weekRows}</tbody></table></div>` : ""}
     </section>
-    <section class="win"><h2 class="win-title">Tour de taille</h2>
+    ${scale ? `<section class="win"><h2 class="win-title">Masse grasse</h2><p class="muted small">Une mesure par semaine suffit, toujours dans les mêmes conditions (le matin, à jeun, pieds secs) : les balances varient beaucoup d'un jour à l'autre, seule la tendance compte.</p>
+      ${bfRows ? `<div class="tbl-wrap"><table><thead><tr><th>Date</th><th class="num">Gras</th><th class="num">Soit</th><th class="num">Écart</th></tr></thead><tbody>${bfRows}</tbody></table></div>` : `<p class="empty">Note ta masse grasse dans « Poids de corps » ci-dessus.</p>`}</section>` : ""}
+    ${strengthWin()}
+    <section class="win">${scale ? `<details class="fold"><summary>Tour de taille (facultatif)</summary><div>` : `<h2 class="win-title">Tour de taille</h2>`}
       <p class="muted small">Une fois par semaine, le même jour : au niveau du nombril, le matin à jeun, ventre relâché (sans le rentrer), mètre ruban à plat. Avec le poids, c'est ce qui dit si tu prends du muscle ou du gras.</p>
       <div class="weigh"><label for="waistIn">Tour de taille aujourd'hui</label><div class="weigh-in"><input id="waistIn" data-bind="waist" data-key="${t}" inputmode="decimal" autocomplete="off" placeholder="—" value="${esc(xv)}"><span>cm</span></div></div>
       ${waistRows ? `<div class="tbl-wrap"><table><thead><tr><th>Date</th><th class="num">Tour de taille</th><th class="num">Écart</th></tr></thead><tbody>${waistRows}</tbody></table></div>` : ""}
-    </section>
+    ${scale ? "</div></details>" : ""}</section>
     <section class="win"><h2 class="win-title">Lecture du Système</h2>${reading}</section>
     ${photosWin()}`;
+}
+const STRENGTH = [                          // the e1RM / body-weight ratio that counts as "very strong" (violet); blue below 30 % of it
+  {k: "pecs", name: "Pectoraux", ex: {bench: 1.2, machPress: 1.2, inclMach: 1.05, inclBar: 1.0, inclDb: 0.5, dbBench: 0.58, dips: 1.5}},
+  {k: "dos", name: "Dos", ex: {csRow: 1.1, latpd: 1.0, latpdNeutral: 1.0, cableRow: 1.0, pullupPro: 1.45, pullup: 1.45, dbRow: 0.55, uniPd: 0.5}},
+  {k: "epaules", name: "Épaules", ex: {shPress: 0.8, latRaiseMach: 0.6, latRaise: 0.15, leanLatRaise: 0.17, revFly: 0.3, revPecDeck: 0.6}},
+  {k: "biceps", name: "Biceps", ex: {bayCurl: 0.3, preacher: 0.45, hammer: 0.28}},
+  {k: "triceps", name: "Triceps", ex: {ohTri: 0.5, pushdown: 0.65, triHigh: 0.65, skull: 0.55}},
+  {k: "quads", name: "Quadriceps", ex: {hack: 2.0, pendulum: 2.0, legPress: 3.0, legExt: 2.0}},
+  {k: "ischios", name: "Ischios", ex: {legCurl: 0.85}},
+  {k: "fessiers", name: "Fessiers", ex: {kickback: 0.6}},
+  {k: "mollets", name: "Mollets", ex: {calves: 1.6}},
+];
+function strengthMap() {
+  const bw = bodyWeight();
+  return STRENGTH.map(m => {
+    let best = null;
+    for (const [ex, top] of Object.entries(m.ex)) {
+      const h = perfHistory(ex); if (!h.length) continue;
+      const e1 = Math.max(...h.map(x => bestE1(ex, x.sets))); if (!(e1 > 0)) continue;
+      const sc = Math.max(0, Math.min(1, (e1 / bw / top - 0.3) / 0.7));
+      if (!best || sc > best.sc) best = {ex, e1, sc};
+    }
+    const rank = !best ? null : best.sc >= 0.95 ? "S" : best.sc >= 0.8 ? "A" : best.sc >= 0.6 ? "B" : best.sc >= 0.4 ? "C" : best.sc >= 0.2 ? "D" : "E";
+    return {...m, best, rank};
+  });
+}
+const strengthColor = sc => sc == null ? "rgba(140,180,255,.10)" : `hsl(${Math.round(212 + 63 * sc)} ${Math.round(80 + 12 * sc)}% ${Math.round(40 + 22 * sc)}%)`;
+function bodySvg(side, by) {                  // stylised body, front or back; muscles coloured by strength
+  const c = k => { const m = by[k]; return `fill="${strengthColor(m && m.best ? m.best.sc : null)}" class="bm-m${m && m.best && m.best.sc >= 0.95 ? " top" : ""}"`; };
+  const n = 'fill="rgba(140,180,255,.07)" class="bm-n"';
+  const common = `<circle cx="60" cy="18" r="12" ${n}/><rect x="54" y="29" width="12" height="9" rx="3" ${n}/>
+    <path d="M38 42 Q60 34 82 42 L80 112 Q60 122 40 112 Z" ${n}/><ellipse cx="23" cy="102" rx="6" ry="15" ${n}/><ellipse cx="97" cy="102" rx="6" ry="15" ${n}/>
+    <circle cx="22" cy="122" r="5" ${n}/><circle cx="98" cy="122" r="5" ${n}/><path d="M41 110 Q60 120 79 110 L80 128 Q60 136 40 128 Z" ${n}/>
+    <ellipse cx="48" cy="232" rx="7" ry="4" ${n}/><ellipse cx="72" cy="232" rx="7" ry="4" ${n}/>`;
+  const front = `<ellipse cx="33" cy="49" rx="11" ry="10" ${c("epaules")}/><ellipse cx="87" cy="49" rx="11" ry="10" ${c("epaules")}/>
+    <path d="M40 43 Q59 39 59 46 L59 66 Q48 72 38 64 Q34 54 40 43 Z" ${c("pecs")}/><path d="M80 43 Q61 39 61 46 L61 66 Q72 72 82 64 Q86 54 80 43 Z" ${c("pecs")}/>
+    <rect x="48" y="71" width="24" height="38" rx="8" ${n}/>
+    <ellipse cx="27" cy="74" rx="7" ry="14" ${c("biceps")}/><ellipse cx="93" cy="74" rx="7" ry="14" ${c("biceps")}/>
+    <path d="M41 128 Q52 126 58 132 L56 180 Q48 186 42 178 Q37 154 41 128 Z" ${c("quads")}/><path d="M79 128 Q68 126 62 132 L64 180 Q72 186 78 178 Q83 154 79 128 Z" ${c("quads")}/>
+    <ellipse cx="48" cy="207" rx="6" ry="20" ${n}/><ellipse cx="72" cy="207" rx="6" ry="20" ${n}/>`;
+  const back = `<path d="M46 37 Q60 33 74 37 L81 47 Q60 45 39 47 Z" ${c("dos")}/>
+    <ellipse cx="33" cy="49" rx="11" ry="10" ${c("epaules")}/><ellipse cx="87" cy="49" rx="11" ry="10" ${c("epaules")}/>
+    <path d="M40 48 Q58 48 58 60 L57 96 Q46 92 40 78 Q36 62 40 48 Z" ${c("dos")}/><path d="M80 48 Q62 48 62 60 L63 96 Q74 92 80 78 Q84 62 80 48 Z" ${c("dos")}/>
+    <rect x="48" y="96" width="24" height="14" rx="6" ${n}/>
+    <ellipse cx="27" cy="74" rx="7" ry="14" ${c("triceps")}/><ellipse cx="93" cy="74" rx="7" ry="14" ${c("triceps")}/>
+    <ellipse cx="51" cy="123" rx="10" ry="10" ${c("fessiers")}/><ellipse cx="69" cy="123" rx="10" ry="10" ${c("fessiers")}/>
+    <path d="M41 134 Q52 132 58 136 L56 178 Q48 184 42 176 Q38 154 41 134 Z" ${c("ischios")}/><path d="M79 134 Q68 132 62 136 L64 178 Q72 184 78 176 Q82 154 79 134 Z" ${c("ischios")}/>
+    <ellipse cx="48" cy="204" rx="8" ry="17" ${c("mollets")}/><ellipse cx="72" cy="204" rx="8" ry="17" ${c("mollets")}/>`;
+  return `<figure class="bm-fig"><svg viewBox="0 0 120 240" role="img" aria-label="Corps vu de ${side === "front" ? "face" : "dos"}">${common}${side === "front" ? front : back}</svg><figcaption>${side === "front" ? "Face" : "Dos"}</figcaption></figure>`;
+}
+function strengthWin() {
+  const map = strengthMap(), by = Object.fromEntries(map.map(m => [m.k, m])), bw = bodyWeight();
+  const rows = map.map(m => `<li><span class="bm-dot" style="background:${strengthColor(m.best ? m.best.sc : null)}"></span><span class="bm-name">${m.name}</span>${m.best ? `<small>${esc(EX[m.best.ex].n)} : ${fmt(m.best.e1, 0)} kg en 1RM estimé</small>` : `<small>Pas encore mesuré</small>`}<b class="bm-rank" style="color:${m.best ? strengthColor(m.best.sc) : "var(--muted)"}">${m.rank || "—"}</b></li>`).join("");
+  return `<section class="win"><h2 class="win-title">Carte de puissance</h2>
+    <p class="muted small">Chaque muscle prend la couleur de ton meilleur exercice, comparé à ton poids de corps (${fmt(bw, 1)} kg) : bleu = à construire, violet = très fort (par exemple un couché à environ 1,2 fois ton poids). Repères approximatifs : chaque machine est différente.</p>
+    <div class="body-map">${bodySvg("front", by)}${bodySvg("back", by)}</div>
+    <div class="bm-legend"><span>E</span><i></i><span>S</span></div>
+    <ul class="bm-list">${rows}</ul></section>`;
 }
 function photosWin() {
   if (Store.mode !== "server" && Store.mode !== "cloud") return `<section class="win"><h2 class="win-title">Photos</h2><p class="muted small">Les photos se gardent sur ton PC ou dans ton espace synchronisé : ouvre Muscu Leveling depuis le raccourci du bureau ou l'appli de ton téléphone pour les ajouter.</p></section>`;
@@ -2068,6 +2181,7 @@ const EXTRA_FOODS = [
   {n: "Monster Energy (canette)", k: 47, p: 0, c: 11, f: 0, unit: "canette de 500 ml", ug: 500},
   {n: "Monster Ultra, zéro sucre (canette)", k: 2, p: 0, c: 1, f: 0, unit: "canette de 500 ml", ug: 500},
   {n: "Café noir", k: 2, p: 0.1, c: 0, f: 0, unit: "tasse", ug: 100},
+  {n: "Fraises surgelées", k: 35, p: 0.6, c: 6, f: 0.5, unit: "bol (150 g)", ug: 150},
   {n: "Pizza de restaurant entière (estimation)", k: 250, p: 11, c: 30, f: 9, unit: "pizza entière", ug: 400},
   {n: "Burger de fast-food (estimation)", k: 255, p: 13, c: 24, f: 12, unit: "burger", ug: 220},
   {n: "Kebab, sandwich complet (estimation)", k: 230, p: 11, c: 22, f: 11, unit: "kebab", ug: 400},
@@ -2192,7 +2306,7 @@ function planWin() {
     ${adv ? `<p class="reading ${adv.adj ? "warn" : "good"}">${adv.txt}</p>${adv.adj ? `<button class="btn" data-act="kcalAdj" data-v="${adv.adj}">Appliquer ${adv.adj > 0 ? "+" : "−"}${Math.abs(adv.adj)} kcal par jour</button>` : ""}` : `<p class="muted small">${curPlan().goal === "gain" ? "Après 2 semaines" : "Après 3 semaines"} de pesées, le Système vérifiera si tes calories sont bien réglées et te proposera un ajustement.</p>`}
     ${Number(p.kcalAdj) ? `<p class="muted small">Ajustement en cours : ${p.kcalAdj > 0 ? "+" : "−"}${Math.abs(p.kcalAdj)} kcal par jour.</p>` : ""}
     <details class="fold"><summary>Comment le Système calcule (méthode Jeff Nippard)</summary><div>${planCard(p, w)}</div></details>
-    ${!p.height || !p.age || !p.neck ? `<p class="muted small">Pour un calcul plus juste, indique ta taille, ton âge et ton tour de cou dans les Réglages.</p>` : ""}
+    ${!p.height || !p.age || !bodyFat(p) ? `<p class="muted small">Pour un calcul plus juste, indique ta taille, ton âge et ton taux de gras (celui de ta balance, ou ton tour de cou) dans les Réglages.</p>` : ""}
     <button class="link" data-act="go" data-v="settings">Modifier dans les Réglages</button></section>`;
 }
 function fastWin(off) {
@@ -2322,7 +2436,7 @@ function modalFood(m) {
   const ad = m.added || [], last = ad[ad.length - 1];
   const added = ad.length ? `<p class="reading good">${ad.length > 1 ? `${ad.length} aliments ajoutés ${auSlot} (${fmt(ad.reduce((n, a) => n + a.kcal, 0), 0)} kcal). Dernier : ` : `Ajouté ${auSlot} : `}${esc(last.n)} (${fmt(last.kcal, 0)} kcal). Ajoute autre chose ou touche « Terminé ».</p>` : "";
   let body = "";
-  if (m.tab === "search") body = `<div class="field"><label for="food-q">Aliment</label><input id="food-q" data-bind="foodQ" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="Ex. poulet cru, skyr, whey myprotein, Nutella…" value="${esc(m.q || "")}"></div>
+  if (m.tab === "search") body = `<div class="field sticky-q"><label for="food-q">Aliment</label><input id="food-q" data-bind="foodQ" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="Ex. poulet cru, skyr, whey myprotein, Nutella…" value="${esc(m.q || "")}"></div>
       <div id="food-results">${foodResults(m)}</div>`;
   else if (m.tab === "recent") body = list(recentFoods(), "Tes aliments déjà notés apparaîtront ici.");
   else if (m.tab === "tpl") { const tp = S.mealtpl?.items || []; body = tp.length ? `<ul class="food-res">${tp.map(t => `<li><button data-act="tplAdd" data-id="${esc(t.id)}"><span>${esc(t.name)}<br><small>${t.items.length} aliments</small></span><small>${fmt(t.items.reduce((n, x) => n + (x.kcal || 0), 0), 0)} kcal</small></button></li>`).join("")}</ul>${tp.map(t => `<button class="link" data-act="tplDel" data-id="${esc(t.id)}">Supprimer « ${esc(t.name)} »</button>`).join("")}` : `<p class="muted small">Note un repas que tu manges souvent, puis appuie sur « Garder comme repas type » sous ce repas : il s'ajoutera ensuite en un geste.</p>`; }
@@ -2466,6 +2580,20 @@ function seedPlan(force) {                    // once per load: remember the pro
     }
     mark("ppl1027");
   }
+  if (!done("fix1029")) {   // 29 Oct push: lying incline machine (typed in the incline-dumbbell rows) and the lateral-raise machine
+    for (const ses of S.sessions.filter(x => x.date === "2026-10-29")) {
+      const sets = {...(ses.sets || {})}; let changed = false;
+      if (pid === "base" && sets.inclDb && !sets.inclMach) { sets.inclMach = sets.inclDb; delete sets.inclDb; changed = true; }
+      if (sets.latRaise && !sets.latRaiseMach) { sets.latRaiseMach = sets.latRaise; delete sets.latRaise; changed = true; }
+      if (changed) { const doc = {...ses, sets}; delete doc.id; S.sessions = S.sessions.map(x => x.id === ses.id ? {id: ses.id, ...doc} : x); queueSet("sessions/" + ses.id, doc); }
+    }
+    mark("fix1029");
+  }
+  if (pid === "base" && !done("bf1029")) {    // his scale says 28 % body fat (29 Oct): use it, no tape measure needed
+    prof().bf = 28; prof().bfScale = true;
+    const k = "2026-10-29"; if (!(Number(S.days[k]?.bf) > 0)) { const d = {...(S.days[k] || {}), date: k, bf: 28}; delete d.id; S.days = {...S.days, [k]: d}; queueSet("days/" + k, d); }
+    mark("bf1029");
+  }
   if (next) { S.profile = next; queueSet("game/profile", next); }
 }
 function programPickWin() {
@@ -2554,6 +2682,7 @@ function renderModal() {
   else if (m.kind === "food") h = modalFood(m);
   else if (m.kind === "tplSave") h = `<div class="win"><h2 class="win-title">Repas type</h2><div class="field"><label for="fm-tplName">Nom du repas</label><input id="fm-tplName" data-bind="food" data-f="tplName" autocomplete="off" placeholder="Ex. Poulet riz du midi" value="${esc(m.tplName || "")}"></div><div class="row"><button class="btn ghost" data-act="closeModal">Annuler</button><button class="btn primary" data-act="tplSave">Enregistrer</button></div></div>`;
   else if (m.kind === "ticket") { const p = S.purchases.find(x => x.id === m.pid); h = `<div class="win"><h2 class="win-title">Ticket repas</h2><p>Valider « ${esc(p ? p.name : "")} » ${m.date === today() ? "aujourd'hui" : "le " + fmtDay(fromStr(m.date), {day: "numeric", month: "long"})} ? Le repas compte comme noté, ses calories ne comptent pas.</p><div class="row">${mealSlots([]).map(sl => `<button class="btn gold" data-act="ticketSlot" data-slot="${sl.k}">${sl.label}</button>`).join("")}</div><button class="btn ghost" data-act="closeModal">Annuler</button></div>`; }
+  el.classList.toggle("top", m.kind === "food");   // the food window opens from the top: the field typed in stays above the keyboard
   el.innerHTML = h; el.hidden = false; restoreFocus(focus);
 }
 function moveRow(cw, ty, p) {                 // change the day of a session this week or next (sick, busy...)
@@ -2581,7 +2710,7 @@ function modalPreview(m) {
 }
 function draftCounts() {
   const d = S.draft, plan = planFor(d.cw, d.type); let planned = 0, doneReq = 0;
-  for (const it of plan) { const n = it.sets - (d.minus[it.ex] || 0); if (!it.opt) { planned += n; doneReq += (d.sets[it.ex] || []).slice(0, n).filter(r => r.done).length; } }
+  for (const it of plan) { const n = setsTarget(it, d); if (!it.opt) { planned += n; doneReq += (d.sets[it.ex] || []).slice(0, n).filter(r => r.done).length; } }
   return {planned, doneReq};
 }
 function modalFinish(m) {
@@ -2633,7 +2762,7 @@ function toggleSet(ex, i) {
   const pb = prevBest(ex), cur = e1rm(ex, parseNum(r.kg), Math.round(reps));
   if (pb > 0 && cur > pb + 0.05 && !state.toastedPr[ex]) { state.toastedPr[ex] = true; toast(`[Record en vue] ${esc(EX[ex].n)} : 1RM estimé ${fmt(cur, 1)} kg`, "gold"); }
   saveDraft(); chime("sys");
-  const n = it ? it.sets - (d.minus[ex] || 0) : rows.length;
+  const n = it ? setsTarget(it, d) : rows.length;
   const pairedSuperset = it && it.superset && ex === "triHigh";
   if (!pairedSuperset) startRest(it ? it.rest : 90);
   render();
@@ -2652,7 +2781,7 @@ async function finishDungeon() {
   const before = compute(); const wbBefore = weekBonus(d.cw);
   const setsOut = {}; let done = 0, doneReq = 0, planned = 0;
   for (const it of plan) {
-    const n = it.sets - (d.minus[it.ex] || 0);
+    const n = setsTarget(it, d);
     if (!it.opt) planned += n;
     const rows = (d.sets[it.ex] || []).slice(0, n).filter(r => r.done && parseNum(r.reps) > 0).map(r => ({kg: parseNum(r.kg) ?? 0, reps: Math.round(parseNum(r.reps))}));
     if (rows.length) setsOut[it.ex] = rows;
@@ -2666,7 +2795,7 @@ async function finishDungeon() {
   const gold = (full ? 50 : valid ? 20 : 0) + prs.length * 10 + (loot ? loot.gold : 0) + (fin ? 10 : 0);
   const now = new Date();
   const doc = {key: d.key, cw: d.cw, week: d.week, deload: !!d.deload, bonus: !!d.bonus, type: d.type, date: today(), startedAt: d.startedAt, finishedAt: now.toISOString(), minutes: Math.max(1, Math.round((now - new Date(d.startedAt)) / 60000)),
-    sets: setsOut, planned, done, doneReq, full, valid, xp, gold, prs, loot, feeling: m.feeling || null, note: (m.note || "").slice(0, 500), minus: d.minus, warm: !!d.warm, finisher: fin};
+    sets: setsOut, planned, done, doneReq, full, valid, xp, gold, prs, loot, feeling: m.feeling || null, note: (m.note || "").slice(0, 500), minus: d.minus, plus: d.plus || {}, warm: !!d.warm, finisher: fin};
   const id = d.key + "-" + now.getTime().toString(36);
   try { await Store.db.collection("sessions").doc(id).set(doc); }
   catch (e) { writeError(e); return; }
@@ -2740,6 +2869,15 @@ function saveSleep(key, val) {
   delete state.sleepDraft[key]; setDay(key, {sleepH: r1(v)});
   const tgt = Number(S.profile?.targets?.sleep) || 7;
   toast(v >= tgt ? `[Nuit validée] ${fmt(v, 1)} h` : v < tgt - 1 ? `[Malus] Nuit trop courte : ${fmt(v, 1)} h, −40 XP. Couche-toi plus tôt ce soir.` : `[Nuit un peu courte] ${fmt(v, 1)} h`, v >= tgt ? "ok" : v < tgt - 1 ? "red" : "");
+  render();
+}
+function saveBf(key, val) {
+  const s = String(val).trim(); const cur = {...(S.days[key] || {}), date: key}; delete cur.id;
+  if (s === "") delete cur.bf;
+  else { const v = parseNum(s); if (!(v >= 3 && v <= 60)) { toast("[Système] Masse grasse illisible : écris par exemple 27,5.", "red"); return; } cur.bf = r1(v); }
+  delete state.bfDraft[key];
+  S.days = {...S.days, [key]: cur}; queueSet("days/" + key, cur);
+  if (cur.bf) toast(`[Masse grasse notée] ${fmt(cur.bf, 1)} %`);
   render();
 }
 function saveWeight(key, val) {
@@ -2895,7 +3033,12 @@ const ACTIONS = {
     const slot = h < 11 && eatsBreakfast(S.profile) ? "matin" : h < 16 ? "midi" : h < 18 ? "snack" : "soir";
     state.modal = {kind: "food", date: a.dataset.d, slot, tab: "search", q: "", sel: f, grams: String(f.ug || 100), units: "1", mode: f.unit && f.ug ? "u" : "g"}; renderModal(); },
   set: a => toggleSet(a.dataset.ex, Number(a.dataset.i)),
-  minus: a => { const ex = a.dataset.ex; S.draft.minus[ex] = (S.draft.minus[ex] || 0) + 1; saveDraft(); render(); },
+  plus: a => { const ex = a.dataset.ex, d = S.draft, it = planFor(d.cw, d.type).find(x => x.ex === ex); if (!it) return;
+    d.plus = {...(d.plus || {}), [ex]: ((d.plus || {})[ex] || 0) + 1}; const rows = d.sets[ex] || (d.sets[ex] = []);
+    while (rows.length < setsTarget(it, d)) rows.push({kg: rows.length ? rows[rows.length - 1].kg : "", reps: "", done: false});
+    saveDraft(); render(); },
+  minus: a => { const ex = a.dataset.ex, d = S.draft;   // an extra set added by mistake goes first
+    if ((d.plus || {})[ex] > 0) d.plus = {...d.plus, [ex]: d.plus[ex] - 1}; else d.minus[ex] = (d.minus[ex] || 0) + 1; saveDraft(); render(); },
   unminus: a => { const ex = a.dataset.ex; S.draft.minus[ex] = Math.max(0, (S.draft.minus[ex] || 0) - 1); saveDraft(); render(); },
   restAdd: () => { if (state.rest) { if (state.rest.end < Date.now()) state.rest = {end: Date.now() + 15000, total: 15000, rang: false}; else { state.rest.end += 15000; state.rest.total += 15000; } tick(); } },
   restSkip: () => { state.rest = null; tick(); },
@@ -2961,6 +3104,7 @@ function onField(e) {
   else if (b === "set") state.setDraft[el.dataset.f] = v;
   else if (b === "weigh") state.weighDraft[el.dataset.key] = v;
   else if (b === "waist") state.waistDraft[el.dataset.key] = v;
+  else if (b === "bf") (state.bfDraft = state.bfDraft || {})[el.dataset.key] = v;
   else if (b === "sleep") state.sleepDraft[el.dataset.key] = v;
   else if (b === "foodQ") { if (state.modal) { state.modal.q = v; clearTimeout(foodQTimer); foodQTimer = setTimeout(foodSearchRefresh, 90); } }
   else if (b === "food") { if (state.modal) { state.modal[el.dataset.f] = v; if (el.dataset.live) foodCalcRefresh(); } }
@@ -2975,14 +3119,16 @@ document.addEventListener("change", e => {
   const el = e.target;
   if (el.dataset && el.dataset.bind === "weigh") saveWeight(el.dataset.key, el.value);
   if (el.dataset && el.dataset.bind === "waist") saveWaist(el.dataset.key, el.value);
+  if (el.dataset && el.dataset.bind === "bf") saveBf(el.dataset.key, el.value);
   if (el.dataset && el.dataset.bind === "sleep") saveSleep(el.dataset.key, el.value);
   if (el.dataset && el.dataset.photo && el.files && el.files[0]) { const f = el.files[0]; el.value = ""; uploadPhoto(f, el.dataset.photo); }
   if (el.id === "importFile" && el.files && el.files[0]) { const f = el.files[0]; el.value = ""; importBackup(f); }
 });
 document.addEventListener("keydown", e => {
-  if (e.key === "Enter" && e.target.dataset && (e.target.dataset.bind === "weigh" || e.target.dataset.bind === "waist" || e.target.dataset.bind === "sleep")) { e.target.blur(); }
+  if (e.key === "Enter" && e.target.dataset && (e.target.dataset.bind === "weigh" || e.target.dataset.bind === "waist" || e.target.dataset.bind === "bf" || e.target.dataset.bind === "sleep")) { e.target.blur(); }
   if (e.key === "Escape" && state.modal) { state.modal = null; renderModal(); }
 });
+if (window.visualViewport) visualViewport.addEventListener("resize", () => document.body.classList.toggle("kb", visualViewport.height < innerHeight - 120));   // phone keyboard open
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") flushDraft();
   else if (state.view === "dungeon") requestWakeLock();
