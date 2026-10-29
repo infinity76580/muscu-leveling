@@ -516,6 +516,7 @@ figcaption{font:600 11px var(--font-display);letter-spacing:.08em;color:var(--mu
 .day-pick button:disabled{opacity:.35;cursor:default}
 .m-main{display:contents}
 .shop .rw.idea .btn{min-width:44px;font-size:18px;padding:0}
+.stale{opacity:.5}
 </style>
 
 <div id="app" class="wrap"></div>
@@ -2082,18 +2083,58 @@ const EXTRA_FOODS = [
   {n: "Raclette, assiette raisonnable (estimation)", k: 175, p: 11.7, c: 10, f: 9.2, unit: "assiette", ug: 360},
 ].map(f => ({...f, src: "extra"}));
 const mealSlots = items => SLOTS.filter(sl => sl.k !== "matin" || eatsBreakfast(S.profile) || (items || []).some(it => it.slot === "matin"));
-let BRANDS = null, FOODS = null, foodsLoading = null, foodQTimer = null;
+let foodQTimer = null;
 const DATA_FILES = window.GL_FILES || {aliments: "aliments.json", marques: "marques.json"};   // the site build gives hashed names
-const getJson = u => fetch(u).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+function foodWorkerMain() {                   // runs in a background worker: parses the food tables and searches them
+  const norm = s => String(s || "").toLowerCase().replace(/œ/g, "oe").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const prep = list => { for (const f of list) f._s = " " + norm(f.n).replace(/[^a-z0-9]+/g, " "); return list; };
+  let extra = [], ciqual = [], brands = [];
+  onmessage = e => {
+    const d = e.data;
+    if (d.type === "extra") extra = prep(d.list);
+    else if (d.type === "data") {
+      try {
+        const j = JSON.parse(new TextDecoder().decode(d.buf));
+        if (d.kind === "ciqual") ciqual = prep(j.foods.map(f => ({n: f[0], k: f[1], p: f[2], c: f[3], f: f[4], src: "ciqual", ...(f[6] && f[7] > 0 ? {unit: f[6], ug: f[7]} : {})})));
+        else brands = prep(j.foods.map((f, i) => ({n: f[1] ? f[0] + " · " + f[1] : f[0], k: f[2], p: f[3], c: f[4], f: f[5], src: "off", rank: i, ...(f[6] > 0 ? {unit: "portion (" + String(f[6]).replace(".", ",") + " g)", ug: f[6]} : {})})));
+        postMessage({type: "status", kind: d.kind, count: d.kind === "ciqual" ? ciqual.length : brands.length});
+      } catch (err) { postMessage({type: "status", kind: d.kind, count: -1}); }
+    } else if (d.type === "search") {
+      // every word must appear (accents, case and a final s/x ignored: "oeufs" finds "Oeuf cru")
+      const raw = norm(d.q).split(/[^a-z0-9]+/).filter(Boolean), toks = raw.map(t => t.length > 3 ? t.replace(/[sx]$/, "") : t);
+      const r0 = raw[0], t0 = toks[0], nb = brands.length || 1, hits = [];
+      const fit = s => { const w = s + " "; return w.startsWith(" " + r0 + " ") ? 0 : w.includes(" " + r0 + " ") ? 300 : w.startsWith(" " + t0 + " ") ? 400 : w.includes(" " + t0 + " ") ? 500 : w.includes(" " + t0) ? 700 : 1500; };
+      const base = f => f.src === "perso" ? 0 : f.src === "extra" ? (/\(estimation\)/.test(f.n) ? 2100 : 1000) : f.src === "ciqual" ? 2000 : 3000;
+      if (toks.length) for (const list of [prep(d.custom || []), extra, ciqual, brands]) for (const f of list) {
+        const sk = f._s; let ok = true; for (const t of toks) if (!sk.includes(t)) { ok = false; break; } if (!ok) continue;
+        const ft = fit(sk);    // whole word first, generic before brands, staples (generic foods with a usual portion) boosted when the name starts with the word
+        hits.push([base(f) + ft - ((ft === 0 || ft === 400) && f.src === "ciqual" && f.unit ? 500 : 0) + (f.src === "off" ? 400 * f.rank / nb : f.n.length), f]);
+      }
+      hits.sort((a, b) => a[0] - b[0]);
+      postMessage({type: "results", id: d.id, q: d.q, total: hits.length, list: hits.slice(0, 50).map(h => { const o = {...h[1]}; delete o._s; return o; })});
+    }
+  };
+}
+const foodState = {worker: null, ciqual: 0, brands: 0, reqId: 0};   // counts: 0 loading, -1 failed
 function loadFoods() {
-  if (FOODS || foodsLoading) return;
-  const redraw = () => { if (state.modal && state.modal.kind === "food") foodSearchRefresh(); };
-  foodsLoading = getJson(DATA_FILES.aliments)
-    .then(j => { FOODS = j.foods.map(f => ({n: f[0], k: f[1], p: f[2], c: f[3], f: f[4], grp: f[5], src: "ciqual", ...(f[6] && f[7] > 0 ? {unit: f[6], ug: f[7]} : {})})); redraw(); })
-    .catch(() => { FOODS = []; toast("[Système] Base d'aliments introuvable : la saisie rapide reste possible.", "red"); });
-  getJson(DATA_FILES.marques)                  // ~60 000 products sold in France (Open Food Facts), most scanned first
-    .then(j => { BRANDS = j.foods.map((f, i) => ({n: f[1] ? f[0] + " · " + f[1] : f[0], k: f[2], p: f[3], c: f[4], f: f[5], src: "off", rank: i, ...(f[6] > 0 ? {unit: "portion (" + fmt(f[6], 1) + " g)", ug: f[6]} : {})})); redraw(); })
-    .catch(() => { BRANDS = []; });
+  if (foodState.worker) return;
+  const set = (kind, n) => { foodState[kind === "ciqual" ? "ciqual" : "brands"] = n; if (kind === "ciqual" && n < 0) toast("[Système] Base d'aliments introuvable : la saisie libre reste possible.", "red");
+    const m = state.modal; if (m && m.kind === "food") { m.resQ = null; foodSearchRefresh(); } };
+  try { foodState.worker = new Worker(URL.createObjectURL(new Blob(["(" + foodWorkerMain.toString() + ")()"], {type: "text/javascript"}))); }
+  catch (e) { foodState.ciqual = foodState.brands = -1; return; }
+  const w = foodState.worker;
+  w.onmessage = e => { const d = e.data;
+    if (d.type === "status") set(d.kind, d.count);
+    else if (d.type === "results") { const m = state.modal; if (m && m.kind === "food" && d.id === m.reqId) { Object.assign(m, {res: d.list, resQ: d.q, resTotal: d.total}); foodResultsPaint(); } } };
+  w.postMessage({type: "extra", list: EXTRA_FOODS.map(f => ({n: f.n, k: f.k, p: f.p, c: f.c, f: f.f, unit: f.unit, ug: f.ug, src: "extra"}))});
+  for (const [kind, file] of [["ciqual", DATA_FILES.aliments], ["marques", DATA_FILES.marques]])   // fetched here (the offline cache answers), parsed in the worker
+    fetch(file).then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); }).then(buf => w.postMessage({type: "data", kind, buf}, [buf])).catch(() => set(kind, -1));
+}
+const foodQueryOk = q => norm(q).replace(/[^a-z0-9]/g, "").length >= 2;
+function foodSearchRequest(m) {
+  if (!foodState.worker || !foodQueryOk(m.q || "")) return;
+  m.reqId = ++foodState.reqId; m.pendQ = m.q;
+  foodState.worker.postMessage({type: "search", id: m.reqId, q: m.q, custom: customFoods().map(f => ({n: f.n, k: f.k, p: f.p, c: f.c, f: f.f, unit: f.unit, ug: f.ug, unitOnly: f.unitOnly, id: f.id, src: "perso"}))});
 }
 const customFoods = () => (S.foods?.items || []).map(f => ({...f, src: "perso"}));
 function recentFoods() {
@@ -2104,19 +2145,6 @@ function recentFoods() {
     if (out.length >= 25) return out;
   }
   return out;
-}
-function searchFoods(q) {
-  // every word must appear (accents, case and a final s/x ignored: "oeufs" finds "Oeuf cru")
-  const raw = norm(q).split(/[^a-z0-9]+/).filter(Boolean), toks = raw.map(t => t.length > 3 ? t.replace(/[sx]$/, "") : t); if (!toks.length) return [];
-  const res = [], nb = BRANDS ? BRANDS.length : 1;
-  for (const list of [customFoods(), EXTRA_FOODS, FOODS || [], BRANDS || []]) for (const f of list) {
-    const n = f._s || (f._s = " " + norm(f.n).replace(/[^a-z0-9]+/g, " ")); if (toks.every(t => n.includes(t))) res.push(f); }
-  const base = f => f.src === "perso" ? 0 : f.src === "extra" ? (/\(estimation\)/.test(f.n) ? 2100 : 1000) : f.src === "ciqual" ? 2000 : 3000;
-  const r0 = raw[0], t0 = toks[0];   // the word as typed beats its singular ("pâtes" before "pâté")
-  const fit = s => { const w = s + " "; return w.startsWith(" " + r0 + " ") ? 0 : w.includes(" " + r0 + " ") ? 300 : w.startsWith(" " + t0 + " ") ? 400 : w.includes(" " + t0 + " ") ? 500 : w.includes(" " + t0) ? 700 : 1500; };
-  const staple = f => f.src === "ciqual" && f.unit ? 500 : 0;   // generic foods with a usual portion = everyday staples (egg, banana, milk…)
-  const score = f => { const ft = fit(f._s); return base(f) + ft - (ft === 0 || ft === 400 ? staple(f) : 0) + (f.src === "off" ? 400 * f.rank / nb : f.n.length); };   // staple boost only when the name starts with the word   // whole word first, then generic before brands
-  return res.sort((a, b) => score(a) - score(b)).slice(0, 50);
 }
 function entryFrom(f, g, u) {
   return {id: uid(), name: f.n, g: r1(g), u: u || null, kcal: Math.round(f.k * g / 100), prot: r1(f.p * g / 100), carbs: r1((f.c || 0) * g / 100), fat: r1((f.f || 0) * g / 100),
@@ -2249,16 +2277,22 @@ function foodList(m, arr, empty) {
 }
 const foodYours = q => `<button class="btn ghost wide" data-act="foodCreateFrom">＋ ${q ? `Ajouter « ${esc(q)} » moi-même` : "Ajouter mon propre aliment"}</button>`;
 function foodResults(m) {
-  return `${!FOODS ? `<p class="muted small">Chargement de la base d'aliments…</p>` : ""}${m.q ? foodList(m, searchFoods(m.q), FOODS ? "Rien trouvé avec ces mots." : "") : ""}
-      ${FOODS && !BRANDS ? `<p class="muted small">Chargement des produits de marque…</p>` : ""}
-      <p class="muted small">Aliments simples : table Ciqual 2025 de l'Anses. Produits de marque : ${BRANDS && BRANDS.length ? fmt(BRANDS.length, 0) + " produits vendus en France, " : ""}base libre Open Food Facts (licence ODbL), vérifie l'étiquette en cas de doute.</p>`;
+  const q = String(m.q || "").trim(), ready = foodState.ciqual > 0;
+  let body = "";
+  if (q && !foodQueryOk(q)) body = `<p class="muted small">Tape au moins 2 lettres.</p>`;
+  else if (q && m.res && m.resQ === m.q) body = foodList(m, m.res, ready ? "Rien trouvé avec ces mots." : "");
+  else if (q) { if (m.pendQ !== m.q) foodSearchRequest(m); body = m.res && m.res.length ? `<div class="stale">${foodList(m, m.res, "")}</div>` : `<p class="muted small">Recherche…</p>`; }
+  return `${foodState.ciqual === 0 ? `<p class="muted small">Chargement de la base d'aliments…</p>` : ""}${body}
+      ${ready && foodState.brands === 0 ? `<p class="muted small">Chargement des produits de marque…</p>` : ""}
+      <p class="muted small">Aliments simples : table Ciqual 2025 de l'Anses. Produits de marque : ${foodState.brands > 0 ? fmt(foodState.brands, 0) + " produits vendus en France, " : ""}base libre Open Food Facts (licence ODbL), vérifie l'étiquette en cas de doute.</p>`;
 }
-function foodSearchRefresh() {                // redraw only the results: the field being typed in is never replaced
+function foodResultsPaint() {                 // redraw only the results: the field being typed in is never replaced
   const m = state.modal; if (!m || m.kind !== "food") return;
   const box = document.getElementById("food-results"), main = document.getElementById("food-main");
   if (m.sel || m.tab !== "search" || !box) { renderModal(); return; }
-  box.innerHTML = foodResults(m); if (main) main.innerHTML = m.q && FOODS ? foodYours(m.q) : "";
+  box.innerHTML = foodResults(m); if (main) main.innerHTML = m.q && foodState.ciqual > 0 ? foodYours(m.q) : "";
 }
+function foodSearchRefresh() { const m = state.modal; if (!m || m.kind !== "food") return; if (m.tab === "search" && !m.sel) foodSearchRequest(m); foodResultsPaint(); }
 function foodCalc(m) { const f = m.sel, hasU = !!(f.unit && f.ug > 0), useU = hasU && (f.unitOnly || m.mode !== "g"), qty = parseNum(useU ? m.units : m.grams); return {f, hasU, useU, qty, g: (qty || 0) * (useU ? f.ug : 1)}; }
 function foodCalcLine(c) { const {f, g} = c, x = v => v * g / 100; return g > 0 ? `= <b>${fmt(Math.round(x(f.k)), 0)} kcal</b> · ${fmt(x(f.p), 1)} g prot. · ${fmt(x(f.c || 0), 1)} g gluc. · ${fmt(x(f.f || 0), 1)} g lip.` : "Indique une quantité."; }
 function foodCalcRefresh() {                  // live total while typing the amount, without redrawing the field
@@ -2308,7 +2342,7 @@ function modalFood(m) {
   else if (m.tab === "off") body = `<div class="field"><label for="fm-offQ">Produit de marque</label><input id="fm-offQ" data-bind="food" data-f="offQ" autocomplete="off" placeholder="Ex. skyr, granola, Monster mango" value="${esc(m.offQ || "")}"></div>
       <button class="btn" data-act="offSearch">${m.offBusy ? "Recherche…" : "Chercher dans Open Food Facts"}</button>${m.offErr ? `<p class="malus">${m.offErr}</p>` : ""}${m.offRes ? list(m.offRes, "Aucun produit trouvé.") : ""}
       <p class="muted small">Base libre de produits du commerce, alimentée par ses utilisateurs : vérifie l'étiquette en cas de doute.</p>`;
-  const main = m.tab === "search" ? (m.q && FOODS ? yours(m.q) : "") : m.tab === "quick" ? `<button class="btn primary" data-act="foodQuick">Ajouter ${auSlot}</button>`
+  const main = m.tab === "search" ? (m.q && foodState.ciqual > 0 ? yours(m.q) : "") : m.tab === "quick" ? `<button class="btn primary" data-act="foodQuick">Ajouter ${auSlot}</button>`
     : m.tab === "custom" ? `<button class="btn primary" data-act="foodCustom">Enregistrer et ajouter</button>` : m.tab === "code" && m.offRes && !m.offRes.length ? yours("") : "";
   return `<div class="win">${head}${added}<div class="seg seg-wrap food-tabs" role="group" aria-label="Façon d'ajouter">${tabs.map(([k, l]) => `<button class="${m.tab === k ? "on" : ""}" data-act="foodTab" data-t="${k}">${l}</button>`).join("")}</div>${body}<div class="m-actions"><div id="food-main" class="m-main">${main}</div><button class="btn ${m.added && m.added.length ? "primary" : "ghost"}" data-act="closeModal">${m.added && m.added.length ? "Terminé" : "Fermer"}</button></div></div>`;
 }
@@ -2928,7 +2962,7 @@ function onField(e) {
   else if (b === "weigh") state.weighDraft[el.dataset.key] = v;
   else if (b === "waist") state.waistDraft[el.dataset.key] = v;
   else if (b === "sleep") state.sleepDraft[el.dataset.key] = v;
-  else if (b === "foodQ") { if (state.modal) { state.modal.q = v; clearTimeout(foodQTimer); foodQTimer = setTimeout(foodSearchRefresh, 120); } }
+  else if (b === "foodQ") { if (state.modal) { state.modal.q = v; clearTimeout(foodQTimer); foodQTimer = setTimeout(foodSearchRefresh, 90); } }
   else if (b === "food") { if (state.modal) { state.modal[el.dataset.f] = v; if (el.dataset.live) foodCalcRefresh(); } }
   else if (b === "phDate") { if (e.type === "change") { state.phDate = v || null; render(); } }
   else if (b === "cmp") { state.cmp = {...state.cmp, [el.dataset.f]: v}; if (e.type === "change") render(); }
