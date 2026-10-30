@@ -638,7 +638,8 @@ const EX = {
   bulgarian:   {n: "Fentes bulgares", kind: "poly", eq: "db"},
   skull:       {n: "Skullcrusher barre EZ", kind: "iso", eq: "bar"},
   revPecDeck:  {n: "Reverse pec deck (oiseau à la machine)", kind: "iso", eq: "machine"},
-  rowMachClose:{n: "Tirage horizontal prise serrée (machine)", kind: "poly", eq: "machine"},
+  rowCableClose:{n: "Tirage horizontal prise serrée (poulie)", kind: "poly", eq: "cable"},
+  cableRowUni: {n: "Rowing poulie un bras", kind: "poly", eq: "cable"},
   machCurl:    {n: "Curl à la machine (accent chef long)", kind: "iso", eq: "machine"},
   shrug:       {n: "Shrugs (haltères ou machine)", kind: "iso", eq: "db"},
 };
@@ -802,8 +803,9 @@ const WEEKS = [null,
 const DELOAD = {phase: "Semaine allégée", rank: "D", rirTxt: "3 partout, mêmes charges, jamais à l'échec", setsTxt: "Moitié des séries"};
 const TEST_EX = {A: ["bench", "csRow"], C: ["inclBar", "latpdNeutral"]};
 const SHRUG = {ex: "shrug", sets: 2, reps: [10, 15], rest: 75, cue: "Monte les épaules droit vers les oreilles, pause 1 s en haut, descente lente ; bras tendus, sans rouler les épaules."};
-const GAUTHIER_SWAP = {                       // his own picks (30 Oct): no seated cable row, the long-head curl machine
-  cableRow: {ex: "rowMachClose", cue: "Machine de tirage horizontal, poignée serrée : laisse les épaules avancer pour étirer, puis tire les coudes le long du corps et serre les omoplates."},
+const GAUTHIER_SWAP = {                       // his own picks (30 Oct): close-grip cable row, rows on the cable, the long-head curl machine
+  cableRow: {ex: "rowCableClose", cue: "Poulie basse, poignée serrée (triangle) : laisse les épaules avancer pour étirer, puis tire les coudes le long du corps et serre les omoplates."},
+  dbRow: {ex: "cableRowUni", cue: "Poulie basse, une poignée : laisse l'épaule avancer pour étirer, puis tire le coude vers la hanche."},   // all his horizontal rows on the cable, except the chest-supported one
   bayCurl: {ex: "machCurl", cue: "Machine qui place les bras en arrière (accent sur le chef long) : descente complète jusqu'à l'étirement, coude fixe."},
 };
 const GAUTHIER_ADD = {C: [SHRUG], T: [SHRUG]};   // traps were missing from his week (30 Oct)
@@ -2064,7 +2066,7 @@ function viewBody(P) {
 }
 const STRENGTH = [                          // the e1RM / body-weight ratio that counts as "very strong" (violet); blue below 30 % of it
   {k: "pecs", name: "Pectoraux", ex: {bench: 1.2, machPress: 1.2, inclMach: 1.05, inclBar: 1.0, inclDb: 0.5, dbBench: 0.58, dips: 1.5}},
-  {k: "dos", name: "Dos", ex: {csRow: 1.1, latpd: 1.0, latpdNeutral: 1.0, cableRow: 1.0, pullupPro: 1.45, pullup: 1.45, dbRow: 0.55, uniPd: 0.5, rowMachClose: 1.0}},
+  {k: "dos", name: "Dos", ex: {csRow: 1.1, latpd: 1.0, latpdNeutral: 1.0, cableRow: 1.0, pullupPro: 1.45, pullup: 1.45, dbRow: 0.55, uniPd: 0.5, rowCableClose: 1.0, cableRowUni: 0.55}},
   {k: "trapezes", name: "Trapèzes", ex: {shrug: 0.65}},
   {k: "epaules", name: "Épaules", ex: {shPress: 0.8, latRaiseMach: 0.6, latRaise: 0.15, leanLatRaise: 0.17, revFly: 0.3, revPecDeck: 0.6}},
   {k: "biceps", name: "Biceps", ex: {bayCurl: 0.3, preacher: 0.45, hammer: 0.28, machCurl: 0.5}},
@@ -2655,10 +2657,17 @@ function seedPlan(force) {                    // once per load: remember the pro
   if (pid === "base" && !done("fix1030")) {   // 30 Oct pull: close-grip row machine and long-head curl machine, typed in the cable rows
     for (const ses of S.sessions.filter(x => x.date === "2026-10-30")) {
       const sets = {...(ses.sets || {})}; let changed = false;
-      for (const [a, b] of [["cableRow", "rowMachClose"], ["bayCurl", "machCurl"]]) if (sets[a] && !sets[b]) { sets[b] = sets[a]; delete sets[a]; changed = true; }
+      for (const [a, b] of [["cableRow", "rowCableClose"], ["bayCurl", "machCurl"]]) if (sets[a] && !sets[b]) { sets[b] = sets[a]; delete sets[a]; changed = true; }
       if (changed) { const doc = {...ses, sets}; delete doc.id; S.sessions = S.sessions.map(x => x.id === ses.id ? {id: ses.id, ...doc} : x); queueSet("sessions/" + ses.id, doc); }
     }
     mark("fix1030");
+  }
+  if (pid === "base" && !done("fix1030b")) {   // the close-grip row was on the cable, not a machine (rows saved under the first name)
+    for (const ses of S.sessions.filter(x => x.sets && x.sets.rowMachClose)) {
+      const sets = {...ses.sets}; if (!sets.rowCableClose) sets.rowCableClose = sets.rowMachClose; delete sets.rowMachClose;
+      const doc = {...ses, sets}; delete doc.id; S.sessions = S.sessions.map(x => x.id === ses.id ? {id: ses.id, ...doc} : x); queueSet("sessions/" + ses.id, doc);
+    }
+    mark("fix1030b");
   }
   if (next) { S.profile = next; queueSet("game/profile", next); }
 }
