@@ -2765,6 +2765,15 @@ function seedPlan(force) {                    // once per load: remember the pro
     }
     mark("split1102");
   }
+  if (!done("dedup1102")) {                    // the same session saved twice (31 Oct, double tap): the copy is flagged, never deleted
+    const seen = new Set();
+    for (const ses of sessionsSorted()) {
+      const k = ses.date + "|" + ses.type + "|" + JSON.stringify(ses.sets || {});
+      if (!seen.has(k)) { seen.add(k); continue; }
+      const doc = {...ses, dup: true}; delete doc.id; S.sessions = S.sessions.filter(x => x.id !== ses.id); queueSet("sessions/" + ses.id, doc);
+    }
+    mark("dedup1102");
+  }
   if (pid === "felix" && !done("felixWeek1102")) {   // week of 2 Nov: his shoulders/arms session done Monday counts as Monday; then Tue, Thu (with Gauthier), Sat
     const cw = weekOfStr("2026-11-02");
     if (today() <= "2026-11-08") prof().moves = {...(prof().moves || {}), [cw]: {EB: "2026-11-02", DP: "2026-11-03", DB: "2026-11-05", J: "2026-11-07"}};
@@ -3381,7 +3390,7 @@ function subscribe() {
   const docsOf = q => q.docs.filter(d => d.exists).map(d => ({id: d.id, ...(d.data() || {})}));
   db.doc("game/profile").onSnapshot(s => { S.profile = s.exists ? s.data() : null; mark("profile"); }, lost);
   db.doc("game/rewards").onSnapshot(s => { S.rewards = s.exists ? s.data() : null; mark("rewards"); }, lost);
-  db.collection("sessions").onSnapshot(q => { S.sessions = docsOf(q); mark("sessions"); }, lost);
+  db.collection("sessions").onSnapshot(q => { S.sessions = docsOf(q).filter(x => !x.dup); mark("sessions"); }, lost);   // a session saved twice is kept but ignored
   db.collection("days").onSnapshot(q => { const m = {}; for (const d of docsOf(q)) m[d.id] = d; S.days = m; mark("days"); }, lost);
   db.collection("purchases").onSnapshot(q => { S.purchases = docsOf(q); mark("purchases"); }, lost);
   db.collection("penalties").onSnapshot(q => { const m = {}; for (const d of docsOf(q)) m[d.id] = d; S.penalties = m; mark("penalties"); }, lost);
