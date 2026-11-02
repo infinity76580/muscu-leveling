@@ -2502,8 +2502,7 @@ function viewMeals(P) {
   const off = state.mealOffset, key = toStr(addDays(fromStr(today()), off)), plan = nutritionPlan(key), m = mealTotals(key), free = isFreeDay(key);
   const items = S.meals[key]?.items || [];
   const pct = plan.kcal ? m.kcal / plan.kcal : 0, cls = pct > 1.15 ? "over" : pct >= 0.85 ? "ok" : "";
-  const status = free ? "Jour libre : profite avec tes potes, rien à compter aujourd'hui. Tu peux quand même noter tes repas, ça ne pénalise jamais."
-    : !m.count ? (eatsBreakfast(S.profile) ? "Rien de noté pour l'instant : commence par ton petit-déjeuner." : "Rien de noté pour l'instant. Tu ne manges pas le matin : commence par ton repas de midi.")
+  const status = !m.count ? (eatsBreakfast(S.profile) ? "Rien de noté pour l'instant : commence par ton petit-déjeuner." : "Rien de noté pour l'instant. Tu ne manges pas le matin : commence par ton repas de midi.")
     : pct > 1.15 ? `Au-dessus de la cible (+${Math.round((pct - 1) * 100)} %). Pas grave de temps en temps : c'est la moyenne de la semaine qui compte.`
     : pct >= 0.85 ? "Dans la cible. Calories validées pour aujourd'hui."
     : `Encore ${fmt(plan.kcal - m.kcal, 0)} kcal pour atteindre ta cible.`;
@@ -2520,15 +2519,15 @@ function viewMeals(P) {
       ${tickets.map(t => `<div class="ticket"><span>${esc(t.name)}</span><button class="btn sm gold" data-act="ticketUse" data-pid="${esc(t.id)}" data-d="${key}">Valider</button></div>`).join("")}</section>` : "";
   return topbar() + `<section class="win"><h2 class="win-title">Repas</h2>
       <div class="seg" role="group" aria-label="Jour"><button class="${off === -1 ? "on" : ""}" data-act="mealDay" data-o="-1">Hier</button><button class="${off === 0 ? "on" : ""}" data-act="mealDay" data-o="0">Aujourd'hui</button></div>
-      ${free ? `<p class="sys-line">[Jour libre]</p>` : ""}
+      ${free ? `<p class="sys-line">[Jour libre]</p><p>Cheat day : rien à noter aujourd'hui, profite. Le Système a déjà compté ces calories dans ta semaine.</p>` : `
       <div class="ring-row">${kcalRing(m.kcal, plan.kcal, cls)}<div class="ring-side"><div><b>${fmt(m.kcal, 0)}</b><span>kcal mangées</span></div><div><b>${fmt(plan.kcal, 0)}</b><span>kcal à manger par jour</span></div></div></div>
       <div class="macs">${macro("Protéines", m.prot, plan.protein)}${macro("Glucides", m.carbs, plan.carbs)}${macro("Lipides", m.fat, plan.fat)}</div>
       <ul class="slot-rows">${rows}</ul>
-      <p class="small">${status}</p>
+      <p class="small">${status}</p>`}
       ${freeToggle(key)}
     </section>
     ${ticketsWin}
-    ${detail ? `<section class="win"><h2 class="win-title">Ce que tu as mangé</h2>${detail}</section>` : ""}
+    ${detail && !free ? `<section class="win"><h2 class="win-title">Ce que tu as mangé</h2>${detail}</section>` : ""}
     ${fastWin(off)}
     ${dishesWin(key)}
     ${planWin()}
@@ -3150,7 +3149,7 @@ const ACTIONS = {
   exportData: () => { const data = Store.db && Store.db.all ? Store.db.all() : null; if (!data) { toast("[Système] Export impossible ici.", "red"); return; }
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], {type: "application/json"})); a.download = `muscu-leveling-${today()}.json`; document.body.appendChild(a); a.click(); a.remove(); },
   mealDay: a => { state.mealOffset = Number(a.dataset.o); render(); },
-  foodOpen: a => { loadFoods(); state.modal = {kind: "food", date: a.dataset.d, slot: a.dataset.slot, tab: "search", q: "", grams: "100", units: "1"}; renderModal(); setTimeout(() => document.getElementById("food-q")?.focus(), 30); },
+  foodOpen: a => { if (isFreeDay(a.dataset.d)) return; loadFoods(); state.modal = {kind: "food", date: a.dataset.d, slot: a.dataset.slot, tab: "search", q: "", grams: "100", units: "1"}; renderModal(); setTimeout(() => document.getElementById("food-q")?.focus(), 30); },
   foodTab: a => { Object.assign(state.modal, {tab: a.dataset.t, sel: null}); renderModal(); },
   foodPick: a => { const m = state.modal, f = m.list && m.list[Number(a.dataset.i)]; if (!f) return; Object.assign(m, {sel: f, grams: String(f.lastG || 100), units: String(f.lastU || 1), mode: f.unit && f.ug ? (f.unitOnly || f.lastU || !f.lastG ? "u" : "g") : "g"}); renderModal(); setTimeout(() => { const i = document.getElementById("food-qty"); if (i) { i.focus(); i.select(); } }, 30); },
   foodMode: a => { state.modal.mode = a.dataset.m; renderModal(); },
