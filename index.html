@@ -772,6 +772,8 @@ SESS.CO = [
   {ex: "triHigh", sets: 3, reps: [10, 12], rest: 75, cue: "Coudes fixes le long du corps, extension complète."},
   {ex: "revPecDeck", sets: 2, reps: [12, 15], rest: 60, cue: "Arrière d'épaule : bras quasi tendus, ouvre en arc, pause 1 s."},
   {ex: "lowHighFly", sets: 2, reps: [12, 15], rest: 75, cue: "Bonus haut des pecs : poulies basses, mains qui montent vers le menton."},
+  {ex: "hack", sets: 2, reps: [8, 10], rest: 120, maint: true, cue: "Rappel jambes : PAS à l'échec, 3 reps sous le pied. Juste garder les jambes habituées pour que le gros samedi ne te détruise plus 5 jours."},
+  {ex: "legCurl", sets: 2, reps: [10, 12], rest: 90, maint: true, cue: "Rappel jambes : 3 reps en réserve, buste penché en avant pour étirer."},
 ];
 const DIPS_NOTE = " Lest en kg : 0 = poids du corps. Du lest dès que tu fais 3 × 10 au poids du corps.";
 const SESS_MATHIS = {                     // "Programme prise de muscle" (Gauthier for Mathis, 2026-10-21), 5 weeks stretched to 8
@@ -868,7 +870,7 @@ const TYPES = {
   EB: {name: "Épaules / Bras", day: 1, gate: "Tour des poulies", solo: true},
   DB: {get name() { return curPlan().id === "base" ? "Dos / Biceps · technique" : "Dos / Biceps"; }, day: 3, gate: "Puits du dos", solo: true},
   PT: {name: "Pecs / Triceps · technique", day: 4, gate: "Forge des pecs", solo: true},
-  CO: {name: "Complément bras et épaules", day: 5, gate: "Salle des compléments", solo: true},
+  CO: {name: "Complément + rappel jambes", day: 5, gate: "Salle des compléments", solo: true},
   H:  {name: "Haut, pecs prioritaires", day: 4, gate: "Citadelle haute"},
 };
 const PROGRAM_WEEKS = 8;
@@ -912,7 +914,7 @@ const WEEKS_MATHIS = [null,
 const PLANS = {
   base: {id: "base", swap: GAUTHIER_SWAP, label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
     intro: "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat",
-    lead: "Lundi dos/pecs, mardi épaules/trapèzes, jeudi dos/biceps, vendredi pecs/triceps, samedi jambes ou complément bras et épaules (une semaine sur deux). Mercredi et dimanche : repos.",
+    lead: "Lundi dos/pecs, mardi épaules/trapèzes, jeudi dos/biceps, vendredi pecs/triceps, samedi grosse séance jambes une semaine sur deux, et l'autre samedi complément bras et épaules avec un petit rappel jambes. Mercredi et dimanche : repos.",
     s1: "Première séance : tu réapprends les mouvements, rien de lourd. Que des gros mouvements : 2 pour les pecs, 2 pour le dos, 2 pour les jambes."},
   felix: {id: "felix", label: "Perte de poids (programme de Félix)", goal: "fat", title: "Potentiel de malade", fbFirst: true, big: [], weeks: WEEKS_FELIX, test: {DP: ["csRow", "machPress"], DB: ["latpdNeutral", "rowCableClose"]}, sess: SESS_FELIX,
     keyLifts: [["machPress", "Dos / Pecs", "Chest press"], ["inclMach", "Dos / Pecs", "Incliné machine"], ["csRow", "Dos / Pecs", "Rowing appuyé"], ["latpd", "Dos / Pecs", "Tirage vertical"], ["latpdNeutral", "Dos / Biceps", "Tirage prise neutre"], ["shPress", "Épaules / Bras", "Épaules machine"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]], finisher: true,
@@ -951,7 +953,7 @@ function planSched(info) {
   if (info.p === 1 && !info.deload) return id === "felix" ? "Une seule séance cette semaine : le full body, jeudi." : "Une seule séance cette semaine : la reprise, jeudi.";
   if (info.deload) return "Mêmes jours que d'habitude, moitié des séries, mêmes charges.";
   if (id === "felix") return "Lundi dos/pecs, mardi épaules/bras, jeudi dos/biceps, samedi jambes : les mêmes jours que Gauthier. Mercredi, vendredi et dimanche : repos.";
-  return `Lundi dos/pecs, mardi épaules/trapèzes, jeudi dos/biceps, vendredi pecs/triceps, samedi ${info.types[4] === "J" ? "jambes" : "complément bras et épaules (jambes la semaine prochaine)"}. Mercredi et dimanche : repos.`;
+  return `Lundi dos/pecs, mardi épaules/trapèzes, jeudi dos/biceps, vendredi pecs/triceps, samedi ${info.types[4] === "J" ? "jambes" : "complément bras et épaules + petit rappel jambes (grosse séance jambes la semaine prochaine)"}. Mercredi et dimanche : repos.`;
 }
 
 /* Calendar weeks (cw 1 = 19-25 oct.) are not program weeks: the deload joker pauses the program for one week. */
@@ -1487,7 +1489,8 @@ function compute() {
 }
 
 /* ================= coaching: what load today ================= */
-function perfHistory(exId) { return sessionsSorted().filter(s => !s.deload && Array.isArray(s.sets?.[exId]) && s.sets[exId].length).map(s => ({grip: s.grip?.[exId] || null, week: s.week, cw: sessionCw(s), type: s.type, date: s.date, sets: s.sets[exId]})); }
+const maintIn = (s, exId) => (sessFor(s.type) || []).some(it => it.ex === exId && it.maint);   // light leg reminder: not a performance
+function perfHistory(exId) { return sessionsSorted().filter(s => !s.deload && Array.isArray(s.sets?.[exId]) && s.sets[exId].length && !maintIn(s, exId)).map(s => ({grip: s.grip?.[exId] || null, week: s.week, cw: sessionCw(s), type: s.type, date: s.date, sets: s.sets[exId]})); }
 function incText(eq) { return eq === "db" ? "prends l'haltère au-dessus (+2 kg)" : eq === "bw" ? "ajoute 2,5 kg de lest (ou retire 2,5 kg d'assistance)" : eq === "bar" ? "ajoute 2,5 kg" : "ajoute 2,5 kg (ou le cran au-dessus)"; }
 const gripLast = exId => { const h = perfHistory(exId).filter(x => x.grip); return h.length ? h[h.length - 1].grip : GRIP_DEFAULT[exId] || null; };
 function suggest(it, info, grip) {
@@ -1502,12 +1505,13 @@ function suggest(it, info, grip) {
   }
   if (!last && all.length && !it.tech) out.text = `Première fois avec la prise ${String(grip).toLowerCase()} : la force change avec la prise, pars un peu plus léger que d'habitude.`;
   else if (!last && it.tech) out.text = `Première fois : une charge que tu maîtrises sur ${hi} reps avec la descente en 3 s, en gardant 1-2 reps sous le pied.`;
+  else if (!last && it.maint) out.text = `Première fois : une charge qui te laisse 3 reps en réserve à ${hi} reps. Pas à l'échec.`;
   else if (!last) out.text = it.rir.txt.startsWith("à l'échec") ? `Première fois : choisis une charge avec laquelle tu arrives à l'échec vers ${hi} reps.` : `Première fois : choisis une charge qui laisse ${it.rir.txt.replace(", jamais à l'échec", "")} à ${hi} reps.`;
   else {
     const base = Math.max(...last.sets.map(s => Number(s.kg) || 0));
     const allTop = last.sets.length >= Math.min(2, it.sets) && last.sets.every(s => (Number(s.kg) || 0) === base && Number(s.reps) >= hi);
     if (info.deload) { out.kg = base; out.text = "Semaine allégée : même charge, moitié des séries, sans forcer."; }
-    else if (it.maint) { out.kg = base; out.text = "Entretien : charge habituelle, 3 reps en réserve. Pas besoin de monter."; }
+    else if (it.maint) { out.kg = roundTo(base * 0.8, 2.5); out.text = `Rappel : environ 80 % de ta charge du gros jour (${fmt(base)} kg), 3 reps en réserve. Ça entretient, ça ne doit pas fatiguer.`; }
     else if (allTop) { out.kg = Math.round((base + INC[ex.eq]) * 100) / 100; out.kind = "up"; out.text = `Tu as fait ${hi} reps sur toutes les séries : ${incText(ex.eq)}.`; }
     else { out.kg = base; out.reps = last.sets.map(s => Math.min(hi, Math.max(lo, (Number(s.reps) || 0) + 1))); out.text = "Même charge : vise une rep de plus que la dernière fois."; }
   }
@@ -1840,7 +1844,8 @@ function grimoire() {
       <li><b>Jeudi : dos / biceps en TECHNIQUE.</b> Le dos une 2e fois, plus léger : 10-15 reps, descente en 3 s, pause en étirement, 1-2 reps en réserve. Les biceps, eux, vont à l'échec.</li>
       <li><b>Vendredi : pecs / triceps en TECHNIQUE.</b> Les pecs une 2e fois, même logique. Les triceps vont à l'échec.</li>
       <li>Force puis technique : la séance lourde fait progresser les charges, la séance légère ajoute du volume sans t'écraser, et tu récupères pour le lundi suivant. C'est la logique des programmes de Nippard (une séance lourde, une séance plus volumineuse par muscle) et celle qui t'a fait progresser l'an dernier.</li>
-      <li><b>Samedi : jambes une semaine sur deux</b>, et l'autre semaine un complément plus court : bras, épaules et un peu de haut des pecs, ce que le reste de la semaine touche le moins.</li>
+      <li><b>Samedi : grosse séance jambes une semaine sur deux</b>, à fond comme tu aimes. L'autre samedi : complément bras, épaules et haut des pecs, puis un <b>petit rappel jambes</b> (2 séries de hack squat + 2 de leg curl, 3 reps en réserve, environ 80 % de tes charges).</li>
+      <li>Pourquoi ce rappel : tes 5-6 jours de courbatures viennent surtout du fait que les jambes ne travaillent que toutes les deux semaines. Une petite dose entre deux grosses séances habitue le muscle (on appelle ça « l'effet de la séance répétée ») : les courbatures du gros jour baissent nettement en 2-3 cycles, et les jambes travaillent tous les 7 jours au lieu de 14. Le rappel ne compte pas dans tes records.</li>
       <li>Mercredi et dimanche : repos. Un donjon peut se faire un autre jour (bouton « Changer de jour »). Une séance peut sauter sans pénalité : 4 sur 5 suffisent.</li></ul></div></details>
     <details class="fold"><summary>La méthode (Jeff Nippard)</summary><div><ul class="rules">
       <li>Exercices choisis d'après ses classements : en priorité ceux qui étirent le muscle sous la charge (incliné, écarté poulie, extension au-dessus de la tête, pull-over…).</li>
@@ -2653,7 +2658,7 @@ function viewSettings(P) {
       ${tg("qSteps", "Marcher", "Case « Pas » dans la quête")}${tg("qWater", "Boire de l'eau", "Case « Eau » dans la quête")}${tg("qStudy", "Réviser ou travailler", "Case « Révisions », du lundi au vendredi")}
       <div class="grid2">${f("studyMin", "Révisions (min / jour)", "numeric")}${f("sleep", "Sommeil visé (h)")}</div>
       <div class="grid2">${f("steps", "Pas par jour", "numeric")}${f("water", "Eau (L)")}</div>
-      ${tg("legMaint", "Un peu de jambes chaque semaine", "2 séries de presse + 2 de leg curl à la fin de la séance Haut, les semaines sans Jambes")}
+      ${tg("legMaint", "Un peu de jambes chaque semaine", "2 séries de hack squat + 2 de leg curl, légères, à la fin du samedi sans grosse séance jambes")}
       ${tg("sound", "Sons du Système", "Petit signal à chaque série et à la fin du repos")}
       <div class="row"><button class="btn ghost" data-act="go" data-v="status">Retour</button><button class="btn primary" data-act="setSave">Enregistrer</button></div></section>
     ${Store.mode === "cloud" || Store.mode === "server" ? `<section class="win"><h2 class="win-title">Copie de sécurité</h2>
