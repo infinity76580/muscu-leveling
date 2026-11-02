@@ -2511,7 +2511,8 @@ function viewMeals(P) {
   const off = state.mealOffset, key = toStr(addDays(fromStr(today()), off)), plan = nutritionPlan(key), m = mealTotals(key), free = isFreeDay(key);
   const items = S.meals[key]?.items || [];
   const pct = plan.kcal ? m.kcal / plan.kcal : 0, cls = pct > 1.15 ? "over" : pct >= 0.85 ? "ok" : "";
-  const status = !m.count ? (eatsBreakfast(S.profile) ? "Rien de noté pour l'instant : commence par ton petit-déjeuner." : "Rien de noté pour l'instant. Tu ne manges pas le matin : commence par ton repas de midi.")
+  const status = off === 1 ? (m.count ? `${fmt(m.kcal, 0)} kcal déjà prévues pour demain${plan.kcal > m.kcal ? `, il en restera ${fmt(plan.kcal - m.kcal, 0)} à manger` : ""}.` : "Rien de prévu pour demain pour l'instant.")
+    : !m.count ? (eatsBreakfast(S.profile) ? "Rien de noté pour l'instant : commence par ton petit-déjeuner." : "Rien de noté pour l'instant. Tu ne manges pas le matin : commence par ton repas de midi.")
     : pct > 1.15 ? `Au-dessus de la cible (+${Math.round((pct - 1) * 100)} %). Pas grave de temps en temps : c'est la moyenne de la semaine qui compte.`
     : pct >= 0.85 ? "Dans la cible. Calories validées pour aujourd'hui."
     : `Encore ${fmt(plan.kcal - m.kcal, 0)} kcal pour atteindre ta cible.`;
@@ -2527,16 +2528,17 @@ function viewMeals(P) {
   const ticketsWin = tickets.length ? `<section class="win"><h2 class="win-title">Tickets repas</h2><p class="muted small">Tes récompenses gagnées à la Boutique. Valide-la le jour où tu la manges : le repas compte comme noté et ses calories ne comptent pas.</p>
       ${tickets.map(t => `<div class="ticket"><span>${esc(t.name)}</span><button class="btn sm gold" data-act="ticketUse" data-pid="${esc(t.id)}" data-d="${key}">Valider</button></div>`).join("")}</section>` : "";
   return topbar() + `<section class="win"><h2 class="win-title">Repas</h2>
-      <div class="seg" role="group" aria-label="Jour"><button class="${off === -1 ? "on" : ""}" data-act="mealDay" data-o="-1">Hier</button><button class="${off === 0 ? "on" : ""}" data-act="mealDay" data-o="0">Aujourd'hui</button></div>
-      ${free ? `<p class="sys-line">[Jour libre]</p><p>Cheat day : rien à noter aujourd'hui, profite. Le Système a déjà compté ces calories dans ta semaine.</p>` : `
-      <div class="ring-row">${kcalRing(m.kcal, plan.kcal, cls)}<div class="ring-side"><div><b>${fmt(m.kcal, 0)}</b><span>kcal mangées</span></div><div><b>${fmt(plan.kcal, 0)}</b><span>kcal à manger par jour</span></div></div></div>
+      <div class="seg" role="group" aria-label="Jour"><button class="${off === -1 ? "on" : ""}" data-act="mealDay" data-o="-1">Hier</button><button class="${off === 0 ? "on" : ""}" data-act="mealDay" data-o="0">Aujourd'hui</button><button class="${off === 1 ? "on" : ""}" data-act="mealDay" data-o="1">Demain</button></div>
+      ${off === 1 && !free ? `<p class="sys-line">[Demain · ${fmtDay(fromStr(key), {weekday: "long", day: "numeric", month: "long"})}]</p><p class="muted small">Note maintenant ce que tu as préparé : demain, tout sera déjà là. Ça ne compte qu'à partir de demain.</p>` : ""}
+      ${free ? `<p class="sys-line">[Jour libre]</p><p>Cheat day : rien à noter ${off === 1 ? "demain" : "aujourd'hui"}, profite. Le Système a déjà compté ces calories dans ta semaine.</p>` : `
+      <div class="ring-row">${kcalRing(m.kcal, plan.kcal, cls)}<div class="ring-side"><div><b>${fmt(m.kcal, 0)}</b><span>${off === 1 ? "kcal prévues" : "kcal mangées"}</span></div><div><b>${fmt(plan.kcal, 0)}</b><span>kcal à manger par jour</span></div></div></div>
       <div class="macs">${macro("Protéines", m.prot, plan.protein)}${macro("Glucides", m.carbs, plan.carbs)}${macro("Lipides", m.fat, plan.fat)}</div>
       <ul class="slot-rows">${rows}</ul>
       <p class="small">${status}</p>`}
-      ${freeToggle(key)}
+      ${off === 1 ? "" : freeToggle(key)}
     </section>
-    ${ticketsWin}
-    ${detail && !free ? `<section class="win"><h2 class="win-title">Ce que tu as mangé</h2>${detail}</section>` : ""}
+    ${off === 1 ? "" : ticketsWin}
+    ${detail && !free ? `<section class="win"><h2 class="win-title">${off === 1 ? "Prévu pour demain" : "Ce que tu as mangé"}</h2>${detail}</section>` : ""}
     ${fastWin(off)}
     ${dishesWin(key)}
     ${planWin()}
@@ -2577,7 +2579,7 @@ function foodCalcRefresh() {                  // live total while typing the amo
 function modalFood(m) {
   const slotName = SLOTS.find(x => x.k === m.slot)?.label || "";
   const auSlot = {matin: "au petit-déjeuner", midi: "au midi", soir: "au soir", snack: "aux collations"}[m.slot] || "";
-  const head = `<h2 class="win-title">${m.editId ? "Modifier la quantité" : "Ajouter · " + slotName}</h2>`;
+  const head = `<h2 class="win-title">${m.editId ? "Modifier la quantité" : "Ajouter · " + slotName}${m.date > today() ? " · demain" : ""}</h2>`;
   if (m.sel) {
     const c = foodCalc(m), {f, hasU, useU, qty, g} = c;
     const chips = useU ? [0.5, 1, 2, 3, 4] : [30, 50, 100, 150, 200, 250];
