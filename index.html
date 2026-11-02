@@ -875,7 +875,7 @@ const JOKERS = 1;
 const WEEKS = [null,
   {n: 1, phase: "Initiation", rank: "E", rirTxt: "3 partout (que des gros mouvements)", setsTxt: "2 par exo"},
   {n: 2, phase: "Réintroduction", rank: "E", rirTxt: "À l'échec sur chaque série (0-1 rep en réserve)", setsTxt: "2 par exo"},
-  {n: 3, phase: "Transition", rank: "D", rirTxt: "À l'échec sur chaque série (0-1 rep en réserve)", setsTxt: "3 sur les gros exercices, 2 sur l'isolation"},
+  {n: 3, phase: "Transition", rank: "D", rirTxt: "À l'échec sur chaque série (0-1 rep en réserve)", setsTxt: "Comme écrit : la reprise est finie"},
   {n: 4, phase: "Construction", rank: "D", rirTxt: "À l'échec sur chaque série (0-1 rep en réserve)", setsTxt: "Comme écrit"},
   {n: 5, phase: "Construction", rank: "D", rirTxt: "À l'échec sur chaque série (0-1 rep en réserve)", setsTxt: "Comme écrit"},
   {n: 6, phase: "Construction", rank: "C", rirTxt: "À l'échec sur chaque série (0-1 rep en réserve)", setsTxt: "Comme écrit"},
@@ -944,7 +944,7 @@ const planTest = () => curPlan().test || {};
 const tyLabel = ty => ty === "FB" ? "Full body" : TYPES[ty]?.solo ? TYPES[ty].name : "Séance " + ty + " · " + (TYPES[ty]?.name || "");
 function planSched(info) {
   const id = curPlan().id;
-  if (info.custom) return "Cette semaine : " + info.types.map(ty => `${TYPES[ty].name.toLowerCase()} ${fmtDay(fromStr(plannedDate(info.cw, ty)), {weekday: "long"})}`).join(", ") + ". Une séance peut aussi se faire plus tôt dans la semaine si tu te sens bien.";
+  if (info.custom) return "Cette semaine : " + info.types.map(ty => `${TYPES[ty].name.toLowerCase()} ${fmtDay(fromStr(plannedDate(info.cw, ty)), {weekday: "long"})}`).join(", ") + ".";
   if (id === "mathis" && info.p === 1 && !info.deload) return "Cette semaine : full body jeudi avec Gauthier et Félix, puis grosse séance Jambes samedi. Poussée et Tirage restent ouverts si tu veux les rattraper.";
   if (id === "mathis") return info.deload ? "Mêmes jours que d'habitude, moitié des séries, mêmes charges." : `Lundi Poussée, mardi Tirage, jeudi Haut complet, samedi ${TYPES[info.types[3]].name.toLowerCase()}. Mercredi, vendredi et dimanche : repos.`;
   if (info.p === 1 && !info.deload) return id === "felix" ? "Une seule séance cette semaine : le full body, jeudi." : "Une seule séance cette semaine : la reprise, jeudi.";
@@ -995,7 +995,7 @@ function setsFor(p, it, idx, deload, ty) {
   if (PL === "mathis") return p === 1 && ty === "JX" ? Math.max(1, it.sets - 1) : it.sets;  // first big leg day: one set less
   if (p === 1) return it.sets;
   if (p === 2) return 2;
-  if (p === 3) return Math.min(it.sets, EX[it.ex].kind === "poly" ? 3 : 2);
+  if (p === 3 && PL !== "base") return Math.min(it.sets, EX[it.ex].kind === "poly" ? 3 : 2);   // Gauthier: full volume from S3 (2 Nov)
   return it.sets;
 }
 function rirFor(p, it, idx, ty, deload) {
@@ -1354,7 +1354,10 @@ function dayEval(key) {
   const malus = [];
   if (sl > 0 && sl < sleepT - 1) malus.push({txt: "Nuit trop courte (" + fmt(sl, 1) + " h)", xp: -40});
   const foodStart = p.foodStart || p.createdDay || t;
-  if (key < t && key >= foodStart && !free && m.count === 0) malus.push({txt: "Repas non notés", xp: -25});
+  if (key < t && key >= foodStart && !free && m.count === 0) malus.push({txt: "Repas non notés", xp: -40});
+  else if (key < t && key >= foodStart && !free && m.kcal < plan.kcal * 0.6) malus.push({txt: `Repas notés à moitié (${fmt(m.kcal, 0)} / ${fmt(plan.kcal, 0)} kcal)`, xp: -25});
+  const wFrom = toStr(addDays(fromStr(key), -2)), weighed = [0, 1, 2].some(i => Number(S.days[toStr(addDays(fromStr(key), -i))]?.weight) > 0);
+  if (key < t && wFrom >= (p.createdDay || t) && !weighed) malus.push({txt: "Pas de pesée depuis 3 jours", xp: -15});
   const done = DAILY.filter(it => I[it.k].done).length, full = DAILY.every(it => !I[it.k].req || I[it.k].done);  // a disabled fast line is never req/done
   const malusXp = malus.reduce((n, x) => n + x.xp, 0);
   return {items: I, free, full, done, malus, malusXp, logged: m.count > 0,
@@ -1752,10 +1755,10 @@ function questWin() {
     <div class="seg" role="group" aria-label="Jour de la quête"><button class="${off === -1 ? "on" : ""}" data-act="day" data-o="-1">Hier</button><button class="${off === 0 ? "on" : ""}" data-act="day" data-o="0">Aujourd'hui</button></div>
     <ul class="qlist">${auto("food", "Repas notés")}${auto("protein", "Protéines")}${sleepRow}${check("steps", "Pas")}${check("water", "Eau")}${check("study", "Révisions")}${I.fast.off ? "" : check("fast", "Jeûne " + fastPlan(S.profile).label + " respecté")}</ul>
     ${e.malus.map(m => `<p class="malus">[Malus] ${m.txt} : −${Math.abs(m.xp)} XP</p>`).join("")}
-    <div class="weigh"><label for="weighIn">Pesée du matin, à jeun (3-4 fois par semaine)</label><div class="weigh-in"><input id="weighIn" data-bind="weigh" data-key="${key}" inputmode="decimal" autocomplete="off" placeholder="—" value="${esc(wv)}"><span>kg</span></div></div>
+    <div class="weigh"><label for="weighIn">Pesée du matin, à jeun, chaque jour (seule la moyenne compte)</label><div class="weigh-in"><input id="weighIn" data-bind="weigh" data-key="${key}" inputmode="decimal" autocomplete="off" placeholder="—" value="${esc(wv)}"><span>kg</span></div></div>
     ${e.sick ? `<p class="reading">[Malade] Quête en pause aujourd'hui : pas de malus et ta série est gardée. Repose-toi, et décale tes donjons si besoin (touche une séance du planning).</p>` : e.full ? `<p class="done-line">[Quête accomplie] +${e.xp} XP · +${e.gold} or</p>` : `<p class="warn">Tout faire : +${e.maxXp} XP${off === 0 ? ` · temps restant <b id="qTimer">--:--:--</b>` : ""}</p>`}
     <button class="link" data-act="sickDay" data-d="${key}" data-v="${e.sick ? 0 : 1}">${e.sick ? "Je ne suis plus malade" : off === 0 ? "Je suis malade aujourd'hui" : "J'étais malade ce jour-là"}</button>
-    <details class="fold"><summary>Règles de la quête</summary><div><p class="small">Une quête incomplète remet ta série à zéro. Moins de ${fmt((Number(S.profile?.targets?.sleep) || 7) - 1, 1)} h de sommeil : −40 XP. Une journée sans repas notés : −25 XP.</p></div></details>
+    <details class="fold"><summary>Règles de la quête</summary><div><p class="small">Une quête incomplète remet ta série à zéro. Moins de ${fmt((Number(S.profile?.targets?.sleep) || 7) - 1, 1)} h de sommeil : −40 XP. Une journée sans repas notés : −40 XP ; notée à moins de 60 % de ta cible : −25 XP (une journée à moitié notée fausse tous les calculs). 3 jours sans pesée : −15 XP.</p></div></details>
   </section>`;
 }
 function weekWin() {
@@ -1838,7 +1841,7 @@ function grimoire() {
     <details class="fold"><summary>La méthode (Jeff Nippard)</summary><div><ul class="rules">
       <li>Exercices choisis d'après ses classements : en priorité ceux qui étirent le muscle sous la charge (incliné, écarté poulie, extension au-dessus de la tête, pull-over…).</li>
       <li>Pecs et dos deux fois par semaine : environ 16 séries de pecs et 16 de dos par semaine.</li>
-      <li>Reprise : S3 met 3 séries sur les gros exercices et 2 sur l'isolation, puis tout est comme écrit à partir de S4. En forme ? Le bouton « Ajouter une série » est sous chaque exercice.</li>
+      <li>La reprise est finie : à partir de S3, toutes les séries comme écrit, chacune à l'échec. En forme ? Le bouton « Ajouter une série » est sous chaque exercice.</li>
       <li>Double progression : même charge jusqu'au haut de la fourchette sur toutes les séries, puis on monte.</li>
       <li>Effort : ton choix, chaque série à l'échec (au pire une demi-rep avant).</li></ul></div></details>
     <details class="fold"><summary>Prises et machines</summary><div><p>Sous les tirages, rowings et développés, choisis la prise que tu as prise (large, serrée, neutre…) : la force change avec la prise, alors le Système compare et suggère tes charges prise par prise. Machine prise ? « Autre version » (Smith au lieu de la barre, leg extension à disques…) garde des stats séparées, et « Passer l'exercice » le retire si la machine est en panne.</p></div></details>
@@ -2140,17 +2143,17 @@ function viewBody(P) {
     <section class="win"><h2 class="win-title">Lecture du Système</h2>${reading}</section>
     ${photosWin()}`;
 }
-const STRENGTH = [                          // the e1RM / body-weight ratio that counts as "very strong" (violet); blue below 30 % of it
-  {k: "pecs", name: "Pectoraux", ex: {bench: 1.2, machPress: 1.2, inclMach: 1.05, inclBar: 1.0, smithBench: 1.1, inclDb: 0.5, dbBench: 0.58, dips: 1.5}},
-  {k: "dos", name: "Dos", ex: {csRow: 1.1, latpd: 1.0, latpdNeutral: 1.0, cableRow: 1.0, pullupPro: 1.45, pullup: 1.45, dbRow: 0.55, uniPd: 0.5, rowCableClose: 1.0, cableRowUni: 0.55}},
-  {k: "trapezes", name: "Trapèzes", ex: {shrug: 0.65}},
-  {k: "epaules", name: "Épaules", ex: {shPress: 0.8, latRaiseMach: 0.6, frontRaise: 0.3, latRaise: 0.15, leanLatRaise: 0.17, revFly: 0.3, revPecDeck: 0.6}},
-  {k: "biceps", name: "Biceps", ex: {bayCurl: 0.3, preacher: 0.45, hammer: 0.28, machCurl: 0.5}},
-  {k: "triceps", name: "Triceps", ex: {ohTri: 0.5, pushdown: 0.65, triHigh: 0.65, skull: 0.55}},
-  {k: "quads", name: "Quadriceps", ex: {hack: 2.0, pendulum: 2.0, legPress: 3.0, legExt: 2.0, legExtFree: 1.6}},
-  {k: "ischios", name: "Ischios", ex: {legCurl: 0.85}},
-  {k: "fessiers", name: "Fessiers", ex: {kickback: 0.6}},
-  {k: "mollets", name: "Mollets", ex: {calves: 1.6}},
+const STRENGTH = [                          // the e1RM / body-weight ratio of rank S: a strong, trained lifter on that machine (harsh on purpose, 2 Nov)
+  {k: "pecs", name: "Pectoraux", ex: {bench: 1.5, smithBench: 1.6, machPress: 1.7, inclMach: 1.4, inclBar: 1.3, inclDb: 0.6, dbBench: 0.7, dips: 1.8}},
+  {k: "dos", name: "Dos", ex: {csRow: 1.7, latpd: 1.35, latpdNeutral: 1.35, cableRow: 1.4, rowCableClose: 1.4, cableRowUni: 0.8, pullupPro: 1.7, pullup: 1.7, dbRow: 0.8, uniPd: 0.7}},
+  {k: "trapezes", name: "Trapèzes", ex: {shrug: 1.0}},
+  {k: "epaules", name: "Épaules", ex: {shPress: 1.1, latRaiseMach: 0.8, frontRaise: 0.4, latRaise: 0.2, leanLatRaise: 0.25, revFly: 0.4, revPecDeck: 0.8}},
+  {k: "biceps", name: "Biceps", ex: {bayCurl: 0.4, preacher: 0.6, hammer: 0.4, machCurl: 0.7}},
+  {k: "triceps", name: "Triceps", ex: {ohTri: 0.7, pushdown: 0.9, triHigh: 0.9, skull: 0.7}},
+  {k: "quads", name: "Quadriceps", ex: {hack: 2.6, pendulum: 2.6, legPress: 4.0, legExt: 2.4, legExtFree: 2.0}},
+  {k: "ischios", name: "Ischios", ex: {legCurl: 1.2}},
+  {k: "fessiers", name: "Fessiers", ex: {kickback: 1.6}},
+  {k: "mollets", name: "Mollets", ex: {calves: 2.5}},
 ];
 function strengthMap() {
   const bw = bodyWeight();
@@ -2200,7 +2203,7 @@ function strengthWin() {
     return `<li><span class="bm-dot" style="background:${col}"></span><span class="bm-name">${m.name}</span>${m.best ? `<small>${esc(EX[m.best.ex].n)} : ${fmt(m.best.e1, 0)} kg en 1RM estimé</small>` : `<small>Pas encore mesuré</small>`}<span class="bm-bar"><i style="width:${sc == null ? 0 : Math.max(4, Math.round(sc * 100))}%;background:${col}"></i></span><b class="bm-rank" style="color:${sc == null ? "var(--muted)" : col}">${m.rank || "—"}</b></li>`; }).join("");
   const grad = STRENGTH_STOPS.map(st => `hsl(${st[1]} ${st[2]}% ${st[3]}%) ${st[0] * 100}%`).join(","), ticks = [["E", 0.1], ["D", 0.3], ["C", 0.5], ["B", 0.7], ["A", 0.875], ["S", 0.975]];
   return `<section class="win"><h2 class="win-title">Carte de puissance</h2>
-    <p class="muted small">Chaque muscle prend la couleur de ton meilleur exercice, comparé à ton poids de corps (${fmt(bw, 1)} kg) : du bleu foncé (à construire) au violet clair (très fort, par exemple un couché à environ 1,2 fois ton poids). Gris : pas encore mesuré. Repères approximatifs : chaque machine est différente.</p>
+    <p class="muted small">Chaque muscle prend la couleur de ton meilleur exercice, comparé à ton poids de corps (${fmt(bw, 1)} kg) : du bleu foncé (à construire) au violet clair (rang S : un pratiquant fort et entraîné, par exemple un couché à 1,5 fois ton poids, un rowing appuyé à 1,7 fois). Les machines faciles (kickback, presse) demandent beaucoup plus de charge pour le même rang. Gris : pas encore mesuré. Repères approximatifs : chaque machine est différente.</p>
     <div class="body-map">${bodySvg("front", by)}${bodySvg("back", by)}</div>
     <div class="bm-scale"><i style="background:linear-gradient(90deg,${grad})"></i><div>${ticks.map(([r, x]) => `<span style="left:${x * 100}%;color:${strengthColor(x)}">${r}</span>`).join("")}</div></div>
     <ul class="bm-list">${rows}</ul></section>`;
@@ -2897,7 +2900,7 @@ function modalPreview(m) {
   else if (can) action = `<button class="btn primary" data-act="enter" data-cw="${cw}" data-ty="${ty}">Entrer dans le donjon</button>`;
   else if (p.done) action = `<p class="ok-line">[Donjon nettoyé le ${fmtDay(fromStr(p.done.date), {weekday: "long", day: "numeric", month: "long"})}]</p>`;
   else if (cw < weekOfStr(today())) action = `<p class="muted small">Ce portail s'est refermé.</p>`;
-  else action = `<p class="muted small">Ce portail s'ouvrira le lundi ${fmtDay(weekStart(cw), {day: "numeric", month: "long"})}.</p>`;
+  else action = `<p class="muted small">Ce portail s'ouvrira le ${fmtDay(fromStr(plannedDate(cw, ty)), {weekday: "long", day: "numeric", month: "long"})}. Pour le faire un autre jour, change son jour ci-dessus.</p>`;
   const when = p.bonus ? "Bonus de grosse semaine (Jambes le mercredi, Haut le vendredi)" : p.date ? "Prévu " + fmtDay(fromStr(p.date), {weekday: "long", day: "numeric", month: "long"}) : "";
   return `<div class="win"><h2 class="win-title">${esc(TYPES[ty].gate)}</h2><p class="sys-line">${info.deload ? "Semaine allégée" : "S" + info.p} · ${tyLabel(ty)} · rang ${info.W.rank}</p>
     <p class="muted small">${when} · environ ${estMinutes(plan)} min · échauffement d'abord</p>
@@ -2923,7 +2926,7 @@ function modalFinish(m) {
     <div class="field"><label for="fin-note">Note (facultatif)</label><textarea id="fin-note" data-bind="finNote" placeholder="Douleur, machine prise, sensation…">${esc(m.note || "")}</textarea></div>
     <div class="m-actions"><button class="btn ghost" data-act="closeModal">Continuer le donjon</button><button class="btn primary" data-act="finish">Sortir du donjon</button></div></div>`;
 }
-function canEnter(cw, ty) { const info = weekInfo(cw); return !!info && cw === weekOfStr(today()) && (info.types.includes(ty) || info.bonus === ty) && !weekValid(cw)[ty] && !(S.draft && S.draft.active); }
+function canEnter(cw, ty) { const info = weekInfo(cw); return !!info && cw === weekOfStr(today()) && (info.types.includes(ty) || info.bonus === ty) && (info.bonus === ty || plannedDate(cw, ty) <= today()) && !weekValid(cw)[ty] && !(S.draft && S.draft.active); }
 
 /* ================= actions ================= */
 let draftTimer = null;
