@@ -348,6 +348,7 @@ td.num,th.num{text-align:right;white-space:nowrap}
 .grip-b{display:flex;flex-wrap:wrap;gap:6px}
 .grip-b button{min-height:34px;padding:4px 10px;border:1px solid var(--faint);background:rgba(8,20,46,.6);color:var(--muted);font:600 13px var(--font-display);border-radius:6px}
 .grip-b button.on{color:var(--text);border-color:var(--blue);background:rgba(40,110,255,.22)}
+.meal-edit{padding:0;text-align:left;font:inherit;color:inherit;text-decoration:underline dotted;text-underline-offset:3px}
 em.freq{font-style:normal;font-size:11px;color:var(--gold);margin-left:4px}
 .xb-h{margin:14px 0 6px;font:600 12px var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}
 .xb summary .pos{color:var(--ok)}.xb summary .neg{color:var(--red-soft)}
@@ -2512,7 +2513,7 @@ function viewMeals(P) {
   const rows = slots.map(sl => { const n = inSlot(sl.k).length;
     return `<li class="slot-row"><span class="slot-n">${sl.label}<small>${n ? plural(n, "aliment") : "Rien pour l'instant"}</small></span><b class="slot-k">${fmt(slotKcal(sl.k), 0)} kcal</b><button class="btn sm" data-act="foodOpen" data-d="${key}" data-slot="${sl.k}" aria-label="Ajouter : ${sl.label}">+</button></li>`; }).join("");
   const detail = slots.filter(sl => inSlot(sl.k).length).map(sl => { const list = inSlot(sl.k);
-    return `<div class="slot-det"><span class="lbl">${sl.label} · ${fmt(slotKcal(sl.k), 0)} kcal</span><ul class="meal-list">${list.map(it => `<li class="meal-it ${it.reward ? "rw" : ""}"><span class="n">${esc(it.name)}<small>${it.reward ? "Récompense · hors compteur" : (it.u ? fmt(it.u, 2) + " × " + esc(it.unit || "") : fmt(it.g, 0) + " g") + " · " + fmt(it.prot, 1) + " g de protéines"}</small></span><span class="k">${it.reward ? "Validé" : fmt(it.kcal, 0) + " kcal"}</span><button class="x" data-act="mealDel" data-d="${key}" data-id="${esc(it.id)}" aria-label="Retirer ${esc(it.name)}">✕</button></li>`).join("")}</ul>
+    return `<div class="slot-det"><span class="lbl">${sl.label} · ${fmt(slotKcal(sl.k), 0)} kcal</span><ul class="meal-list">${list.map(it => `<li class="meal-it ${it.reward ? "rw" : ""}"><span class="n">${!it.reward && it.k100 != null ? `<button class="link meal-edit" data-act="mealEdit" data-d="${key}" data-id="${esc(it.id)}">${esc(it.name)}</button>` : esc(it.name)}<small>${it.reward ? "Récompense · hors compteur" : (it.u ? fmt(it.u, 2) + " × " + esc(it.unit || "") : fmt(it.g, 0) + " g") + " · " + fmt(it.prot, 1) + " g de protéines"}</small></span><span class="k">${it.reward ? "Validé" : fmt(it.kcal, 0) + " kcal"}</span><button class="x" data-act="mealDel" data-d="${key}" data-id="${esc(it.id)}" aria-label="Retirer ${esc(it.name)}">✕</button></li>`).join("")}</ul>
       ${list.filter(x => !x.reward).length >= 2 ? `<button class="link" data-act="tplSaveAsk" data-d="${key}" data-slot="${sl.k}">Garder comme repas type</button>` : ""}</div>`; }).join("");
   const tickets = S.purchases.filter(p => (p.food || p.kind === "rank") && !p.usedOn);
   const ticketsWin = tickets.length ? `<section class="win"><h2 class="win-title">Tickets repas</h2><p class="muted small">Tes récompenses gagnées à la Boutique. Valide-la le jour où tu la manges : le repas compte comme noté et ses calories ne comptent pas.</p>
@@ -2568,7 +2569,7 @@ function foodCalcRefresh() {                  // live total while typing the amo
 function modalFood(m) {
   const slotName = SLOTS.find(x => x.k === m.slot)?.label || "";
   const auSlot = {matin: "au petit-déjeuner", midi: "au midi", soir: "au soir", snack: "aux collations"}[m.slot] || "";
-  const head = `<h2 class="win-title">Ajouter · ${slotName}</h2>`;
+  const head = `<h2 class="win-title">${m.editId ? "Modifier la quantité" : "Ajouter · " + slotName}</h2>`;
   if (m.sel) {
     const c = foodCalc(m), {f, hasU, useU, qty, g} = c;
     const chips = useU ? [0.5, 1, 2, 3, 4] : [30, 50, 100, 150, 200, 250];
@@ -2577,7 +2578,7 @@ function modalFood(m) {
       <div class="field"><label for="food-qty">${useU ? `Combien de « ${esc(f.unit)} »` : "Quantité en grammes (ou ml pour une boisson)"}</label><input id="food-qty" data-bind="food" data-f="${useU ? "units" : "grams"}" data-live="1" inputmode="decimal" autocomplete="off" value="${esc(useU ? m.units : m.grams)}"></div>
       <div class="qty-chips">${chips.map(v => `<button class="${qty === v ? "on" : ""}" data-act="foodQty" data-v="${v}">${useU ? (v === 0.5 ? "½" : v) : v + " g"}</button>`).join("")}</div>
       <p class="sys-line food-calc">${foodCalcLine(c)}</p>
-      <div class="m-actions"><button class="btn ghost" data-act="foodBack">Retour</button><button class="btn primary" data-act="foodAdd" ${g > 0 ? "" : "disabled"}>Ajouter ${auSlot}</button></div></div>`;
+      <div class="m-actions"><button class="btn ghost" data-act="${m.editId ? "closeModal" : "foodBack"}">${m.editId ? "Annuler" : "Retour"}</button><button class="btn primary" data-act="foodAdd" ${g > 0 ? "" : "disabled"}>${m.editId ? "Enregistrer" : "Ajouter " + auSlot}</button></div></div>`;
   }
   const tabs = [["search", "Chercher"], ["recent", "Récents"], ["tpl", "Mes repas"], ["quick", "Libre"], ["custom", "Mon aliment"]].concat(Store.mode === "server" ? [["off", "Marques"]] : Store.mode === "cloud" ? [["code", "Code-barres"]] : []);
   const list = (arr, empty) => foodList(m, arr, empty);
@@ -3162,7 +3163,9 @@ const ACTIONS = {
   foodAdd: () => { const m = state.modal, f = m.sel, useU = f.unit && f.ug > 0 && (f.unitOnly || m.mode !== "g"), q = parseNum(useU ? m.units : m.grams); if (!(q > 0)) return;
     if (useU && q > 20) { toast(`[Système] ${fmt(q, 0)} × « ${esc(f.unit)} » ? ${f.unitOnly ? "Vérifie la quantité." : "Pour une quantité en grammes, touche d'abord « Grammes »."}`, "red"); return; }
     if (!useU && q > 3000) { toast("[Système] Plus de 3 kg d'un coup ? Vérifie la quantité.", "red"); return; }
-    const e = entryFrom(f, useU ? q * f.ug : q, useU ? q : null); addEntries(m.date, m.slot, [e]);
+    const e = entryFrom(f, useU ? q * f.ug : q, useU ? q : null);
+    if (m.editId) { saveMeals(m.date, (S.meals[m.date]?.items || []).map(x => x.id === m.editId ? {...e, id: x.id, slot: x.slot} : {...x})); state.modal = null; render(); toast(`[Quantité modifiée] ${esc(f.n)} : ${fmt(e.kcal, 0)} kcal`, "ok"); return; }
+    addEntries(m.date, m.slot, [e]);
     Object.assign(m, {sel: null, tab: "search", q: "", added: [...(m.added || []), {n: f.n, kcal: e.kcal}]});    // stay: a meal is often several foods
     render(); setTimeout(() => document.getElementById("food-q")?.focus(), 30); },
   foodQuick: () => { const m = state.modal, name = String(m.qName || "").trim(), k = parseNum(m.qKcal), p = parseNum(m.qProt) || 0;
@@ -3203,6 +3206,10 @@ const ACTIONS = {
   tplAdd: a => { const m = state.modal, t = (S.mealtpl?.items || []).find(x => x.id === a.dataset.id); if (!t) return;
     addEntries(m.date, m.slot, t.items.map(x => ({...x, id: uid()}))); state.modal = null; render(); toast(`[Ajouté] ${esc(t.name)}`, "ok"); },
   tplDel: a => { const doc = {items: (S.mealtpl?.items || []).filter(x => x.id !== a.dataset.id).map(x => ({...x}))}; S.mealtpl = doc; queueSet("game/mealtpl", doc); renderModal(); },
+  mealEdit: a => { const d = a.dataset.d, it = (S.meals[d]?.items || []).find(x => x.id === a.dataset.id); if (!it || it.k100 == null) return;
+    const sel = {n: it.name, k: it.k100, p: it.p100, c: it.c100, f: it.f100, unit: it.unit, ug: it.ug, unitOnly: !!it.uo, src: it.src};
+    state.modal = {kind: "food", date: d, slot: it.slot || "midi", tab: "search", q: "", editId: it.id, sel, grams: fmtIn(it.g), units: fmtIn(it.u || 1), mode: it.u ? "u" : "g"}; renderModal();
+    setTimeout(() => { const i = document.getElementById("food-qty"); if (i) { i.focus(); i.select(); } }, 30); },
   mealDel: a => { const d = a.dataset.d, it = (S.meals[d]?.items || []).find(x => x.id === a.dataset.id); if (!it) return;
     saveMeals(d, (S.meals[d]?.items || []).filter(x => x.id !== it.id).map(x => ({...x})));
     if (it.ticket) { const p = S.purchases.find(x => x.id === it.ticket); if (p) { const doc = {...p}; delete doc.id; delete doc.usedOn; S.purchases = S.purchases.map(x => x.id === p.id ? {id: p.id, ...doc} : x); queueSet("purchases/" + p.id, doc); } }
