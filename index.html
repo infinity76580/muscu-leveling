@@ -737,11 +737,11 @@ SESS.L = SESS.J;   // Jambes
 const INCL_MACH_CUE = "Machine inclinée (allongé ou assis) : poignées au niveau du haut des pecs, descends jusqu'à bien sentir l'étirement, pousse sans décoller les épaules.";
 // Gauthier's own split (2 Nov), like he trained before: back before chest on the shared day, chest and back twice a week,
 // shoulders/traps on their own day, legs every other Saturday and a short arms & shoulders complement the other one.
-SESS.DP = [
-  {ex: "csRow", sets: 3, reps: [8, 10], rest: 120, cue: "Le dos d'abord. Poitrine collée au dossier : laisse les omoplates s'écarter en bas, puis tire les coudes vers l'arrière."},
-  {ex: "latpd", sets: 3, reps: [8, 10], rest: 120, cue: "Poitrine haute, coudes vers les côtes, pas de balancier ; remonte bras tendus pour étirer le dos."},
-  {ex: "bench", sets: 3, reps: [6, 8], rest: 150, cue: "Puis les pecs. Omoplates serrées et basses, pieds ancrés ; barre au bas des pecs, touche sans rebond. Barres de sécurité."},
-  {ex: "inclMach", sets: 3, reps: [8, 10], rest: 120, cue: INCL_MACH_CUE},
+SESS.DP = [                                 // FORCE: heavy, low reps, long rests
+  {ex: "csRow", sets: 4, reps: [5, 7], rest: 180, cue: "Force. Le dos d'abord : poitrine collée au dossier, lourd, tire les coudes loin derrière sans décoller du pad."},
+  {ex: "latpd", sets: 3, reps: [6, 8], rest: 150, cue: "Force. Poitrine haute, coudes vers les côtes, pas de balancier même lourd."},
+  {ex: "bench", sets: 4, reps: [4, 6], rest: 180, cue: "Force. Omoplates serrées et basses, pieds ancrés, barre au bas des pecs, touche sans rebond. Lourd : barres de sécurité ou pareur."},
+  {ex: "inclMach", sets: 3, reps: [6, 8], rest: 150, cue: "Force. Machine inclinée : poignées au niveau du haut des pecs, descends jusqu'à l'étirement, pousse fort."},
   {ex: "flySeated", sets: 2, reps: [10, 12], rest: 90, cue: "Coudes figés légèrement fléchis, ouvre en grand, serre 1 s devant la poitrine."},
 ];
 SESS.EP = [
@@ -751,20 +751,20 @@ SESS.EP = [
   {ex: "revFly", sets: 3, reps: [12, 15], rest: 75, cue: "Poulies à hauteur d'épaules, tiens les câbles eux-mêmes, bras quasi tendus, tire en arc vers l'extérieur."},
   {ex: "shrug", sets: 3, reps: [10, 15], rest: 75, cue: "Monte les épaules droit vers les oreilles, pause 1 s en haut, descente lente ; bras tendus, sans rouler les épaules."},
 ];
-SESS.DB = [
-  {ex: "latpdNeutral", sets: 3, reps: [8, 10], rest: 120, cue: "Étirement complet en haut, tire les coudes vers les hanches. Choisis ta prise juste en dessous."},
-  {ex: "rowCableClose", sets: 3, reps: [10, 12], rest: 90, cue: "Poulie basse : laisse les épaules avancer pour étirer, puis tire les coudes le long du corps et serre les omoplates."},
-  {ex: "cableRowUni", sets: 2, reps: [10, 12], rest: 75, perArm: true, cue: "Poulie basse, une poignée : laisse l'épaule avancer pour étirer, puis tire le coude vers la hanche."},
-  {ex: "pullover", sets: 2, reps: [12, 15], rest: 75, cue: "Bassin en arrière, ramène la barre vers les cuisses en pensant « coudes vers les poches »."},
+SESS.DB = [                                 // TECHNIQUE for the back (2nd back day): lighter, more reps, slow
+  {ex: "latpdNeutral", sets: 3, reps: [10, 12], rest: 90, tech: true, cue: "Technique : plus léger que lundi. Descente en 3 s, 1 s bras tendus en haut pour étirer, tire les coudes vers les hanches."},
+  {ex: "rowCableClose", sets: 3, reps: [12, 15], rest: 90, tech: true, cue: "Technique : laisse les épaules avancer 1 s pour étirer, tire les coudes le long du corps, serre 1 s, retour en 3 s."},
+  {ex: "cableRowUni", sets: 2, reps: [12, 15], rest: 75, perArm: true, tech: true, cue: "Technique : une poignée, l'épaule avance pour étirer, coude vers la hanche, contrôle tout le trajet."},
+  {ex: "pullover", sets: 2, reps: [15, 20], rest: 60, tech: true, cue: "Technique : bassin en arrière, bras tendus, « coudes vers les poches », lent."},
   {ex: "machCurl", sets: 3, reps: [10, 12], rest: 90, cue: "Machine qui place les bras en arrière (accent sur le chef long) : descente complète jusqu'à l'étirement, coude fixe."},
   {ex: "hammer", sets: 2, reps: [10, 12], rest: 60, cue: "Coude fixe, montée contrôlée."},
 ];
-SESS.PT = [
-  {ex: "inclBar", sets: 3, reps: [6, 8], rest: 150, cue: "Barre ou Smith, banc à ~30° : barre vers le haut des pecs, avant-bras verticaux."},
-  {ex: "machPress", sets: 3, reps: [8, 12], rest: 120, cue: "Siège réglé pour que les poignées arrivent au milieu des pecs ; amplitude complète."},
-  {ex: "pecDeck", sets: 2, reps: [12, 15], rest: 90, cue: "Épaules plaquées en arrière, ouvre en grand, contraction 1 s."},
+SESS.PT = [                                 // TECHNIQUE for the chest (2nd chest day): lighter, more reps, slow
+  {ex: "inclBar", sets: 3, reps: [10, 12], rest: 120, tech: true, cue: "Technique : barre ou Smith, banc à ~30°, plus léger que lundi. Descente en 3 s jusqu'au haut des pecs, 1 s de pause, pousse."},
+  {ex: "machPress", sets: 3, reps: [12, 15], rest: 90, tech: true, cue: "Technique : poignées au milieu des pecs, retour lent en 3 s, amplitude complète."},
+  {ex: "pecDeck", sets: 2, reps: [15, 20], rest: 60, tech: true, cue: "Technique : épaules plaquées en arrière, ouvre en grand, contraction 1 s."},
   {ex: "ohTri", sets: 3, reps: [10, 12], rest: 90, cue: "Dos à la poulie, coudes près de la tête, descends loin derrière la tête pour étirer la longue portion."},
-  {ex: "pushdown", sets: 2, reps: [10, 12], rest: 60, cue: "Coudes collés au corps, extension complète."},
+  {ex: "pushdown", sets: 2, reps: [12, 15], rest: 60, cue: "Coudes collés au corps, extension complète."},
 ];
 SESS.CO = [
   {ex: "latRaiseMach", sets: 3, reps: [12, 15], rest: 75, cue: "Machine : coudes légèrement fléchis, monte jusqu'à l'horizontale sans hausser les épaules, descente lente."},
@@ -863,11 +863,11 @@ const TYPES = {
   B:  {name: "Épaules / Bras", day: 1, gate: "Tour des poulies"},
   C:  {name: "Pec / Dos étirement", day: 3, gate: "Caverne de l'étirement"},
   J:  {name: "Jambes", day: 5, gate: "Gouffre des jambes"},
-  DP: {name: "Dos / Pecs", day: 0, gate: "Donjon de fer", solo: true},
+  DP: {get name() { return curPlan().id === "base" ? "Dos / Pecs · force" : "Dos / Pecs"; }, day: 0, gate: "Donjon de fer", solo: true},
   EP: {name: "Épaules / Trapèzes", day: 1, gate: "Tour des épaules", solo: true},
   EB: {name: "Épaules / Bras", day: 1, gate: "Tour des poulies", solo: true},
-  DB: {name: "Dos / Biceps", day: 3, gate: "Puits du dos", solo: true},
-  PT: {name: "Pecs / Triceps", day: 4, gate: "Forge des pecs", solo: true},
+  DB: {get name() { return curPlan().id === "base" ? "Dos / Biceps · technique" : "Dos / Biceps"; }, day: 3, gate: "Puits du dos", solo: true},
+  PT: {name: "Pecs / Triceps · technique", day: 4, gate: "Forge des pecs", solo: true},
   CO: {name: "Complément bras et épaules", day: 5, gate: "Salle des compléments", solo: true},
   H:  {name: "Haut, pecs prioritaires", day: 4, gate: "Citadelle haute"},
 };
@@ -1003,7 +1003,8 @@ function rirFor(p, it, idx, ty, deload) {
   if (deload || it.maint) return {txt: "3 reps en réserve", fail: false};
   if (ty === "FB") return {txt: "3 reps en réserve", fail: false};
   const PL = curPlan().id, isPoly = EX[it.ex].kind === "poly";
-  if (PL === "base") return {txt: "à l'échec (0-1 rep en réserve)", fail: false};   // his choice (29 Oct): every set to failure, at worst half a rep short
+  if (PL === "base") return it.tech ? {txt: "technique : 1-2 reps en réserve, descente en 3 s", fail: !isPoly}   // 2nd day of a muscle: lighter, controlled (2 Nov)
+    : {txt: "à l'échec (0-1 rep en réserve)", fail: false};   // his choice (29 Oct): every set to failure, at worst half a rep short
   if (PL === "felix" && p <= 3) return {txt: "3 reps en réserve", fail: false};
   if (PL === "mathis") {
     if (ty === "JX" && p === 1) return {txt: "2-3 reps en réserve", fail: false};
@@ -1499,7 +1500,8 @@ function suggest(it, info, grip) {
     else out.text = "Prends une charge que tu pourrais pousser 10-12 fois, et arrête-toi à 6.";
     return out;
   }
-  if (!last && all.length) out.text = `Première fois avec la prise ${String(grip).toLowerCase()} : la force change avec la prise, pars un peu plus léger que d'habitude.`;
+  if (!last && all.length && !it.tech) out.text = `Première fois avec la prise ${String(grip).toLowerCase()} : la force change avec la prise, pars un peu plus léger que d'habitude.`;
+  else if (!last && it.tech) out.text = `Première fois : une charge que tu maîtrises sur ${hi} reps avec la descente en 3 s, en gardant 1-2 reps sous le pied.`;
   else if (!last) out.text = it.rir.txt.startsWith("à l'échec") ? `Première fois : choisis une charge avec laquelle tu arrives à l'échec vers ${hi} reps.` : `Première fois : choisis une charge qui laisse ${it.rir.txt.replace(", jamais à l'échec", "")} à ${hi} reps.`;
   else {
     const base = Math.max(...last.sets.map(s => Number(s.kg) || 0));
@@ -1833,10 +1835,11 @@ const rankBadgeInline = r => `<span class="tag" style="color:var(--r-${r});borde
 function grimoire() {
   return `<section class="win"><h2 class="win-title">Règles du Système</h2>
     <details class="fold" open><summary>Ta semaine</summary><div><ul class="rules">
-      <li><b>Lundi : dos / pecs.</b> Le dos d'abord, puis les pecs, comme tu faisais à l'époque.</li>
+      <li><b>Lundi : dos / pecs en FORCE.</b> Le dos d'abord, puis les pecs. Lourd : 4-8 reps sur les gros exos, 2-3 min de repos, à l'échec.</li>
       <li><b>Mardi : épaules / trapèzes</b>, avec un peu d'avant d'épaule.</li>
-      <li><b>Jeudi : dos / biceps.</b> Le dos une 2e fois dans la semaine.</li>
-      <li><b>Vendredi : pecs / triceps.</b> Les pecs une 2e fois.</li>
+      <li><b>Jeudi : dos / biceps en TECHNIQUE.</b> Le dos une 2e fois, plus léger : 10-15 reps, descente en 3 s, pause en étirement, 1-2 reps en réserve. Les biceps, eux, vont à l'échec.</li>
+      <li><b>Vendredi : pecs / triceps en TECHNIQUE.</b> Les pecs une 2e fois, même logique. Les triceps vont à l'échec.</li>
+      <li>Force puis technique : la séance lourde fait progresser les charges, la séance légère ajoute du volume sans t'écraser, et tu récupères pour le lundi suivant. C'est la logique des programmes de Nippard (une séance lourde, une séance plus volumineuse par muscle) et celle qui t'a fait progresser l'an dernier.</li>
       <li><b>Samedi : jambes une semaine sur deux</b>, et l'autre semaine un complément plus court : bras, épaules et un peu de haut des pecs, ce que le reste de la semaine touche le moins.</li>
       <li>Mercredi et dimanche : repos. Un donjon peut se faire un autre jour (bouton « Changer de jour »). Une séance peut sauter sans pénalité : 4 sur 5 suffisent.</li></ul></div></details>
     <details class="fold"><summary>La méthode (Jeff Nippard)</summary><div><ul class="rules">
