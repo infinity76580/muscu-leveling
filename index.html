@@ -2765,6 +2765,11 @@ function seedPlan(force) {                    // once per load: remember the pro
     }
     mark("split1102");
   }
+  if (pid === "felix" && !done("felixWeek1102")) {   // week of 2 Nov: his shoulders/arms session done Monday counts as Monday; then Tue, Thu (with Gauthier), Sat
+    const cw = weekOfStr("2026-11-02");
+    if (today() <= "2026-11-08") prof().moves = {...(prof().moves || {}), [cw]: {EB: "2026-11-02", DP: "2026-11-03", DB: "2026-11-05", J: "2026-11-07"}};
+    mark("felixWeek1102");
+  }
   if ((pid === "base" || pid === "felix") && !done("fix1102")) {   // 31 Oct: plate-loaded leg extension, broken pendulum typed as 0×1; 2 Nov: bench on the Smith
     for (const ses of S.sessions.filter(x => x.date === "2026-10-31" || (pid === "base" && x.date === "2026-11-02"))) {
       const sets = {...(ses.sets || {})}; let changed = false;
