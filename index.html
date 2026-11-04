@@ -1068,7 +1068,7 @@ const RANK_DEFAULT = {D: "Un bon resto de ton choix", C: "Un pot de whey", B: "U
 const TIERS = [{k: "petite", name: "Petites récompenses"}, {k: "moyenne", name: "Récompenses moyennes"}, {k: "grosse", name: "Grosses récompenses"}, {k: "legendaire", name: "Récompenses légendaires"}];
 const R = (tier, name, cost, food, effect) => ({tier, name, cost, ...(food ? {food: true} : {}), ...(effect ? {effect} : {})});
 const GAUTHIER_SHOP = [                     // his tastes (food, bar, whey, gear but never gloves, video games, skipping a session); food ~1 gold per kcal (4 Nov)
-  R("petite", "Un café en terrasse", 150, 1), R("petite", "Une Monster bien fraîche", 250, 1), R("moyenne", "Un dessert de ton choix", 500, 1),
+  R("petite", "Un café en terrasse", 150, 1), R("petite", "Une Monster Ultra White bien fraîche", 250, 1), R("moyenne", "Un dessert de ton choix", 500, 1),
   R("moyenne", "Une crêpe ou une gaufre au Nutella", 450, 1), R("moyenne", "Un milkshake", 600, 1), R("grosse", "Pizza maison", 1200, 1), R("petite", "Un nouveau shaker", 400),
   R("grosse", "Un kebab ou un tacos", 1300, 1), R("grosse", "Un burger au resto", 1200, 1), R("grosse", "Pizza chez Lolo et Zaza", 1300, 1), R("grosse", "Une entrecôte", 1000, 1),
   R("grosse", "Des sushis à volonté", 1800, 1), R("moyenne", "Un t-shirt ou un short de sport", 800), R("grosse", "Soirée au bar avec les potes", 1500, 1),
@@ -2807,6 +2807,10 @@ function seedPlan(force) {                    // once per load: remember the pro
     const price = {"Une Monster bien fraîche": [250, "petite"], "Un dessert de ton choix": [500, "moyenne"], "Une crêpe ou une gaufre au Nutella": [450, "moyenne"], "Un milkshake": [600, "moyenne"], "Pizza maison": [1200, "grosse"], "Un kebab ou un tacos": [1300, "grosse"], "Un burger au resto": [1200, "grosse"], "Pizza chez Lolo et Zaza": [1300, "grosse"], "Une entrecôte": [1000, "grosse"], "Des sushis à volonté": [1800, "grosse"], "Soirée au bar avec les potes": [1500, "grosse"], "Un resto avec les potes, tu choisis l'endroit": [1800, "grosse"]};
     const items = (S.rewards?.items || []).map(i => { const p = price[i.name]; return p && i.food && (Number(i.cost) || 0) < p[0] ? {...i, cost: p[0], tier: p[1]} : {...i}; });
     if (S.rewards) { saveRewards(items); mark("shop1104"); }
+  }
+  if (pid === "base" && done("shop1104") && !done("monster1105")) {   // his Monster is the Ultra White (zero sugar): the price is there to drink fewer
+    saveRewards((S.rewards?.items || []).map(i => i.name === "Une Monster bien fraîche" ? {...i, name: "Une Monster Ultra White bien fraîche"} : {...i}));
+    mark("monster1105");
   }
   if (pid === "base" && !done("fix1104")) {      // 4 Nov: shoulder press done with dumbbells (his new pick)
     for (const ses of S.sessions.filter(x => x.date === "2026-11-04" && x.sets?.shPress && !x.sets.dbShPress)) {
