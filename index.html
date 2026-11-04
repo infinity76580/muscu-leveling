@@ -919,7 +919,7 @@ const WEEKS_MATHIS = [null,
 const PLANS = {
   base: {id: "base", swap: GAUTHIER_SWAP, keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
     intro: "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat",
-    lead: "Lundi dos/pecs, mardi épaules/trapèzes, jeudi dos/biceps, vendredi pecs/triceps, samedi grosse séance jambes une semaine sur deux, et l'autre samedi complément bras et épaules avec un petit rappel jambes. Mercredi et dimanche : repos.",
+    lead: "Lundi dos/pecs, mardi épaules/trapèzes, mercredi grosse séance jambes une semaine sur deux (l'autre mercredi : complément bras et épaules avec un petit rappel jambes), jeudi dos/biceps, vendredi pecs/triceps. Week-end : repos.",
     s1: "Première séance : tu réapprends les mouvements, rien de lourd. Que des gros mouvements : 2 pour les pecs, 2 pour le dos, 2 pour les jambes."},
   felix: {id: "felix", label: "Perte de poids (programme de Félix)", goal: "fat", title: "Potentiel de malade", fbFirst: true, big: [], weeks: WEEKS_FELIX, test: {DP: ["csRow", "machPress"], DB: ["latpdNeutral", "rowCableClose"]}, sess: SESS_FELIX,
     keyLifts: [["machPress", "Dos / Pecs", "Chest press"], ["inclMach", "Dos / Pecs", "Incliné machine"], ["csRow", "Dos / Pecs", "Rowing appuyé"], ["latpd", "Dos / Pecs", "Tirage vertical"], ["latpdNeutral", "Dos / Biceps", "Tirage prise neutre"], ["shPress", "Épaules / Bras", "Épaules machine"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]], finisher: true,
@@ -958,7 +958,9 @@ function planSched(info) {
   if (info.p === 1 && !info.deload) return id === "felix" ? "Une seule séance cette semaine : le full body, jeudi." : "Une seule séance cette semaine : la reprise, jeudi.";
   if (info.deload) return "Mêmes jours que d'habitude, moitié des séries, mêmes charges.";
   if (id === "felix") return "Lundi dos/pecs, mardi épaules/bras, jeudi dos/biceps, samedi jambes : les mêmes jours que Gauthier. Mercredi, vendredi et dimanche : repos.";
-  return `Lundi dos/pecs, mardi épaules/trapèzes, jeudi dos/biceps, vendredi pecs/triceps, samedi ${info.types[4] === "J" ? "jambes" : "complément bras et épaules + petit rappel jambes (grosse séance jambes la semaine prochaine)"}. Mercredi et dimanche : repos.`;
+  const x = info.types[4] === "J" ? "jambes" : "complément bras et épaules + petit rappel jambes (grosse séance jambes la semaine prochaine)";
+  if (info.cw < 4) return `Lundi dos/pecs, mardi épaules/trapèzes, jeudi dos/biceps, vendredi pecs/triceps, samedi ${x}. Mercredi et dimanche : repos.`;
+  return `Lundi dos/pecs, mardi épaules/trapèzes, mercredi ${x}, jeudi dos/biceps, vendredi pecs/triceps. Week-end : repos.`;
 }
 
 /* Calendar weeks (cw 1 = 19-25 oct.) are not program weeks: the deload joker pauses the program for one week. */
@@ -1418,7 +1420,8 @@ function weekBonus(cw) {
   if (out.perfect && c.bonusDone) { out.big = true; out.xp += 100; out.gold += 75; }
   return out;
 }
-const plannedDate = (cw, ty) => S.profile?.moves?.[cw]?.[ty] || toStr(addDays(weekStart(cw), TYPES[ty].day));   // moved by the player, or the usual day
+const typeDay = (cw, ty) => curPlan().id === "base" && cw >= 4 && (ty === "J" || ty === "CO") ? 2 : TYPES[ty].day;   // Gauthier from 9 Nov: Monday to Friday, weekends free
+const plannedDate = (cw, ty) => S.profile?.moves?.[cw]?.[ty] || toStr(addDays(weekStart(cw), typeDay(cw, ty)));   // moved by the player, or the usual day
 function weekPlan(cw) {
   const info = weekInfo(cw); if (!info || !info.types.length) return [];
   const v = weekValid(cw), t = today(), curW = weekOfStr(t);
@@ -1849,12 +1852,12 @@ function grimoire() {
     <details class="fold" open><summary>Ta semaine</summary><div><ul class="rules">
       <li><b>Lundi : dos / pecs en FORCE.</b> Le dos d'abord, puis les pecs. Lourd : 4-8 reps sur les gros exos, 2-3 min de repos, à l'échec.</li>
       <li><b>Mardi : épaules / trapèzes</b>, avec un peu d'avant d'épaule.</li>
+      <li><b>Mercredi : grosse séance jambes une semaine sur deux</b>, à fond comme tu aimes. L'autre mercredi : complément bras, épaules et haut des pecs, puis un <b>petit rappel jambes</b> (2 séries de hack squat + 2 de leg curl, 3 reps en réserve, environ 80 % de tes charges). Au milieu de la semaine, les jambes ne gênent aucune séance du haut, et le dos (lundi → jeudi) comme les pecs (lundi → vendredi) gardent 3-4 jours de récupération.</li>
       <li><b>Jeudi : dos / biceps en TECHNIQUE.</b> Le dos une 2e fois, plus léger : 10-15 reps, descente en 3 s, pause en étirement, 1-2 reps en réserve. Les biceps, eux, vont à l'échec.</li>
       <li><b>Vendredi : pecs / triceps en TECHNIQUE.</b> Les pecs une 2e fois, même logique. Les triceps vont à l'échec.</li>
       <li>Force puis technique : la séance lourde fait progresser les charges, la séance légère ajoute du volume sans t'écraser, et tu récupères pour le lundi suivant. C'est la logique des programmes de Nippard (une séance lourde, une séance plus volumineuse par muscle) et celle qui t'a fait progresser l'an dernier.</li>
-      <li><b>Samedi : grosse séance jambes une semaine sur deux</b>, à fond comme tu aimes. L'autre samedi : complément bras, épaules et haut des pecs, puis un <b>petit rappel jambes</b> (2 séries de hack squat + 2 de leg curl, 3 reps en réserve, environ 80 % de tes charges).</li>
       <li>Pourquoi ce rappel : tes 5-6 jours de courbatures viennent surtout du fait que les jambes ne travaillent que toutes les deux semaines. Une petite dose entre deux grosses séances habitue le muscle (on appelle ça « l'effet de la séance répétée ») : les courbatures du gros jour baissent nettement en 2-3 cycles, et les jambes travaillent tous les 7 jours au lieu de 14. Le rappel ne compte pas dans tes records.</li>
-      <li>Mercredi et dimanche : repos. Un donjon peut se faire un autre jour (bouton « Changer de jour »). Une séance peut sauter sans pénalité : 4 sur 5 suffisent.</li></ul></div></details>
+      <li>Samedi et dimanche : repos, tout se fait du lundi au vendredi. Un donjon peut se faire un autre jour (bouton « Changer de jour »). Une séance peut sauter sans pénalité : 4 sur 5 suffisent.</li></ul></div></details>
     <details class="fold"><summary>La méthode (Jeff Nippard)</summary><div><ul class="rules">
       <li>Exercices choisis d'après ses classements : en priorité ceux qui étirent le muscle sous la charge (incliné, écarté poulie, extension au-dessus de la tête, pull-over…).</li>
       <li>Pecs et dos deux fois par semaine : environ 16 séries de pecs et 16 de dos par semaine.</li>
@@ -2668,7 +2671,7 @@ function viewSettings(P) {
       ${tg("qSteps", "Marcher", "Case « Pas » dans la quête")}${tg("qWater", "Boire de l'eau", "Case « Eau » dans la quête")}${tg("qStudy", "Réviser ou travailler", "Case « Révisions », du lundi au vendredi")}
       <div class="grid2">${f("studyMin", "Révisions (min / jour)", "numeric")}${f("sleep", "Sommeil visé (h)")}</div>
       <div class="grid2">${f("steps", "Pas par jour", "numeric")}${f("water", "Eau (L)")}</div>
-      ${tg("legMaint", "Un peu de jambes chaque semaine", "2 séries de hack squat + 2 de leg curl, légères, à la fin du samedi sans grosse séance jambes")}
+      ${tg("legMaint", "Un peu de jambes chaque semaine", "2 séries de hack squat + 2 de leg curl, légères, à la fin du complément, les semaines sans grosse séance jambes")}
       ${tg("sound", "Sons du Système", "Petit signal à chaque série et à la fin du repos")}
       <div class="row"><button class="btn ghost" data-act="go" data-v="status">Retour</button><button class="btn primary" data-act="setSave">Enregistrer</button></div></section>
     ${Store.mode === "cloud" || Store.mode === "server" ? `<section class="win"><h2 class="win-title">Copie de sécurité</h2>
@@ -3261,7 +3264,7 @@ const ACTIONS = {
   warm: () => { S.draft.warm = !S.draft.warm; saveDraft(); render(); },
   fin: () => { S.draft.fin = !S.draft.fin; saveDraft(); render(); },
   planWeek: a => { state.planOffset = Number(a.dataset.o) || 0; render(); },
-  moveSes: a => { const cw = Number(a.dataset.cw), ty = a.dataset.ty, d = a.dataset.d, p = clone(S.profile), usual = toStr(addDays(weekStart(cw), TYPES[ty].day));
+  moveSes: a => { const cw = Number(a.dataset.cw), ty = a.dataset.ty, d = a.dataset.d, p = clone(S.profile), usual = toStr(addDays(weekStart(cw), typeDay(cw, ty)));
     p.moves = {...(p.moves || {})}; p.moves[cw] = {...(p.moves[cw] || {}), [ty]: d}; if (d === usual) delete p.moves[cw][ty];
     S.profile = p; queueSet("game/profile", p); render(); toast(`[Planning] ${esc(tyLabel(ty))} : ${fmtDay(fromStr(d), {weekday: "long", day: "numeric"})}`, "ok"); },
   sickDay: a => { const d = a.dataset.d;
