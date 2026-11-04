@@ -1067,12 +1067,12 @@ const SUGGESTED = [                          // sign-up catalog: nothing pre-tic
 const RANK_DEFAULT = {D: "Un bon resto de ton choix", C: "Un pot de whey", B: "Un jeu vidéo ou l'objet de ton choix", A: "Une nouvelle paire de chaussures de salle", S: "La grosse récompense : à toi de la choisir"};
 const TIERS = [{k: "petite", name: "Petites récompenses"}, {k: "moyenne", name: "Récompenses moyennes"}, {k: "grosse", name: "Grosses récompenses"}, {k: "legendaire", name: "Récompenses légendaires"}];
 const R = (tier, name, cost, food, effect) => ({tier, name, cost, ...(food ? {food: true} : {}), ...(effect ? {effect} : {})});
-const GAUTHIER_SHOP = [                     // his tastes (food, bar, whey, gear but never gloves, video games, skipping a session)
-  R("petite", "Un café en terrasse", 150, 1), R("petite", "Une Monster bien fraîche", 200, 1), R("petite", "Un dessert de ton choix", 250, 1),
-  R("petite", "Une crêpe ou une gaufre au Nutella", 250, 1), R("petite", "Un milkshake", 300, 1), R("petite", "Pizza maison", 350, 1), R("petite", "Un nouveau shaker", 400),
-  R("moyenne", "Un kebab ou un tacos", 500, 1), R("moyenne", "Un burger au resto", 650, 1), R("moyenne", "Pizza chez Lolo et Zaza", 700, 1), R("moyenne", "Une entrecôte", 700, 1),
-  R("moyenne", "Des sushis à volonté", 800, 1), R("moyenne", "Un t-shirt ou un short de sport", 800), R("moyenne", "Soirée au bar avec les potes", 900, 1),
-  R("grosse", "Des sangles de tirage", 1000), R("grosse", "Un pot de créatine", 1200), R("grosse", "Un nouveau pot de whey", 1500), R("grosse", "Un resto avec les potes, tu choisis l'endroit", 1500, 1),
+const GAUTHIER_SHOP = [                     // his tastes (food, bar, whey, gear but never gloves, video games, skipping a session); food ~1 gold per kcal (4 Nov)
+  R("petite", "Un café en terrasse", 150, 1), R("petite", "Une Monster bien fraîche", 250, 1), R("moyenne", "Un dessert de ton choix", 500, 1),
+  R("moyenne", "Une crêpe ou une gaufre au Nutella", 450, 1), R("moyenne", "Un milkshake", 600, 1), R("grosse", "Pizza maison", 1200, 1), R("petite", "Un nouveau shaker", 400),
+  R("grosse", "Un kebab ou un tacos", 1300, 1), R("grosse", "Un burger au resto", 1200, 1), R("grosse", "Pizza chez Lolo et Zaza", 1300, 1), R("grosse", "Une entrecôte", 1000, 1),
+  R("grosse", "Des sushis à volonté", 1800, 1), R("moyenne", "Un t-shirt ou un short de sport", 800), R("grosse", "Soirée au bar avec les potes", 1500, 1),
+  R("grosse", "Des sangles de tirage", 1000), R("grosse", "Un pot de créatine", 1200), R("grosse", "Un nouveau pot de whey", 1500), R("grosse", "Un resto avec les potes, tu choisis l'endroit", 1800, 1),
   R("grosse", "Un équipement de salle (tout sauf des gants)", 1800), R("grosse", "Une ceinture de musculation", 2200), R("grosse", "Un jeu vidéo", 2500),
   R("grosse", "Sauter une séance sans pénalité", 3000, 0, "skip"), R("grosse", "Une nouvelle paire de chaussures de salle", 3500),
   R("legendaire", "Une tenue de salle complète neuve", 5000), R("legendaire", "Un gros jeu vidéo en édition deluxe à sa sortie", 6000),
@@ -2164,9 +2164,9 @@ function viewBody(P) {
     ${photosWin()}`;
 }
 const STRENGTH = [                          // the e1RM / body-weight ratio of rank S: a strong, trained lifter on that machine (harsh on purpose, 2 Nov)
-  {k: "pecs", name: "Pectoraux", ex: {bench: 1.5, smithBench: 1.6, machPress: 1.7, inclMach: 1.4, inclBar: 1.3, inclDb: 0.6, dbBench: 0.7, dips: 1.8}},
-  {k: "dos", name: "Dos", ex: {csRow: 1.7, latpd: 1.35, latpdNeutral: 1.35, cableRow: 1.4, rowCableClose: 1.4, cableRowUni: 0.8, pullupPro: 1.7, pullup: 1.7, dbRow: 0.8, uniPd: 0.7}},
-  {k: "trapezes", name: "Trapèzes", ex: {shrug: 1.0}},
+  {k: "pecs", name: "Pectoraux", ex: {bench: 1.5, smithBench: 1.6, machPress: 1.7, inclMach: 1.4, inclBar: 1.3, inclDb: 0.6, dbBench: 0.7, dips: 1.7}},
+  {k: "dos", name: "Dos", ex: {csRow: 1.7, latpd: 1.35, latpdNeutral: 1.35, cableRow: 1.4, rowCableClose: 1.4, cableRowUni: 0.8, pullupPro: 1.6, pullup: 1.6, dbRow: 0.8, uniPd: 0.7}},
+  {k: "trapezes", name: "Trapèzes", ex: {shrug: 0.6}},   // one dumbbell
   {k: "epaules", name: "Épaules", ex: {shPress: 1.1, dbShPress: 0.45, latRaiseMach: 0.8, frontRaise: 0.4, latRaise: 0.2, leanLatRaise: 0.25, revFly: 0.4, revPecDeck: 0.8}},
   {k: "biceps", name: "Biceps", ex: {bayCurl: 0.4, preacher: 0.6, hammer: 0.4, machCurl: 0.7}},
   {k: "triceps", name: "Triceps", ex: {ohTri: 0.7, pushdown: 0.9, triHigh: 0.9, skull: 0.7}},
@@ -2182,10 +2182,10 @@ function strengthMap() {
     for (const [ex, top] of Object.entries(m.ex)) {
       const h = perfHistory(ex); if (!h.length) continue;
       const e1 = Math.max(...h.map(x => bestE1(ex, x.sets))); if (!(e1 > 0)) continue;
-      const sc = Math.max(0, Math.min(1, (e1 / bw / top - 0.3) / 0.7));
+      const sc = Math.max(0, Math.min(1, e1 / bw / top));   // share of rank S
       if (!best || sc > best.sc) best = {ex, e1, sc};
     }
-    const rank = !best ? null : best.sc >= 0.95 ? "S" : best.sc >= 0.8 ? "A" : best.sc >= 0.6 ? "B" : best.sc >= 0.4 ? "C" : best.sc >= 0.2 ? "D" : "E";
+    const rank = !best ? null : best.sc >= 1 ? "S" : best.sc >= 5 / 6 ? "A" : best.sc >= 2 / 3 ? "B" : best.sc >= 0.5 ? "C" : best.sc >= 1 / 3 ? "D" : "E";   // bench: D 0.5x, C 0.75x, B 1x, A 1.25x, S 1.5x body weight
     return {...m, best, rank};
   });
 }
@@ -2212,7 +2212,7 @@ function bodySvg(side, by) {                  // the drawing, front or back; tra
   const art = BODY_ART[side];
   const shapes = art.parts.map(([slug, d]) => {
     const k = BODY_MUSCLE[slug], m = k && by[k], sc = m && m.best ? m.best.sc : null;
-    const cls = slug === "hair" ? "bm-hair" : BODY_SKIN.has(slug) ? "bm-skin" : k ? "bm-m" + (sc != null && sc >= 0.95 ? " top" : "") : "bm-off";
+    const cls = slug === "hair" ? "bm-hair" : BODY_SKIN.has(slug) ? "bm-skin" : k ? "bm-m" + (sc != null && sc >= 1 ? " top" : "") : "bm-off";
     return `<path d="${d}" class="${cls}"${k ? ` fill="${strengthColor(sc)}"` : ""}>${m ? `<title>${m.name}</title>` : ""}</path>`;
   }).join("");
   return `<figure class="bm-fig"><svg viewBox="${art.vb}" role="img" aria-label="Corps vu de ${side === "front" ? "face" : "dos"}"><path d="${art.outline}" class="bm-outline"/>${shapes}</svg><figcaption>${side === "front" ? "Face" : "Dos"}</figcaption></figure>`;
@@ -2221,9 +2221,9 @@ function strengthWin() {
   const map = strengthMap(), by = Object.fromEntries(map.map(m => [m.k, m])), bw = bodyWeight();
   const rows = map.map(m => { const sc = m.best ? m.best.sc : null, col = strengthColor(sc);
     return `<li><span class="bm-dot" style="background:${col}"></span><span class="bm-name">${m.name}</span>${m.best ? `<small>${esc(EX[m.best.ex].n)} : ${fmt(m.best.e1, 0)} kg en 1RM estimé</small>` : `<small>Pas encore mesuré</small>`}<span class="bm-bar"><i style="width:${sc == null ? 0 : Math.max(4, Math.round(sc * 100))}%;background:${col}"></i></span><b class="bm-rank" style="color:${sc == null ? "var(--muted)" : col}">${m.rank || "—"}</b></li>`; }).join("");
-  const grad = STRENGTH_STOPS.map(st => `hsl(${st[1]} ${st[2]}% ${st[3]}%) ${st[0] * 100}%`).join(","), ticks = [["E", 0.1], ["D", 0.3], ["C", 0.5], ["B", 0.7], ["A", 0.875], ["S", 0.975]];
+  const grad = STRENGTH_STOPS.map(st => `hsl(${st[1]} ${st[2]}% ${st[3]}%) ${st[0] * 100}%`).join(","), ticks = [["E", 0.17], ["D", 0.42], ["C", 0.58], ["B", 0.75], ["A", 0.91], ["S", 0.985]];
   return `<section class="win"><h2 class="win-title">Carte de puissance</h2>
-    <p class="muted small">Chaque muscle prend la couleur de ton meilleur exercice, comparé à ton poids de corps (${fmt(bw, 1)} kg) : du bleu foncé (à construire) au violet clair (rang S : un pratiquant fort et entraîné, par exemple un couché à 1,5 fois ton poids, un rowing appuyé à 1,7 fois). Les machines faciles (kickback, presse) demandent beaucoup plus de charge pour le même rang. Gris : pas encore mesuré. Repères approximatifs : chaque machine est différente.</p>
+    <p class="muted small">Chaque muscle prend la couleur de ton meilleur exercice, comparé à ton poids de corps (${fmt(bw, 1)} kg) : du bleu foncé (à construire) au violet clair. Au couché : D à 0,5 fois ton poids, C à 0,75, B à 1, A à 1,25 et S à 1,5 (un pratiquant très fort). Même échelle pour chaque exercice, ajustée à sa difficulté (rowing appuyé : S à 1,7 fois ton poids). Les dips et les tractions comptent ton poids de corps en plus du lest. Les machines faciles (kickback, presse) demandent beaucoup plus de charge pour le même rang. Gris : pas encore mesuré. Repères approximatifs : chaque machine est différente.</p>
     <div class="body-map">${bodySvg("front", by)}${bodySvg("back", by)}</div>
     <div class="bm-scale"><i style="background:linear-gradient(90deg,${grad})"></i><div>${ticks.map(([r, x]) => `<span style="left:${x * 100}%;color:${strengthColor(x)}">${r}</span>`).join("")}</div></div>
     <ul class="bm-list">${rows}</ul></section>`;
@@ -2423,7 +2423,7 @@ function habitFoods() {                        // the player's usual foods, one 
 }
 function recentFoods() {
   const seen = new Set(), out = [];
-  for (const k of Object.keys(S.meals).sort().reverse()) for (const it of (S.meals[k].items || [])) {
+  for (const k of Object.keys(S.meals).sort().reverse()) for (const it of (S.meals[k].items || []).slice().reverse()) {   // last logged first
     if (it.reward || it.k100 == null || seen.has(it.name)) continue; seen.add(it.name);
     out.push({n: it.name, k: it.k100, p: it.p100, c: it.c100, f: it.f100, unit: it.unit, ug: it.ug, unitOnly: !!it.uo, src: it.src === "ciqual" ? "ciqual" : it.src || "extra", lastG: it.g, lastU: it.u});
     if (out.length >= 25) return out;
@@ -2610,7 +2610,7 @@ function modalFood(m) {
   let body = "";
   if (m.tab === "search") body = `<div class="field sticky-q"><label for="food-q">Aliment</label><input id="food-q" data-bind="foodQ" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="Ex. poulet cru, skyr, whey myprotein, Nutella…" value="${esc(m.q || "")}"></div>
       <div id="food-results">${foodResults(m)}</div>`;
-  else if (m.tab === "recent") { const h = habitFoods(), hn = new Set(h.map(f => f.n)); body = list([...h, ...recentFoods().filter(f => !hn.has(f.n))], "Tes aliments déjà notés apparaîtront ici."); }
+  else if (m.tab === "recent") body = list(recentFoods(), "Tes aliments déjà notés apparaîtront ici.");   // pure chronological order (4 Nov)
   else if (m.tab === "tpl") { const tp = S.mealtpl?.items || []; body = tp.length ? `<ul class="food-res">${tp.map(t => `<li><button data-act="tplAdd" data-id="${esc(t.id)}"><span>${esc(t.name)}<br><small>${t.items.length} aliments</small></span><small>${fmt(t.items.reduce((n, x) => n + (x.kcal || 0), 0), 0)} kcal</small></button></li>`).join("")}</ul>${tp.map(t => `<button class="link" data-act="tplDel" data-id="${esc(t.id)}">Supprimer « ${esc(t.name)} »</button>`).join("")}` : `<p class="muted small">Note un repas que tu manges souvent, puis appuie sur « Garder comme repas type » sous ce repas : il s'ajoutera ensuite en un geste.</p>`; }
   else if (m.tab === "quick") body = `<p class="muted small">N'importe quoi : un resto, un plat de ta mère, un truc introuvable. Une estimation suffit.</p>
       ${inp("qName", "Quoi", "text", "Ex. Pizza chez Lolo et Zaza")}<div class="grid2">${inp("qKcal", "Calories", "numeric", "kcal")}${inp("qProt", "Protéines (g)", "decimal", "Facultatif")}</div>
@@ -2802,6 +2802,11 @@ function seedPlan(force) {                    // once per load: remember the pro
     const cw = weekOfStr("2026-11-02");
     if (today() <= "2026-11-08") prof().moves = {...(prof().moves || {}), [cw]: {EB: "2026-11-02", DP: "2026-11-03", DB: "2026-11-05", J: "2026-11-07"}};
     mark("felixWeek1102");
+  }
+  if (pid === "base" && !done("shop1104")) {     // "trop généreux" (4 Nov): food treats at ~1 gold per kcal; never cheaper than he set
+    const price = {"Une Monster bien fraîche": [250, "petite"], "Un dessert de ton choix": [500, "moyenne"], "Une crêpe ou une gaufre au Nutella": [450, "moyenne"], "Un milkshake": [600, "moyenne"], "Pizza maison": [1200, "grosse"], "Un kebab ou un tacos": [1300, "grosse"], "Un burger au resto": [1200, "grosse"], "Pizza chez Lolo et Zaza": [1300, "grosse"], "Une entrecôte": [1000, "grosse"], "Des sushis à volonté": [1800, "grosse"], "Soirée au bar avec les potes": [1500, "grosse"], "Un resto avec les potes, tu choisis l'endroit": [1800, "grosse"]};
+    const items = (S.rewards?.items || []).map(i => { const p = price[i.name]; return p && i.food && (Number(i.cost) || 0) < p[0] ? {...i, cost: p[0], tier: p[1]} : {...i}; });
+    if (S.rewards) { saveRewards(items); mark("shop1104"); }
   }
   if (pid === "base" && !done("fix1104")) {      // 4 Nov: shoulder press done with dumbbells (his new pick)
     for (const ses of S.sessions.filter(x => x.date === "2026-11-04" && x.sets?.shPress && !x.sets.dbShPress)) {
