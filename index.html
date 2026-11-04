@@ -609,6 +609,7 @@ const EX = {
   flySeated:   {n: "Écarté poulie assis", kind: "iso", eq: "cable"},
   pullover:    {n: "Pull-over poulie haute, bras tendus", kind: "iso", eq: "cable"},
   shPress:     {n: "Développé épaules machine", kind: "poly", eq: "machine"},
+  dbShPress:   {n: "Développé militaire haltères (assis)", kind: "poly", eq: "db"},
   latRaise:    {n: "Élévation latérale poulie, un bras", kind: "iso", eq: "cable"},
   revFly:      {n: "Oiseau à la poulie, câbles croisés", kind: "iso", eq: "cable"},
   ohTri:       {n: "Extension triceps poulie au-dessus de la tête", kind: "iso", eq: "cable"},
@@ -653,9 +654,11 @@ const EX = {
   frontRaise:  {n: "Élévation frontale poulie", kind: "iso", eq: "cable"},
 };
 const RESTTXT = {180: "3 min", 150: "2-3 min", 120: "2 min", 90: "90 s", 75: "60-90 s", 60: "60 s"};
-const ALTS = {bench: "smithBench", smithBench: "bench", legExt: "legExtFree", legExtFree: "legExt"};   // same muscle, other machine: kept apart in the stats (2 Nov)
+const ALTS = {bench: "smithBench", smithBench: "bench", legExt: "legExtFree", legExtFree: "legExt", dbShPress: "shPress", shPress: "dbShPress", revPecDeck: "revFly", revFly: "revPecDeck"};   // same muscle, other machine: kept apart in the stats (2 Nov)
 const ALT_CUE = {smithBench: "Smith : barre guidée sur rails, banc placé pour que la barre descende au bas des pecs ; touche sans rebond.", legExtFree: "Version à disques : pause 1 s en haut, descente contrôlée.",
-  bench: "Omoplates serrées et basses, pieds ancrés ; barre au bas des pecs, touche sans rebond. Barres de sécurité.", legExt: "Pause 1 s en haut, descente contrôlée."};
+  bench: "Omoplates serrées et basses, pieds ancrés ; barre au bas des pecs, touche sans rebond. Barres de sécurité.", legExt: "Pause 1 s en haut, descente contrôlée.",
+  shPress: "Machine : dos bien calé, descends les poignées au niveau du menton.", dbShPress: "Assis, haltères à hauteur d'oreilles, pousse vers le haut. Charge notée = UN haltère.",
+  revFly: "Poulies à hauteur d'épaules, tiens les câbles eux-mêmes, bras quasi tendus, tire en arc vers l'extérieur.", revPecDeck: "Poitrine collée au pad, bras quasi tendus, pousse les mains loin sur les côtés."};
 const GRIPS_BACK = ["Large", "Moyenne", "Serrée", "Neutre", "Supination"], GRIPS_PRESS = ["Large", "Moyenne", "Serrée", "Neutre"], GRIPS_ROPE = ["Barre", "Corde", "V"];
 const GRIP_OF = {csRow: GRIPS_BACK, latpd: GRIPS_BACK, latpdNeutral: GRIPS_BACK, cableRow: GRIPS_BACK, rowCableClose: GRIPS_BACK, pullover: ["Barre", "Corde"],
   bench: GRIPS_PRESS, smithBench: GRIPS_PRESS, inclBar: GRIPS_PRESS, inclMach: GRIPS_PRESS, machPress: GRIPS_PRESS, shPress: GRIPS_PRESS, pushdown: GRIPS_ROPE, ohTri: GRIPS_ROPE};   // the grip changes the strength
@@ -891,10 +894,12 @@ const SHRUG = {ex: "shrug", sets: 2, reps: [10, 15], rest: 75, cue: "Monte les �
 const GAUTHIER_SWAP = {                       // his own picks (30 Oct): close-grip cable row, rows on the cable, the long-head curl machine
   cableRow: {ex: "rowCableClose", cue: "Poulie basse, poignée serrée (triangle) : laisse les épaules avancer pour étirer, puis tire les coudes le long du corps et serre les omoplates."},
   dbRow: {ex: "cableRowUni", cue: "Poulie basse, une poignée : laisse l'épaule avancer pour étirer, puis tire le coude vers la hanche."},   // all his horizontal rows on the cable, except the chest-supported one
+  shPress: {ex: "dbShPress", cue: "Assis, dossier presque droit, haltères à hauteur d'oreilles, coudes un peu devant le corps ; pousse vers le haut sans claquer les haltères. Charge notée = UN haltère."},   // 4 Nov: he prefers dumbbells
+  revFly: {ex: "revPecDeck", cue: "Poitrine collée au pad, bras quasi tendus à hauteur d'épaules. Pousse les mains loin sur les côtés, sans serrer les omoplates ni hausser les épaules : c'est l'arrière de l'épaule qui doit brûler."},   // 4 Nov: the cable version went to the front of his shoulder
   bayCurl: {ex: "machCurl", cue: "Machine qui place les bras en arrière (accent sur le chef long) : descente complète jusqu'à l'étirement, coude fixe."},
 };
 const KEY_LIFTS = [["bench", "Dos / Pecs", "Couché barre"], ["inclMach", "Dos / Pecs", "Incliné machine"], ["csRow", "Dos / Pecs", "Rowing appuyé"], ["latpd", "Dos / Pecs", "Tirage vertical"], ["inclBar", "Pecs / Triceps", "Incliné barre"], ["latpdNeutral", "Dos / Biceps", "Tirage prise neutre"], ["machPress", "Pecs / Triceps", "Chest press"], ["shPress", "Épaules / Trapèzes", "Épaules machine"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]];
-const INC = {bar: 2.5, machine: 2.5, cable: 2.5, db: 2, bw: 2.5};
+const INC = {bar: 2.5, machine: 2.5, cable: 5, db: 2, bw: 2.5};   // their gym's cables: 5 kg steps (4 Nov)
 const FEELINGS = ["Écrasé", "Dur", "Correct", "Bien", "Inarrêtable"];
 const BUILD = [{rank: "D"}, {rank: "D"}, {rank: "C"}, {rank: "C"}];
 const WEEKS_FELIX = [null,
@@ -912,7 +917,7 @@ const WEEKS_MATHIS = [null,
   {n: 8, phase: "Bilan", rank: "C", rirTxt: "1, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
 ];
 const PLANS = {
-  base: {id: "base", swap: GAUTHIER_SWAP, label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
+  base: {id: "base", swap: GAUTHIER_SWAP, keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
     intro: "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat",
     lead: "Lundi dos/pecs, mardi épaules/trapèzes, jeudi dos/biceps, vendredi pecs/triceps, samedi grosse séance jambes une semaine sur deux, et l'autre samedi complément bras et épaules avec un petit rappel jambes. Mercredi et dimanche : repos.",
     s1: "Première séance : tu réapprends les mouvements, rien de lourd. Que des gros mouvements : 2 pour les pecs, 2 pour le dos, 2 pour les jambes."},
@@ -1491,7 +1496,7 @@ function compute() {
 /* ================= coaching: what load today ================= */
 const maintIn = (s, exId) => (sessFor(s.type) || []).some(it => it.ex === exId && it.maint);   // light leg reminder: not a performance
 function perfHistory(exId) { return sessionsSorted().filter(s => !s.deload && Array.isArray(s.sets?.[exId]) && s.sets[exId].length && !maintIn(s, exId)).map(s => ({grip: s.grip?.[exId] || null, week: s.week, cw: sessionCw(s), type: s.type, date: s.date, sets: s.sets[exId]})); }
-function incText(eq) { return eq === "db" ? "prends l'haltère au-dessus (+2 kg)" : eq === "bw" ? "ajoute 2,5 kg de lest (ou retire 2,5 kg d'assistance)" : eq === "bar" ? "ajoute 2,5 kg" : "ajoute 2,5 kg (ou le cran au-dessus)"; }
+function incText(eq) { return eq === "db" ? "prends l'haltère au-dessus (+2 kg)" : eq === "bw" ? "ajoute 2,5 kg de lest (ou retire 2,5 kg d'assistance)" : eq === "bar" ? "ajoute 2,5 kg" : eq === "cable" ? "passe au cran au-dessus (+5 kg)" : "ajoute 2,5 kg (ou le cran au-dessus)"; }
 const gripLast = exId => { const h = perfHistory(exId).filter(x => x.grip); return h.length ? h[h.length - 1].grip : GRIP_DEFAULT[exId] || null; };
 function suggest(it, info, grip) {
   const ex = EX[it.ex], lo = it.reps[0], hi = it.reps[1];
@@ -1512,6 +1517,9 @@ function suggest(it, info, grip) {
     const allTop = last.sets.length >= Math.min(2, it.sets) && last.sets.every(s => (Number(s.kg) || 0) === base && Number(s.reps) >= hi);
     if (info.deload) { out.kg = base; out.text = "Semaine allégée : même charge, moitié des séries, sans forcer."; }
     else if (it.maint) { out.kg = roundTo(base * 0.8, 2.5); out.text = `Rappel : environ 80 % de ta charge du gros jour (${fmt(base)} kg), 3 reps en réserve. Ça entretient, ça ne doit pas fatiguer.`; }
+    else if (allTop && ex.eq === "cable" && base > 0 && INC.cable / base > 0.2 && !last.sets.every(s => Number(s.reps) >= hi + 5)) {   // +5 kg on a light cable = a huge jump: more reps first
+      out.kg = base; out.reps = last.sets.map(s => Math.min(hi + 5, (Number(s.reps) || 0) + 1));
+      out.text = `Sur tes poulies, le cran suivant (+5 kg) est un trop gros saut à ${fmt(base)} kg : reste à ${fmt(base)} kg et monte jusqu'à ${hi + 5} reps sur toutes les séries, puis passe au cran au-dessus.`; }
     else if (allTop) { out.kg = Math.round((base + INC[ex.eq]) * 100) / 100; out.kind = "up"; out.text = `Tu as fait ${hi} reps sur toutes les séries : ${incText(ex.eq)}.`; }
     else { out.kg = base; out.reps = last.sets.map(s => Math.min(hi, Math.max(lo, (Number(s.reps) || 0) + 1))); out.text = "Même charge : vise une rep de plus que la dernière fois."; }
   }
@@ -1902,7 +1910,7 @@ function exCard(it, i, d) {
   const minus = (n > 1 && !(lastRow && lastRow.done)) ? `<button class="link" data-act="minus" data-ex="${it.ex}">${(d.plus || {})[it.ex] > 0 ? "Retirer la série ajoutée" : "Encore courbaturé ? Retirer une série"}</button>` : "";
   const unminus = m > 0 ? `<button class="link" data-act="unminus" data-ex="${it.ex}">Remettre la série retirée</button>` : "";
   const plus = !d.deload && n > 0 && n < it.sets + 2 ? `<button class="link" data-act="plus" data-ex="${it.ex}">En forme ? Ajouter une série</button>` : "";
-  const anyDone = rows.some(r => r.done), alt = ALTS[it.ex];
+  const anyDone = rows.some(r => r.done), alt0 = ALTS[it.ex], alt = alt0 && !(curPlan().id === "felix" && EX[alt0].eq === "db") ? alt0 : null;
   const altBtn = alt && !anyDone ? `<button class="link" data-act="alt" data-ex="${it.base || it.ex}" data-to="${alt}">Machine prise ? Autre version : ${esc(EX[alt].n)}</button>` : "";
   const skip = n > 0 && !anyDone ? `<button class="link" data-act="skipEx" data-ex="${it.ex}">Machine en panne ? Passer l'exercice</button>` : n === 0 ? `<button class="link" data-act="unskipEx" data-ex="${it.ex}">Remettre l'exercice</button>` : "";
   const gr = GRIP_OF[it.ex], gripRow = gr ? `<div class="grip"><span class="lbl">Prise</span><div class="grip-b">${gr.map(g => `<button class="${grip === g ? "on" : ""}" data-act="grip" data-ex="${it.ex}" data-g="${g}">${g}</button>`).join("")}</div></div>` : "";
@@ -2156,7 +2164,7 @@ const STRENGTH = [                          // the e1RM / body-weight ratio of r
   {k: "pecs", name: "Pectoraux", ex: {bench: 1.5, smithBench: 1.6, machPress: 1.7, inclMach: 1.4, inclBar: 1.3, inclDb: 0.6, dbBench: 0.7, dips: 1.8}},
   {k: "dos", name: "Dos", ex: {csRow: 1.7, latpd: 1.35, latpdNeutral: 1.35, cableRow: 1.4, rowCableClose: 1.4, cableRowUni: 0.8, pullupPro: 1.7, pullup: 1.7, dbRow: 0.8, uniPd: 0.7}},
   {k: "trapezes", name: "Trapèzes", ex: {shrug: 1.0}},
-  {k: "epaules", name: "Épaules", ex: {shPress: 1.1, latRaiseMach: 0.8, frontRaise: 0.4, latRaise: 0.2, leanLatRaise: 0.25, revFly: 0.4, revPecDeck: 0.8}},
+  {k: "epaules", name: "Épaules", ex: {shPress: 1.1, dbShPress: 0.45, latRaiseMach: 0.8, frontRaise: 0.4, latRaise: 0.2, leanLatRaise: 0.25, revFly: 0.4, revPecDeck: 0.8}},
   {k: "biceps", name: "Biceps", ex: {bayCurl: 0.4, preacher: 0.6, hammer: 0.4, machCurl: 0.7}},
   {k: "triceps", name: "Triceps", ex: {ohTri: 0.7, pushdown: 0.9, triHigh: 0.9, skull: 0.7}},
   {k: "quads", name: "Quadriceps", ex: {hack: 2.6, pendulum: 2.6, legPress: 4.0, legExt: 2.4, legExtFree: 2.0}},
@@ -2791,6 +2799,13 @@ function seedPlan(force) {                    // once per load: remember the pro
     const cw = weekOfStr("2026-11-02");
     if (today() <= "2026-11-08") prof().moves = {...(prof().moves || {}), [cw]: {EB: "2026-11-02", DP: "2026-11-03", DB: "2026-11-05", J: "2026-11-07"}};
     mark("felixWeek1102");
+  }
+  if (pid === "base" && !done("fix1104")) {      // 4 Nov: shoulder press done with dumbbells (his new pick)
+    for (const ses of S.sessions.filter(x => x.date === "2026-11-04" && x.sets?.shPress && !x.sets.dbShPress)) {
+      const sets = {...ses.sets}; sets.dbShPress = sets.shPress; delete sets.shPress;
+      const doc = {...ses, sets}; delete doc.id; S.sessions = S.sessions.map(x => x.id === ses.id ? {id: ses.id, ...doc} : x); queueSet("sessions/" + ses.id, doc);
+    }
+    mark("fix1104");
   }
   if ((pid === "base" || pid === "felix") && !done("tue1103")) {   // 3 Nov: no gym Tuesday evening, the Tuesday session goes to Wednesday 4 Nov
     const cw = weekOfStr("2026-11-02"), ty = pid === "base" ? "EP" : "DP";
