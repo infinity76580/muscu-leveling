@@ -2625,14 +2625,16 @@ const PHYSIQUE = {
     note: "Ton plus gros levier : manger plus, pour monter vers 75 kg (environ +0,25 kg par semaine). Ta photo de face est un selfie et celle de profil une photo de vacances : refais face, profil et dos en suivant les conseils de la partie Photos, pour comparer dans 2 semaines."},
 };
 function photoAskBox() {                        // ask the Système for an analysis of the photos
-  const ask = photoAsk(), a = PHYSIQUE[curPlan().id], pending = ask && (!a || String(ask.at) > (a.at || a.date + "T00:00:00Z"));
+  const ask = photoAsk(), a = physNow(), pending = ask && (!a || String(ask.at) > (a.at || a.date + "T00:00:00Z"));
   if (!Object.keys(S.photos || {}).length) return `<p class="muted small">Ajoute au moins une photo pour pouvoir demander une analyse au Système.</p>`;
   if (pending) return `<p class="sys-line">[Analyse demandée le ${fmtDay(new Date(ask.at), {day: "numeric", month: "long"})}] Le Système va regarder tes photos : tes points forts et tes points à travailler s'afficheront plus haut, dans « Points forts et points à travailler ».</p>`;
   return `<div class="field"><label for="ph-ask">Demander une analyse : ce que tu veux que le Système regarde (facultatif)</label><input id="ph-ask" type="text" maxlength="400" autocomplete="off" placeholder="Ex. mes épaules, mon gras du ventre…"></div>
     <button class="btn primary wide" data-act="photoAsk">Demander une analyse</button>`;
 }
+const physList = () => [].concat(PHYSIQUE[curPlan().id] || []).sort((x, y) => String(x.at || x.date).localeCompare(String(y.at || y.date)));
+const physNow = () => physList().pop();         // the current analysis; the older ones are history
 function physiqueWin() {
-  const a = PHYSIQUE[curPlan().id];
+  const all = physList(), a = all[all.length - 1];
   if (!a) return `<section class="win"><h2 class="win-title">Points forts et points à travailler</h2>
     <p class="muted small">Le Système n'a pas encore analysé ton physique. Ajoute tes 3 photos plus bas (face, profil, dos), puis touche « Demander une analyse » : il te dira tes points forts, tes points à travailler, et adaptera ton programme.</p></section>`;
   const li = (arr, cls) => `<ul class="phys ${cls}">${arr.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
@@ -2641,7 +2643,16 @@ function physiqueWin() {
     <p class="lbl">Points forts</p>${li(a.strong, "good")}
     <p class="lbl">Points à travailler</p>${li(a.weak, "work")}
     ${a.done?.length ? `<p class="lbl">Ce que le Système a adapté</p>${li(a.done, "")}` : ""}
-    ${a.note ? `<p class="small">${esc(a.note)}</p>` : ""}</section>`;
+    ${a.note ? `<p class="small">${esc(a.note)}</p>` : ""}
+    ${physAge(a)}
+    ${all.length > 1 ? `<details class="fold"><summary>Analyses précédentes</summary><div>${all.slice(0, -1).reverse().map(o => `<p class="lbl">${fmtDay(fromStr(o.date), {day: "numeric", month: "long", year: "numeric"})}</p>${li(o.strong, "good")}${li(o.weak, "work")}`).join("")}</div></details>` : ""}</section>`;
+}
+function physAge(a) {                            // the body changes: an analysis older than the photos (or than a month) asks for an update
+  const ask = photoAsk(), last = Object.keys(S.photos || {}).sort().pop(), age = dayDiff(fromStr(a.date), fromStr(today()));
+  if (ask && String(ask.at) > (a.at || a.date + "T00:00:00Z")) return `<p class="sys-line">[Mise à jour demandée] Le Système va revoir ton analyse avec tes nouvelles photos : ce qui a progressé sortira des points à travailler, et ton programme suivra.</p>`;
+  if (last && last > a.date) return `<p class="sys-line">[Nouvelles photos du ${fmtDay(fromStr(last), {day: "numeric", month: "long"})}] Ton physique a pu changer depuis cette analyse : demande une mise à jour, plus bas dans Photos.</p>`;
+  if (age >= 28) return `<p class="sys-line">[Analyse de plus d'un mois] Ton physique a pu changer : refais tes photos, puis demande une mise à jour.</p>`;
+  return "";
 }
 const photoAsk = () => Object.values(S.msgs || {}).filter(m => m.kind === "photos").sort((a, b) => String(b.at).localeCompare(String(a.at)))[0];
 function photosWin() {
