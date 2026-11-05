@@ -1759,6 +1759,9 @@ const QUESTIONS = [
   {id: "mSport1105", plan: "mathis", q: "Tu fais un autre sport ou une activité physique à côté ?", choices: ["Non", "Un sport collectif", "Course ou cardio", "Autre (écris-le)"]},
   {id: "mApp1105", plan: "mathis", q: "Dans l'appli, qu'est-ce que tu aimerais changer ou ajouter ?", choices: ["Rien, elle me va"]},
   {id: "mFree1105", plan: "mathis", q: "Un dernier truc que le Système devrait savoir sur toi ou sur ta façon de t'entraîner ?", choices: ["Non, c'est tout"]},
+  {id: "mSwap1106", plan: "mathis", info: true, title: "Message du Système",
+   q: "Tu voulais pouvoir changer d'exercice le jour même : c'est déjà possible pendant le donjon. Sous un exercice, « Machine prise ? Autre version » le remplace par sa variante. « Retirer cet exercice » l'enlève (machine prise, en panne, pas le jour). Puis « ＋ Ajouter un exercice », en bas de la séance, en met un autre à la place : cherche-le par son nom ou par muscle, ou crée le tien s'il n'existe pas.",
+   choices: ["Compris"]},
 ];
 // Notifications (5 Nov): sent by Claude from the PC (notifications/envoyer.py) when the Système needs an answer;
 // each device that accepts saves its subscription in push/<id>, read back with SQL to send
@@ -1987,11 +1990,13 @@ function groupWin() {
 function questionWin() {
   const ans = S.profile?.answers || {}, mine = QUESTIONS.filter(x => !x.plan || x.plan === curPlan().id), q = mine.find(x => !ans[x.id]);
   if (!q) return "";
-  const n = mine.filter(x => ans[x.id]).length + 1, ch = q.choices || [];
+  const n = mine.filter(x => ans[x.id]).length + 1, ch = q.choices || [], asks = mine.filter(x => !x.info);
   const btns = ch.map((c, i) => q.multi ? `<button class="btn ghost wide" data-act="toggleQ" data-i="${i}" aria-pressed="false">${esc(c)}</button>`
     : `<button class="btn ghost wide" data-act="answerQ" data-id="${q.id}" data-i="${i}">${esc(c)}</button>`).join("");
   const lbl = !ch.length ? "Ta réponse" : q.multi ? "Un détail à ajouter ? (facultatif)" : "Ou réponds avec tes mots";
-  return `<section class="win"><h2 class="win-title">Question du Système</h2>${mine.length > 1 ? `<p class="muted small">Question ${n} sur ${mine.length}</p>` : ""}<p>${esc(q.q)}</p>
+  if (q.info) return `<section class="win"><h2 class="win-title">${esc(q.title || "Message du Système")}</h2><p>${esc(q.q)}</p>
+    <div class="ask-b">${ch.map((c, i) => `<button class="btn primary wide" data-act="answerQ" data-id="${q.id}" data-i="${i}">${esc(c)}</button>`).join("")}</div></section>`;
+  return `<section class="win"><h2 class="win-title">Question du Système</h2>${asks.length > 1 ? `<p class="muted small">Question ${Math.min(n, asks.length)} sur ${asks.length}</p>` : ""}<p>${esc(q.q)}</p>
     ${ch.length ? `<div class="ask-b">${btns}</div>` : ""}
     <div class="field"><label for="ask-free">${lbl}</label><input id="ask-free" type="text" maxlength="400" autocomplete="off"></div>
     <button class="btn primary wide" data-act="answerQ" data-id="${q.id}">Envoyer</button>
