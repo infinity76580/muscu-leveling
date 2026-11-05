@@ -741,10 +741,10 @@ const INCL_MACH_CUE = "Machine inclinée (allongé ou assis) : poignées au nive
 // Gauthier's own split (2 Nov), like he trained before: back before chest on the shared day, chest and back twice a week,
 // shoulders/traps on their own day, legs every other Saturday and a short arms & shoulders complement the other one.
 SESS.DP = [                                 // FORCE, chest first (his weak point, the heavy bench needs him fresh), then back
-  {ex: "bench", sets: 4, reps: [4, 6], rest: 180, cue: "Force. Omoplates serrées et basses, pieds ancrés, barre au bas des pecs, touche sans rebond. Lourd : barres de sécurité ou pareur."},
+  {ex: "bench", sets: 3, reps: [4, 6], rest: 180, cue: "Force. 3 séries lourdes : objectif retrouver tes 100 kg. Omoplates serrées et basses, pieds ancrés, barre au bas des pecs, touche sans rebond. Lourd : barres de sécurité ou pareur."},
   {ex: "inclMach", sets: 3, reps: [6, 8], rest: 150, cue: "Force. Machine inclinée : poignées au niveau du haut des pecs, descends jusqu'à l'étirement, pousse fort."},
   {ex: "flySeated", sets: 2, reps: [10, 12], rest: 90, cue: "Coudes figés légèrement fléchis, ouvre en grand, serre 1 s devant la poitrine."},
-  {ex: "csRow", sets: 4, reps: [5, 7], rest: 180, cue: "Force. Poitrine collée au dossier, lourd, tire les coudes loin derrière sans décoller du pad."},
+  {ex: "csRow", sets: 3, reps: [5, 7], rest: 180, cue: "Force. Poitrine collée au dossier, lourd, tire les coudes loin derrière sans décoller du pad."},
   {ex: "latpd", sets: 3, reps: [6, 8], rest: 150, cue: "Force. Poitrine haute, coudes vers les côtes, pas de balancier même lourd."},
 ];
 SESS.EP = [
@@ -1567,7 +1567,9 @@ function suggest(it, info, grip) {
   else if (!last && it.maint) out.text = `Première fois : une charge qui te laisse 3 reps en réserve à ${hi} reps. Pas à l'échec.`;
   else if (!last) out.text = it.rir.txt.startsWith("à l'échec") ? `Première fois : choisis une charge avec laquelle tu arrives à l'échec vers ${hi} reps.` : `Première fois : choisis une charge qui laisse ${it.rir.txt.replace(", jamais à l'échec", "")} à ${hi} reps.`;
   else {
-    const base = Math.max(...last.sets.map(s => Number(s.kg) || 0));
+    const top = Math.max(...last.sets.map(s => Number(s.kg) || 0)), held = last.sets.filter(s => Number(s.reps) >= lo).map(s => Number(s.kg) || 0);
+    const stepB = ex.eq === "db" ? 2 : INC[ex.eq] || 2.5, best1 = bestE1(it.ex, last.sets);
+    const base = held.length ? Math.max(...held) : ex.eq === "bw" ? top : Math.max(stepB, Math.floor(best1 / (1 + lo / 30) / stepB) * stepB);   // heaviest load held in the range, else the load for its bottom
     const allTop = last.sets.length >= Math.min(2, it.sets) && last.sets.every(s => (Number(s.kg) || 0) === base && Number(s.reps) >= hi);
     if (info.deload) { out.kg = base; out.text = "Semaine allégée : même charge, moitié des séries, sans forcer."; }
     else if (it.maint) { out.kg = roundTo(base * 0.8, 2.5); out.text = `Rappel : environ 80 % de ta charge du gros jour (${fmt(base)} kg), 3 reps en réserve. Ça entretient, ça ne doit pas fatiguer.`; }
@@ -1575,7 +1577,8 @@ function suggest(it, info, grip) {
       out.kg = base; out.reps = last.sets.map(s => Math.min(hi + 5, (Number(s.reps) || 0) + 1));
       out.text = `Sur tes poulies, le cran suivant (+5 kg) est un trop gros saut à ${fmt(base)} kg : reste à ${fmt(base)} kg et monte jusqu'à ${hi + 5} reps sur toutes les séries, puis passe au cran au-dessus.`; }
     else if (allTop) { out.kg = Math.round((base + INC[ex.eq]) * 100) / 100; out.kind = "up"; out.text = `Tu as fait ${hi} reps sur toutes les séries : ${incText(ex.eq)}.`; }
-    else { out.kg = base; out.reps = last.sets.map(s => Math.min(hi, Math.max(lo, (Number(s.reps) || 0) + 1))); out.text = "Même charge : vise une rep de plus que la dernière fois."; }
+    else { out.kg = base; out.reps = last.sets.map(s => Math.min(hi, Math.max(lo, (Number(s.reps) || 0) + 1)));
+      out.text = base < top ? `La dernière fois, ${fmt(top)} kg ne tenait pas ${lo} reps : repars de ${fmt(base)} kg et vise une rep de plus.` : "Même charge : vise une rep de plus que la dernière fois."; }
   }
   if (it.test) {
     const s4 = hist.filter(h => h.week === 4).pop();
@@ -3094,7 +3097,14 @@ function toggleSet(ex, i) {
   if (parseNum(r.kg) == null) { toast("[Système] Charge illisible : écris un nombre, par exemple 62,5.", "red"); return; }
   r.done = true; r.reps = String(Math.round(reps));
   const it = draftPlan(d).find(x => x.ex === ex);
-  if (!(it && it.test && i === 0)) for (let k = i + 1; k < rows.length; k++) if (!rows[k].done && !rows[k].ek) rows[k].kg = r.kg;
+  let nextKg = r.kg;
+  const exq = EX[ex], kg0 = parseNum(r.kg), rp = Math.round(reps);
+  if (it && !(it.test && i === 0) && exq && exq.eq !== "bw" && kg0 > 0) {    // the next sets follow what he really did
+    const step = exq.eq === "db" ? 2 : INC[exq.eq] || 2.5, lo = it.reps[0], hi = it.reps[1], e1 = e1rm(ex, kg0, rp);
+    if (rp < lo) { const k2 = Math.floor(e1 / (1 + lo / 30) / step) * step; if (k2 > 0 && k2 < kg0) { nextKg = fmtIn(k2); toast(`[Système] ${rp} reps, sous les ${lo} visées : séries suivantes à ${fmt(k2)} kg pour rester dans la fourchette.`, "red"); } }
+    else if (rp >= hi + 3) { const k2 = Math.round((kg0 + step) * 100) / 100; nextKg = fmtIn(k2); toast(`[Système] ${rp} reps, bien au-dessus des ${hi} : séries suivantes à ${fmt(k2)} kg.`, "ok"); }
+  }
+  if (!(it && it.test && i === 0)) for (let k = i + 1; k < rows.length; k++) if (!rows[k].done && !rows[k].ek) rows[k].kg = nextKg;
   const pb = prevBest(ex, (d.grip || {})[ex]), cur = e1rm(ex, parseNum(r.kg), Math.round(reps));
   if (pb > 0 && cur > pb + 0.05 && !state.toastedPr[ex]) { state.toastedPr[ex] = true; toast(`[Record en vue] ${esc(EX[ex].n)} : 1RM estimé ${fmt(cur, 1)} kg`, "gold"); }
   saveDraft(); chime("sys");
