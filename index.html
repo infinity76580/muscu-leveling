@@ -113,6 +113,12 @@ ul.report li::before{content:"› ";color:var(--glow)}
 .msg-pair{border-left:2px solid var(--line);padding-left:10px;margin:10px 0}
 .msg-pair p{margin:2px 0}
 .msg-reply{color:var(--glow)}
+.scan-box{position:relative;aspect-ratio:4/3;background:#000;border:1px solid var(--glow);border-radius:2px;overflow:hidden;margin:6px 0}
+.scan-box video{width:100%;height:100%;object-fit:cover;display:block}
+.scan-line{position:absolute;left:8%;right:8%;top:50%;height:2px;background:var(--red);box-shadow:0 0 10px var(--red)}
+.warmup{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:8px 0;padding:8px 10px;border:1px dashed rgba(90,170,255,.4);border-radius:2px}
+.warmup .lbl{width:100%;margin:0}
+.warmup small{width:100%}
 .phys{list-style:none;margin:6px 0 10px;padding:0;display:grid;gap:6px}
 .phys li{padding-left:16px;position:relative}
 .phys li::before{content:"›";position:absolute;left:2px;color:var(--glow)}
@@ -1401,7 +1407,9 @@ function dayEval(key) {
   const dow = (fromStr(key).getDay() + 6) % 7, free = isFreeDay(key), t = today();
   const sleepT = Number(p.targets?.sleep) || 7, studyMin = Number(p.targets?.studyMin) || 60;
   const I = {};
+  const fam = (S.meals[key]?.items || []).some(isFamily);
   if (free) I.food = {req: false, done: false, txt: "Jour libre"};
+  else if (fam) I.food = {req: true, done: true, txt: "Repas de famille"};
   else { const ok = m.count >= 1 && m.kcal >= plan.kcal * 0.85 && m.kcal <= plan.kcal * 1.15; I.food = {req: true, done: ok, txt: (m.count ? fmt(m.kcal, 0) + " / " : "") + fmt(plan.kcal, 0) + " kcal"}; }
   I.protein = {req: !free, done: m.prot >= plan.protein * 0.9, txt: (m.count ? fmt(m.prot, 0) + " / " : "") + plan.protein + " g"};
   const sl = Number(d.sleepH) || 0;
@@ -1417,7 +1425,7 @@ function dayEval(key) {
   if (sl > 0 && sl < sleepT - 1) malus.push({txt: "Nuit trop courte (" + fmt(sl, 1) + " h)", xp: -40});
   const foodStart = p.foodStart || p.createdDay || t;
   if (key < t && key >= foodStart && !free && m.count === 0) malus.push({txt: "Repas non notés", xp: -40});
-  else if (key < t && key >= foodStart && !free && m.kcal < plan.kcal * 0.6) malus.push({txt: `Repas notés à moitié (${fmt(m.kcal, 0)} / ${fmt(plan.kcal, 0)} kcal)`, xp: -25});
+  else if (key < t && key >= foodStart && !free && !fam && m.kcal < plan.kcal * 0.6) malus.push({txt: `Repas notés à moitié (${fmt(m.kcal, 0)} / ${fmt(plan.kcal, 0)} kcal)`, xp: -25});
   const wFrom = toStr(addDays(fromStr(key), -2)), weighed = [0, 1, 2].some(i => Number(S.days[toStr(addDays(fromStr(key), -i))]?.weight) > 0);
   if (key < t && wFrom >= (p.createdDay || t) && !weighed) malus.push({txt: "Pas de pesée depuis 3 jours", xp: -15});
   const done = DAILY.filter(it => I[it.k].done).length, full = DAILY.every(it => !I[it.k].req || I[it.k].done);  // a disabled fast line is never req/done
@@ -1872,7 +1880,7 @@ function stagnations() {                       // a lift with no record over its
   return out;
 }
 function foodDays(keys) {                      // logged, non-free days with their targets
-  return keys.filter(k => !isFreeDay(k) && mealTotals(k).count > 0).map(k => ({k, m: mealTotals(k), p: nutritionPlan(k)}));
+  return keys.filter(k => !isFreeDay(k) && mealTotals(k).count > 0 && !(S.meals[k]?.items || []).some(isFamily)).map(k => ({k, m: mealTotals(k), p: nutritionPlan(k)}));
 }
 function alertsList() {
   const p = S.profile || {}, goal = curPlan().goal, t = today(), out = [];
@@ -2277,6 +2285,18 @@ function viewDungeon() {
     <button class="btn primary wide big" data-act="finishAsk">Terminer le donjon</button>`;
 }
 const setsTarget = (it, d) => it.sets - ((d.minus || {})[it.ex] || 0) + ((d.plus || {})[it.ex] || 0);   // planned, minus sore-muscle sets, plus extra sets
+// warm-up before the first big lift of a muscle (5 Nov): computed from the first working weight, rounded to the machine's steps
+function warmupFor(it, i, d, kg) {
+  const ex = EX[it.ex]; if (!ex || ex.kind !== "poly" || ex.eq === "bw" || !(kg > 0)) return null;
+  const grp = x => (STRENGTH.find(g => g.ex[x] != null) || {}).k || x;
+  const first = !draftPlan(d).slice(0, i).some(o => EX[o.ex]?.kind === "poly" && grp(o.ex) === grp(it.ex));
+  const step = ex.eq === "db" ? 2 : INC[ex.eq] || 2.5, rnd = v => Math.round(v / step) * step;
+  if (!first) { const w = rnd(kg * 0.6); return w > 0 && w < kg ? [[w, 5]] : null; }        // the muscle is already warm: one feeler set
+  const heavy = it.reps[0] <= 8, plan = ex.eq === "bar" ? (heavy ? [[0.5, 5], [0.7, 3], [0.85, 1]] : [[0.5, 8], [0.75, 3]]) : heavy ? [[0.5, 8], [0.75, 3]] : [[0.5, 8]];
+  const out = ex.eq === "bar" && kg > 30 ? [[20, 10]] : [];
+  for (const [p, r] of plan) { const w = rnd(kg * p); if (w > 0 && w < kg && (!out.length || w > out[out.length - 1][0])) out.push([w, r]); }
+  return out.length ? out : null;
+}
 function exCard(it, i, d) {
   const ex = EX[it.ex], n = setsTarget(it, d), rows = d.sets[it.ex] || [];
   const grip = (d.grip || {})[it.ex], sg = suggest(it, {p: d.week, deload: !!d.deload}, grip);
@@ -2297,12 +2317,14 @@ function exCard(it, i, d) {
   const anyDone = rows.some(r => r.done), alt0 = ALTS[it.ex], alt = alt0 && !(curPlan().id === "felix" && EX[alt0].eq === "db") ? alt0 : null;
   const altBtn = alt && !anyDone ? `<button class="link" data-act="alt" data-ex="${it.base || it.ex}" data-to="${alt}">Machine prise ? Autre version : ${esc(EX[alt].n)}</button>` : "";
   const skip = it.added && !anyDone ? `<button class="link" data-act="removeExtra" data-ex="${it.ex}">Retirer cet exercice</button>` : n > 0 && !anyDone ? `<button class="link" data-act="skipEx" data-ex="${it.ex}">Retirer cet exercice (machine prise, en panne, pas le jour…)</button>` : n === 0 ? `<button class="link" data-act="unskipEx" data-ex="${it.ex}">Remettre l'exercice</button>` : "";
+  const wu = !anyDone && n > 0 ? warmupFor(it, i, d, parseNum(rows[0]?.kg) || sugKg) : null;
+  const warmLine = wu ? `<div class="warmup"><span class="lbl">Échauffement</span>${wu.map(([w, r]) => `<b>${fmt(w)} kg × ${r}</b>`).join('<span aria-hidden="true">›</span>')}<small class="muted">${wu.length > 1 ? "Repos court entre ces séries, sans forcer. Elles ne comptent pas dans le donjon." : "Une série légère pour régler le geste."}</small></div>` : "";
   const gr = GRIP_OF[it.ex], gripRow = gr ? `<div class="grip"><span class="lbl">Prise</span><div class="grip-b">${gr.map(g => `<button class="${grip === g ? "on" : ""}" data-act="grip" data-ex="${it.ex}" data-g="${g}">${g}</button>`).join("")}</div></div>` : "";
   return `<article class="ex ${i === 0 ? "boss" : ""} ${cleared ? "cleared" : ""}" id="ex-${it.ex}">
     <div class="ex-h"><span class="ex-n">${pad(i + 1)}</span><div><h3>${esc(ex.n)}</h3><div class="tags">${tags}</div></div></div>
     <div class="target"><b>${n} × ${repsTxt(it)}</b> · ${it.rir.txt}</div>
     ${it.rir.fail ? `<div class="fail">Dernière série : jusqu'à l'échec</div>` : ""}
-    <p class="cue">${esc(it.cue)}</p>${gripRow}${last}${sugg}${n === 0 ? `<p class="muted small">Exercice passé (machine prise ou en panne).</p>` : ""}
+    <p class="cue">${esc(it.cue)}</p>${gripRow}${last}${sugg}${warmLine}${n === 0 ? `<p class="muted small">Exercice passé (machine prise ou en panne).</p>` : ""}
     <div class="sets" ${n === 0 ? "hidden" : ""}><div class="set-row head" aria-hidden="true"><span></span><span>${ex.eq === "bw" ? "Lest kg" : "kg"}</span><span>Reps</span><span></span></div>${setRows}</div>
     <div class="set-links">${plus}${n > 0 ? minus + unminus : ""}${altBtn}${skip}</div></article>`;
 }
@@ -2890,6 +2912,23 @@ function kcalAdvice() {
   if (rate > 1) return {adj: 150, txt: `Tu perds ${fmt(rate, 2)} % de ton poids par semaine : trop vite pour garder ton muscle. Le Système conseille 150 kcal de plus par jour.`};
   return {adj: 0, txt: `Tu perds ${fmt(rate, 2)} % de ton poids par semaine : bon rythme, on ne touche à rien.`};
 }
+// "Repas de famille" (5 Nov): a big meal you can't weigh, estimated in one tap, once a week, never penalised
+const FAMILY = [{k: "normal", label: "Normal", kcal: 1200, prot: 60, carbs: 120, fat: 50}, {k: "copieux", label: "Copieux", kcal: 1800, prot: 80, carbs: 170, fat: 80},
+  {k: "fete", label: "Très copieux, avec apéro et dessert", kcal: 2500, prot: 100, carbs: 230, fat: 115}];
+const isFamily = x => x && x.src === "family";
+function familyLink(key) {
+  const ws = weekStart(weekOfStr(key)), days = [...Array(7)].map((_, i) => toStr(addDays(ws, i)));
+  const here = (S.meals[key]?.items || []).some(isFamily), other = days.find(k => k !== key && (S.meals[k]?.items || []).some(isFamily));
+  if (here || other) return "";
+  return `<button class="link" data-act="familyOpen" data-d="${key}">Repas de famille ? Une estimation sans rien peser</button>`;
+}
+function modalFamily(m) {
+  return `<div class="win"><h2 class="win-title">Repas de famille</h2>
+    <p class="muted small">Pour un grand repas que tu ne peux pas peser : choisis la taille, le Système compte une estimation. Une fois par semaine, sans pénalité.</p>
+    <div class="seg" role="group" aria-label="Repas"><button class="${m.slot === "midi" ? "on" : ""}" data-act="familySlot" data-s="midi">Midi</button><button class="${m.slot === "soir" ? "on" : ""}" data-act="familySlot" data-s="soir">Soir</button></div>
+    <div class="ask-b">${FAMILY.map(f => `<button class="btn ghost wide" data-act="familyAdd" data-k="${f.k}">${esc(f.label)} · environ ${fmt(f.kcal, 0)} kcal</button>`).join("")}</div>
+    <div class="m-actions"><button class="btn ghost wide" data-act="closeModal">Annuler</button></div></div>`;
+}
 function freeToggle(key) {
   const d = S.days[key] || {}, free = isFreeDay(key), ws = weekStart(weekOfStr(key));
   const other = [...Array(7)].map((_, i) => toStr(addDays(ws, i))).find(k => k !== key && isFreeDay(k));
@@ -2974,7 +3013,7 @@ function viewMeals(P) {
       <div class="macs">${macro("Protéines", m.prot, plan.protein)}${macro("Glucides", m.carbs, plan.carbs)}${macro("Lipides", m.fat, plan.fat)}</div>
       <ul class="slot-rows">${rows}</ul>
       <p class="small">${status}</p>`}
-      ${off === 1 ? "" : freeToggle(key)}
+      ${off === 1 ? "" : freeToggle(key)}${off === 1 || free ? "" : familyLink(key)}
     </section>
     ${off === 1 ? "" : ticketsWin}
     ${detail && !free ? `<section class="win"><h2 class="win-title">${off === 1 ? "Prévu pour demain" : "Ce que tu as mangé"}</h2>${detail}</section>` : ""}
@@ -3015,6 +3054,49 @@ function foodCalcRefresh() {                  // live total while typing the amo
   document.querySelectorAll("#modal .qty-chips button").forEach(b => b.classList.toggle("on", Number(b.dataset.v) === c.qty));
   const add = document.querySelector('#modal [data-act="foodAdd"]'); if (add) add.disabled = !(c.g > 0);
 }
+// barcode scanning: the camera stream stays outside the modal (re-attached after each redraw) and stops when the tab or modal changes
+let scanStream = null, scanTimer = null, bdLib = null;
+async function barcodeDetector() {
+  const formats = ["ean_13", "ean_8", "upc_a", "upc_e"];
+  if ("BarcodeDetector" in window) { try { const f = await window.BarcodeDetector.getSupportedFormats(); if (f.includes("ean_13")) return new window.BarcodeDetector({formats}); } catch (e) {} }
+  if (!bdLib) bdLib = new Promise((res, rej) => { const sc = document.createElement("script"); sc.src = "https://cdn.jsdelivr.net/npm/barcode-detector@3.1.3/dist/iife/ponyfill.js"; sc.onload = () => res(window.BarcodeDetectionAPI); sc.onerror = () => { bdLib = null; rej(new Error("lib")); }; document.head.appendChild(sc); });
+  const lib = await bdLib; return new lib.BarcodeDetector({formats});
+}
+function scanStop() {
+  clearTimeout(scanTimer); scanTimer = null;
+  if (scanStream) scanStream.getTracks().forEach(t => t.stop());
+  scanStream = null; if (state.modal && state.modal.scanning) state.modal.scanning = false;
+}
+async function scanStart() {
+  const m = state.modal; if (!m) return;
+  scanStop(); Object.assign(m, {tab: "code", scanning: true, offErr: null, offRes: null, sel: null}); renderModal();
+  try {
+    if (!navigator.mediaDevices?.getUserMedia) throw new Error("nocam");
+    const [det, stream] = await Promise.all([barcodeDetector(), navigator.mediaDevices.getUserMedia({video: {facingMode: "environment", width: {ideal: 1280}, height: {ideal: 720}}, audio: false})]);
+    if (state.modal !== m || m.tab !== "code" || !m.scanning) { stream.getTracks().forEach(t => t.stop()); return; }
+    scanStream = stream;
+    const loop = async () => {
+      if (!scanStream) return;
+      if (state.modal !== m || m.tab !== "code" || !m.scanning) { scanStop(); return; }
+      const v = document.getElementById("scan-v");
+      if (v && v.srcObject !== scanStream) { v.srcObject = scanStream; v.play().catch(() => {}); }
+      try {
+        if (v && v.readyState >= 2) {
+          const hit = (await det.detect(v)).find(x => /^\d{8,14}$/.test(x.rawValue));
+          if (hit) { scanStop(); m.code = hit.rawValue; navigator.vibrate?.(60); await ACTIONS.codeSearch();
+            if (state.modal === m && m.offRes?.length === 1) ACTIONS.foodPick({dataset: {i: "0"}}); return; }
+        }
+      } catch (e) {}
+      scanTimer = setTimeout(loop, 200);
+    };
+    loop();
+  } catch (e) {
+    scanStop(); if (state.modal !== m) return;
+    m.offErr = e && e.name === "NotAllowedError" ? "Accès à la caméra refusé : autorise-le pour ce site (réglages du téléphone), ou tape les chiffres."
+      : e && e.message === "lib" ? "Le lecteur de code-barres n'a pas pu se charger (connexion ?) : tape les chiffres." : "Caméra indisponible ici : tape les chiffres sous les barres.";
+    renderModal();
+  }
+}
 function modalFood(m) {
   const slotName = SLOTS.find(x => x.k === m.slot)?.label || "";
   const auSlot = {matin: "au petit-déjeuner", midi: "au midi", soir: "au soir", snack: "aux collations"}[m.slot] || "";
@@ -3037,6 +3119,7 @@ function modalFood(m) {
   const added = ad.length ? `<p class="reading good">${ad.length > 1 ? `${ad.length} aliments ajoutés ${auSlot} (${fmt(ad.reduce((n, a) => n + a.kcal, 0), 0)} kcal). Dernier : ` : `Ajouté ${auSlot} : `}${esc(last.n)} (${fmt(last.kcal, 0)} kcal). Ajoute autre chose ou touche « Terminé ».</p>` : "";
   let body = "";
   if (m.tab === "search") body = `<div class="field sticky-q"><label for="food-q">Aliment</label><input id="food-q" data-bind="foodQ" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="Ex. poulet cru, skyr, whey myprotein, Nutella…" value="${esc(m.q || "")}"></div>
+      ${Store.mode === "cloud" ? `<button class="link" data-act="scanFromSearch">Scanner un code-barres</button>` : ""}
       <div id="food-results">${foodResults(m)}</div>`;
   else if (m.tab === "recent") body = list(recentFoods(), "Tes aliments déjà notés apparaîtront ici.");   // pure chronological order (4 Nov)
   else if (m.tab === "tpl") { const tp = S.mealtpl?.items || []; body = tp.length ? `<ul class="food-res">${tp.map(t => `<li><button data-act="tplAdd" data-id="${esc(t.id)}"><span>${esc(t.name)}<br><small>${t.items.length} aliments</small></span><small>${fmt(t.items.reduce((n, x) => n + (x.kcal || 0), 0), 0)} kcal</small></button></li>`).join("")}</ul>${tp.map(t => `<button class="link" data-act="tplDel" data-id="${esc(t.id)}">Supprimer « ${esc(t.name)} »</button>`).join("")}` : `<p class="muted small">Note un repas que tu manges souvent, puis appuie sur « Garder comme repas type » sous ce repas : il s'ajoutera ensuite en un geste.</p>`; }
@@ -3050,7 +3133,10 @@ function modalFood(m) {
       <div class="grid2">${inp("cK", "Calories", "numeric", "kcal")}${inp("cP", "Protéines (g)", "decimal", "0")}</div><div class="grid2">${inp("cC", "Glucides (g)", "decimal", "Facultatif")}${inp("cF", "Lipides (g)", "decimal", "Facultatif")}</div>
       <div class="grid2">${inp("cUnit", per ? "Nom de la portion" : "Portion (facultatif)", "text", per ? "Ex. assiette, shaker" : "Ex. pot, tranche")}${inp("cUg", per ? "Poids de la portion (g, facultatif)" : "Poids d'une portion (g)", "decimal", per ? "Facultatif" : "")}</div>
       ${mine.length ? `<span class="lbl">Mes aliments</span><ul class="food-res mine">${mine.map(f => `<li><span>${esc(f.n)}<small>${f.unitOnly ? `${fmt(f.k, 0)} kcal / ${esc(f.unit)}` : `${fmt(f.k, 0)} kcal /100 g${f.unit ? ` · ${esc(f.unit)} = ${fmt(f.ug, 1)} g` : ""}`}</small></span><button class="x" data-act="foodDel" data-id="${esc(f.id)}" aria-label="Supprimer ${esc(f.n)}">✕</button></li>`).join("")}</ul>` : ""}`; }
-  else if (m.tab === "code") body = `<div class="field"><label for="fm-code">Code-barres du produit</label><input id="fm-code" data-bind="food" data-f="code" inputmode="numeric" autocomplete="off" placeholder="Les chiffres sous les barres, ex. 3033490004521" value="${esc(m.code || "")}"></div>
+  else if (m.tab === "code") body = `${m.scanning ? `<div class="scan-box"><video id="scan-v" playsinline muted autoplay></video><i class="scan-line" aria-hidden="true"></i></div>
+      <p class="muted small">Vise le code-barres, bien à plat et éclairé : il est lu tout seul.</p><button class="btn ghost wide" data-act="scanCancel">Arrêter la caméra</button>`
+      : `<button class="btn primary wide" data-act="scanStart">Scanner avec la caméra</button>`}
+      <div class="field"><label for="fm-code">Ou tape les chiffres sous les barres</label><input id="fm-code" data-bind="food" data-f="code" inputmode="numeric" autocomplete="off" placeholder="Les chiffres sous les barres, ex. 3033490004521" value="${esc(m.code || "")}"></div>
       <button class="btn" data-act="codeSearch">${m.offBusy ? "Recherche…" : "Trouver le produit"}</button>${m.offErr ? `<p class="malus">${m.offErr}</p>` : ""}${m.offRes ? list(m.offRes, "Produit introuvable dans Open Food Facts.") : ""}
       <p class="muted small">Base libre Open Food Facts, alimentée par ses utilisateurs : vérifie l'étiquette en cas de doute.</p>`;
   else if (m.tab === "off") body = `<div class="field"><label for="fm-offQ">Produit de marque</label><input id="fm-offQ" data-bind="food" data-f="offQ" autocomplete="off" placeholder="Ex. skyr, granola, Monster mango" value="${esc(m.offQ || "")}"></div>
@@ -3352,6 +3438,7 @@ function renderModal() {
   else if (m.kind === "food") h = modalFood(m);
   else if (m.kind === "addEx") h = modalAddEx(m);
   else if (m.kind === "msg") h = modalMsg(m);
+  else if (m.kind === "family") h = modalFamily(m);
   else if (m.kind === "tplSave") h = `<div class="win"><h2 class="win-title">Repas type</h2><div class="field"><label for="fm-tplName">Nom du repas</label><input id="fm-tplName" data-bind="food" data-f="tplName" autocomplete="off" placeholder="Ex. Poulet riz du midi" value="${esc(m.tplName || "")}"></div><div class="row"><button class="btn ghost" data-act="closeModal">Annuler</button><button class="btn primary" data-act="tplSave">Enregistrer</button></div></div>`;
   else if (m.kind === "ticket") { const p = S.purchases.find(x => x.id === m.pid); h = `<div class="win"><h2 class="win-title">Ticket repas</h2><p>Valider « ${esc(p ? p.name : "")} » ${m.date === today() ? "aujourd'hui" : "le " + fmtDay(fromStr(m.date), {day: "numeric", month: "long"})} ? Le repas compte comme noté, ses calories ne comptent pas.</p><div class="row">${mealSlots([]).map(sl => `<button class="btn gold" data-act="ticketSlot" data-slot="${sl.k}">${sl.label}</button>`).join("")}</div><button class="btn ghost" data-act="closeModal">Annuler</button></div>`; }
   el.classList.toggle("top", m.kind === "food");   // the food window opens from the top: the field typed in stays above the keyboard
@@ -3657,7 +3744,10 @@ const ACTIONS = {
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], {type: "application/json"})); a.download = `muscu-leveling-${today()}.json`; document.body.appendChild(a); a.click(); a.remove(); },
   mealDay: a => { state.mealOffset = Number(a.dataset.o); render(); },
   foodOpen: a => { if (isFreeDay(a.dataset.d)) return; loadFoods(); state.modal = {kind: "food", date: a.dataset.d, slot: a.dataset.slot, tab: "search", q: "", grams: "100", units: "1"}; renderModal(); setTimeout(() => document.getElementById("food-q")?.focus(), 30); },
-  foodTab: a => { Object.assign(state.modal, {tab: a.dataset.t, sel: null}); renderModal(); },
+  foodTab: a => { scanStop(); Object.assign(state.modal, {tab: a.dataset.t, sel: null}); renderModal(); },
+  scanStart: () => scanStart(),
+  scanFromSearch: () => scanStart(),
+  scanCancel: () => { scanStop(); renderModal(); },
   foodPick: a => { const m = state.modal, f = m.list && m.list[Number(a.dataset.i)]; if (!f) return; Object.assign(m, {sel: f, grams: String(f.lastG || 100), units: String(f.lastU || 1), mode: f.unit && f.ug ? (f.unitOnly || f.lastU || !f.lastG ? "u" : "g") : "g"}); renderModal(); setTimeout(() => { const i = document.getElementById("food-qty"); if (i) { i.focus(); i.select(); } }, 30); },
   foodMode: a => { state.modal.mode = a.dataset.m; renderModal(); },
   foodQty: a => { const m = state.modal, f = m.sel, useU = f.unit && f.ug > 0 && (f.unitOnly || m.mode !== "g"), v = fmtIn(Number(a.dataset.v)); m[useU ? "units" : "grams"] = v;
@@ -3731,7 +3821,12 @@ const ACTIONS = {
     const m = {...S.photos}; delete m[d]; S.photos = m; queueSet("photos/" + d, null); toast("[Photos supprimées]", "red"); }}); },
   jokerCancel: a => cancelJoker(Number(a.dataset.cw)),
   resume: () => { state.modal = null; state.view = "dungeon"; requestWakeLock(); render(); },
-  closeModal: () => { state.modal = null; renderModal(); },
+  closeModal: () => { scanStop(); state.modal = null; renderModal(); },
+  familyOpen: a => { state.modal = {kind: "family", date: a.dataset.d, slot: new Date().getHours() >= 16 ? "soir" : "midi"}; renderModal(); },
+  familySlot: a => { state.modal.slot = a.dataset.s; renderModal(); },
+  familyAdd: a => { const m = state.modal, f = FAMILY.find(x => x.k === a.dataset.k); if (!f) return;
+    addEntries(m.date, m.slot, [{id: uid(), name: "Repas de famille (" + f.label.toLowerCase() + ", estimation)", g: null, u: null, kcal: f.kcal, prot: f.prot, carbs: f.carbs, fat: f.fat, src: "family"}]);
+    state.modal = null; renderModal(); render(); toast(`[Repas de famille] ${fmt(f.kcal, 0)} kcal comptées, sans pénalité.`, "ok"); },
   msgOpen: () => { state.modal = {kind: "msg"}; renderModal(); setTimeout(() => document.getElementById("msg-text")?.focus(), 100); },
   photoAsk: async () => {
     const note = String(document.getElementById("ph-ask")?.value || "").trim().slice(0, 400), last = Object.keys(S.photos || {}).sort().pop(), id = "m" + Date.now().toString(36);
