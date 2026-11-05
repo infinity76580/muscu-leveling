@@ -943,6 +943,17 @@ const WEEKS_MATHIS = [null,
   ...BUILD.map((b, i) => ({n: 4 + i, phase: "Intensification", rank: b.rank, rirTxt: "1, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"})),
   {n: 8, phase: "Bilan", rank: "C", rirTxt: "1, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
 ];
+const MATHIS_SWAP = {                        // his answers (5 Nov): Smith for the chest, no cable pulls, more pec fly
+  bench: {ex: "smithBench", cue: "Smith : banc placé pour que la barre descende au bas des pecs, omoplates serrées et basses, pieds ancrés ; touche sans rebond."},
+  inclDb: {ex: "inclBar", cue: "À la Smith, banc incliné ~30° : barre au haut des pecs, descente contrôlée, touche sans rebond."},
+  cableRow: {ex: "dbRow", cue: "Un genou et une main sur le banc, dos plat : laisse l'épaule descendre pour étirer, puis tire le coude vers la hanche."},
+  flySeated: {sets: 3, cue: "Tes pecs sont ta priorité : coudes légèrement fléchis et figés, ouvre en grand, serre 1 s devant la poitrine. Dernière série à l'échec."},
+};
+const MATHIS_ADD = {
+  P: [{ex: "pecDeck", sets: 3, reps: [12, 15], rest: 75, cue: "Pecs en retard : ouvre en grand pour étirer, serre 1 s devant la poitrine, coudes légèrement fléchis. Dernière série à l'échec."}],
+};
+const NECK = " Cou : épaules basses, regard devant, ne hausse pas les épaules et ne tends pas le menton.";
+const MATHIS_NECK = {latRaiseMach: NECK, leanLatRaise: NECK, pullupPro: NECK, pullup: NECK, csRow: NECK, dbRow: NECK, smithBench: NECK, inclBar: NECK};
 const PLANS = {
   base: {id: "base", swap: GAUTHIER_SWAP, add: GAUTHIER_ADD, drop: ["calves"], keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
     intro: "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat",
@@ -954,8 +965,8 @@ const PLANS = {
     lead: "Lundi pecs/dos, mercredi jambes, vendredi épaules/dos/bras : les jours de Gauthier, version débutant. 10 à 15 min de cardio (marche inclinée ou rameur) à la fin de chaque séance. Mardi, jeudi et week-end : repos.",
     s1: "Tu apprends les mouvements : 2 séries par exercice, 3 reps en réserve, charges légères. La technique avant la charge."},
   mathis: {id: "mathis", label: "Prise de muscle (programme de Mathis)", goal: "gain", title: "Guerrier assidu", fbFirst: false, big: [], weeks: WEEKS_MATHIS,
-    test: {P: ["bench", "dips"], T: ["pullupPro", "csRow"], HC: ["inclDb", "pullup"]}, sess: SESS_MATHIS,
-    keyLifts: [["bench", "Poussée", "Couché barre"], ["dips", "Poussée", "Dips (lest)"], ["pullupPro", "Tirage", "Tractions pronation (lest)"], ["csRow", "Tirage", "Rowing appuyé"], ["inclDb", "Haut complet", "Incliné haltères"], ["pullup", "Haut complet", "Tractions neutres (lest)"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]],
+    test: {P: ["smithBench", "dips"], T: ["pullupPro", "csRow"], HC: ["inclBar", "pullup"]}, sess: SESS_MATHIS, swap: MATHIS_SWAP, add: MATHIS_ADD, cueAdd: MATHIS_NECK,
+    keyLifts: [["smithBench", "Poussée", "Couché Smith"], ["dips", "Poussée", "Dips (lest)"], ["pullupPro", "Tirage", "Tractions pronation (lest)"], ["csRow", "Tirage", "Rowing appuyé"], ["inclBar", "Haut complet", "Incliné Smith"], ["pullup", "Haut complet", "Tractions neutres (lest)"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]],
     intro: "Le Système a détecté un guerrier assidu, déjà habitué de la salle. Il te propose un contrat",
     lead: "Lundi Poussée, mardi Tirage, jeudi Haut complet, samedi grosse séance Jambes (semaines impaires) ou Bras et épaules (semaines paires). Mercredi, vendredi et dimanche : repos.",
     s1: "Semaine de calibrage : trouve tes charges dans les nouvelles fourchettes de reps, sans aller à l'échec."},
@@ -972,8 +983,9 @@ const planOf = p => (p && PLANS[p.program]) ? p.program : (detectPlan(p?.name, c
 const curPlan = () => PLANS[planOf(typeof S !== "undefined" ? S.profile : null)];
 const sessFor = ty => {
   const PL = curPlan(), list = (PL.sess || {})[ty] || SESS[ty]; if (!list) return list;
-  const sw = PL.swap || {}, drop = PL.drop || [];
-  return [...list.filter(it => !drop.includes(it.ex)).map(it => sw[it.ex] ? {...it, ...sw[it.ex]} : it), ...((PL.add || {})[ty] || [])];
+  const sw = PL.swap || {}, drop = PL.drop || [], ca = PL.cueAdd || {};
+  return [...list.filter(it => !drop.includes(it.ex)).map(it => sw[it.ex] ? {...it, ...sw[it.ex]} : it), ...((PL.add || {})[ty] || [])]
+    .map(it => ca[it.ex] ? {...it, cue: it.cue + ca[it.ex]} : it);   // a note added to some exercises (Mathis's neck)
 };
 const planTest = () => curPlan().test || {};
 const tyLabel = ty => ty === "FB" ? "Full body" : TYPES[ty]?.solo ? TYPES[ty].name : "Séance " + ty + " · " + (TYPES[ty]?.name || "");
@@ -1762,6 +1774,13 @@ const QUESTIONS = [
   {id: "mSwap1106", plan: "mathis", info: true, title: "Message du Système",
    q: "Tu voulais pouvoir changer d'exercice le jour même : c'est déjà possible pendant le donjon. Sous un exercice, « Machine prise ? Autre version » le remplace par sa variante. « Retirer cet exercice » l'enlève (machine prise, en panne, pas le jour). Puis « ＋ Ajouter un exercice », en bas de la séance, en met un autre à la place : cherche-le par son nom ou par muscle, ou crée le tien s'il n'existe pas.",
    choices: ["Compris"]},
+  {id: "mPlan1105", plan: "mathis", info: true, title: "Ton programme a changé",
+   q: "Le Système a lu tes réponses. Pecs à la Smith : développé couché à la Smith le lundi, incliné à la Smith le jeudi. Tes pecs sont ta priorité : pec deck en plus le lundi (3 séries) et 3 séries d'écarté poulie le jeudi. Plus de tirage à la poulie : le rowing poulie assis devient un rowing haltère un bras. Pour ton cou : épaules basses, regard devant, ne hausse pas les épaules. Si ça fait toujours mal, va voir un kiné ou un médecin.",
+   choices: ["Compris"]},
+  {id: "mNeck1105", plan: "mathis", multi: true, q: "Ton cou : il te gêne pendant quels exercices ? Écris aussi depuis quand, en dessous.",
+   choices: ["Tractions", "Rowing", "Élévations latérales", "Développés (couché, incliné)", "En dehors de la salle aussi"]},
+  {id: "mPulls1105", plan: "mathis", q: "Tu as dit détester les tirages pour le dos. Les tractions et le rowing poitrine appuyée (machine ou T-bar), ça te va ?",
+   choices: ["Oui, ça me va", "Pas les tractions", "Pas le rowing appuyé", "Ni l'un ni l'autre"]},
 ];
 // Notifications (5 Nov): sent by Claude from the PC (notifications/envoyer.py) when the Système needs an answer;
 // each device that accepts saves its subscription in push/<id>, read back with SQL to send
@@ -1990,13 +2009,13 @@ function groupWin() {
 function questionWin() {
   const ans = S.profile?.answers || {}, mine = QUESTIONS.filter(x => !x.plan || x.plan === curPlan().id), q = mine.find(x => !ans[x.id]);
   if (!q) return "";
-  const n = mine.filter(x => ans[x.id]).length + 1, ch = q.choices || [], asks = mine.filter(x => !x.info);
+  const asks = mine.filter(x => !x.info), n = asks.filter(x => ans[x.id]).length + 1, ch = q.choices || [];
   const btns = ch.map((c, i) => q.multi ? `<button class="btn ghost wide" data-act="toggleQ" data-i="${i}" aria-pressed="false">${esc(c)}</button>`
     : `<button class="btn ghost wide" data-act="answerQ" data-id="${q.id}" data-i="${i}">${esc(c)}</button>`).join("");
   const lbl = !ch.length ? "Ta réponse" : q.multi ? "Un détail à ajouter ? (facultatif)" : "Ou réponds avec tes mots";
   if (q.info) return `<section class="win"><h2 class="win-title">${esc(q.title || "Message du Système")}</h2><p>${esc(q.q)}</p>
     <div class="ask-b">${ch.map((c, i) => `<button class="btn primary wide" data-act="answerQ" data-id="${q.id}" data-i="${i}">${esc(c)}</button>`).join("")}</div></section>`;
-  return `<section class="win"><h2 class="win-title">Question du Système</h2>${asks.length > 1 ? `<p class="muted small">Question ${Math.min(n, asks.length)} sur ${asks.length}</p>` : ""}<p>${esc(q.q)}</p>
+  return `<section class="win"><h2 class="win-title">Question du Système</h2>${asks.length > 1 ? `<p class="muted small">Question ${n} sur ${asks.length}</p>` : ""}<p>${esc(q.q)}</p>
     ${ch.length ? `<div class="ask-b">${btns}</div>` : ""}
     <div class="field"><label for="ask-free">${lbl}</label><input id="ask-free" type="text" maxlength="400" autocomplete="off"></div>
     <button class="btn primary wide" data-act="answerQ" data-id="${q.id}">Envoyer</button>
