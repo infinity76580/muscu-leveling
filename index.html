@@ -921,7 +921,7 @@ const WEEKS_MATHIS = [null,
   {n: 8, phase: "Bilan", rank: "C", rirTxt: "1, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
 ];
 const PLANS = {
-  base: {id: "base", swap: GAUTHIER_SWAP, add: GAUTHIER_ADD, keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
+  base: {id: "base", swap: GAUTHIER_SWAP, add: GAUTHIER_ADD, drop: ["calves"], keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
     intro: "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat",
     lead: "Lundi dos/pecs, mardi épaules/trapèzes, mercredi grosse séance jambes une semaine sur deux (l'autre mercredi : complément bras et épaules avec un petit rappel jambes), jeudi dos/biceps, vendredi pecs/triceps. Week-end : repos.",
     s1: "Première séance : tu réapprends les mouvements, rien de lourd. Que des gros mouvements : 2 pour les pecs, 2 pour le dos, 2 pour les jambes."},
@@ -949,8 +949,8 @@ const planOf = p => (p && PLANS[p.program]) ? p.program : (detectPlan(p?.name, c
 const curPlan = () => PLANS[planOf(typeof S !== "undefined" ? S.profile : null)];
 const sessFor = ty => {
   const PL = curPlan(), list = (PL.sess || {})[ty] || SESS[ty]; if (!list) return list;
-  const sw = PL.swap || {};
-  return [...list.map(it => sw[it.ex] ? {...it, ...sw[it.ex]} : it), ...((PL.add || {})[ty] || [])];
+  const sw = PL.swap || {}, drop = PL.drop || [];
+  return [...list.filter(it => !drop.includes(it.ex)).map(it => sw[it.ex] ? {...it, ...sw[it.ex]} : it), ...((PL.add || {})[ty] || [])];
 };
 const planTest = () => curPlan().test || {};
 const tyLabel = ty => ty === "FB" ? "Full body" : TYPES[ty]?.solo ? TYPES[ty].name : "Séance " + ty + " · " + (TYPES[ty]?.name || "");
@@ -2180,8 +2180,8 @@ const STRENGTH = [                          // the e1RM / body-weight ratio of r
   {k: "mollets", name: "Mollets", ex: {calves: 2.5}},
 ];
 function strengthMap() {
-  const bw = bodyWeight();
-  return STRENGTH.map(m => {
+  const bw = bodyWeight(), drop = curPlan().drop || [];
+  return STRENGTH.filter(m => !Object.keys(m.ex).every(ex => drop.includes(ex))).map(m => {
     let best = null;
     for (const [ex, top] of Object.entries(m.ex)) {
       const h = perfHistory(ex); if (!h.length) continue;
