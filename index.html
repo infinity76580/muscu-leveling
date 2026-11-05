@@ -96,6 +96,23 @@ h1,h2,h3{text-wrap:balance}
 .btn.big{min-height:58px;font-size:16px}
 .btn.wide{width:100%}
 .ask-b{display:grid;gap:8px;margin:10px 0}
+.icon-btn.dot{position:relative}
+.icon-btn.dot::after{content:"";position:absolute;top:6px;right:6px;width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold)}
+.sys-alerts,.feed,.grp-ch,.report{list-style:none;margin:8px 0;padding:0;display:grid;gap:10px}
+ol.report{list-style:decimal;padding-left:22px}
+ul.report li::before{content:"› ";color:var(--glow)}
+.sys-alerts li{border-left:2px solid var(--orange);padding:2px 0 2px 10px;display:grid;gap:6px;justify-items:start}
+.sys-alerts p,.feed p{margin:0}
+.grp-ch li{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:2px}
+.grp-ch li.ok{border-color:var(--ok);background:rgba(60,220,160,.08)}
+.feed li{border-bottom:1px solid rgba(90,170,255,.18);padding-bottom:8px}
+.feed-pr{color:var(--gold);font-size:13px}
+.feed-f{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:4px}
+.cheer{font:600 14px var(--font-body);background:transparent;border:1px solid var(--line);color:var(--text);border-radius:14px;padding:4px 10px;min-height:32px;cursor:pointer}
+.cheer.on{border-color:var(--gold);color:var(--gold)}
+.msg-pair{border-left:2px solid var(--line);padding-left:10px;margin:10px 0}
+.msg-pair p{margin:2px 0}
+.msg-reply{color:var(--glow)}
 .ask-b .btn{text-transform:none;letter-spacing:.02em;text-align:left}
 .ask-b .btn.on{background:rgba(60,140,255,.32);border-color:var(--glow);box-shadow:0 0 10px rgba(60,150,255,.35)}
 .ask-b .btn.on::after{content:"✓";float:right;color:var(--glow)}
@@ -594,6 +611,7 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 const plural = (n, one, many) => n + " " + (Math.abs(n) > 1 ? (many || one + "s") : one);
 
 const ICON = {
+  mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="1.5"/><path d="M4 7l8 6 8-6"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
   gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M5.5 18.5l2.1-2.1M16.4 7.6l2.1-2.1"/></svg>',
   status: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 9-8 9-8-9z"/><path d="M12 8l3.5 4-3.5 4-3.5-4z"/></svg>',
@@ -1260,6 +1278,8 @@ const Cloud = (() => {
     async uploadPhoto(name, blob) { await call("POST", `/storage/v1/object/gl-photos/${session.user.id}/${name}`, blob, {"x-upsert": "true", "Content-Type": "image/jpeg"}, true); },
     async deletePhoto(name) { await call("DELETE", "/storage/v1/object/gl-photos", {prefixes: [`${session.user.id}/${name}`]}); },
     async photoBlob(name) { return (await call("GET", `/storage/v1/object/authenticated/gl-photos/${session.user.id}/${name}`)).blob(); },
+    async feedGet(since) { return (await call("GET", "/rest/v1/gl_feed?select=id,user_id,name,kind,data,at&order=at.desc&limit=300&at=gt." + encodeURIComponent(since))).json(); },
+    async feedAdd(row) { await call("POST", "/rest/v1/gl_feed", row, {Prefer: "return=minimal"}); },
   };
 })();
 function makeLocalDB() {
@@ -1316,7 +1336,7 @@ function writeError(e) {
 }
 
 /* ================= state ================= */
-const S = {profile: undefined, rewards: undefined, sessions: [], days: {}, purchases: [], penalties: {}, photos: {}, meals: {}, foods: null, mealtpl: null, draft: undefined};
+const S = {profile: undefined, rewards: undefined, sessions: [], days: {}, purchases: [], penalties: {}, photos: {}, meals: {}, foods: null, mealtpl: null, draft: undefined, msgs: {}};
 const loaded = new Set();
 const state = {
   ready: false, view: "status", dayOffset: 0, modal: null, results: null, ob: null, rw: null, setDraft: null,
@@ -1503,6 +1523,7 @@ function compute() {
   const c = {validSessions, prCount, bestStreak, perfectWeeks, benchGain, penaltiesCleared, weighIns, bilanDone, photoSessions, foodDays: st.food, studyDays: st.study};
   const ach = ACH.filter(a => a.test(c));
   for (const a of ach) { xp += a.xp; gold += a.gold; }
+  gold += GROUP_GOLD * Object.keys(S.profile?.groupWins || {}).length;   // weeks where the whole group did its dungeons
   const spent = S.purchases.reduce((n, p) => n + (Number(p.cost) || 0), 0);
   xp = Math.max(0, xp);
   let L = 1, rem = xp; while (rem >= reqXp(L)) { rem -= reqXp(L); L++; }
@@ -1701,7 +1722,7 @@ function viewLogin() {
     <button class="btn primary big" data-act="${up ? "signup" : "login"}" ${l.busy ? "disabled" : ""}>${l.busy ? "Un instant…" : up ? "Créer mon compte" : "Se connecter"}</button></section></div>`;
 }
 function topbar() {
-  return `<header class="top"><div class="brand"><span class="brand-mark">SYSTÈME</span>${saveBadge()}</div><div class="top-btns"><button class="icon-btn ${state.view === "journal" ? "on" : ""}" data-act="go" data-v="journal" aria-label="Journal">${ICON.book}</button><button class="icon-btn" data-act="go" data-v="settings" aria-label="Réglages">${ICON.gear}</button></div></header>`;
+  return `<header class="top"><div class="brand"><span class="brand-mark">SYSTÈME</span>${saveBadge()}</div><div class="top-btns"><button class="icon-btn ${unreadReplies().length ? "dot" : ""}" data-act="msgOpen" aria-label="Écrire au Système">${ICON.mail}</button><button class="icon-btn ${state.view === "journal" ? "on" : ""}" data-act="go" data-v="journal" aria-label="Journal">${ICON.book}</button><button class="icon-btn" data-act="go" data-v="settings" aria-label="Réglages">${ICON.gear}</button></div></header>`;
 }
 const rankBadge = r => `<span class="rank-badge" style="--rc:var(--r-${r})"><span>${r}</span></span>`;
 function currentTitle(P) { const t = S.profile?.title; const a = ACH.find(x => x.id === t); return a && P.achIds.has(a.id) ? a.name : baseTitle(); }
@@ -1779,6 +1800,170 @@ function pushSettings() {
     : st === "ios" ? `<p class="small">${IOS_PUSH}</p>` : `<p class="small">Ce navigateur ne gère pas les notifications.</p>`;
   return `<section class="win"><h2 class="win-title">Notifications</h2>${body}</section>`;
 }
+/* ----- the Système's eye (5 Nov): weekly report, spotted problems, messages, the group ----- */
+const avgOf = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+const mondayKey = k => toStr(addDays(fromStr(k), -((fromStr(k).getDay() + 6) % 7)));
+function stagnations() {                       // a lift with no record over its last 3 sessions (same version, same grip)
+  const since = toStr(addDays(fromStr(today()), -28)), seen = new Set(), out = [];
+  for (const s of S.sessions) if (s.date >= since && !s.deload) for (const ex of Object.keys(s.sets || {})) seen.add(ex);
+  for (const ex of seen) {
+    if (!EX[ex]) continue;
+    const all = perfHistory(ex); if (!all.length) continue;
+    const last = all[all.length - 1], g = x => x.grip || GRIP_DEFAULT[ex] || null;
+    const h = all.filter(x => x.tech === last.tech && g(x) === g(last));
+    if (h.length < 4 || last.date < since) continue;
+    const recent = Math.max(...h.slice(-3).map(x => bestE1(ex, x.sets))), before = Math.max(...h.slice(0, -3).map(x => bestE1(ex, x.sets)));
+    if (before > 0 && recent <= before * 1.005) out.push(ex);
+  }
+  return out;
+}
+function foodDays(keys) {                      // logged, non-free days with their targets
+  return keys.filter(k => !isFreeDay(k) && mealTotals(k).count > 0).map(k => ({k, m: mealTotals(k), p: nutritionPlan(k)}));
+}
+function alertsList() {
+  const p = S.profile || {}, goal = curPlan().goal, t = today(), out = [];
+  for (const ex of stagnations()) out.push({id: "stag-" + ex, txt: `<b>${esc(EX[ex].n)}</b> : pas de record sur tes 3 dernières séances. ` + (EX[ex].kind === "poly"
+    ? "Conseil : la prochaine fois, enlève environ 10 % de la charge, fais des reps propres, puis remonte en 2 séances. Vérifie aussi ton sommeil et tes protéines."
+    : "Conseil : change de version pendant 2 ou 3 semaines (lien « Autre version » dans le donjon, ou ＋ Ajouter un exercice), puis reviens-y.")});
+  const from = p.foodStart || p.createdDay || t;
+  const fd = foodDays([...Array(7)].map((_, i) => toStr(addDays(fromStr(t), -1 - i))).filter(k => k >= from)).slice(0, 4);
+  if (fd.length >= 3) {
+    const kc = avgOf(fd.map(x => x.m.kcal)), kt = avgOf(fd.map(x => x.p.kcal)), pr = avgOf(fd.map(x => x.m.prot)), pt = avgOf(fd.map(x => x.p.protein));
+    if (goal === "gain" && kc < kt * 0.88) out.push({id: "kcal-low", txt: `Ces derniers jours tu manges <b>${fmt(kc, 0)} kcal</b> en moyenne, pour un objectif de ${fmt(kt, 0)}. Pour prendre du muscle, il te manque environ ${fmt(roundTo(kt - kc, 50), 0)} kcal par jour : ajoute une collation (fromage blanc, flocons d'avoine, beurre de cacahuète, une banane).`});
+    if (goal === "fat" && kc > kt * 1.12) out.push({id: "kcal-high", txt: `Ces derniers jours : <b>${fmt(kc, 0)} kcal</b> en moyenne pour un objectif de ${fmt(kt, 0)}. Pour perdre du gras, reviens vers ${fmt(kt, 0)} kcal.`});
+    if (pr < pt * 0.85) out.push({id: "prot-low", txt: `Protéines : <b>${fmt(pr, 0)} g</b> par jour en moyenne ces derniers jours, pour un objectif de ${fmt(pt, 0)} g. Ajoute une source de protéines à un repas (viande, poisson, œufs, skyr, whey).`});
+  }
+  const sl = [...Array(4)].map((_, i) => Number(S.days[toStr(addDays(fromStr(t), -i))]?.sleepH) || 0).filter(v => v > 0);
+  if (sl.length >= 3 && sl.filter(v => v < 6).length >= 3) out.push({id: "sleep-low", txt: `Moins de 6 h de sommeil sur ${sl.filter(v => v < 6).length} de tes ${sl.length} dernières nuits notées. Le muscle se construit pendant le sommeil : vise au moins 7 h quand tu peux, une sieste compte aussi.`});
+  const cw = weekOfStr(t);
+  return out.filter(a => (p.alertSeen || {})[a.id] !== cw);
+}
+function alertsWin() {
+  const al = alertsList(); if (!al.length) return "";
+  return `<section class="win"><h2 class="win-title">Le Système a repéré</h2><ul class="sys-alerts">${al.map(a => `<li><p>${a.txt}</p><button class="btn ghost sm" data-act="alertSeen" data-id="${a.id}">Compris</button></li>`).join("")}</ul></section>`;
+}
+function weekReport(cw) {
+  const info = weekInfo(cw); if (!info || cw < 1) return null;
+  const ws = weekStart(cw), keys = [...Array(7)].map((_, i) => toStr(addDays(ws, i))), t = today(), goal = curPlan().goal, p = S.profile || {};
+  const c = weekCounts(cw), req = requiredSessions(info), done = c.all;
+  const prs = S.sessions.filter(x => sessionCw(x) === cw && x.valid).flatMap(x => x.prs || []);
+  const fd = foodDays(keys.filter(k => k <= t && k >= (p.foodStart || p.createdDay || keys[0])));
+  const kc = avgOf(fd.map(x => x.m.kcal)), kt = avgOf(fd.map(x => x.p.kcal)), pr = avgOf(fd.map(x => x.m.prot)), pt = avgOf(fd.map(x => x.p.protein));
+  const sl = keys.map(k => Number(S.days[k]?.sleepH) || 0).filter(v => v > 0), sleep = avgOf(sl), sleepT = Number(p.targets?.sleep) || 7;
+  const w1 = avgWeight(keys[6]), w0 = avgWeight(toStr(addDays(ws, -1)));
+  const stag = cw === weekOfStr(t) || cw === weekOfStr(t) - 1 ? stagnations() : [];
+  const lines = [`<li>Donjons : <b>${done} / ${req}</b>${req && done >= req ? " ✓" : ""}</li>`,
+    `<li>Records : <b>${prs.length}</b>${prs.length ? " (" + [...new Set(prs.map(x => EX[x.ex]?.n.split(" (")[0]))].map(esc).join(", ") + ")" : ""}</li>`];
+  if (fd.length) lines.push(`<li>Calories : <b>${fmt(kc, 0)} kcal</b> en moyenne (objectif ${fmt(kt, 0)}), sur ${plural(fd.length, "jour noté", "jours notés")}</li>`, `<li>Protéines : <b>${fmt(pr, 0)} g</b> en moyenne (objectif ${fmt(pt, 0)} g)</li>`);
+  else lines.push(`<li>Repas : aucun jour noté</li>`);
+  if (w1) lines.push(`<li>Poids : <b>${fmt(w1, 1)} kg</b> en moyenne${w0 ? ` (${w1 - w0 >= 0 ? "+" : "−"}${fmt(Math.abs(w1 - w0), 1)} kg)` : ""}</li>`);
+  if (sleep) lines.push(`<li>Sommeil : <b>${fmt(sleep, 1)} h</b> en moyenne (objectif ${fmt(sleepT, 1)} h)</li>`);
+  const obj = [];
+  if (req && done < req) obj.push(`Fais tes ${req} donjons : c'est la base de tout le reste.`);
+  if (fd.length >= 3 && pr < pt * 0.9) obj.push(`Protéines : au moins ${fmt(roundTo(pt, 5), 0)} g chaque jour (tu étais à ${fmt(pr, 0)} g).`);
+  if (fd.length >= 3 && goal === "gain" && kc < kt * 0.9) obj.push(`Mange au moins ${fmt(roundTo(kt, 50), 0)} kcal par jour : il t'en manquait ${fmt(roundTo(kt - kc, 50), 0)} en moyenne.`);
+  if (fd.length >= 3 && goal === "fat" && kc > kt * 1.1) obj.push(`Reste autour de ${fmt(roundTo(kt, 50), 0)} kcal par jour (tu étais à ${fmt(kc, 0)}).`);
+  if (fd.length < 4 && keys[6] >= (p.foodStart || keys[0])) obj.push("Note tes repas au moins 5 jours sur 7 : sans ça, le Système ne peut pas régler tes calories.");
+  if (sl.length >= 3 && sleep < sleepT - 0.5) obj.push(`Sommeil : vise ${fmt(sleepT, 1)} h (tu étais à ${fmt(sleep, 1)} h en moyenne).`);
+  if (stag.length) obj.push(`${EX[stag[0]].n.split(" (")[0]} : tu stagnes, suis le conseil du Système sur l'écran Statut.`);
+  const kl = (curPlan().keyLifts || KEY_LIFTS)[0];
+  if (obj.length < 2 && kl) obj.push(`Bats un record au ${esc(kl[2])} : une rep de plus ou un cran de plus que la dernière fois.`);
+  if (obj.length < 2) obj.push("Garde le rythme : mêmes jours, mêmes horaires, une rep de plus partout où c'est propre.");
+  const title = `Semaine ${cw} · du ${fmtDay(ws, {day: "numeric", month: "long"})} au ${fmtDay(addDays(ws, 6), {day: "numeric", month: "long"})}`;
+  return {cw, title, body: `<ul class="report">${lines.join("")}</ul><p class="lbl">Objectifs de la semaine suivante</p><ol class="report">${obj.slice(0, 2).map(o => `<li>${o}</li>`).join("")}</ol>`};
+}
+function reportCw() {                          // Sunday from 17:00: this week; Monday and Tuesday: last week
+  const now = new Date(), dow = (fromStr(today()).getDay() + 6) % 7, cw = weekOfStr(today());
+  return dow === 6 && (window.__GLDate || now.getHours() >= 17) ? cw : dow <= 1 ? cw - 1 : 0;
+}
+function reportWin() {
+  const cw = reportCw(); if (cw < 1 || (S.profile?.reportSeen || 0) >= cw) return "";
+  const r = weekReport(cw); if (!r) return "";
+  return `<section class="win"><h2 class="win-title">Bilan de la semaine</h2><p class="muted small">${esc(r.title)}</p>${r.body}<button class="btn primary wide" data-act="reportSeen" data-cw="${cw}">Bien reçu</button></section>`;
+}
+function reportsFold() {
+  const cw = weekOfStr(today()), from = Math.max(1, cw - 6), rs = [];
+  for (let w = cw - 1; w >= from; w--) { const r = weekReport(w); if (r) rs.push(r); }
+  if (!rs.length) return "";
+  return `<section class="win"><h2 class="win-title">Bilans des semaines</h2>${rs.map(r => `<details class="fold"><summary>${esc(r.title)}</summary><div>${r.body}</div></details>`).join("")}</section>`;
+}
+// Écrire au Système: messages in msgs/<id>; Claude answers by adding the message id here
+const SYSTEM_REPLIES = {};
+const unreadReplies = () => Object.keys(SYSTEM_REPLIES).filter(id => S.msgs?.[id] && !(S.profile?.repliesSeen || []).includes(id));
+function replyWin() {
+  const ids = unreadReplies(); if (!ids.length) return "";
+  return `<section class="win"><h2 class="win-title">Le Système t'a répondu</h2>${ids.map(id => `<div class="msg-pair"><p class="muted small">Tu as écrit : « ${esc(S.msgs[id].text)} »</p><p>${esc(SYSTEM_REPLIES[id].txt)}</p></div>`).join("")}
+    <button class="btn primary wide" data-act="repliesSeen">Bien reçu</button></section>`;
+}
+function modalMsg() {
+  const list = Object.values(S.msgs || {}).sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 15);
+  return `<div class="win"><h2 class="win-title">Écrire au Système</h2>
+    <p class="muted small">Une douleur, une machine en panne, une envie de changer un exercice, une question : écris-le ici, le Système te répondra.</p>
+    <div class="field"><label for="msg-text">Ton message</label><textarea id="msg-text" maxlength="2000"></textarea></div>
+    <div class="m-actions"><button class="btn ghost" data-act="closeModal">Fermer</button><button class="btn primary" data-act="msgSend">Envoyer</button></div>
+    ${list.length ? `<span class="lbl">Tes messages</span>${list.map(m => `<div class="msg-pair"><p class="small"><span class="muted">${esc(fmtDay(new Date(m.at), {weekday: "short", day: "numeric", month: "short"}))} · </span>${esc(m.text)}</p>${SYSTEM_REPLIES[m.id] ? `<p class="small msg-reply">Système : ${esc(SYSTEM_REPLIES[m.id].txt)}</p>` : `<p class="muted small">Pas encore de réponse.</p>`}</div>`).join("")}` : ""}</div>`;
+}
+// the group: shared feed (members only, see groupe_installation.sql), cheers, weekly challenge
+const GROUP_GOLD = 100;
+async function feedLoad() {
+  if (!Cloud || Store.mode !== "cloud" || !Cloud.signedIn() || S.profile?.group !== true || state.feedBusy) return;
+  state.feedBusy = true;
+  try { state.feed = await Cloud.feedGet(new Date(Date.now() - 15 * 864e5).toISOString()); groupCheckWin(); scheduleRender(); }
+  catch (e) { if (e && e.code === "invalid_argument") { state.feed = null; scheduleRender(); } }
+  finally { state.feedBusy = false; }
+}
+async function feedPost(kind, data) {
+  if (!Cloud || Store.mode !== "cloud" || S.profile?.group !== true) return false;
+  try { await Cloud.feedAdd({name: groupName(), kind, data}); feedLoad(); return true; } catch (e) { return false; }
+}
+function groupWeek(cw) {
+  const wk = toStr(weekStart(cw)), me = Cloud.userId(), rows = {};
+  for (const e of state.feed || []) if (!rows[e.user_id]) rows[e.user_id] = {name: e.name, done: 0, req: null};   // newest first: everyone seen in the last 2 weeks
+  for (const e of state.feed || []) if (e.kind === "dungeon" && e.data?.wk === wk) { const r = rows[e.user_id]; if (r && r.req == null) { r.done = Number(e.data.done) || 0; r.req = Number(e.data.req) || 0; } }
+  rows[me] = {name: groupName(), done: weekCounts(cw).all, req: requiredSessions(weekInfo(cw)), me: true};
+  const list = Object.values(rows);
+  return {wk, list, ok: list.length >= 2 && list.every(r => r.req > 0 && r.done >= r.req)};
+}
+function groupCheckWin() {
+  const cw = weekOfStr(today()), p = S.profile; if (!p || p.group !== true || !state.feed) return;
+  for (const w of [cw, cw - 1]) {
+    if (w < 1) continue; const g = groupWeek(w);
+    if (g.ok && !(p.groupWins || {})[g.wk]) { const next = {...clone(p), groupWins: {...(p.groupWins || {}), [g.wk]: true}}; S.profile = next; queueSet("game/profile", next); toast(`[Défi du groupe réussi] Tout le monde a fait ses donjons : +${GROUP_GOLD} or`, "ok"); return; }
+  }
+}
+const GROUP_NAMES = {base: "Gauthier", felix: "Félix", mathis: "Mathis"};
+const groupName = () => GROUP_NAMES[curPlan().id] || S.profile?.name || "Joueur";   // first names in the group, not the login pseudos
+function feedWhen(at) {
+  const d = new Date(at), k = toStr(d), t = today(), hm = d.toLocaleTimeString("fr-FR", {hour: "2-digit", minute: "2-digit"});
+  return (k === t ? "aujourd'hui" : k === toStr(addDays(fromStr(t), -1)) ? "hier" : fmtDay(d, {weekday: "short", day: "numeric"})) + " " + hm;
+}
+function groupWin() {
+  if (!Cloud || Store.mode !== "cloud") return "";
+  const p = S.profile || {};
+  if (p.group == null) {
+    const others = Object.entries(GROUP_NAMES).filter(([k]) => k !== curPlan().id).map(([, v]) => v).join(" et ");
+    return `<section class="win"><h2 class="win-title">Le groupe</h2><p>Partager avec ${others} tes donjons terminés, tes records et tes rangs ? Tu verras les leurs, vous pourrez vous encourager, et chaque semaine où tout le monde fait ses donjons, chacun gagne ${GROUP_GOLD} or.</p>
+      <p class="muted small">Tes repas, ton poids et tes photos restent privés.</p>
+      <div class="row"><button class="btn primary" data-act="groupJoin" data-v="1">Rejoindre</button><button class="btn ghost" data-act="groupJoin" data-v="0">Non merci</button></div></section>`;
+  }
+  if (p.group !== true || !state.feed) return "";
+  const me = Cloud.userId(), f = state.feed, g = groupWeek(weekOfStr(today()));
+  const cheers = {}; for (const e of f) if (e.kind === "cheer") (cheers[e.data?.to] = cheers[e.data?.to] || []).push(e);
+  const evs = f.filter(e => e.kind === "dungeon" || e.kind === "rank").slice(0, state.feedMore ? 40 : 6);
+  const txt = e => { const d = e.data || {};
+    if (e.kind === "rank") return `<b>${esc(e.name)}</b> passe <b>rang ${esc(d.rank)}</b> !`;
+    return `<b>${esc(e.name)}</b> a terminé ${esc(d.ty || "un donjon")}${d.full ? "" : " (en partie)"} · ${d.done} / ${d.req} cette semaine` +
+      (d.prs?.length ? `<br><span class="feed-pr">Record : ${d.prs.map(x => esc(x.n) + " " + (x.kg ? fmt(x.kg) + " kg × " + x.reps : x.reps + " reps")).join(", ")}</span>` : ""); };
+  const cheerBtn = e => { const cs = cheers[e.id] || [], mine = cs.some(c => c.user_id === me), who = [...new Set(cs.map(c => c.name))].join(", ");
+    if (e.user_id === me) return cs.length ? `<span class="cheer on" title="${esc(who)}">👊 ${esc(who)}</span>` : "";
+    return `<button class="cheer ${mine ? "on" : ""}" data-act="cheer" data-id="${e.id}" ${mine ? "disabled" : ""} aria-label="Encourager ${esc(e.name)}">👊${cs.length ? " " + cs.length : ""}</button>`; };
+  return `<section class="win"><h2 class="win-title">Le groupe</h2>
+    <p class="lbl">Défi de la semaine${g.ok ? " · réussi !" : ""}</p>
+    <p class="small muted">${g.ok ? `Tout le monde a fait ses donjons : +${GROUP_GOLD} or chacun.` : `Si tout le monde fait ses donjons, chacun gagne ${GROUP_GOLD} or.`}</p>
+    <ul class="grp-ch">${g.list.map(r => `<li class="${r.req && r.done >= r.req ? "ok" : ""}"><b>${esc(r.name)}${r.me ? " (toi)" : ""}</b><span>${r.req ? `${r.done} / ${r.req}${r.done >= r.req ? " ✓" : ""}` : "pas encore de donjon"}</span></li>`).join("")}</ul>
+    ${evs.length ? `<ul class="feed">${evs.map(e => `<li><p>${txt(e)}</p><div class="feed-f"><small class="muted">${feedWhen(e.at)}</small>${cheerBtn(e)}</div></li>`).join("")}</ul>` : `<p class="muted small">Rien pour l'instant : le premier donjon terminé apparaîtra ici.</p>`}
+    ${f.filter(e => e.kind === "dungeon" || e.kind === "rank").length > evs.length ? `<button class="link" data-act="feedMore">Voir plus</button>` : ""}</section>`;
+}
 function questionWin() {
   const ans = S.profile?.answers || {}, mine = QUESTIONS.filter(x => !x.plan || x.plan === curPlan().id), q = mine.find(x => !ans[x.id]);
   if (!q) return "";
@@ -1792,7 +1977,7 @@ function questionWin() {
     <button class="btn primary wide" data-act="answerQ" data-id="${q.id}">Envoyer</button>
     <button class="link" data-act="answerQ" data-id="${q.id}" data-skip="1">Passer cette question</button></section>`;
 }
-function viewStatus(P) { return topbar() + questionWin() + pushWin() + programPickWin() + penaltyWin(P) + draftWin() + statusWin(P) + sleepWin() + portalWin() + questWin() + bodyNudge() + weekWin(); }
+function viewStatus(P) { return topbar() + replyWin() + questionWin() + reportWin() + pushWin() + programPickWin() + penaltyWin(P) + draftWin() + statusWin(P) + alertsWin() + groupWin() + sleepWin() + portalWin() + questWin() + bodyNudge() + weekWin(); }
 function statusWin(P) {
   const pct = Math.min(100, Math.round(P.into / P.need * 100)); const s = P.stats;
   const stat = (k, l, v) => `<div class="stat2"><span class="stat-k">${k}</span><b class="stat-v">${v}</b><span class="stat-l">${l}</span></div>`;
@@ -2185,6 +2370,7 @@ function viewJournal(P) {
       <p class="muted small">1RM estimé : la charge que tu pourrais soulever une fois, calculée sur ta meilleure série (charge × (1 + reps ÷ 30)).</p>
       <div class="tbl-wrap"><table><thead><tr><th>Mouvement</th><th class="num">Départ</th><th class="num">Dernière</th><th class="num">1RM est.</th><th class="num">Progr.</th></tr></thead><tbody>${recRows}</tbody></table></div></section>
     ${exerciseBook()}
+    ${reportsFold()}
     <section class="win"><h2 class="win-title">Journal des donjons</h2>${logs ? `<div class="logs">${logs}</div>` : `<p class="empty">Aucun donjon terminé. Ta première séance apparaîtra ici avec chaque série notée.</p>`}</section>
     <section class="win"><h2 class="win-title">Titres</h2><div class="ach">${ACH.filter(a => a.id !== "erudit" || questOn(S.profile, "study") || P.achIds.has(a.id)).map(a => `<div class="ach-i ${P.achIds.has(a.id) ? "" : "off"}"><div><b>${esc(a.name)}</b><br><small>${esc(a.desc)} +${a.xp} XP, +${a.gold} or</small></div><span class="tag ${P.achIds.has(a.id) ? "test" : ""}">${P.achIds.has(a.id) ? "Obtenu" : "Verrouillé"}</span></div>`).join("")}</div></section>`;
 }
@@ -2789,7 +2975,7 @@ function viewSettings(P) {
     state.setDraft = {name: p.name || "", program: planOf(p), weight: sv(p.weight), oldBench: sv(p.oldBench), height: sv(p.height), age: sv(p.age), neck: sv(p.neck), bf: sv(p.bf), activity: String(p.activity || 1.5),
       freeDay: String(p.freeDay == null ? 5 : p.freeDay), freeComp: p.freeComp !== false, studyMin: String(t.studyMin ?? 60), steps: String(t.steps ?? 8000), sleep: fmtIn(t.sleep ?? 7), water: fmtIn(t.water ?? 2),
       kcalManual: sv(p.kcalManual), proteinManual: sv(p.proteinManual), fastH: String(p.fastH || ""), fastStart: p.fastStart || "12:00", legMaint: p.legMaint !== false, sound: p.sound !== false, title: p.title || "",
-      breakfast: eatsBreakfast(p), qSteps: questOn(p, "steps"), qWater: questOn(p, "water"), qStudy: questOn(p, "study")}; }
+      breakfast: eatsBreakfast(p), group: p.group === true, qSteps: questOn(p, "steps"), qWater: questOn(p, "water"), qStudy: questOn(p, "study")}; }
   const s = state.setDraft;
   const owned = ACH.filter(a => P.achIds.has(a.id));
   const tg = (k, label, desc) => `<button class="q ${s[k] ? "on" : ""}" data-act="setToggle" data-k="${k}" role="checkbox" aria-checked="${s[k]}"><span class="box" aria-hidden="true"></span><span class="q-l">${label}<br><small class="muted" style="font-weight:400">${desc}</small></span><span class="q-t">${s[k] ? "[Oui]" : "[Non]"}</span></button>`;
@@ -2816,6 +3002,7 @@ function viewSettings(P) {
       <div class="grid2">${f("steps", "Pas par jour", "numeric")}${f("water", "Eau (L)")}</div>
       ${tg("legMaint", "Un peu de jambes chaque semaine", "2 séries de hack squat + 2 de leg curl, légères, à la fin du complément, les semaines sans grosse séance jambes")}
       ${tg("sound", "Sons du Système", "Petit signal à chaque série et à la fin du repos")}
+      ${Store.mode === "cloud" ? tg("group", "Partager avec le groupe", "Donjons terminés, records et rangs visibles par les autres joueurs ; repas, poids et photos restent privés") : ""}
       <div class="row"><button class="btn ghost" data-act="go" data-v="status">Retour</button><button class="btn primary" data-act="setSave">Enregistrer</button></div></section>
     ${Store.mode === "cloud" || Store.mode === "server" ? `<section class="win"><h2 class="win-title">Copie de sécurité</h2>
       <p class="small">Télécharge toute ta progression dans un fichier, ou recharge un fichier (par exemple <b>donnees\\progression.json</b> de la version PC) pour tout reprendre ici.</p>
@@ -3065,6 +3252,7 @@ function renderModal() {
   else if (m.kind === "confirm") h = `<div class="win ${m.danger ? "red" : ""}"><h2 class="win-title">${m.title}</h2><p>${m.body}</p><div class="row"><button class="btn ghost" data-act="closeModal">Annuler</button><button class="btn ${m.danger ? "danger" : "gold"}" data-act="confirmYes">${m.yes}</button></div></div>`;
   else if (m.kind === "food") h = modalFood(m);
   else if (m.kind === "addEx") h = modalAddEx(m);
+  else if (m.kind === "msg") h = modalMsg(m);
   else if (m.kind === "tplSave") h = `<div class="win"><h2 class="win-title">Repas type</h2><div class="field"><label for="fm-tplName">Nom du repas</label><input id="fm-tplName" data-bind="food" data-f="tplName" autocomplete="off" placeholder="Ex. Poulet riz du midi" value="${esc(m.tplName || "")}"></div><div class="row"><button class="btn ghost" data-act="closeModal">Annuler</button><button class="btn primary" data-act="tplSave">Enregistrer</button></div></div>`;
   else if (m.kind === "ticket") { const p = S.purchases.find(x => x.id === m.pid); h = `<div class="win"><h2 class="win-title">Ticket repas</h2><p>Valider « ${esc(p ? p.name : "")} » ${m.date === today() ? "aujourd'hui" : "le " + fmtDay(fromStr(m.date), {day: "numeric", month: "long"})} ? Le repas compte comme noté, ses calories ne comptent pas.</p><div class="row">${mealSlots([]).map(sl => `<button class="btn gold" data-act="ticketSlot" data-slot="${sl.k}">${sl.label}</button>`).join("")}</div><button class="btn ghost" data-act="closeModal">Annuler</button></div>`; }
   el.classList.toggle("top", m.kind === "food");   // the food window opens from the top: the field typed in stays above the keyboard
@@ -3225,6 +3413,9 @@ async function finishDungeon() {
   if (!S.sessions.some(s => s.id === id)) S.sessions = [...S.sessions, {id, ...doc}];
   S.draft = null; clearTimeout(draftTimer); draftTimer = null; queueSet("game/draft", {active: false});
   const after = compute(); const wbAfter = weekBonus(d.cw);
+  if (valid) feedPost("dungeon", {ty: tyLabel(d.type), full, wk: mondayKey(today()), done: weekCounts(d.cw).all, req: requiredSessions(weekInfo(d.cw)),
+    prs: prs.map(x => { const b = bestSet(x.ex, setsOut[x.ex]) || {}; return {n: EX[x.ex].n.split(" (")[0], kg: Number(b.kg) || 0, reps: Number(b.reps) || 0}; })});
+  if (after.rank !== before.rank) feedPost("rank", {rank: after.rank});
   state.results = {doc, before, after, wb: {xp: wbAfter.xp - wbBefore.xp, gold: wbAfter.gold - wbBefore.gold, perfect: wbAfter.perfect, big: wbAfter.big && !wbBefore.big}, opened: false, fxDone: false};
   state.lastLevel = after.level; state.lastRank = after.rank; state.lastAch = new Set(after.achIds);
   state.modal = null; state.rest = null; state.view = "results"; releaseWakeLock(); window.scrollTo(0, 0); render(); chime("level");
@@ -3442,6 +3633,22 @@ const ACTIONS = {
   jokerCancel: a => cancelJoker(Number(a.dataset.cw)),
   resume: () => { state.modal = null; state.view = "dungeon"; requestWakeLock(); render(); },
   closeModal: () => { state.modal = null; renderModal(); },
+  msgOpen: () => { state.modal = {kind: "msg"}; renderModal(); setTimeout(() => document.getElementById("msg-text")?.focus(), 100); },
+  msgSend: async () => { const el = document.getElementById("msg-text"), text = String(el?.value || "").trim();
+    if (!text) { toast("[Système] Écris ton message d'abord.", "red"); return; }
+    const id = "m" + Date.now().toString(36);
+    try { await Store.db.collection("msgs").doc(id).set({text: text.slice(0, 2000), at: new Date().toISOString(), plan: curPlan().id}); }
+    catch (e) { writeError(e); return; }
+    S.msgs = {...(S.msgs || {}), [id]: {id, text, at: new Date().toISOString()}}; renderModal(); toast("[Message envoyé] Le Système te répondra ici.", "ok"); },
+  repliesSeen: () => { const p = clone(S.profile); p.repliesSeen = [...new Set([...(p.repliesSeen || []), ...unreadReplies()])]; S.profile = p; queueSet("game/profile", p); render(); },
+  reportSeen: a => { const p = clone(S.profile); p.reportSeen = Number(a.dataset.cw); S.profile = p; queueSet("game/profile", p); render(); },
+  alertSeen: a => { const p = clone(S.profile); p.alertSeen = {...(p.alertSeen || {}), [a.dataset.id]: weekOfStr(today())}; S.profile = p; queueSet("game/profile", p); render(); },
+  groupJoin: a => { const on = a.dataset.v === "1", p = clone(S.profile); p.group = on; S.profile = p; queueSet("game/profile", p); render();
+    if (on) { toast("[Groupe rejoint] Tes prochains donjons seront partagés.", "ok"); feedLoad(); } },
+  feedMore: () => { state.feedMore = true; render(); },
+  cheer: async a => { const id = Number(a.dataset.id); a.disabled = true;
+    if (await feedPost("cheer", {to: id})) { state.feed = [{id: -Date.now(), user_id: Cloud.userId(), name: groupName(), kind: "cheer", data: {to: id}, at: new Date().toISOString()}, ...(state.feed || [])]; render(); toast("[Encouragement envoyé] 👊", "ok"); }
+    else { a.disabled = false; toast("[Système] Pas de connexion : réessaie plus tard.", "red"); } },
   pushOn: async () => { let ok = false; try { ok = await pushSave(true); } catch (e) { ok = false; }
     render(); toast(ok ? "[Notifications activées] Le Système te préviendra ici." : Notification.permission === "denied" ? "[Système] Notifications refusées sur cet appareil." : "[Système] Impossible d'activer les notifications ici.", ok ? "ok" : "red"); },
   pushLater: () => { lsSet("gl-push-later", today()); render(); },
@@ -3547,7 +3754,7 @@ const ACTIONS = {
       kcalManual: pos(s.kcalManual) && Math.round(pos(s.kcalManual)), proteinManual: pos(s.proteinManual) && Math.round(pos(s.proteinManual)),
       fastH: Number(s.fastH) || null, fastStart: /^\d{2}:\d{2}$/.test(s.fastStart || "") ? s.fastStart : "12:00",
       targets: {...(p.targets || {}), steps, sleep, water, studyMin}, legMaint: !!s.legMaint, sound: !!s.sound, title: s.title || null,
-      breakfast: !!s.breakfast, quests: {steps: !!s.qSteps, water: !!s.qWater, study: !!s.qStudy}};
+      breakfast: !!s.breakfast, quests: {steps: !!s.qSteps, water: !!s.qWater, study: !!s.qStudy}, group: s.group ? true : p.group == null ? null : false};
     if (!next.foodStart) next.foodStart = toStr(addDays(fromStr(today()), 1));
     S.profile = next; queueSet("game/profile", next); state.setDraft = null; state.view = "status"; window.scrollTo(0, 0); render(); toast("[Réglages enregistrés]", "ok");
   },
@@ -3646,6 +3853,7 @@ function subscribe() {
   db.collection("meals").onSnapshot(q => { const m = {}; for (const d of docsOf(q)) m[d.id] = d; S.meals = m; mark("meals"); }, lost);
   db.doc("game/foods").onSnapshot(s => { S.foods = s.exists ? s.data() : null; mark("foods"); }, lost);
   db.doc("game/mealtpl").onSnapshot(s => { S.mealtpl = s.exists ? s.data() : null; mark("mealtpl"); }, lost);
+  db.collection("msgs").onSnapshot(q => { const m = {}; for (const d of docsOf(q)) m[d.id] = d; S.msgs = m; scheduleRender(); }, lost);
   db.doc("game/draft").get().then(s => { const d = s.exists ? s.data() : null; S.draft = d && d.active ? clone(d) : null; if (S.draft) { S.draft.minus = S.draft.minus || {}; S.draft.sets = S.draft.sets || {}; if (S.draft.cw == null) S.draft.cw = S.draft.week; } mark("draft"); })
     .catch(() => { S.draft = null; mark("draft"); });
 }
@@ -3675,7 +3883,7 @@ async function cloudSync(full) {
   if (Store.mode !== "cloud" || !Cloud.signedIn()) return;
   try { await Cloud.pull(full); state.offline = false; }
   catch (e) { state.offline = e.code === "offline"; }
-  updateSyncBadge();
+  updateSyncBadge(); feedLoad();
 }
 function updateSyncBadge() { const b = document.getElementById("syncBadge"); if (b) b.outerHTML = saveBadge(); }
 if (Cloud) {
