@@ -954,10 +954,11 @@ const MATHIS_SWAP = {                        // his answers (5 Nov): Smith for t
   cableRow: {ex: "dbRow", cue: "Un genou et une main sur le banc, dos plat : laisse l'épaule descendre pour étirer, puis tire le coude vers la hanche."},
   flySeated: {sets: 3, cue: "Tes pecs sont ta priorité : coudes légèrement fléchis et figés, ouvre en grand, serre 1 s devant la poitrine. Dernière série à l'échec."},
 };
+const NECK = " Cou : épaules basses, regard devant, ne hausse pas les épaules et ne tends pas le menton.";
 const MATHIS_ADD = {
   P: [{ex: "pecDeck", sets: 3, reps: [12, 15], rest: 75, cue: "Pecs en retard : ouvre en grand pour étirer, serre 1 s devant la poitrine, coudes légèrement fléchis. Dernière série à l'échec."}],
+  T: [{ex: "latRaise", sets: 3, reps: [12, 15], rest: 60, cue: "3e séance d'épaules de la semaine, pour élargir la carrure : poulie basse, un bras, monte jusqu'à l'horizontale, descente lente." + NECK}],   // photos 5 Nov: narrow shoulders
 };
-const NECK = " Cou : épaules basses, regard devant, ne hausse pas les épaules et ne tends pas le menton.";
 const MATHIS_NECK = {latRaiseMach: NECK, leanLatRaise: NECK, pullupPro: NECK, pullup: NECK, csRow: NECK, dbRow: NECK, smithBench: NECK, inclBar: NECK};
 const PLANS = {
   base: {id: "base", swap: GAUTHIER_SWAP, add: GAUTHIER_ADD, drop: ["calves"], keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
@@ -1781,6 +1782,9 @@ const QUESTIONS = [
    choices: ["Compris"]},
   {id: "mPlan1105", plan: "mathis", info: true, title: "Ton programme a changé",
    q: "Le Système a lu tes réponses. Pecs à la Smith : développé couché à la Smith le lundi, incliné à la Smith le jeudi. Tes pecs sont ta priorité : pec deck en plus le lundi (3 séries) et 3 séries d'écarté poulie le jeudi. Plus de tirage à la poulie : le rowing poulie assis devient un rowing haltère un bras. Pour ton cou : épaules basses, regard devant, ne hausse pas les épaules. Si ça fait toujours mal, va voir un kiné ou un médecin.",
+   choices: ["Compris"]},
+  {id: "mPhys1105", plan: "mathis", info: true, title: "Ton analyse physique est prête",
+   q: "Le Système a regardé tes photos : tes points forts et tes points à travailler sont dans l'onglet Corps, avec ce qu'il a adapté. Nouveau : 3 séries d'élévations latérales à la poulie le mardi, pour élargir tes épaules.",
    choices: ["Compris"]},
   {id: "mNeck1105", plan: "mathis", multi: true, q: "Ton cou : il te gêne pendant quels exercices ? Écris aussi depuis quand, en dessous.",
    choices: ["Tractions", "Rowing", "Élévations latérales", "Développés (couché, incliné)", "En dehors de la salle aussi"]},
@@ -2609,11 +2613,11 @@ function strengthWin() {
 }
 // Physique analysis by Claude from the photos (per program = per player); written here after an "analyse" request
 const PHYSIQUE = {
-  base: {date: "2026-11-05", at: "2026-11-05T12:00:00Z",   // at = when Claude wrote it: a request after that is still waiting
-    strong: ["Une carrure large : la base d'un beau V.", "Le dos, déjà épais et large.", "Les bras."],
-    weak: ["Les trapèzes, encore petits.", "Le haut des pecs, plat.", "Les épaules latérales : ce sont elles qui élargissent la carrure vue de face."],
-    done: ["Trapèzes : 2 séances par semaine (shrugs le mardi et le vendredi).", "Épaules latérales : 2 à 3 séances par semaine (mardi et jeudi, plus le complément).", "Haut des pecs : un développé incliné le lundi et le vendredi."],
-    note: "Le plus gros gain visible viendra aussi de la recomposition : en gardant tes calories, le gras qui cache ton travail va baisser."},
+  mathis: {date: "2026-11-05", at: "2026-11-05T21:10:00Z",   // at = when Claude wrote it: a request after that is still waiting
+    strong: ["Très sec : abdos visibles, peu de gras. Tu peux prendre du muscle sans te soucier du ventre.", "Une taille fine : avec des épaules plus larges, ça fera un vrai V."],
+    weak: ["Les pecs, surtout le haut : la poitrine manque encore d'épaisseur.", "Les épaules latérales : la carrure est encore étroite.", "Les bras : il y a de la place pour du volume (biceps et triceps)."],
+    done: ["Pecs : développé à la Smith le lundi et le jeudi, pec deck le lundi, 3 séries d'écarté poulie le jeudi.", "Épaules : élévations latérales 3 fois par semaine, dont une nouvelle série à la poulie le mardi.", "Bras : triceps ou biceps à chaque séance du haut, plus la séance bras et épaules un samedi sur deux."],
+    note: "Ton plus gros levier : manger plus, pour monter vers 75 kg (environ +0,25 kg par semaine). Ta photo de face est un selfie et celle de profil une photo de vacances : refais face, profil et dos en suivant les conseils de la partie Photos, pour comparer dans 2 semaines."},
 };
 function photoAskBox() {                        // ask the Système for an analysis of the photos
   const ask = photoAsk(), a = PHYSIQUE[curPlan().id], pending = ask && (!a || String(ask.at) > (a.at || a.date + "T00:00:00Z"));
