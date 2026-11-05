@@ -1762,7 +1762,7 @@ const QUESTIONS = [
 ];
 // Notifications (5 Nov): sent by Claude from the PC (notifications/envoyer.py) when the Système needs an answer;
 // each device that accepts saves its subscription in push/<id>, read back with SQL to send
-const PUSH_KEY = "BG06cxx_arB0cKTMkw3QCy3SRGnJ9ZFZEtwzIl93i4nSKZ1hYNoJSZ5jJ-Guzp076fFA8VFw0gUAQe_fL8dmo-Y";
+const PUSH_KEY = "BA0Nn_q6IXJpV4Q03E383g8bfOxRrTll-pt1xvj7sx4l8ZZuSjHNcq3Kd5H87vCdO9b1LsQ29QvY6tWsq66qN6Q";   // public key of the Supabase function gl-notifs (…/functions/v1/gl-notifs?key)
 const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 const isInstalled = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
