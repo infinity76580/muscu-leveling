@@ -113,6 +113,11 @@ ul.report li::before{content:"› ";color:var(--glow)}
 .msg-pair{border-left:2px solid var(--line);padding-left:10px;margin:10px 0}
 .msg-pair p{margin:2px 0}
 .msg-reply{color:var(--glow)}
+.phys{list-style:none;margin:6px 0 10px;padding:0;display:grid;gap:6px}
+.phys li{padding-left:16px;position:relative}
+.phys li::before{content:"›";position:absolute;left:2px;color:var(--glow)}
+.phys.good li::before{content:"✓";color:var(--ok)}
+.phys.work li::before{content:"▲";color:var(--orange);font-size:11px;top:3px}
 .ask-b .btn{text-transform:none;letter-spacing:.02em;text-align:left}
 .ask-b .btn.on{background:rgba(60,140,255,.32);border-color:var(--glow);box-shadow:0 0 10px rgba(60,150,255,.35)}
 .ask-b .btn.on::after{content:"✓";float:right;color:var(--glow)}
@@ -2534,6 +2539,7 @@ function viewBody(P) {
       ${waistRows ? `<div class="tbl-wrap"><table><thead><tr><th>Date</th><th class="num">Tour de taille</th><th class="num">Écart</th></tr></thead><tbody>${waistRows}</tbody></table></div>` : ""}
     ${scale ? "</div></details>" : ""}</section>
     <section class="win"><h2 class="win-title">Lecture du Système</h2>${reading}</section>
+    ${physiqueWin()}
     ${photosWin()}`;
 }
 const STRENGTH = [                          // the e1RM / body-weight ratio of rank S: a strong, trained lifter on that machine (harsh on purpose, 2 Nov)
@@ -2601,6 +2607,34 @@ function strengthWin() {
     <div class="bm-scale"><i style="background:linear-gradient(90deg,${grad})"></i><div>${ticks.map(([r, x]) => `<span style="left:${x * 100}%;color:${strengthColor(x)}">${r}</span>`).join("")}</div></div>
     <ul class="bm-list">${rows}</ul></section>`;
 }
+// Physique analysis by Claude from the photos (per program = per player); written here after an "analyse" request
+const PHYSIQUE = {
+  base: {date: "2026-11-05", at: "2026-11-05T12:00:00Z",   // at = when Claude wrote it: a request after that is still waiting
+    strong: ["Une carrure large : la base d'un beau V.", "Le dos, déjà épais et large.", "Les bras."],
+    weak: ["Les trapèzes, encore petits.", "Le haut des pecs, plat.", "Les épaules latérales : ce sont elles qui élargissent la carrure vue de face."],
+    done: ["Trapèzes : 2 séances par semaine (shrugs le mardi et le vendredi).", "Épaules latérales : 2 à 3 séances par semaine (mardi et jeudi, plus le complément).", "Haut des pecs : un développé incliné le lundi et le vendredi."],
+    note: "Le plus gros gain visible viendra aussi de la recomposition : en gardant tes calories, le gras qui cache ton travail va baisser."},
+};
+function photoAskBox() {                        // ask the Système for an analysis of the photos
+  const ask = photoAsk(), a = PHYSIQUE[curPlan().id], pending = ask && (!a || String(ask.at) > (a.at || a.date + "T00:00:00Z"));
+  if (!Object.keys(S.photos || {}).length) return `<p class="muted small">Ajoute au moins une photo pour pouvoir demander une analyse au Système.</p>`;
+  if (pending) return `<p class="sys-line">[Analyse demandée le ${fmtDay(new Date(ask.at), {day: "numeric", month: "long"})}] Le Système va regarder tes photos : tes points forts et tes points à travailler s'afficheront plus haut, dans « Points forts et points à travailler ».</p>`;
+  return `<div class="field"><label for="ph-ask">Demander une analyse : ce que tu veux que le Système regarde (facultatif)</label><input id="ph-ask" type="text" maxlength="400" autocomplete="off" placeholder="Ex. mes épaules, mon gras du ventre…"></div>
+    <button class="btn primary wide" data-act="photoAsk">Demander une analyse</button>`;
+}
+function physiqueWin() {
+  const a = PHYSIQUE[curPlan().id];
+  if (!a) return `<section class="win"><h2 class="win-title">Points forts et points à travailler</h2>
+    <p class="muted small">Le Système n'a pas encore analysé ton physique. Ajoute tes 3 photos plus bas (face, profil, dos), puis touche « Demander une analyse » : il te dira tes points forts, tes points à travailler, et adaptera ton programme.</p></section>`;
+  const li = (arr, cls) => `<ul class="phys ${cls}">${arr.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
+  return `<section class="win"><h2 class="win-title">Points forts et points à travailler</h2>
+    <p class="muted small">Analyse du Système d'après tes photos du ${fmtDay(fromStr(a.date), {day: "numeric", month: "long"})}.</p>
+    <p class="lbl">Points forts</p>${li(a.strong, "good")}
+    <p class="lbl">Points à travailler</p>${li(a.weak, "work")}
+    ${a.done?.length ? `<p class="lbl">Ce que le Système a adapté</p>${li(a.done, "")}` : ""}
+    ${a.note ? `<p class="small">${esc(a.note)}</p>` : ""}</section>`;
+}
+const photoAsk = () => Object.values(S.msgs || {}).filter(m => m.kind === "photos").sort((a, b) => String(b.at).localeCompare(String(a.at)))[0];
 function photosWin() {
   if (Store.mode !== "server" && Store.mode !== "cloud") return `<section class="win"><h2 class="win-title">Photos</h2><p class="muted small">Les photos se gardent sur ton PC ou dans ton espace synchronisé : ouvre Muscu Leveling depuis le raccourci du bureau ou l'appli de ton téléphone pour les ajouter.</p></section>`;
   const t = today(), date = state.phDate || t, cur = S.photos[date] || {}, ds = photoDates();
@@ -2626,7 +2660,8 @@ function photosWin() {
       <div class="ph-up">${PHOTO_POSES.map(p => `<label class="btn ${cur[p.k] ? "ghost" : ""}" for="ph-${p.k}">${state.photoBusy === p.k ? "Envoi…" : (cur[p.k] ? "Remplacer " : "Ajouter ") + p.label.toLowerCase()}<input type="file" id="ph-${p.k}" accept="${Store.mode === "cloud" ? "image/*" : "image/*,.heic,.heif"}" data-photo="${p.k}" hidden></label>`).join("")}</div>
       ${cmp}
       ${rows ? `<div class="ph-list">${rows}</div>` : ""}
-      <p class="sugg">Pour une analyse, dis-moi « analyse mes photos » : je compare tes photos, ta pesée et ton tour de taille (gras perdu ou repris, muscle gagné). ${Store.mode === "cloud" ? "Les photos sont rangées dans ton espace privé Supabase : personne d'autre que toi n'y a accès." : "Les photos restent sur ton PC, dans le dossier gauthier-leveling\\donnees\\photos."}</p>
+      ${photoAskBox()}
+      <p class="muted small">${Store.mode === "cloud" ? "Les photos sont rangées dans ton espace privé Supabase : personne d'autre que toi n'y a accès." : "Les photos restent sur ton PC, dans le dossier gauthier-leveling\\donnees\\photos."}</p>
     </section>`;
 }
 const photoCache = {};
@@ -3678,6 +3713,11 @@ const ACTIONS = {
   resume: () => { state.modal = null; state.view = "dungeon"; requestWakeLock(); render(); },
   closeModal: () => { state.modal = null; renderModal(); },
   msgOpen: () => { state.modal = {kind: "msg"}; renderModal(); setTimeout(() => document.getElementById("msg-text")?.focus(), 100); },
+  photoAsk: async () => {
+    const note = String(document.getElementById("ph-ask")?.value || "").trim().slice(0, 400), last = Object.keys(S.photos || {}).sort().pop(), id = "m" + Date.now().toString(36);
+    const doc = {text: "Analyse mes photos" + (note ? " : " + note : ""), kind: "photos", photos: last || null, at: new Date().toISOString(), plan: curPlan().id};
+    try { await Store.db.collection("msgs").doc(id).set(doc); } catch (e) { writeError(e); return; }
+    S.msgs = {...(S.msgs || {}), [id]: {id, ...doc}}; render(); toast("[Analyse demandée] Le Système va regarder tes photos.", "ok"); },
   msgSend: async () => { const el = document.getElementById("msg-text"), text = String(el?.value || "").trim();
     if (!text) { toast("[Système] Écris ton message d'abord.", "red"); return; }
     const id = "m" + Date.now().toString(36);
