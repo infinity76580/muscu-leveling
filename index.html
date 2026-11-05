@@ -1323,6 +1323,9 @@ const state = {
   weighDraft: {}, waistDraft: {}, sleepDraft: {}, mealOffset: 0, phDate: null, photoBusy: null, cmp: {}, rest: null, lastLevel: null, lastRank: null, lastAch: null, lastDay: null, toastedPr: {},
 };
 try { const v = localStorage.getItem("gl-tab"); if (["status", "dungeons", "meals", "body", "shop", "journal"].includes(v)) state.view = v; } catch (e) {}
+const TABS = ["status", "dungeons", "meals", "body", "shop", "journal"];
+try { const h = location.hash.slice(1); if (TABS.includes(h)) { state.view = h; history.replaceState(null, "", location.pathname + location.search); } } catch (e) {}
+if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", e => { const v = e.data && e.data.go; if (TABS.includes(v) && state.view !== "dungeon" && state.ready) { state.view = v; window.scrollTo(0, 0); render(); } });
 
 /* ================= derived numbers ================= */
 const reqXp = L => 150 + 40 * L;   // ~6-month adventure (2026-10-26): rank D ~2 weeks, C ~5, B ~10, A ~17, S ~26 weeks at full pace
@@ -1736,6 +1739,46 @@ const QUESTIONS = [
   {id: "mApp1105", plan: "mathis", q: "Dans l'appli, qu'est-ce que tu aimerais changer ou ajouter ?", choices: ["Rien, elle me va"]},
   {id: "mFree1105", plan: "mathis", q: "Un dernier truc que le Système devrait savoir sur toi ou sur ta façon de t'entraîner ?", choices: ["Non, c'est tout"]},
 ];
+// Notifications (5 Nov): sent by Claude from the PC (notifications/envoyer.py) when the Système needs an answer;
+// each device that accepts saves its subscription in push/<id>, read back with SQL to send
+const PUSH_KEY = "BG06cxx_arB0cKTMkw3QCy3SRGnJ9ZFZEtwzIl93i4nSKZ1hYNoJSZ5jJ-Guzp076fFA8VFw0gUAQe_fL8dmo-Y";
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const isInstalled = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const pushCan = () => Store.mode === "cloud" && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+const pushState = () => pushCan() ? Notification.permission : isIOS() && !isInstalled() ? "ios" : "no";   // default | granted | denied | ios | no
+const b64u = t => { const b = atob(t.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((t.length + 3) % 4)); return Uint8Array.from(b, c => c.charCodeAt(0)); };
+const hashStr = t => { let h = 5381; for (let i = 0; i < t.length; i++) h = (h * 33 + t.charCodeAt(i)) >>> 0; return h.toString(36); };
+async function pushSave(ask) {
+  if (!pushCan()) return false;
+  if (ask && Notification.permission === "default") await Notification.requestPermission();
+  if (Notification.permission !== "granted") return false;
+  const reg = await navigator.serviceWorker.ready;
+  const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: b64u(PUSH_KEY)});
+  const j = sub.toJSON(), mark = j.endpoint + "|" + Cloud.email();
+  if (lsGet("gl-push") !== mark) {
+    await queueSet("push/" + hashStr(j.endpoint), {sub: j, device: isIOS() ? "iPhone" : /android/i.test(navigator.userAgent) ? "Android" : "Ordinateur", at: new Date().toISOString()});
+    lsSet("gl-push", mark);
+  }
+  return true;
+}
+const IOS_PUSH = "Sur iPhone, les notifications ne marchent que depuis l'icône de l'appli : dans Safari, touche Partager puis « Sur l'écran d'accueil », puis ouvre l'appli depuis cette icône.";
+function pushWin() {
+  const st = pushState(), later = lsGet("gl-push-later");
+  if (!(st === "default" || st === "ios") || (later && (fromStr(today()) - fromStr(later)) / 864e5 < 7)) return "";
+  return `<section class="win"><h2 class="win-title">Notifications</h2>
+    <p>${st === "ios" ? IOS_PUSH : "Le Système peut te prévenir sur ton téléphone quand il a une question pour toi ou un changement dans ton programme."}</p>
+    <div class="row">${st === "default" ? `<button class="btn primary" data-act="pushOn">Activer</button>` : ""}<button class="btn ghost" data-act="pushLater">Plus tard</button></div></section>`;
+}
+function pushSettings() {
+  if (Store.mode !== "cloud") return "";
+  const st = pushState();
+  const body = st === "granted" ? `<p class="small">Activées sur cet appareil.</p><button class="btn ghost" data-act="pushTest">Envoyer un essai</button>`
+    : st === "default" ? `<p class="small">Le Système te prévient quand il a une question pour toi.</p><button class="btn primary" data-act="pushOn">Activer les notifications</button>`
+    : st === "denied" ? `<p class="small">Bloquées sur cet appareil : autorise les notifications pour ce site dans les réglages du navigateur, puis reviens ici.</p>`
+    : st === "ios" ? `<p class="small">${IOS_PUSH}</p>` : `<p class="small">Ce navigateur ne gère pas les notifications.</p>`;
+  return `<section class="win"><h2 class="win-title">Notifications</h2>${body}</section>`;
+}
 function questionWin() {
   const ans = S.profile?.answers || {}, mine = QUESTIONS.filter(x => !x.plan || x.plan === curPlan().id), q = mine.find(x => !ans[x.id]);
   if (!q) return "";
@@ -1749,7 +1792,7 @@ function questionWin() {
     <button class="btn primary wide" data-act="answerQ" data-id="${q.id}">Envoyer</button>
     <button class="link" data-act="answerQ" data-id="${q.id}" data-skip="1">Passer cette question</button></section>`;
 }
-function viewStatus(P) { return topbar() + questionWin() + programPickWin() + penaltyWin(P) + draftWin() + statusWin(P) + sleepWin() + portalWin() + questWin() + bodyNudge() + weekWin(); }
+function viewStatus(P) { return topbar() + questionWin() + pushWin() + programPickWin() + penaltyWin(P) + draftWin() + statusWin(P) + sleepWin() + portalWin() + questWin() + bodyNudge() + weekWin(); }
 function statusWin(P) {
   const pct = Math.min(100, Math.round(P.into / P.need * 100)); const s = P.stats;
   const stat = (k, l, v) => `<div class="stat2"><span class="stat-k">${k}</span><b class="stat-v">${v}</b><span class="stat-l">${l}</span></div>`;
@@ -2777,6 +2820,7 @@ function viewSettings(P) {
     ${Store.mode === "cloud" || Store.mode === "server" ? `<section class="win"><h2 class="win-title">Copie de sécurité</h2>
       <p class="small">Télécharge toute ta progression dans un fichier, ou recharge un fichier (par exemple <b>donnees\\progression.json</b> de la version PC) pour tout reprendre ici.</p>
       <div class="row"><button class="btn ghost" data-act="exportData">Télécharger une copie</button><label class="btn ghost" for="importFile">Importer un fichier<input type="file" id="importFile" accept=".json,application/json" hidden></label></div></section>` : ""}
+    ${pushSettings()}
     ${Store.mode === "cloud" ? `<section class="win"><h2 class="win-title">Compte</h2><p class="small">Connecté en tant que <b>${esc(Cloud.email())}</b>. Tu restes connecté sur cet appareil. Ta progression se synchronise entre ton téléphone et ton PC.</p><button class="btn ghost" data-act="logout">Se déconnecter de cet appareil</button></section>` : ""}
     <section class="win"><h2 class="win-title">Sauvegarde</h2><p class="small">${Store.mode === "cloud" ? "Tout est enregistré dans ton espace privé en ligne (ton projet Supabase). Sans réseau à la salle, l'appli garde tes séries et les envoie dès que la connexion revient. Claude peut lire ta progression pour ajuster le programme." : Store.mode === "server" ? "Ta progression est enregistrée sur ton PC, dans le dossier gauthier-leveling\\donnees, avec une copie de sécurité par jour. Claude peut la lire pour ajuster le programme." : Store.mode === "db" ? "Ta progression est sauvegardée en ligne, sur ton compte Claude. Claude peut la lire pour ajuster le programme." : "Ta progression est gardée dans ce navigateur seulement. Lance plutôt Muscu Leveling depuis le raccourci du bureau : tout est alors enregistré dans un fichier sur ton PC."}</p></section>`;
 }
@@ -3398,6 +3442,11 @@ const ACTIONS = {
   jokerCancel: a => cancelJoker(Number(a.dataset.cw)),
   resume: () => { state.modal = null; state.view = "dungeon"; requestWakeLock(); render(); },
   closeModal: () => { state.modal = null; renderModal(); },
+  pushOn: async () => { let ok = false; try { ok = await pushSave(true); } catch (e) { ok = false; }
+    render(); toast(ok ? "[Notifications activées] Le Système te préviendra ici." : Notification.permission === "denied" ? "[Système] Notifications refusées sur cet appareil." : "[Système] Impossible d'activer les notifications ici.", ok ? "ok" : "red"); },
+  pushLater: () => { lsSet("gl-push-later", today()); render(); },
+  pushTest: async () => { try { const reg = await navigator.serviceWorker.ready; await reg.showNotification("Muscu Leveling", {body: "Essai : les notifications du Système marchent sur cet appareil.", icon: "icon-192.png", tag: "gl-test"}); }
+    catch (e) { toast("[Système] L'essai n'a pas pu s'afficher.", "red"); } },
   toggleQ: a => { const on = a.getAttribute("aria-pressed") !== "true"; a.setAttribute("aria-pressed", on); a.classList.toggle("on", on); },
   answerQ: a => { const q = QUESTIONS.find(x => x.id === a.dataset.id); if (!q) return;
     const free = String(document.getElementById("ask-free")?.value || "").trim(), picked = [...document.querySelectorAll('.ask-b [data-act="toggleQ"][aria-pressed="true"]')].map(b => q.choices[Number(b.dataset.i)]);
@@ -3607,6 +3656,7 @@ async function boot() {
     Cloud.onAuthLost(() => { state.view = "login"; render(); });
     if (!Cloud.signedIn()) { state.ready = true; state.view = "login"; render(); return; }
     Store.mode = "cloud"; Store.db = await Cloud.open();
+    setTimeout(() => pushSave(false).catch(() => {}), 4000);   // keeps this device's subscription saved (new phone, renewed subscription)
     if (Cloud.hasCache()) { subscribe(); cloudSync(true); }
     else { try { await Cloud.pull(true); } catch (e) { if (e.code === "auth") { state.ready = true; state.view = "login"; render(); return; } toast("[Système] Pas de connexion : reconnecte-toi à internet pour charger ta progression.", "red"); } subscribe(); }
     return;
