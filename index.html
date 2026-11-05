@@ -1640,6 +1640,7 @@ function afterCompute(P) {
   state.lastLevel = P.level; state.lastRank = P.rank; state.lastAch = new Set(P.achIds);
 }
 function render() {
+  for (const [id, x] of Object.entries(S.profile?.customEx || {})) if (!EX[id] && x && x.n) EX[id] = {n: String(x.n), kind: x.kind === "poly" ? "poly" : "iso", eq: "machine", mine: true};   // his own exercises
   const app = document.getElementById("app"); const nav = document.getElementById("nav");
   if (state.view === "login" && Cloud && !Cloud.signedIn()) { app.innerHTML = viewLogin(); nav.hidden = true; return; }
   if (!state.ready) { app.innerHTML = `<div class="loading"><div class="win"><h2 class="win-title">Système</h2><p class="sys-line">[Connexion au Système…]</p></div></div>`; nav.hidden = true; return; }
@@ -1701,7 +1702,20 @@ function nextRankInfo(P) {
 }
 
 /* ----- status ----- */
-function viewStatus(P) { return topbar() + programPickWin() + penaltyWin(P) + draftWin() + statusWin(P) + sleepWin() + portalWin() + questWin() + bodyNudge() + weekWin(); }
+// Questions Claude needs answered (5 Nov): one card each on Statut until answered; the answer goes to profile.answers[id]
+const QUESTIONS = [
+  {id: "mathisSmith1105", plan: "mathis", q: "Sur ta séance du 5 novembre, tu as noté « Smith pour les pecs ». L'incliné (24 kg), tu l'as fait à la Smith ?",
+   choices: ["Oui, l'incliné à la Smith", "Non, aux haltères", "Je veux la Smith pour les pecs à partir de maintenant"]},
+];
+function questionWin() {
+  const ans = S.profile?.answers || {}, q = QUESTIONS.find(x => (!x.plan || x.plan === curPlan().id) && !ans[x.id]);
+  if (!q) return "";
+  return `<section class="win"><h2 class="win-title">Question du Système</h2><p>${esc(q.q)}</p>
+    <div class="ask-b">${(q.choices || []).map((c, i) => `<button class="btn ghost wide" data-act="answerQ" data-id="${q.id}" data-i="${i}">${esc(c)}</button>`).join("")}</div>
+    <div class="field"><label for="ask-free">Ou réponds avec tes mots</label><input id="ask-free" type="text" maxlength="400" autocomplete="off"></div>
+    <button class="btn primary wide" data-act="answerQ" data-id="${q.id}">Envoyer</button></section>`;
+}
+function viewStatus(P) { return topbar() + questionWin() + programPickWin() + penaltyWin(P) + draftWin() + statusWin(P) + sleepWin() + portalWin() + questWin() + bodyNudge() + weekWin(); }
 function statusWin(P) {
   const pct = Math.min(100, Math.round(P.into / P.need * 100)); const s = P.stats;
   const stat = (k, l, v) => `<div class="stat2"><span class="stat-k">${k}</span><b class="stat-v">${v}</b><span class="stat-l">${l}</span></div>`;
@@ -1943,10 +1957,11 @@ function viewDungeon() {
       ${d.week === 1 && !d.deload ? `<p class="sugg">${curPlan().s1}</p>` : curPlan().id === "felix" && d.week <= 3 && !d.deload ? `<p class="sugg">${curPlan().s1}</p>` : ""}
     </section>
     ${plan.map((it, i) => exCard(it, i, d)).join("")}
+    <button class="btn ghost wide" data-act="addExOpen">＋ Ajouter un exercice</button>
     ${curPlan().finisher ? `<section class="win"><h2 class="win-title">Finisher</h2><button class="q ${d.fin ? "on" : ""}" data-act="fin" role="checkbox" aria-checked="${!!d.fin}"><span class="box" aria-hidden="true"></span><span class="q-l">10 à 15 min de cardio</span><span class="q-t">${d.fin ? "[Fait]" : "+20 XP · +10 or"}</span></button><p class="muted small">Marche inclinée (pente 8 à 12 %) ou rameur, à un rythme où tu peux encore parler. Ça brûle sans te fatiguer pour la séance suivante.</p></section>` : ""}
     <button class="btn primary wide big" data-act="finishAsk">Terminer le donjon</button>`;
 }
-const setsTarget = (it, d) => it.sets - (d.minus[it.ex] || 0) + ((d.plus || {})[it.ex] || 0);   // planned, minus sore-muscle sets, plus extra sets
+const setsTarget = (it, d) => it.sets - ((d.minus || {})[it.ex] || 0) + ((d.plus || {})[it.ex] || 0);   // planned, minus sore-muscle sets, plus extra sets
 function exCard(it, i, d) {
   const ex = EX[it.ex], n = setsTarget(it, d), rows = d.sets[it.ex] || [];
   const grip = (d.grip || {})[it.ex], sg = suggest(it, {p: d.week, deload: !!d.deload}, grip);
@@ -1966,7 +1981,7 @@ function exCard(it, i, d) {
   const plus = !d.deload && n > 0 && n < it.sets + 2 ? `<button class="link" data-act="plus" data-ex="${it.ex}">En forme ? Ajouter une série</button>` : "";
   const anyDone = rows.some(r => r.done), alt0 = ALTS[it.ex], alt = alt0 && !(curPlan().id === "felix" && EX[alt0].eq === "db") ? alt0 : null;
   const altBtn = alt && !anyDone ? `<button class="link" data-act="alt" data-ex="${it.base || it.ex}" data-to="${alt}">Machine prise ? Autre version : ${esc(EX[alt].n)}</button>` : "";
-  const skip = n > 0 && !anyDone ? `<button class="link" data-act="skipEx" data-ex="${it.ex}">Machine en panne ? Passer l'exercice</button>` : n === 0 ? `<button class="link" data-act="unskipEx" data-ex="${it.ex}">Remettre l'exercice</button>` : "";
+  const skip = it.added && !anyDone ? `<button class="link" data-act="removeExtra" data-ex="${it.ex}">Retirer cet exercice</button>` : n > 0 && !anyDone ? `<button class="link" data-act="skipEx" data-ex="${it.ex}">Retirer cet exercice (machine prise, en panne, pas le jour…)</button>` : n === 0 ? `<button class="link" data-act="unskipEx" data-ex="${it.ex}">Remettre l'exercice</button>` : "";
   const gr = GRIP_OF[it.ex], gripRow = gr ? `<div class="grip"><span class="lbl">Prise</span><div class="grip-b">${gr.map(g => `<button class="${grip === g ? "on" : ""}" data-act="grip" data-ex="${it.ex}" data-g="${g}">${g}</button>`).join("")}</div></div>` : "";
   return `<article class="ex ${i === 0 ? "boss" : ""} ${cleared ? "cleared" : ""}" id="ex-${it.ex}">
     <div class="ex-h"><span class="ex-n">${pad(i + 1)}</span><div><h3>${esc(ex.n)}</h3><div class="tags">${tags}</div></div></div>
@@ -2971,6 +2986,7 @@ function renderModal() {
       : `<div class="row"><button class="btn primary" data-act="closeModal">Continuer le donjon</button><button class="btn" data-act="pauseDg">Retour au statut</button></div><button class="link" data-act="abandonAsk">Abandonner le donjon</button>`}</div>`;
   else if (m.kind === "confirm") h = `<div class="win ${m.danger ? "red" : ""}"><h2 class="win-title">${m.title}</h2><p>${m.body}</p><div class="row"><button class="btn ghost" data-act="closeModal">Annuler</button><button class="btn ${m.danger ? "danger" : "gold"}" data-act="confirmYes">${m.yes}</button></div></div>`;
   else if (m.kind === "food") h = modalFood(m);
+  else if (m.kind === "addEx") h = modalAddEx(m);
   else if (m.kind === "tplSave") h = `<div class="win"><h2 class="win-title">Repas type</h2><div class="field"><label for="fm-tplName">Nom du repas</label><input id="fm-tplName" data-bind="food" data-f="tplName" autocomplete="off" placeholder="Ex. Poulet riz du midi" value="${esc(m.tplName || "")}"></div><div class="row"><button class="btn ghost" data-act="closeModal">Annuler</button><button class="btn primary" data-act="tplSave">Enregistrer</button></div></div>`;
   else if (m.kind === "ticket") { const p = S.purchases.find(x => x.id === m.pid); h = `<div class="win"><h2 class="win-title">Ticket repas</h2><p>Valider « ${esc(p ? p.name : "")} » ${m.date === today() ? "aujourd'hui" : "le " + fmtDay(fromStr(m.date), {day: "numeric", month: "long"})} ? Le repas compte comme noté, ses calories ne comptent pas.</p><div class="row">${mealSlots([]).map(sl => `<button class="btn gold" data-act="ticketSlot" data-slot="${sl.k}">${sl.label}</button>`).join("")}</div><button class="btn ghost" data-act="closeModal">Annuler</button></div>`; }
   el.classList.toggle("top", m.kind === "food");   // the food window opens from the top: the field typed in stays above the keyboard
@@ -2999,8 +3015,30 @@ function modalPreview(m) {
     <p class="muted small">${when} · environ ${estMinutes(plan)} min · échauffement d'abord</p>
     <ol class="pv-list">${rows}</ol>${can ? gapWarn(cw, ty, false) : ""}${moveRow(cw, ty, p)}<div class="m-actions">${action}<button class="btn ghost" data-act="closeModal">Fermer</button></div></div>`;
 }
-function draftPlan(d) {                       // the planned exercises, with the other versions picked in this dungeon
-  return planFor(d.cw, d.type).map(it => { const a = (d.alt || {})[it.ex]; return a ? {...it, ex: a, base: it.ex, cue: ALT_CUE[a] || it.cue} : it; });
+function addExList(m) {                       // every exercise of the app, by muscle; the ones already in the dungeon are left out
+  const nz = v => String(v || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
+  const have = new Set(draftPlan(S.draft).map(it => it.ex)), drop = curPlan().drop || [], q = nz(m.q);
+  const groupOf = ex => (STRENGTH.find(g => g.ex[ex] != null || EST_EXTRA[g.k]?.[ex] != null) || {name: "Autres"}).name;
+  const list = Object.keys(EX).filter(ex => !have.has(ex) && !drop.includes(ex) && (!q || nz(EX[ex].n).includes(q)));
+  const groups = {}; for (const ex of list) (groups[groupOf(ex)] = groups[groupOf(ex)] || []).push(ex);
+  const order = [...STRENGTH.map(g => g.name), "Autres"].filter(g => groups[g]);
+  const mine = String(m.q || "").trim(), create = mine.length >= 3 ? `<span class="lbl">Pas dans la liste ?</span>
+    <button class="btn ghost wide" data-act="addExCreate" data-k="iso">＋ Créer « ${esc(mine)} » (isolation)</button>
+    <button class="btn ghost wide" data-act="addExCreate" data-k="poly">＋ Créer « ${esc(mine)} » (gros mouvement)</button>` : "";
+  return (order.map(g => `<span class="lbl">${esc(g)}</span><ul class="food-res">${groups[g].map(ex => `<li><button data-act="addExPick" data-ex="${ex}"><span>${esc(EX[ex].n)}</span><small>${EX[ex].kind === "poly" ? "Gros mouvement" : "Isolation"}</small></button></li>`).join("")}</ul>`).join("") || `<p class="muted small">Rien trouvé dans la liste.</p>`) + create;
+}
+function modalAddEx(m) {
+  return `<div class="win"><h2 class="win-title">Ajouter un exercice</h2>
+    <p class="muted small">En bonus : ses séries comptent en XP et dans tes records, sans changer ce qui est exigé pour valider le donjon.</p>
+    <div class="field"><label for="addex-q">Chercher</label><input id="addex-q" type="text" autocomplete="off" value="${esc(m.q || "")}" data-bind="addex"></div>
+    <div id="addex-list">${addExList(m)}</div>
+    <div class="m-actions"><button class="btn ghost wide" data-act="closeModal">Fermer</button></div></div>`;
+}
+function draftPlan(d) {                       // the planned exercises, with the other versions picked in this dungeon, plus the ones he added
+  const plan = planFor(d.cw, d.type).map(it => { const a = (d.alt || {})[it.ex]; return a ? {...it, ex: a, base: it.ex, cue: ALT_CUE[a] || it.cue} : it; });
+  const extra = (d.extra || []).filter(x => EX[x.ex] && !plan.some(it => it.ex === x.ex)).map((x, i) => ({...x, idx: 100 + i, opt: true, added: true,
+    rir: rirFor((weekInfo(d.cw) || {p: 1}).p, x, 0, d.type, d.deload)}));
+  return [...plan, ...extra];
 }
 const setDone = r => !!r && (r.done || parseNum(r.reps) > 0);   // ticked, or reps typed and the tick forgotten
 function draftCounts() {
@@ -3319,6 +3357,11 @@ const ACTIONS = {
   jokerCancel: a => cancelJoker(Number(a.dataset.cw)),
   resume: () => { state.modal = null; state.view = "dungeon"; requestWakeLock(); render(); },
   closeModal: () => { state.modal = null; renderModal(); },
+  answerQ: a => { const q = QUESTIONS.find(x => x.id === a.dataset.id); if (!q) return;
+    const txt = a.dataset.i != null ? q.choices[Number(a.dataset.i)] : String(document.getElementById("ask-free")?.value || "").trim();
+    if (!txt) { toast("[Système] Choisis une réponse ou écris-la.", "red"); return; }
+    const p = clone(S.profile); p.answers = {...(p.answers || {}), [q.id]: {a: txt.slice(0, 400), at: new Date().toISOString()}};
+    S.profile = p; queueSet("game/profile", p); render(); toast("[Réponse envoyée] Merci, le Système en tient compte.", "ok"); },
   q: a => toggleQuest(a.dataset.k),
   day: a => { state.dayOffset = Number(a.dataset.o); render(); },
   warm: () => { S.draft.warm = !S.draft.warm; saveDraft(); render(); },
@@ -3356,6 +3399,16 @@ const ACTIONS = {
     delete d.sets[cur]; d.sets[to] = Array.from({length: n}, () => ({kg: sg.kg != null ? fmtIn(sg.kg) : "", reps: "", done: false}));
     if (d.minus[cur]) { d.minus[to] = d.minus[cur]; delete d.minus[cur]; } if (d.plus && d.plus[cur]) { d.plus = {...d.plus, [to]: d.plus[cur]}; delete d.plus[cur]; }
     saveDraft(); render(); },
+  addExOpen: () => { state.modal = {kind: "addEx", q: ""}; renderModal(); },
+  addExPick: a => { const ex = a.dataset.ex, d = S.draft; if (!d || !EX[ex]) return; const poly = EX[ex].kind === "poly";
+    d.extra = [...(d.extra || []), {ex, sets: 3, reps: poly ? [6, 10] : [10, 15], rest: poly ? 120 : 75, cue: "Exercice ajouté par toi : amplitude complète, contrôle la descente."}];
+    state.modal = null; saveDraft(); render(); renderModal(); toast(`[Ajouté] ${esc(EX[ex].n)}`, "ok");
+    setTimeout(() => document.getElementById("ex-" + ex)?.scrollIntoView({behavior: "smooth", block: "start"}), 200); },
+  removeExtra: a => { const d = S.draft; if (!d) return; d.extra = (d.extra || []).filter(x => x.ex !== a.dataset.ex); saveDraft(); render(); },
+  addExCreate: a => { const m = state.modal, name = String(m?.q || "").trim().slice(0, 60); if (name.length < 3) return;   // an exercise the app does not know: kept in his profile
+    const id = "my_" + normPseudo(name).replace(/[^a-z0-9]/g, "").slice(0, 24), p = clone(S.profile);
+    p.customEx = {...(p.customEx || {}), [id]: {n: name.charAt(0).toUpperCase() + name.slice(1), kind: a.dataset.k === "poly" ? "poly" : "iso"}};
+    S.profile = p; queueSet("game/profile", p); render(); ACTIONS.addExPick({dataset: {ex: id}}); },
   skipEx: a => { const ex = a.dataset.ex, d = S.draft, it = draftPlan(d).find(x => x.ex === ex); if (!it) return; d.minus[ex] = it.sets + ((d.plus || {})[ex] || 0); saveDraft(); render(); },
   unskipEx: a => { const ex = a.dataset.ex, d = S.draft; d.minus[ex] = 0; if (d.plus) d.plus = {...d.plus, [ex]: 0}; saveDraft(); render(); },
   minus: a => { const ex = a.dataset.ex, d = S.draft;   // an extra set added by mistake goes first
@@ -3423,6 +3476,7 @@ function onField(e) {
   else if (b === "rwRank") state.rw.rank[el.dataset.r] = v;
   else if (b === "rwNew") state.rw[el.dataset.f] = v;
   else if (b === "set") state.setDraft[el.dataset.f] = v;
+  else if (b === "addex") { if (state.modal?.kind === "addEx") { state.modal.q = v; const box = document.getElementById("addex-list"); if (box) box.innerHTML = addExList(state.modal); } }
   else if (b === "weigh") state.weighDraft[el.dataset.key] = v;
   else if (b === "waist") state.waistDraft[el.dataset.key] = v;
   else if (b === "bf") (state.bfDraft = state.bfDraft || {})[el.dataset.key] = v;
