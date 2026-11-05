@@ -95,6 +95,10 @@ h1,h2,h3{text-wrap:balance}
 .btn.sm{padding:9px 12px;min-height:40px;font-size:12px}
 .btn.big{min-height:58px;font-size:16px}
 .btn.wide{width:100%}
+.ask-b{display:grid;gap:8px;margin:10px 0}
+.ask-b .btn{text-transform:none;letter-spacing:.02em;text-align:left}
+.ask-b .btn.on{background:rgba(60,140,255,.32);border-color:var(--glow);box-shadow:0 0 10px rgba(60,150,255,.35)}
+.ask-b .btn.on::after{content:"✓";float:right;color:var(--glow)}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
 .row{display:flex;flex-wrap:wrap;gap:10px}
@@ -1709,14 +1713,41 @@ function nextRankInfo(P) {
 const QUESTIONS = [
   {id: "mathisSmith1105", plan: "mathis", q: "Sur ta séance du 5 novembre, tu as noté « Smith pour les pecs ». L'incliné (24 kg), tu l'as fait à la Smith ?",
    choices: ["Oui, l'incliné à la Smith", "Non, aux haltères", "Je veux la Smith pour les pecs à partir de maintenant"]},
+  // getting to know Mathis (Gauthier's ask, 5 Nov): how he wants his sessions, his habits, his body, food and sleep
+  {id: "mExp1105", plan: "mathis", q: "Depuis combien de temps tu fais de la muscu, pauses comprises ?", choices: ["Moins d'un an", "1 à 2 ans", "2 à 4 ans", "Plus de 4 ans"]},
+  {id: "mGoal1105", plan: "mathis", q: "Ton objectif numéro 1 en ce moment ?", choices: ["Prendre du muscle partout", "Surtout le haut du corps", "Devenir plus fort, soulever plus lourd", "Être plus sec et dessiné"]},
+  {id: "mPrio1105", plan: "mathis", multi: true, q: "Les muscles que tu veux faire grossir en priorité ? Plusieurs choix possibles.", choices: ["Pecs", "Dos", "Épaules", "Bras", "Jambes", "Abdos"]},
+  {id: "mLate1105", plan: "mathis", multi: true, q: "Et quand tu te regardes dans le miroir, lesquels tu trouves en retard ?", choices: [...["Pecs", "Dos", "Épaules", "Bras", "Jambes", "Abdos"], "Aucun"]},
+  {id: "mDays1105", plan: "mathis", multi: true, q: "Quels jours tu peux aller à la salle ? Coche tous ceux qui marchent.", choices: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]},
+  {id: "mHour1105", plan: "mathis", q: "À quelle heure tu y vas d'habitude ?", choices: ["Tôt le matin", "Fin de matinée ou midi", "L'après-midi", "Le soir"]},
+  {id: "mLen1105", plan: "mathis", q: "Combien de temps tu peux rester à la salle par séance ?", choices: ["45 min maximum", "Environ 1 h", "1 h 15 à 1 h 30", "Pas de limite"]},
+  {id: "mFeel1105", plan: "mathis", q: "Tes séances actuelles, tu les trouves…", choices: ["Trop courtes, j'en veux plus", "Bien comme ça", "Trop longues", "Trop dures"]},
+  {id: "mLove1105", plan: "mathis", q: "Les exercices que tu kiffes le plus ? Écris-les, le Système essaiera de les garder ou d'en mettre plus.", choices: []},
+  {id: "mHate1105", plan: "mathis", q: "Et ceux que tu détestes, ou que tu ne veux plus faire ?", choices: ["Aucun, tout me va"]},
+  {id: "mLegs1105", plan: "mathis", q: "La grosse séance jambes du samedi, tu en penses quoi ?", choices: ["J'aime bien, je garde", "Je préfère les jambes un autre jour", "Je veux moins de jambes", "Je veux plus de jambes"]},
+  {id: "mFail1105", plan: "mathis", q: "Pendant tes séries, tu préfères…", choices: ["Aller jusqu'à l'échec", "Garder 1 ou 2 reps en réserve", "Je ne sais pas trop"]},
+  {id: "mPain1105", plan: "mathis", multi: true, q: "Tu as une douleur ou une gêne quand tu t'entraînes ? Écris les détails en dessous si besoin.", choices: ["Non, aucune", "Épaules", "Coudes ou poignets", "Dos", "Genoux"]},
+  {id: "mGym1105", plan: "mathis", q: "Dans ta salle, il manque une machine ou certaines sont toujours prises ? Lesquelles ?", choices: ["Non, tout est dispo"]},
+  {id: "mEat1105", plan: "mathis", q: "Manger assez pour prendre du muscle, pour toi c'est…", choices: ["Facile, j'ai toujours faim", "Dur, je n'ai pas faim", "Compliqué niveau temps ou cuisine", "Compliqué niveau budget"]},
+  {id: "mWeight1105", plan: "mathis", q: "Tu as noté 72 kg. Tu aimerais arriver à combien ?", choices: ["75 kg", "78 kg", "80 kg ou plus", "Je ne regarde pas le poids"]},
+  {id: "mSupp1105", plan: "mathis", multi: true, q: "Tu prends quoi comme compléments ?", choices: ["Whey", "Créatine", "Gainer", "Rien"]},
+  {id: "mSleep1105", plan: "mathis", q: "Tu as noté 6 h de sommeil. C'est surtout parce que…", choices: ["Je me lève tôt", "Je me couche tard", "Je dors mal", "6 h me suffisent"]},
+  {id: "mSport1105", plan: "mathis", q: "Tu fais un autre sport ou une activité physique à côté ?", choices: ["Non", "Un sport collectif", "Course ou cardio", "Autre (écris-le)"]},
+  {id: "mApp1105", plan: "mathis", q: "Dans l'appli, qu'est-ce que tu aimerais changer ou ajouter ?", choices: ["Rien, elle me va"]},
+  {id: "mFree1105", plan: "mathis", q: "Un dernier truc que le Système devrait savoir sur toi ou sur ta façon de t'entraîner ?", choices: ["Non, c'est tout"]},
 ];
 function questionWin() {
-  const ans = S.profile?.answers || {}, q = QUESTIONS.find(x => (!x.plan || x.plan === curPlan().id) && !ans[x.id]);
+  const ans = S.profile?.answers || {}, mine = QUESTIONS.filter(x => !x.plan || x.plan === curPlan().id), q = mine.find(x => !ans[x.id]);
   if (!q) return "";
-  return `<section class="win"><h2 class="win-title">Question du Système</h2><p>${esc(q.q)}</p>
-    <div class="ask-b">${(q.choices || []).map((c, i) => `<button class="btn ghost wide" data-act="answerQ" data-id="${q.id}" data-i="${i}">${esc(c)}</button>`).join("")}</div>
-    <div class="field"><label for="ask-free">Ou réponds avec tes mots</label><input id="ask-free" type="text" maxlength="400" autocomplete="off"></div>
-    <button class="btn primary wide" data-act="answerQ" data-id="${q.id}">Envoyer</button></section>`;
+  const n = mine.filter(x => ans[x.id]).length + 1, ch = q.choices || [];
+  const btns = ch.map((c, i) => q.multi ? `<button class="btn ghost wide" data-act="toggleQ" data-i="${i}" aria-pressed="false">${esc(c)}</button>`
+    : `<button class="btn ghost wide" data-act="answerQ" data-id="${q.id}" data-i="${i}">${esc(c)}</button>`).join("");
+  const lbl = !ch.length ? "Ta réponse" : q.multi ? "Un détail à ajouter ? (facultatif)" : "Ou réponds avec tes mots";
+  return `<section class="win"><h2 class="win-title">Question du Système</h2>${mine.length > 1 ? `<p class="muted small">Question ${n} sur ${mine.length}</p>` : ""}<p>${esc(q.q)}</p>
+    ${ch.length ? `<div class="ask-b">${btns}</div>` : ""}
+    <div class="field"><label for="ask-free">${lbl}</label><input id="ask-free" type="text" maxlength="400" autocomplete="off"></div>
+    <button class="btn primary wide" data-act="answerQ" data-id="${q.id}">Envoyer</button>
+    <button class="link" data-act="answerQ" data-id="${q.id}" data-skip="1">Passer cette question</button></section>`;
 }
 function viewStatus(P) { return topbar() + questionWin() + programPickWin() + penaltyWin(P) + draftWin() + statusWin(P) + sleepWin() + portalWin() + questWin() + bodyNudge() + weekWin(); }
 function statusWin(P) {
@@ -3367,9 +3398,11 @@ const ACTIONS = {
   jokerCancel: a => cancelJoker(Number(a.dataset.cw)),
   resume: () => { state.modal = null; state.view = "dungeon"; requestWakeLock(); render(); },
   closeModal: () => { state.modal = null; renderModal(); },
+  toggleQ: a => { const on = a.getAttribute("aria-pressed") !== "true"; a.setAttribute("aria-pressed", on); a.classList.toggle("on", on); },
   answerQ: a => { const q = QUESTIONS.find(x => x.id === a.dataset.id); if (!q) return;
-    const txt = a.dataset.i != null ? q.choices[Number(a.dataset.i)] : String(document.getElementById("ask-free")?.value || "").trim();
-    if (!txt) { toast("[Système] Choisis une réponse ou écris-la.", "red"); return; }
+    const free = String(document.getElementById("ask-free")?.value || "").trim(), picked = [...document.querySelectorAll('.ask-b [data-act="toggleQ"][aria-pressed="true"]')].map(b => q.choices[Number(b.dataset.i)]);
+    const txt = a.dataset.skip ? "(passée)" : a.dataset.i != null ? q.choices[Number(a.dataset.i)] : [picked.join(", "), free].filter(Boolean).join(" · ");
+    if (!txt) { toast(`[Système] ${q.multi ? "Coche au moins une réponse" : "Choisis une réponse"} ou écris-la.`, "red"); return; }
     const p = clone(S.profile); p.answers = {...(p.answers || {}), [q.id]: {a: txt.slice(0, 400), at: new Date().toISOString()}};
     S.profile = p; queueSet("game/profile", p); render(); toast("[Réponse envoyée] Merci, le Système en tient compte.", "ok"); },
   q: a => toggleQuest(a.dataset.k),
