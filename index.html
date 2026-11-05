@@ -890,6 +890,10 @@ const WEEKS = [null,
 ];
 const DELOAD = {phase: "Semaine allégée", rank: "D", rirTxt: "3 partout, mêmes charges, jamais à l'échec", setsTxt: "Moitié des séries"};
 const TEST_EX = {DP: ["csRow", "bench"], PT: ["inclBar", "machPress"]};
+const GAUTHIER_ADD = {                      // 5 Nov, his photos: small traps, width from the side delts -> each trained twice a week
+  DB: [{ex: "shrug", sets: 3, reps: [10, 15], rest: 75, cue: "2e séance de trapèzes de la semaine : monte les épaules droit vers les oreilles, pause 1 s en haut, descente lente ; bras tendus, sans rouler."}],
+  PT: [{ex: "latRaiseMach", sets: 3, reps: [12, 15], rest: 60, cue: "2e séance d'épaules latérales : coudes légèrement fléchis, monte jusqu'à l'horizontale sans hausser les épaules, descente lente. C'est ce qui élargit la carrure."}],
+};
 const SHRUG = {ex: "shrug", sets: 2, reps: [10, 15], rest: 75, cue: "Monte les épaules droit vers les oreilles, pause 1 s en haut, descente lente ; bras tendus, sans rouler les épaules."};
 const GAUTHIER_SWAP = {                       // his own picks (30 Oct): close-grip cable row, rows on the cable, the long-head curl machine
   cableRow: {ex: "rowCableClose", cue: "Poulie basse, poignée serrée (triangle) : laisse les épaules avancer pour étirer, puis tire les coudes le long du corps et serre les omoplates."},
@@ -917,7 +921,7 @@ const WEEKS_MATHIS = [null,
   {n: 8, phase: "Bilan", rank: "C", rirTxt: "1, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
 ];
 const PLANS = {
-  base: {id: "base", swap: GAUTHIER_SWAP, keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
+  base: {id: "base", swap: GAUTHIER_SWAP, add: GAUTHIER_ADD, keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
     intro: "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat",
     lead: "Lundi dos/pecs, mardi épaules/trapèzes, mercredi grosse séance jambes une semaine sur deux (l'autre mercredi : complément bras et épaules avec un petit rappel jambes), jeudi dos/biceps, vendredi pecs/triceps. Week-end : repos.",
     s1: "Première séance : tu réapprends les mouvements, rien de lourd. Que des gros mouvements : 2 pour les pecs, 2 pour le dos, 2 pour les jambes."},
@@ -1853,8 +1857,8 @@ function grimoire() {
       <li><b>Lundi : dos / pecs en FORCE.</b> Le dos d'abord, puis les pecs. Lourd : 4-8 reps sur les gros exos, 2-3 min de repos, à l'échec.</li>
       <li><b>Mardi : épaules / trapèzes</b>, avec un peu d'avant d'épaule.</li>
       <li><b>Mercredi : grosse séance jambes une semaine sur deux</b>, à fond comme tu aimes. L'autre mercredi : complément bras, épaules et haut des pecs, puis un <b>petit rappel jambes</b> (2 séries de hack squat + 2 de leg curl, 3 reps en réserve, environ 80 % de tes charges). Au milieu de la semaine, les jambes ne gênent aucune séance du haut, et le dos (lundi → jeudi) comme les pecs (lundi → vendredi) gardent 3-4 jours de récupération.</li>
-      <li><b>Jeudi : dos / biceps en TECHNIQUE.</b> Le dos une 2e fois, plus léger : 10-15 reps, descente en 3 s, pause en étirement, 1-2 reps en réserve. Les biceps, eux, vont à l'échec.</li>
-      <li><b>Vendredi : pecs / triceps en TECHNIQUE.</b> Les pecs une 2e fois, même logique. Les triceps vont à l'échec.</li>
+      <li><b>Jeudi : dos / biceps en TECHNIQUE.</b> Le dos une 2e fois, plus léger : 10-15 reps, descente en 3 s, pause en étirement, 1-2 reps en réserve. Les biceps, eux, vont à l'échec. Puis 3 séries de shrugs : tes trapèzes travaillent 2 fois par semaine.</li>
+      <li><b>Vendredi : pecs / triceps en TECHNIQUE.</b> Les pecs une 2e fois, même logique. Les triceps vont à l'échec. Puis 3 séries d'élévations latérales : la largeur d'épaules, ton meilleur levier pour paraître plus imposant.</li>
       <li>Force puis technique : la séance lourde fait progresser les charges, la séance légère ajoute du volume sans t'écraser, et tu récupères pour le lundi suivant. C'est la logique des programmes de Nippard (une séance lourde, une séance plus volumineuse par muscle) et celle qui t'a fait progresser l'an dernier.</li>
       <li>Pourquoi ce rappel : tes 5-6 jours de courbatures viennent surtout du fait que les jambes ne travaillent que toutes les deux semaines. Une petite dose entre deux grosses séances habitue le muscle (on appelle ça « l'effet de la séance répétée ») : les courbatures du gros jour baissent nettement en 2-3 cycles, et les jambes travaillent tous les 7 jours au lieu de 14. Le rappel ne compte pas dans tes records.</li>
       <li>Samedi et dimanche : repos, tout se fait du lundi au vendredi. Un donjon peut se faire un autre jour (bouton « Changer de jour »). Une séance peut sauter sans pénalité : 4 sur 5 suffisent.</li></ul></div></details>
