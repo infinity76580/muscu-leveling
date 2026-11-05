@@ -1770,15 +1770,34 @@ const pushCan = () => Store.mode === "cloud" && "serviceWorker" in navigator && 
 const pushState = () => pushCan() ? Notification.permission : isIOS() && !isInstalled() ? "ios" : "no";   // default | granted | denied | ios | no
 const b64u = t => { const b = atob(t.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((t.length + 3) % 4)); return Uint8Array.from(b, c => c.charCodeAt(0)); };
 const hashStr = t => { let h = 5381; for (let i = 0; i < t.length; i++) h = (h * 33 + t.charCodeAt(i)) >>> 0; return h.toString(36); };
+function schedSave() {                         // game/sched: the next 8 days, read by the gl-notifs function for its reminders
+  if (Store.mode !== "cloud" || !state.ready || !S.profile) return;
+  const t = today(), days = {}, cw0 = weekOfStr(t);
+  const plan = [cw0, cw0 + 1].flatMap(cw => weekPlan(cw)).filter(x => x.date && !x.done && !x.bonus);
+  for (let i = 0; i < 8; i++) {
+    const k = toStr(addDays(fromStr(t), i)), ses = plan.filter(x => x.date === k).map(x => TYPES[x.ty]?.name || x.ty);
+    const off = isFreeDay(k) || !!S.days[k]?.sick;
+    if (ses.length || off) days[k] = {...(ses.length ? {session: ses.join(" + ")} : {}), ...(off ? {off: true} : {})};
+  }
+  const sig = JSON.stringify(days);
+  if (sig === state.schedSig) return;
+  state.schedSig = sig; queueSet("game/sched", {days, at: new Date().toISOString()});
+}
 async function pushSave(ask) {
   if (!pushCan()) return false;
   if (ask && Notification.permission === "default") await Notification.requestPermission();
   if (Notification.permission !== "granted") return false;
   const reg = await navigator.serviceWorker.ready;
-  const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: b64u(PUSH_KEY)});
-  const j = sub.toJSON(), mark = j.endpoint + "|" + Cloud.email();
+  let sub = await reg.pushManager.getSubscription();
+  const keyOf = x => { const k = x?.options?.applicationServerKey; return k ? btoa(String.fromCharCode(...new Uint8Array(k))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "") : null; };
+  if (sub && keyOf(sub) && keyOf(sub) !== PUSH_KEY) {          // made with an older key: the server could not reach it
+    const old = sub.toJSON().endpoint; await sub.unsubscribe().catch(() => {}); sub = null;
+    queueSet("push/" + hashStr(old), null); lsSet("gl-push", "");
+  }
+  if (!sub) sub = await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: b64u(PUSH_KEY)});
+  const j = sub.toJSON(), mark = j.endpoint + "|" + Cloud.email() + "|" + PUSH_KEY.slice(0, 12);
   if (lsGet("gl-push") !== mark) {
-    await queueSet("push/" + hashStr(j.endpoint), {sub: j, device: isIOS() ? "iPhone" : /android/i.test(navigator.userAgent) ? "Android" : "Ordinateur", at: new Date().toISOString()});
+    await queueSet("push/" + hashStr(j.endpoint), {sub: j, key: PUSH_KEY, device: isIOS() ? "iPhone" : /android/i.test(navigator.userAgent) ? "Android" : "Ordinateur", at: new Date().toISOString()});
     lsSet("gl-push", mark);
   }
   return true;
@@ -1794,7 +1813,11 @@ function pushWin() {
 function pushSettings() {
   if (Store.mode !== "cloud") return "";
   const st = pushState();
-  const body = st === "granted" ? `<p class="small">Activées sur cet appareil.</p><button class="btn ghost" data-act="pushTest">Envoyer un essai</button>`
+  const nf = S.profile?.notif || {}, ntg = (k, label, desc) => `<button class="q ${nf[k] !== false ? "on" : ""}" data-act="notifToggle" data-k="${k}" role="checkbox" aria-checked="${nf[k] !== false}"><span class="box" aria-hidden="true"></span><span class="q-l">${label}<br><small class="muted" style="font-weight:400">${desc}</small></span></button>`;
+  const body = st === "granted" ? `<p class="small">Activées sur cet appareil. Choisis ce que le Système t'envoie :</p>
+      ${ntg("session", "Donjon du jour", "Vers 18 h, si la séance prévue n'est pas faite")}${ntg("meals", "Repas", "Vers 21 h, si rien n'est noté de la journée")}
+      ${ntg("weigh", "Pesée", "Le matin, après deux jours sans pesée")}${ntg("report", "Bilan de la semaine", "Le dimanche vers 18 h")}${ntg("group", "Le groupe", "Donjons, records, rangs et encouragements des autres")}
+      <button class="btn ghost" data-act="pushTest">Afficher un essai</button>`
     : st === "default" ? `<p class="small">Le Système te prévient quand il a une question pour toi.</p><button class="btn primary" data-act="pushOn">Activer les notifications</button>`
     : st === "denied" ? `<p class="small">Bloquées sur cet appareil : autorise les notifications pour ce site dans les réglages du navigateur, puis reviens ici.</p>`
     : st === "ios" ? `<p class="small">${IOS_PUSH}</p>` : `<p class="small">Ce navigateur ne gère pas les notifications.</p>`;
@@ -1831,6 +1854,8 @@ function alertsList() {
     const kc = avgOf(fd.map(x => x.m.kcal)), kt = avgOf(fd.map(x => x.p.kcal)), pr = avgOf(fd.map(x => x.m.prot)), pt = avgOf(fd.map(x => x.p.protein));
     if (goal === "gain" && kc < kt * 0.88) out.push({id: "kcal-low", txt: `Ces derniers jours tu manges <b>${fmt(kc, 0)} kcal</b> en moyenne, pour un objectif de ${fmt(kt, 0)}. Pour prendre du muscle, il te manque environ ${fmt(roundTo(kt - kc, 50), 0)} kcal par jour : ajoute une collation (fromage blanc, flocons d'avoine, beurre de cacahuète, une banane).`});
     if (goal === "fat" && kc > kt * 1.12) out.push({id: "kcal-high", txt: `Ces derniers jours : <b>${fmt(kc, 0)} kcal</b> en moyenne pour un objectif de ${fmt(kt, 0)}. Pour perdre du gras, reviens vers ${fmt(kt, 0)} kcal.`});
+    if (goal === "recomp" && kc > kt * 1.12) out.push({id: "kcal-high", txt: `Ces derniers jours : <b>${fmt(kc, 0)} kcal</b> en moyenne pour un objectif de ${fmt(kt, 0)}. Pour sécher en gardant ton muscle, reviens vers ${fmt(kt, 0)} kcal.`});
+    if (goal === "recomp" && kc < kt * 0.85) out.push({id: "kcal-low", txt: `Ces derniers jours : <b>${fmt(kc, 0)} kcal</b> en moyenne pour un objectif de ${fmt(kt, 0)}. Trop bas, tu risques de perdre du muscle : remonte vers ${fmt(kt, 0)} kcal.`});
     if (pr < pt * 0.85) out.push({id: "prot-low", txt: `Protéines : <b>${fmt(pr, 0)} g</b> par jour en moyenne ces derniers jours, pour un objectif de ${fmt(pt, 0)} g. Ajoute une source de protéines à un repas (viande, poisson, œufs, skyr, whey).`});
   }
   const sl = [...Array(4)].map((_, i) => Number(S.days[toStr(addDays(fromStr(t), -i))]?.sleepH) || 0).filter(v => v > 0);
@@ -1862,7 +1887,8 @@ function weekReport(cw) {
   if (req && done < req) obj.push(`Fais tes ${req} donjons : c'est la base de tout le reste.`);
   if (fd.length >= 3 && pr < pt * 0.9) obj.push(`Protéines : au moins ${fmt(roundTo(pt, 5), 0)} g chaque jour (tu étais à ${fmt(pr, 0)} g).`);
   if (fd.length >= 3 && goal === "gain" && kc < kt * 0.9) obj.push(`Mange au moins ${fmt(roundTo(kt, 50), 0)} kcal par jour : il t'en manquait ${fmt(roundTo(kt - kc, 50), 0)} en moyenne.`);
-  if (fd.length >= 3 && goal === "fat" && kc > kt * 1.1) obj.push(`Reste autour de ${fmt(roundTo(kt, 50), 0)} kcal par jour (tu étais à ${fmt(kc, 0)}).`);
+  if (fd.length >= 3 && goal !== "gain" && kc > kt * 1.1) obj.push(`Reste autour de ${fmt(roundTo(kt, 50), 0)} kcal par jour (tu étais à ${fmt(kc, 0)}).`);
+  if (fd.length >= 3 && goal === "recomp" && kc < kt * 0.85) obj.push(`Remonte vers ${fmt(roundTo(kt, 50), 0)} kcal par jour (tu étais à ${fmt(kc, 0)}) : trop bas, tu perds du muscle.`);
   if (fd.length < 4 && keys[6] >= (p.foodStart || keys[0])) obj.push("Note tes repas au moins 5 jours sur 7 : sans ça, le Système ne peut pas régler tes calories.");
   if (sl.length >= 3 && sleep < sleepT - 0.5) obj.push(`Sommeil : vise ${fmt(sleepT, 1)} h (tu étais à ${fmt(sleep, 1)} h en moyenne).`);
   if (stag.length) obj.push(`${EX[stag[0]].n.split(" (")[0]} : tu stagnes, suis le conseil du Système sur l'écran Statut.`);
@@ -1906,14 +1932,14 @@ function modalMsg() {
 // the group: shared feed (members only, see groupe_installation.sql), cheers, weekly challenge
 const GROUP_GOLD = 100;
 async function feedLoad() {
-  if (!Cloud || Store.mode !== "cloud" || !Cloud.signedIn() || S.profile?.group !== true || state.feedBusy) return;
+  if (!Cloud || Store.mode !== "cloud" || !Cloud.signedIn() || !S.profile || S.profile.group === false || state.feedBusy) return;
   state.feedBusy = true;
   try { state.feed = await Cloud.feedGet(new Date(Date.now() - 15 * 864e5).toISOString()); groupCheckWin(); scheduleRender(); }
   catch (e) { if (e && e.code === "invalid_argument") { state.feed = null; scheduleRender(); } }
   finally { state.feedBusy = false; }
 }
 async function feedPost(kind, data) {
-  if (!Cloud || Store.mode !== "cloud" || S.profile?.group !== true) return false;
+  if (!Cloud || Store.mode !== "cloud" || !S.profile || S.profile.group === false) return false;
   try { await Cloud.feedAdd({name: groupName(), kind, data}); feedLoad(); return true; } catch (e) { return false; }
 }
 function groupWeek(cw) {
@@ -1925,7 +1951,7 @@ function groupWeek(cw) {
   return {wk, list, ok: list.length >= 2 && list.every(r => r.req > 0 && r.done >= r.req)};
 }
 function groupCheckWin() {
-  const cw = weekOfStr(today()), p = S.profile; if (!p || p.group !== true || !state.feed) return;
+  const cw = weekOfStr(today()), p = S.profile; if (!p || p.group === false || !state.feed) return;
   for (const w of [cw, cw - 1]) {
     if (w < 1) continue; const g = groupWeek(w);
     if (g.ok && !(p.groupWins || {})[g.wk]) { const next = {...clone(p), groupWins: {...(p.groupWins || {}), [g.wk]: true}}; S.profile = next; queueSet("game/profile", next); toast(`[Défi du groupe réussi] Tout le monde a fait ses donjons : +${GROUP_GOLD} or`, "ok"); return; }
@@ -1940,13 +1966,7 @@ function feedWhen(at) {
 function groupWin() {
   if (!Cloud || Store.mode !== "cloud") return "";
   const p = S.profile || {};
-  if (p.group == null) {
-    const others = Object.entries(GROUP_NAMES).filter(([k]) => k !== curPlan().id).map(([, v]) => v).join(" et ");
-    return `<section class="win"><h2 class="win-title">Le groupe</h2><p>Partager avec ${others} tes donjons terminés, tes records et tes rangs ? Tu verras les leurs, vous pourrez vous encourager, et chaque semaine où tout le monde fait ses donjons, chacun gagne ${GROUP_GOLD} or.</p>
-      <p class="muted small">Tes repas, ton poids et tes photos restent privés.</p>
-      <div class="row"><button class="btn primary" data-act="groupJoin" data-v="1">Rejoindre</button><button class="btn ghost" data-act="groupJoin" data-v="0">Non merci</button></div></section>`;
-  }
-  if (p.group !== true || !state.feed) return "";
+  if (p.group === false || !state.feed) return "";
   const me = Cloud.userId(), f = state.feed, g = groupWeek(weekOfStr(today()));
   const cheers = {}; for (const e of f) if (e.kind === "cheer") (cheers[e.data?.to] = cheers[e.data?.to] || []).push(e);
   const evs = f.filter(e => e.kind === "dungeon" || e.kind === "rank").slice(0, state.feedMore ? 40 : 6);
@@ -2975,7 +2995,7 @@ function viewSettings(P) {
     state.setDraft = {name: p.name || "", program: planOf(p), weight: sv(p.weight), oldBench: sv(p.oldBench), height: sv(p.height), age: sv(p.age), neck: sv(p.neck), bf: sv(p.bf), activity: String(p.activity || 1.5),
       freeDay: String(p.freeDay == null ? 5 : p.freeDay), freeComp: p.freeComp !== false, studyMin: String(t.studyMin ?? 60), steps: String(t.steps ?? 8000), sleep: fmtIn(t.sleep ?? 7), water: fmtIn(t.water ?? 2),
       kcalManual: sv(p.kcalManual), proteinManual: sv(p.proteinManual), fastH: String(p.fastH || ""), fastStart: p.fastStart || "12:00", legMaint: p.legMaint !== false, sound: p.sound !== false, title: p.title || "",
-      breakfast: eatsBreakfast(p), group: p.group === true, qSteps: questOn(p, "steps"), qWater: questOn(p, "water"), qStudy: questOn(p, "study")}; }
+      breakfast: eatsBreakfast(p), group: p.group !== false, qSteps: questOn(p, "steps"), qWater: questOn(p, "water"), qStudy: questOn(p, "study")}; }
   const s = state.setDraft;
   const owned = ACH.filter(a => P.achIds.has(a.id));
   const tg = (k, label, desc) => `<button class="q ${s[k] ? "on" : ""}" data-act="setToggle" data-k="${k}" role="checkbox" aria-checked="${s[k]}"><span class="box" aria-hidden="true"></span><span class="q-l">${label}<br><small class="muted" style="font-weight:400">${desc}</small></span><span class="q-t">${s[k] ? "[Oui]" : "[Non]"}</span></button>`;
@@ -3652,6 +3672,7 @@ const ACTIONS = {
   pushOn: async () => { let ok = false; try { ok = await pushSave(true); } catch (e) { ok = false; }
     render(); toast(ok ? "[Notifications activées] Le Système te préviendra ici." : Notification.permission === "denied" ? "[Système] Notifications refusées sur cet appareil." : "[Système] Impossible d'activer les notifications ici.", ok ? "ok" : "red"); },
   pushLater: () => { lsSet("gl-push-later", today()); render(); },
+  notifToggle: a => { const p = clone(S.profile), k = a.dataset.k; p.notif = {...(p.notif || {}), [k]: (p.notif || {})[k] === false}; S.profile = p; queueSet("game/profile", p); render(); },
   pushTest: async () => { try { const reg = await navigator.serviceWorker.ready; await reg.showNotification("Muscu Leveling", {body: "Essai : les notifications du Système marchent sur cet appareil.", icon: "icon-192.png", tag: "gl-test"}); }
     catch (e) { toast("[Système] L'essai n'a pas pu s'afficher.", "red"); } },
   toggleQ: a => { const on = a.getAttribute("aria-pressed") !== "true"; a.setAttribute("aria-pressed", on); a.classList.toggle("on", on); },
@@ -3754,7 +3775,7 @@ const ACTIONS = {
       kcalManual: pos(s.kcalManual) && Math.round(pos(s.kcalManual)), proteinManual: pos(s.proteinManual) && Math.round(pos(s.proteinManual)),
       fastH: Number(s.fastH) || null, fastStart: /^\d{2}:\d{2}$/.test(s.fastStart || "") ? s.fastStart : "12:00",
       targets: {...(p.targets || {}), steps, sleep, water, studyMin}, legMaint: !!s.legMaint, sound: !!s.sound, title: s.title || null,
-      breakfast: !!s.breakfast, quests: {steps: !!s.qSteps, water: !!s.qWater, study: !!s.qStudy}, group: s.group ? true : p.group == null ? null : false};
+      breakfast: !!s.breakfast, quests: {steps: !!s.qSteps, water: !!s.qWater, study: !!s.qStudy}, group: !!s.group};
     if (!next.foodStart) next.foodStart = toStr(addDays(fromStr(today()), 1));
     S.profile = next; queueSet("game/profile", next); state.setDraft = null; state.view = "status"; window.scrollTo(0, 0); render(); toast("[Réglages enregistrés]", "ok");
   },
@@ -3883,7 +3904,7 @@ async function cloudSync(full) {
   if (Store.mode !== "cloud" || !Cloud.signedIn()) return;
   try { await Cloud.pull(full); state.offline = false; }
   catch (e) { state.offline = e.code === "offline"; }
-  updateSyncBadge(); feedLoad();
+  updateSyncBadge(); feedLoad(); try { schedSave(); } catch (e) {}
 }
 function updateSyncBadge() { const b = document.getElementById("syncBadge"); if (b) b.outerHTML = saveBadge(); }
 if (Cloud) {
