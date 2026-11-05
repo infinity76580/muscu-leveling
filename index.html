@@ -965,7 +965,8 @@ const MATHIS_ADD = {
   P: [{ex: "pecDeck", sets: 3, reps: [12, 15], rest: 75, cue: "Pecs en retard : ouvre en grand pour étirer, serre 1 s devant la poitrine, coudes légèrement fléchis. Dernière série à l'échec."}],
   T: [{ex: "latRaise", sets: 3, reps: [12, 15], rest: 60, cue: "3e séance d'épaules de la semaine, pour élargir la carrure : poulie basse, un bras, monte jusqu'à l'horizontale, descente lente." + NECK}],   // photos 5 Nov: narrow shoulders
 };
-const MATHIS_NECK = {latRaiseMach: NECK, leanLatRaise: NECK, pullupPro: NECK, pullup: NECK, csRow: NECK, dbRow: NECK, smithBench: NECK, inclBar: NECK};
+const NECK_ROW = " Cou (il te gêne sur le rowing) : tête dans le prolongement du dos, regard vers le sol un peu devant toi, menton rentré ; ne relève pas la tête et ne hausse pas les épaules en tirant. Si ça tire encore, baisse la charge.";
+const MATHIS_NECK = {latRaiseMach: NECK, leanLatRaise: NECK, pullupPro: NECK, pullup: NECK, csRow: NECK_ROW, dbRow: NECK_ROW, smithBench: NECK, inclBar: NECK};
 const PLANS = {
   base: {id: "base", swap: GAUTHIER_SWAP, add: GAUTHIER_ADD, drop: ["calves"], keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
     intro: "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat",
@@ -1794,6 +1795,11 @@ const QUESTIONS = [
   {id: "mPhys1105", plan: "mathis", info: true, title: "Ton analyse physique est prête",
    q: "Le Système a regardé tes photos : tes points forts et tes points à travailler sont dans l'onglet Corps, avec ce qu'il a adapté. Nouveau : 3 séries d'élévations latérales à la poulie le mardi, pour élargir tes épaules.",
    choices: ["Compris"]},
+  {id: "mRow1105", plan: "mathis", info: true, title: "Ton cou et le rowing",
+   q: "Merci pour tes réponses. Sur le rowing, on relève souvent la tête pour regarder devant, et ça tire sur le cou. Nouvelle consigne sur tes rowings : tête dans le prolongement du dos, regard vers le sol un peu devant toi, menton rentré, sans hausser les épaules. Si ça tire encore, baisse la charge. Et si la douleur reste, va voir un kiné ou un médecin.",
+   choices: ["Compris"]},
+  {id: "mNeck1110", plan: "mathis", from: "2026-11-10", q: "Ton cou pendant le rowing, avec la nouvelle consigne (tête dans l'axe, regard vers le sol) ?",
+   choices: ["Plus de gêne", "Un peu mieux", "Pareil", "Pire"]},
   {id: "mNeck1105", plan: "mathis", multi: true, q: "Ton cou : il te gêne pendant quels exercices ? Écris aussi depuis quand, en dessous.",
    choices: ["Tractions", "Rowing", "Élévations latérales", "Développés (couché, incliné)", "En dehors de la salle aussi"]},
   {id: "mPulls1105", plan: "mathis", q: "Tu as dit détester les tirages pour le dos. Les tractions et le rowing poitrine appuyée (machine ou T-bar), ça te va ?",
@@ -2024,7 +2030,7 @@ function groupWin() {
     ${f.filter(e => e.kind === "dungeon" || e.kind === "rank").length > evs.length ? `<button class="link" data-act="feedMore">Voir plus</button>` : ""}</section>`;
 }
 function questionWin() {
-  const ans = S.profile?.answers || {}, mine = QUESTIONS.filter(x => !x.plan || x.plan === curPlan().id), q = mine.find(x => !ans[x.id]);
+  const ans = S.profile?.answers || {}, mine = QUESTIONS.filter(x => (!x.plan || x.plan === curPlan().id) && (!x.from || today() >= x.from)), q = mine.find(x => !ans[x.id]);
   if (!q) return "";
   const asks = mine.filter(x => !x.info), n = asks.filter(x => ans[x.id]).length + 1, ch = q.choices || [];
   const btns = ch.map((c, i) => q.multi ? `<button class="btn ghost wide" data-act="toggleQ" data-i="${i}" aria-pressed="false">${esc(c)}</button>`
