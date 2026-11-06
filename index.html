@@ -925,6 +925,7 @@ const WEEKS = [null,
 const DELOAD = {phase: "Semaine allégée", rank: "D", rirTxt: "3 partout, mêmes charges, jamais à l'échec", setsTxt: "Moitié des séries"};
 const TEST_EX = {DP: ["bench", "csRow"], PT: ["inclBar"]};
 const GAUTHIER_ADD = {                      // 5 Nov, his photos: small traps, width from the side delts -> each trained twice a week
+  EP: [{ex: "triHigh", sets: 3, reps: [10, 12], rest: 60, cue: "2e séance de triceps de la semaine (avec vendredi) : coudes fixes le long du corps, extension complète, descente lente."}],   // 6 Nov: he finds his triceps weak
   DB: [{ex: "latRaiseMach", sets: 3, reps: [12, 15], rest: 60, cue: "2e séance d'épaules latérales : coudes légèrement fléchis, monte jusqu'à l'horizontale sans hausser les épaules, descente lente. C'est ce qui élargit la carrure."}],
   PT: [{ex: "shrug", sets: 3, reps: [10, 15], rest: 75, cue: "2e séance de trapèzes, 3 jours après mardi : monte les épaules droit vers les oreilles, pause 1 s en haut, descente lente ; bras tendus, sans rouler."}],   // Thursday was too close to Tuesday: still sore (5 Nov)
 };
@@ -968,7 +969,9 @@ const MATHIS_ADD = {
 const NECK_ROW = " Cou (il te gêne sur le rowing) : tête dans le prolongement du dos, regard vers le sol un peu devant toi, menton rentré ; ne relève pas la tête et ne hausse pas les épaules en tirant. Si ça tire encore, baisse la charge.";
 const MATHIS_NECK = {latRaiseMach: NECK, leanLatRaise: NECK, pullupPro: NECK, pullup: NECK, csRow: NECK_ROW, dbRow: NECK_ROW, smithBench: NECK, inclBar: NECK};
 const PLANS = {
-  base: {id: "base", swap: GAUTHIER_SWAP, add: GAUTHIER_ADD, drop: ["calves"], keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
+  base: {id: "base", swap: GAUTHIER_SWAP, add: GAUTHIER_ADD, cueAdd: {
+      flySeated: " C'est l'écarté AUX CÂBLES (poulies), pas la machine pec deck : les câbles gardent la tension bras ouverts, en étirement.",
+      pecDeck: " Le pec deck (machine) charge mieux la fin du mouvement, bras serrés : il complète l'écarté aux câbles du lundi."}, drop: ["calves"], keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
     intro: "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat",
     lead: "Lundi pecs/dos, mardi épaules/trapèzes, mercredi grosse séance jambes une semaine sur deux (l'autre mercredi : complément bras et épaules avec un petit rappel jambes), jeudi dos/biceps, vendredi pecs/triceps. Week-end : repos.",
     s1: "Première séance : tu réapprends les mouvements, rien de lourd. Que des gros mouvements : 2 pour les pecs, 2 pour le dos, 2 pour les jambes."},
@@ -2271,8 +2274,7 @@ function grimoire() {
 /* ----- dungeon run ----- */
 function viewDungeon() {
   const d = S.draft, plan = draftPlan(d), W = d.deload ? DELOAD : curPlan().weeks[d.week];
-  let planned = 0, doneReq = 0;
-  for (const it of plan) { const n = setsTarget(it, d); if (!it.opt) { planned += n; doneReq += (d.sets[it.ex] || []).slice(0, n).filter(setDone).length; } }
+  const cnt = setCount(d, plan, (it, n) => (d.sets[it.ex] || []).slice(0, n).filter(setDone).length), planned = cnt.planned, doneReq = cnt.counted;
   const pct = planned ? Math.round(doneReq / planned * 100) : 0;
   return `<div class="dg-top"><button class="btn ghost sm" data-act="dgMenu">Pause</button><div class="dg-name">${sessLabel(d)} · ${tyLabel(d.type)}</div><div class="dg-clock" id="dgClock">00:00</div></div>
     <div class="xpbar" role="progressbar" aria-label="Séries faites" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
@@ -2339,7 +2341,7 @@ function exCard(it, i, d) {
 function viewResults() {
   const r = state.results, d = r.doc;
   const cls = d.full ? "" : d.valid ? "partial" : "fail";
-  const title = d.full ? "Donjon nettoyé" : d.valid ? "Donjon partiel" : "Retraite";
+  const title = d.full ? "Donjon nettoyé" : d.valid ? "Donjon validé" : "Retraite";
   const TC = {"Commun": "var(--glow)", "Rare": "var(--blue)", "Épique": "var(--violet)", "Légendaire": "var(--gold)"};
   const prs = (d.prs || []).map(p => `<li><b>${esc(EX[p.ex]?.n || p.ex)}</b><br>1RM estimé ${fmt(p.e1, 1)} kg <span class="muted">(avant ${fmt(p.prev, 1)})</span></li>`).join("");
   const chest = d.loot ? `<div class="chest"><button class="chest-btn ${r.opened ? "open" : ""}" data-act="openChest" style="--tc:${TC[d.loot.tier]}" aria-label="Ouvrir le coffre"><span class="chest-box"></span><span class="chest-lid"></span><span class="chest-lock"></span></button>
@@ -3334,6 +3336,20 @@ function seedPlan(force) {                    // once per load: remember the pro
     saveRewards((S.rewards?.items || []).map(i => i.name === "Une Monster bien fraîche" ? {...i, name: "Une Monster Ultra White bien fraîche"} : {...i}));
     mark("monster1105");
   }
+  if (pid === "base" && !done("pt1106")) {         // 6 Nov PT: extra triceps exercise + bonus pec deck set made up for the left-out sets
+    for (const ses of S.sessions.filter(x => x.date === "2026-11-06" && x.type === "PT" && x.valid && !x.full)) {
+      const doc = {...ses, full: true, xp: (Number(ses.xp) || 0) + 40, gold: (Number(ses.gold) || 0) + 30}; delete doc.id;
+      S.sessions = S.sessions.map(x => x.id === ses.id ? {id: ses.id, ...doc} : x); queueSet("sessions/" + ses.id, doc);
+    }
+    mark("pt1106");
+  }
+  if (pid === "base" && !done("fly1102")) {        // 2 Nov: "écarté poulie" typed, pec deck done
+    for (const ses of S.sessions.filter(x => x.date === "2026-11-02" && x.sets?.flySeated && !x.sets.pecDeck)) {
+      const sets = {...ses.sets}; sets.pecDeck = sets.flySeated; delete sets.flySeated;
+      const doc = {...ses, sets}; delete doc.id; S.sessions = S.sessions.map(x => x.id === ses.id ? {id: ses.id, ...doc} : x); queueSet("sessions/" + ses.id, doc);
+    }
+    mark("fly1102");
+  }
   if (pid === "base" && !done("fix1104")) {      // 4 Nov: shoulder press done with dumbbells (his new pick)
     for (const ses of S.sessions.filter(x => x.date === "2026-11-04" && x.sets?.shPress && !x.sets.dbShPress)) {
       const sets = {...ses.sets}; sets.dbShPress = sets.shPress; delete sets.shPress;
@@ -3499,9 +3515,17 @@ function draftPlan(d) {                       // the planned exercises, with the
   return [...plan, ...extra];
 }
 const setDone = r => !!r && (r.done || parseNum(r.reps) > 0);   // ticked, or reps typed and the tick forgotten
+function setCount(d, plan, isDone) {            // planned = what the plan asks (added sets excluded); extra sets make up for missing ones
+  let planned = 0, doneReq = 0, extra = 0;
+  for (const it of plan) {
+    const n = setsTarget(it, d), need = Math.max(0, n - ((d.plus || {})[it.ex] || 0)), k = isDone(it, n);
+    if (it.opt) extra += k; else { planned += need; doneReq += Math.min(k, need); extra += Math.max(0, k - need); }
+  }
+  return {planned, doneReq, extra, counted: Math.min(planned, doneReq + extra)};
+}
 function draftCounts() {
   const d = S.draft, plan = draftPlan(d); let planned = 0, doneReq = 0;
-  for (const it of plan) { const n = setsTarget(it, d); if (!it.opt) { planned += n; doneReq += (d.sets[it.ex] || []).slice(0, n).filter(setDone).length; } }
+  ({planned, doneReq} = (c => ({planned: c.planned, doneReq: c.counted}))(setCount(d, plan, (it, n) => (d.sets[it.ex] || []).slice(0, n).filter(setDone).length)));
   return {planned, doneReq};
 }
 function modalFinish(m) {
@@ -3584,12 +3608,12 @@ async function finishDungeon() {
   const setsOut = {}; let done = 0, doneReq = 0, planned = 0;
   for (const it of plan) {
     const n = setsTarget(it, d);
-    if (!it.opt) planned += n;
     const rows = (d.sets[it.ex] || []).slice(0, n).filter(r => parseNum(r.reps) > 0).map(r => ({kg: parseNum(r.kg) ?? 0, reps: Math.round(parseNum(r.reps))}));
     if (rows.length) setsOut[it.ex] = rows;
-    done += rows.length; if (!it.opt) doneReq += rows.length;
+    done += rows.length;
   }
-  const full = planned > 0 && doneReq >= planned, valid = planned > 0 && doneReq >= Math.ceil(planned / 2);
+  const cnt = setCount(d, plan, it => (setsOut[it.ex] || []).length); planned = cnt.planned; doneReq = cnt.doneReq;
+  const full = planned > 0 && cnt.counted >= planned, valid = planned > 0 && cnt.counted >= Math.ceil(planned / 2);
   const prs = [];
   for (const [ex, rows] of Object.entries(setsOut)) { const cur = bestE1(ex, rows), pb = prevBest(ex, (d.grip || {})[ex]); if (pb > 0 && cur > pb + 0.05) prs.push({ex, e1: r1(cur), prev: r1(pb)}); }
   const loot = valid ? rollLoot() : null, fin = !!d.fin && !!curPlan().finisher;
@@ -3907,6 +3931,8 @@ const ACTIONS = {
   addExOpen: () => { state.modal = {kind: "addEx", q: ""}; renderModal(); },
   addExPick: a => { const ex = a.dataset.ex, d = S.draft; if (!d || !EX[ex]) return; const poly = EX[ex].kind === "poly";
     d.extra = [...(d.extra || []), {ex, sets: 3, reps: poly ? [6, 10] : [10, 15], rest: poly ? 120 : 75, cue: "Exercice ajouté par toi : amplitude complète, contrôle la descente."}];
+    const it = draftPlan(d).find(x => x.ex === ex);
+    if (it && !(d.sets[ex] || []).length) { const sg = suggest(it, {p: d.week, deload: !!d.deload}, (d.grip || {})[ex]); d.sets[ex] = Array.from({length: it.sets}, () => ({kg: sg.kg != null ? fmtIn(sg.kg) : "", reps: "", done: false})); }
     state.modal = null; saveDraft(); render(); renderModal(); toast(`[Ajouté] ${esc(EX[ex].n)}`, "ok");
     setTimeout(() => document.getElementById("ex-" + ex)?.scrollIntoView({behavior: "smooth", block: "start"}), 200); },
   removeExtra: a => { const d = S.draft; if (!d) return; d.extra = (d.extra || []).filter(x => x.ex !== a.dataset.ex); saveDraft(); render(); },
