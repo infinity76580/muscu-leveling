@@ -1962,7 +1962,9 @@ function reportsFold() {
   return `<section class="win"><h2 class="win-title">Bilans des semaines</h2>${rs.map(r => `<details class="fold"><summary>${esc(r.title)}</summary><div>${r.body}</div></details>`).join("")}</section>`;
 }
 // Écrire au Système: messages in msgs/<id>; Claude answers by adding the message id here
-const SYSTEM_REPLIES = {};
+const SYSTEM_REPLIES = {
+  mmw4oc9gh: {txt: "Tu avais raison, c'était injuste. Les séries faites en plus (un exercice ajouté, une série ajoutée) compensent maintenant celles que tu retires. Ta séance de ce matin compte donc comme Donjon nettoyé : +40 XP et +30 or. Et un donjon pas tout à fait fini s'appelle désormais « Donjon validé », plus « partiel »."},
+};
 const unreadReplies = () => Object.keys(SYSTEM_REPLIES).filter(id => S.msgs?.[id] && !(S.profile?.repliesSeen || []).includes(id));
 function replyWin() {
   const ids = unreadReplies(); if (!ids.length) return "";
