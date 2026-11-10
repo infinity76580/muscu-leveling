@@ -686,9 +686,11 @@ const EX = {
   legExtFree:  {n: "Leg extension à disques", kind: "iso", eq: "machine"},
   frontRaise:  {n: "Élévation frontale poulie", kind: "iso", eq: "cable"},
   facePull:    {n: "Face pull assis (poulie)", kind: "iso", eq: "cable"},
+  hipThrust:   {n: "Hip thrust à la machine", kind: "poly", eq: "machine"},
+  yRaise:      {n: "Y-raise à la poulie", kind: "iso", eq: "cable"},
 };
 const RESTTXT = {180: "3 min", 150: "2-3 min", 120: "2 min", 90: "90 s", 75: "60-90 s", 60: "60 s"};
-const ALTS = {bench: "smithBench", smithBench: "bench", legExt: "legExtFree", legExtFree: "legExt", dbShPress: "shPress", shPress: "dbShPress", revPecDeck: "revFly", revFly: "revPecDeck", facePull: "revFly"};   // same muscle, other machine: kept apart in the stats (2 Nov)
+const ALTS = {bench: "smithBench", smithBench: "bench", legExt: "legExtFree", legExtFree: "legExt", dbShPress: "shPress", shPress: "dbShPress", revPecDeck: "revFly", revFly: "revPecDeck", facePull: "revFly", pecDeck: "flySeated", flySeated: "pecDeck"};   // same muscle, other machine: kept apart in the stats (2 Nov)
 const ALT_CUE = {smithBench: "Smith : barre guidée sur rails, banc placé pour que la barre descende au bas des pecs ; touche sans rebond.", legExtFree: "Version à disques : pause 1 s en haut, descente contrôlée.",
   bench: "Omoplates serrées et basses, pieds ancrés ; barre au bas des pecs, touche sans rebond. Barres de sécurité.", legExt: "Pause 1 s en haut, descente contrôlée.",
   shPress: "Machine : dos bien calé, descends les poignées au niveau du menton.", dbShPress: "Assis, haltères à hauteur d'oreilles, pousse vers le haut. Charge notée = UN haltère.",
@@ -902,7 +904,7 @@ const TYPES = {
   A:  {name: "Pec / Dos lourd", day: 0, gate: "Donjon de fer"},
   B:  {name: "Épaules / Bras", day: 1, gate: "Tour des poulies"},
   C:  {name: "Pec / Dos étirement", day: 3, gate: "Caverne de l'étirement"},
-  J:  {name: "Jambes", day: 5, gate: "Gouffre des jambes"},
+  J:  {get name() { return curPlan().id === "base" ? "Jambes + complément" : "Jambes"; }, get solo() { return curPlan().id === "base"; }, day: 5, gate: "Gouffre des jambes"},
   DP: {get name() { return curPlan().id === "base" ? "Pecs / Dos · force" : "Pecs / Dos"; }, day: 0, gate: "Donjon de fer", solo: true},
   EP: {name: "Épaules / Trapèzes", day: 1, gate: "Tour des épaules", solo: true},
   EB: {get name() { return curPlan().id === "felix" ? "Épaules / Dos / Bras" : "Épaules / Bras"; }, day: 1, gate: "Tour des poulies", solo: true},
@@ -926,9 +928,11 @@ const WEEKS = [null,
 const DELOAD = {phase: "Semaine allégée", rank: "D", rirTxt: "3 partout, mêmes charges, jamais à l'échec", setsTxt: "Moitié des séries"};
 const TEST_EX = {DP: ["bench", "csRow"], PT: ["inclBar"]};
 const GAUTHIER_ADD = {                      // 5 Nov, his photos: small traps, width from the side delts -> each trained twice a week
-  EP: [{ex: "triHigh", sets: 3, reps: [10, 12], rest: 60, cue: "2e séance de triceps de la semaine (avec vendredi) : coudes fixes le long du corps, extension complète, descente lente."}],   // 6 Nov: he finds his triceps weak
-  DB: [{ex: "latRaiseMach", sets: 3, reps: [12, 15], rest: 60, cue: "2e séance d'épaules latérales : coudes légèrement fléchis, monte jusqu'à l'horizontale sans hausser les épaules, descente lente. C'est ce qui élargit la carrure."}],
-  PT: [{ex: "shrug", sets: 3, reps: [10, 15], rest: 75, cue: "2e séance de trapèzes, 3 jours après mardi : monte les épaules droit vers les oreilles, pause 1 s en haut, descente lente ; bras tendus, sans rouler."}],   // Thursday was too close to Tuesday: still sore (5 Nov)
+  // 10 Nov (Nippard tier lists): Tuesday triceps moved to Wednesday's legs + complement (skullcrusher, S tier)
+  DB: [{ex: "latRaise", sets: 3, reps: [12, 15], rest: 60, cue: "2e séance d'épaules latérales, à la poulie (le n° 1 de Jeff Nippard pour les épaules) : poulie basse, un bras, coude légèrement fléchi, monte jusqu'à l'horizontale, descente lente. C'est ce qui élargit la carrure."}],
+  PT: [{ex: "yRaise", sets: 3, reps: [12, 15], rest: 75, cue: "Épaules latérales ET haut des trapèzes, tes deux points à travailler : poulies basses croisées (ou une poulie, un bras), monte les bras en Y au-dessus de la tête, pouces vers le haut, pause 1 s, descente lente. Bras levés, le haut des trapèzes travaille plus fort qu'aux shrugs."}],   // replaces Friday's shrugs (Nippard: overhead raises > standing shrugs for upper traps)
+  J: [{ex: "skull", sets: 3, reps: [8, 12], rest: 90, cue: "Complément après les jambes. Barre EZ, allongé : descends la barre derrière le haut de la tête (pas sur le front) pour étirer la longue portion, coudes qui restent serrés."},
+      {ex: "lowHighFly", sets: 2, reps: [12, 15], rest: 75, cue: "Complément haut des pecs, à mi-chemin entre lundi et vendredi : poulies basses, mains qui montent vers le menton, serre 1 s en haut."}],
 };
 const SHRUG = {ex: "shrug", sets: 2, reps: [10, 15], rest: 75, cue: "Monte les épaules droit vers les oreilles, pause 1 s en haut, descente lente ; bras tendus, sans rouler les épaules."};
 const GAUTHIER_SWAP = {                       // his own picks (30 Oct): close-grip cable row, rows on the cable, the long-head curl machine
@@ -937,6 +941,10 @@ const GAUTHIER_SWAP = {                       // his own picks (30 Oct): close-g
   shPress: {ex: "dbShPress", cue: "Assis, dossier presque droit, haltères à hauteur d'oreilles, coudes un peu devant le corps ; pousse vers le haut sans claquer les haltères. Charge notée = UN haltère."},   // 4 Nov: he prefers dumbbells
   revFly: {ex: "facePull", cue: "Assis face à la poulie (hauteur du visage) : tire vers le front en écartant les mains, coudes hauts et vers l'extérieur, pause 1 s, retour lent. C'est l'arrière de l'épaule et le haut du dos qui travaillent. Choisis ta prise : corde, poignées neutres ou barre."},   // 10 Nov: no reverse pec deck at his gym, he loves the rope face pull
   frontRaise: {ex: "latRaise", sets: 3, reps: [12, 15], cue: "Épaules latérales, ton point à travailler (l'avant de l'épaule travaille déjà sur tous tes développés) : poulie basse, un bras, monte jusqu'à l'horizontale, descente lente."},   // 10 Nov: front raises right after the military press
+  kickback: {ex: "hipThrust", sets: 3, reps: [8, 12], rest: 120, perLeg: false, cue: "Fessiers : dos calé sur le dossier, pieds à plat, menton rentré ; pousse les hanches vers le haut jusqu'à l'alignement épaules-genoux, serre 1 s en haut, descente contrôlée. Ne cambre pas le bas du dos."},   // 10 Nov: his gym's hip thrust machine
+  flySeated: {ex: "pecDeck", cue: "Pec deck : épaules plaquées en arrière, ouvre en grand pour l'étirement, serre 1 s devant la poitrine. Quand la salle est calme et que la poulie est libre : « Autre version » = écarté poulie assis."},   // 10 Nov: the cable station is always taken / out of order
+  cableRowUni: {ex: "uniPd", cue: "Technique : à genoux à côté de la poulie haute, une poignée : bras tendu en haut pour étirer le dos, tire le coude vers la hanche, retour en 3 s."},   // Thursday had two horizontal cable rows in a row
+  revPecDeck: {ex: "facePull", cue: "Assis face à la poulie (hauteur du visage) : tire vers le front en écartant les mains, coudes hauts, pause 1 s, retour lent."},   // no reverse pec deck at his gym
   bayCurl: {ex: "machCurl", cue: "Machine qui place les bras en arrière (accent sur le chef long) : descente complète jusqu'à l'étirement, coude fixe."},
 };
 const KEY_LIFTS = [["bench", "Pecs / Dos", "Couché barre"], ["inclMach", "Pecs / Dos", "Incliné machine"], ["csRow", "Pecs / Dos", "Rowing appuyé"], ["latpd", "Pecs / Dos", "Tirage vertical"], ["inclBar", "Pecs / Triceps", "Incliné barre"], ["latpdNeutral", "Dos / Biceps", "Tirage prise neutre"], ["shPress", "Épaules / Trapèzes", "Épaules machine"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]];
@@ -974,9 +982,9 @@ const MATHIS_NECK = {latRaiseMach: NECK, leanLatRaise: NECK, pullupPro: NECK, pu
 const PLANS = {
   base: {id: "base", swap: GAUTHIER_SWAP, add: GAUTHIER_ADD, cueAdd: {
       flySeated: " C'est l'écarté AUX CÂBLES (poulies), pas la machine pec deck : les câbles gardent la tension bras ouverts, en étirement.",
-      pecDeck: " Le pec deck (machine) charge mieux la fin du mouvement, bras serrés : il complète l'écarté aux câbles du lundi."}, drop: ["calves"], keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
+      ohTri: " Prends la barre droite plutôt que la corde : c'est le n° 1 de Jeff Nippard pour les triceps."}, drop: ["calves"], keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
     intro: "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat",
-    lead: "Lundi pecs/dos, mardi épaules/trapèzes, mercredi grosse séance jambes une semaine sur deux (l'autre mercredi : complément bras et épaules avec un petit rappel jambes), jeudi dos/biceps, vendredi pecs/triceps. Week-end : repos.",
+    lead: "Lundi pecs/dos, mardi épaules/trapèzes, mercredi jambes + complément (triceps, haut des pecs), jeudi dos/biceps, vendredi pecs/triceps. Week-end : repos.",
     s1: "Première séance : tu réapprends les mouvements, rien de lourd. Que des gros mouvements : 2 pour les pecs, 2 pour le dos, 2 pour les jambes."},
   felix: {id: "felix", drop: ["calves"], label: "Perte de poids (programme de Félix)", goal: "fat", title: "Potentiel de malade", fbFirst: true, big: [], weeks: WEEKS_FELIX, test: {DP: ["machPress", "csRow"], EB: ["shPress", "rowCableClose"]}, sess: SESS_FELIX,
     keyLifts: [["machPress", "Pecs / Dos", "Chest press"], ["inclMach", "Pecs / Dos", "Incliné machine"], ["csRow", "Pecs / Dos", "Rowing appuyé"], ["latpd", "Pecs / Dos", "Tirage vertical"], ["shPress", "Épaules / Dos / Bras", "Épaules machine"], ["rowCableClose", "Épaules / Dos / Bras", "Tirage horizontal"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]], finisher: true,
@@ -1015,9 +1023,9 @@ function planSched(info) {
   if (id === "mathis") return info.deload ? "Mêmes jours que d'habitude, moitié des séries, mêmes charges." : `Lundi Poussée, mardi Tirage, jeudi Haut complet, samedi ${TYPES[info.types[3]].name.toLowerCase()}. Mercredi, vendredi et dimanche : repos.`;
   if (info.p === 1 && !info.deload) return id === "felix" ? "Une seule séance cette semaine : le full body, jeudi." : "Une seule séance cette semaine : la reprise, jeudi.";
   if (info.deload) return "Mêmes jours que d'habitude, moitié des séries, mêmes charges.";
-  if (id === "felix" && info.cw >= 4) return "Lundi pecs/dos (toute la séance avec Gauthier, ton chest press à côté de son couché), mercredi jambes (avec Gauthier une semaine sur deux), vendredi épaules/dos/bras (pec deck et triceps avec Gauthier). Mardi, jeudi et week-end : repos.";
+  if (id === "felix" && info.cw >= 4) return "Lundi pecs/dos (toute la séance avec Gauthier, ton chest press à côté de son couché), mercredi jambes (avec Gauthier), vendredi épaules/dos/bras (pec deck et triceps avec Gauthier). Mardi, jeudi et week-end : repos.";
   if (id === "felix") return "Lundi dos/pecs, mardi épaules/bras, jeudi dos/biceps, samedi jambes : les mêmes jours que Gauthier. Mercredi, vendredi et dimanche : repos.";
-  const x = info.types[4] === "J" ? "jambes" : "complément bras et épaules + petit rappel jambes (grosse séance jambes la semaine prochaine)";
+  const x = info.types[4] === "J" ? (info.cw >= 4 ? "jambes + complément (triceps, haut des pecs)" : "jambes") : "complément bras et épaules + petit rappel jambes (grosse séance jambes la semaine prochaine)";
   if (info.cw < 4) return `Lundi pecs/dos, mardi épaules/trapèzes, jeudi dos/biceps, vendredi pecs/triceps, samedi ${x}. Mercredi et dimanche : repos.`;
   return `Lundi pecs/dos, mardi épaules/trapèzes, mercredi ${x}, jeudi dos/biceps, vendredi pecs/triceps. Week-end : repos.`;
 }
@@ -1031,7 +1039,7 @@ const sessionCw = s => Number(s.cw ?? s.week);
 function weekInfo(cw) {
   if (!(cw >= 1)) return null;
   const PL = curPlan(), p = progWeek(cw), deload = isDeload(cw);
-  const x = PL.id === "mathis" ? (p % 2 ? "JX" : "BE") : PL.id === "felix" ? "J" : p % 2 === 0 ? "J" : "CO";   // Gauthier: legs every other Saturday
+  const x = PL.id === "mathis" ? (p % 2 ? "JX" : "BE") : PL.id === "felix" || cw >= 5 ? "J" : p % 2 === 0 ? "J" : "CO";   // Gauthier: legs every other week, then every Wednesday from 16 Nov (his call, 10 Nov)
   const main = PL.id === "mathis" ? ["P", "T", p === 1 && !deload ? "FB" : "HC", x] : PL.id === "felix" ? (cw >= 4 ? ["DP", "J", "EB"] : ["DP", "EB", "DB", x]) : ["DP", "EP", "DB", "PT", x];   // week 1 Thursday: full body with the others
   const own = S.profile?.weekTypes?.[cw];
   if (own && !deload && p <= PROGRAM_WEEKS) return {cw, p, deload, W: PL.weeks[p], types: own, bonus: null, custom: true};
@@ -1579,7 +1587,7 @@ function gripF(exId, g) {
   const t = GRIP_OF[exId] === GRIPS_PRESS ? GRIP_FACTOR_PRESS : GRIP_OF[exId] === GRIPS_BACK ? GRIP_FACTOR : GRIP_FACTOR_ROPE;
   return t[g] || 1;
 }
-const EST_EXTRA = {pecs: {pecDeck: 1.1, flySeated: 0.9, lowHighFly: 0.35}, dos: {pullover: 0.9}};   // estimate only, not on the strength map
+const EST_EXTRA = {pecs: {pecDeck: 1.1, flySeated: 0.9, lowHighFly: 0.35}, dos: {pullover: 0.9}, epaules: {yRaise: 0.15}};   // estimate only, not on the strength map
 function estTop(exId) {
   for (const m of STRENGTH) { const t = m.ex[exId] ?? EST_EXTRA[m.k]?.[exId]; if (t) return {k: m.k, top: t}; }
   return null;
@@ -2604,7 +2612,7 @@ const STRENGTH = [                          // the e1RM / body-weight ratio of r
   {k: "triceps", name: "Triceps", ex: {ohTri: 0.7, pushdown: 0.9, triHigh: 0.9, skull: 0.7}},
   {k: "quads", name: "Quadriceps", ex: {hack: 2.6, pendulum: 2.6, legPress: 4.0, legExt: 2.4, legExtFree: 2.0}},
   {k: "ischios", name: "Ischios", ex: {legCurl: 1.2}},
-  {k: "fessiers", name: "Fessiers", ex: {kickback: 1.6}},
+  {k: "fessiers", name: "Fessiers", ex: {kickback: 1.6, hipThrust: 2.2}},
   {k: "mollets", name: "Mollets", ex: {calves: 2.5}},
 ];
 function strengthMap() {
