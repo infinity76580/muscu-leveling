@@ -1954,6 +1954,11 @@ function weekReport(cw) {
     `<li>Records : <b>${prs.length}</b>${prs.length ? " (" + [...new Set(prs.map(x => EX[x.ex]?.n.split(" (")[0]))].map(esc).join(", ") + ")" : ""}</li>`];
   if (fd.length) lines.push(`<li>Calories : <b>${fmt(kc, 0)} kcal</b> en moyenne (objectif ${fmt(kt, 0)}), sur ${plural(fd.length, "jour noté", "jours notés")}</li>`, `<li>Protéines : <b>${fmt(pr, 0)} g</b> en moyenne (objectif ${fmt(pt, 0)} g)</li>`);
   else lines.push(`<li>Repas : aucun jour noté</li>`);
+  const all7 = keys.filter(k => k <= t && mealTotals(k).count > 0);
+  if (all7.length >= 6 && all7.some(k => isFreeDay(k) || (S.meals[k]?.items || []).some(isFamily))) {
+    const tot = all7.reduce((n, k) => n + mealTotals(k).kcal, 0), np = nutritionPlan(keys[6]);
+    lines.push(`<li>Semaine entière, week-end compris : <b>${fmt(roundTo(tot / all7.length, 10), 0)} kcal</b> par jour en moyenne, pour une dépense estimée à ${fmt(roundTo(np.tdee, 10), 0)} kcal</li>`);
+  }
   if (w1) lines.push(`<li>Poids : <b>${fmt(w1, 1)} kg</b> en moyenne${w0 ? ` (${w1 - w0 >= 0 ? "+" : "−"}${fmt(Math.abs(w1 - w0), 1)} kg)` : ""}</li>`);
   if (sleep) lines.push(`<li>Sommeil : <b>${fmt(sleep, 1)} h</b> en moyenne (objectif ${fmt(sleepT, 1)} h)</li>`);
   const obj = [];
@@ -2950,7 +2955,7 @@ function kcalAdvice() {
 // "Repas de famille" (5 Nov): a big meal you can't weigh, estimated in one tap, once a week, never penalised
 const FAMILY = [{k: "normal", label: "Normal", kcal: 1200, prot: 60, carbs: 120, fat: 50}, {k: "copieux", label: "Copieux", kcal: 1800, prot: 80, carbs: 170, fat: 80},
   {k: "fete", label: "Très copieux, avec apéro et dessert", kcal: 2500, prot: 100, carbs: 230, fat: 115}];
-const isFamily = x => x && x.src === "family";
+const isFamily = x => x && (x.src === "family" || x.src === "weekend");   // an estimate, not weighed: kept out of the averages and alerts
 function familyLink(key) {
   const ws = weekStart(weekOfStr(key)), days = [...Array(7)].map((_, i) => toStr(addDays(ws, i)));
   const here = (S.meals[key]?.items || []).some(isFamily), other = days.find(k => k !== key && (S.meals[k]?.items || []).some(isFamily));
@@ -3362,6 +3367,11 @@ function seedPlan(force) {                    // once per load: remember the pro
   if (pid === "base" && done("shop1104") && !done("monster1105")) {   // his Monster is the Ultra White (zero sugar): the price is there to drink fewer
     saveRewards((S.rewards?.items || []).map(i => i.name === "Une Monster bien fraîche" ? {...i, name: "Une Monster Ultra White bien fraîche"} : {...i}));
     mark("monster1105");
+  }
+  if (pid === "base" && !done("weekend1107")) {   // 10 Nov, his words: "compte mon weekend entier à 7000 kcal" (Sat 7 + Sun 8 Nov, nothing logged)
+    const W = {name: "Week-end entier, estimation (7 000 kcal sur samedi et dimanche)", g: null, u: null, kcal: 3500, prot: 130, carbs: 390, fat: 150, src: "weekend"};
+    for (const d of ["2026-11-07", "2026-11-08"]) if (!(S.meals[d]?.items || []).some(x => x.src === "weekend")) saveMeals(d, [...(S.meals[d]?.items || []).map(x => ({...x})), {...W, id: "we" + d.slice(-2), slot: "soir"}]);
+    mark("weekend1107");
   }
   if (pid === "base" && !done("fp1110")) {         // 10 Nov: seated rope face pull logged as reverse pec deck
     for (const ses of S.sessions.filter(x => x.date === "2026-11-10" && x.sets?.revPecDeck && !x.sets.facePull)) {
