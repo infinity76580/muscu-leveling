@@ -1073,6 +1073,7 @@ function rirFor(p, it, idx, ty, deload) {
   if (PL === "base") return it.tech ? {txt: "technique : 1-2 reps en réserve, descente en 3 s", fail: !isPoly}   // 2nd day of a muscle: lighter, controlled (2 Nov)
     : {txt: "à l'échec (0-1 rep en réserve)", fail: false};   // his choice (29 Oct): every set to failure, at worst half a rep short
   if (PL === "felix" && p <= 3) return {txt: "3 reps en réserve", fail: false};
+  if (PL === "felix" && ty !== "J" && ty !== "L") return {txt: "1 rep en réserve, dernière série au maximum", fail: true};   // 10 Nov: he stops exactly at the target; machines, so the last set goes all out
   if (PL === "mathis") {
     if (ty === "JX" && p === 1) return {txt: "2-3 reps en réserve", fail: false};
     if (it.noFail) return {txt: "1-2 reps en réserve, jamais à l'échec", fail: false};
@@ -1644,6 +1645,9 @@ function suggest(it, info, grip) {
     else { out.kg = base; out.reps = last.sets.map(s => Math.min(hi, Math.max(lo, (Number(s.reps) || 0) + 1)));
       out.text = base < top ? `La dernière fois, ${fmt(top)} kg ne tenait pas ${lo} reps : repars de ${fmt(base)} kg et vise une rep de plus.` : "Même charge : vise une rep de plus que la dernière fois."; }
   }
+  const flat = last && last.sets.length >= 2 && last.sets.every(s => Number(s.reps) === Number(last.sets[0].reps)) ? Number(last.sets[0].reps) : 0;
+  if (curPlan().id === "felix" && !info.deload && flat >= lo && flat <= hi)   // 10 Nov: the same round number on every set = he stops before the end
+    out.text += ` La dernière fois, tu t'es arrêté pile à ${flat} reps sur chaque série. C'est un repère, pas un plafond : si tu peux en faire plus, fais-les, le Système montera la charge.`;
   if (it.test) {
     const s4 = hist.filter(h => h.week === 4).pop();
     out.testKg = s4 ? Number(s4.sets[0].kg) || 0 : null;
@@ -1771,6 +1775,9 @@ function nextRankInfo(P) {
 /* ----- status ----- */
 // Questions Claude needs answered (5 Nov): one card each on Statut until answered; the answer goes to profile.answers[id]
 const QUESTIONS = [
+  {id: "fPush1110", plan: "felix", info: true, title: "Le Système t'a observé",
+   q: "Sur tes dernières séances, tu t'arrêtes pile au nombre de reps demandé, série après série : 12, 12, 12. Le Système pense qu'il t'en reste. À partir de maintenant, la dernière série de chaque exercice se fait au maximum de reps propres : tu t'arrêtes quand tu ne peux plus en faire une bonne. Tout se fait sur machine, c'est sans risque. Plus tu en fais, plus la charge monte vite, et plus ton corps change vite.",
+   choices: ["Défi accepté"]},
   {id: "mathisSmith1105", plan: "mathis", q: "Sur ta séance du 5 novembre, tu as noté « Smith pour les pecs ». L'incliné (24 kg), tu l'as fait à la Smith ?",
    choices: ["Oui, l'incliné à la Smith", "Non, aux haltères", "Je veux la Smith pour les pecs à partir de maintenant"]},
   // getting to know Mathis (Gauthier's ask, 5 Nov): how he wants his sessions, his habits, his body, food and sleep
