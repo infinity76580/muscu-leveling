@@ -685,17 +685,18 @@ const EX = {
   smithBench:  {n: "Développé couché à la Smith", kind: "poly", eq: "machine"},
   legExtFree:  {n: "Leg extension à disques", kind: "iso", eq: "machine"},
   frontRaise:  {n: "Élévation frontale poulie", kind: "iso", eq: "cable"},
+  facePull:    {n: "Face pull assis (poulie)", kind: "iso", eq: "cable"},
 };
 const RESTTXT = {180: "3 min", 150: "2-3 min", 120: "2 min", 90: "90 s", 75: "60-90 s", 60: "60 s"};
-const ALTS = {bench: "smithBench", smithBench: "bench", legExt: "legExtFree", legExtFree: "legExt", dbShPress: "shPress", shPress: "dbShPress", revPecDeck: "revFly", revFly: "revPecDeck"};   // same muscle, other machine: kept apart in the stats (2 Nov)
+const ALTS = {bench: "smithBench", smithBench: "bench", legExt: "legExtFree", legExtFree: "legExt", dbShPress: "shPress", shPress: "dbShPress", revPecDeck: "revFly", revFly: "revPecDeck", facePull: "revFly"};   // same muscle, other machine: kept apart in the stats (2 Nov)
 const ALT_CUE = {smithBench: "Smith : barre guidée sur rails, banc placé pour que la barre descende au bas des pecs ; touche sans rebond.", legExtFree: "Version à disques : pause 1 s en haut, descente contrôlée.",
   bench: "Omoplates serrées et basses, pieds ancrés ; barre au bas des pecs, touche sans rebond. Barres de sécurité.", legExt: "Pause 1 s en haut, descente contrôlée.",
   shPress: "Machine : dos bien calé, descends les poignées au niveau du menton.", dbShPress: "Assis, haltères à hauteur d'oreilles, pousse vers le haut. Charge notée = UN haltère.",
   revFly: "Poulies à hauteur d'épaules, tiens les câbles eux-mêmes, bras quasi tendus, tire en arc vers l'extérieur.", revPecDeck: "Poitrine collée au pad, bras quasi tendus, pousse les mains loin sur les côtés."};
-const GRIPS_BACK = ["Large", "Moyenne", "Serrée", "Neutre", "Supination"], GRIPS_PRESS = ["Large", "Moyenne", "Serrée", "Neutre"], GRIPS_ROPE = ["Barre", "Corde", "V"];
-const GRIP_OF = {csRow: GRIPS_BACK, latpd: GRIPS_BACK, latpdNeutral: GRIPS_BACK, cableRow: GRIPS_BACK, rowCableClose: GRIPS_BACK, pullover: ["Barre", "Corde"],
+const GRIPS_FP = ["Corde", "Neutre (poignées)", "Barre"], GRIPS_BACK = ["Large", "Moyenne", "Serrée", "Neutre", "Supination"], GRIPS_PRESS = ["Large", "Moyenne", "Serrée", "Neutre"], GRIPS_ROPE = ["Barre", "Corde", "V"];
+const GRIP_OF = {facePull: GRIPS_FP, csRow: GRIPS_BACK, latpd: GRIPS_BACK, latpdNeutral: GRIPS_BACK, cableRow: GRIPS_BACK, rowCableClose: GRIPS_BACK, pullover: ["Barre", "Corde"],
   bench: GRIPS_PRESS, smithBench: GRIPS_PRESS, inclBar: GRIPS_PRESS, inclMach: GRIPS_PRESS, machPress: GRIPS_PRESS, shPress: GRIPS_PRESS, pushdown: GRIPS_ROPE, ohTri: GRIPS_ROPE};   // the grip changes the strength
-const GRIP_DEFAULT = {latpd: "Large", latpdNeutral: "Neutre", rowCableClose: "Serrée", csRow: "Neutre", bench: "Moyenne", smithBench: "Moyenne", inclBar: "Moyenne"};   // also the grip of sessions logged before grips existed
+const GRIP_DEFAULT = {facePull: "Corde", latpd: "Large", latpdNeutral: "Neutre", rowCableClose: "Serrée", csRow: "Neutre", bench: "Moyenne", smithBench: "Moyenne", inclBar: "Moyenne"};   // also the grip of sessions logged before grips existed
 const PULLUP_NOTE = " Note le lest en kg : 0 = poids du corps, négatif = assistance (ex. −20).";
 const SESS = {
   FB: [                                    // his call (2026-10-21): compound lifts only, 2 chest / 2 back / 2 legs, 3 sets
@@ -934,7 +935,8 @@ const GAUTHIER_SWAP = {                       // his own picks (30 Oct): close-g
   cableRow: {ex: "rowCableClose", cue: "Poulie basse, poignée serrée (triangle) : laisse les épaules avancer pour étirer, puis tire les coudes le long du corps et serre les omoplates."},
   dbRow: {ex: "cableRowUni", cue: "Poulie basse, une poignée : laisse l'épaule avancer pour étirer, puis tire le coude vers la hanche."},   // all his horizontal rows on the cable, except the chest-supported one
   shPress: {ex: "dbShPress", cue: "Assis, dossier presque droit, haltères à hauteur d'oreilles, coudes un peu devant le corps ; pousse vers le haut sans claquer les haltères. Charge notée = UN haltère."},   // 4 Nov: he prefers dumbbells
-  revFly: {ex: "revPecDeck", cue: "Poitrine collée au pad, bras quasi tendus à hauteur d'épaules. Pousse les mains loin sur les côtés, sans serrer les omoplates ni hausser les épaules : c'est l'arrière de l'épaule qui doit brûler."},   // 4 Nov: the cable version went to the front of his shoulder
+  revFly: {ex: "facePull", cue: "Assis face à la poulie (hauteur du visage) : tire vers le front en écartant les mains, coudes hauts et vers l'extérieur, pause 1 s, retour lent. C'est l'arrière de l'épaule et le haut du dos qui travaillent. Choisis ta prise : corde, poignées neutres ou barre."},   // 10 Nov: no reverse pec deck at his gym, he loves the rope face pull
+  frontRaise: {ex: "latRaise", sets: 3, reps: [12, 15], cue: "Épaules latérales, ton point à travailler (l'avant de l'épaule travaille déjà sur tous tes développés) : poulie basse, un bras, monte jusqu'à l'horizontale, descente lente."},   // 10 Nov: front raises right after the military press
   bayCurl: {ex: "machCurl", cue: "Machine qui place les bras en arrière (accent sur le chef long) : descente complète jusqu'à l'étirement, coude fixe."},
 };
 const KEY_LIFTS = [["bench", "Pecs / Dos", "Couché barre"], ["inclMach", "Pecs / Dos", "Incliné machine"], ["csRow", "Pecs / Dos", "Rowing appuyé"], ["latpd", "Pecs / Dos", "Tirage vertical"], ["inclBar", "Pecs / Triceps", "Incliné barre"], ["latpdNeutral", "Dos / Biceps", "Tirage prise neutre"], ["shPress", "Épaules / Trapèzes", "Épaules machine"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]];
@@ -1634,6 +1636,10 @@ function suggest(it, info, grip) {
     else if (allTop && ex.eq === "cable" && base > 0 && INC.cable / base > 0.2 && !last.sets.every(s => Number(s.reps) >= hi + 5)) {   // +5 kg on a light cable = a huge jump: more reps first
       out.kg = base; out.reps = last.sets.map(s => Math.min(hi + 5, (Number(s.reps) || 0) + 1));
       out.text = `Sur tes poulies, le cran suivant (+5 kg) est un trop gros saut à ${fmt(base)} kg : reste à ${fmt(base)} kg et monte jusqu'à ${hi + 5} reps sur toutes les séries, puis passe au cran au-dessus.`; }
+    else if (ex.eq !== "bw" && last.sets.some(s => (Number(s.kg) || 0) >= base && Number(s.reps) > hi)) {   // a set past the range: go up now, from what the best set shows
+      const bs = bestSet(it.ex, last.sets), cap = Math.max(base + 2 * stepB, base * 1.1), aim = Math.floor(best1 / (1 + hi / 30) / stepB) * stepB;
+      out.kg = Math.round(Math.min(cap, Math.max(base + stepB, aim)) * 100) / 100; out.kind = "up";
+      out.text = `La dernière fois, ${fmt(Number(bs.kg))} kg × ${bs.reps} : au-dessus des ${hi} reps visées. On monte à ${fmt(out.kg)} kg. Si une série tombe sous ${lo}, les suivantes s'ajusteront.`; }
     else if (allTop) { out.kg = Math.round((base + INC[ex.eq]) * 100) / 100; out.kind = "up"; out.text = `Tu as fait ${hi} reps sur toutes les séries : ${incText(ex.eq)}.`; }
     else { out.kg = base; out.reps = last.sets.map(s => Math.min(hi, Math.max(lo, (Number(s.reps) || 0) + 1)));
       out.text = base < top ? `La dernière fois, ${fmt(top)} kg ne tenait pas ${lo} reps : repars de ${fmt(base)} kg et vise une rep de plus.` : "Même charge : vise une rep de plus que la dernière fois."; }
@@ -2582,7 +2588,7 @@ const STRENGTH = [                          // the e1RM / body-weight ratio of r
   {k: "pecs", name: "Pectoraux", ex: {bench: 1.5, smithBench: 1.6, machPress: 1.7, inclMach: 1.4, inclBar: 1.3, inclDb: 0.6, dbBench: 0.7, dips: 1.7}},
   {k: "dos", name: "Dos", ex: {csRow: 1.7, latpd: 1.35, latpdNeutral: 1.35, cableRow: 1.4, rowCableClose: 1.4, cableRowUni: 0.8, pullupPro: 1.6, pullup: 1.6, dbRow: 0.8, uniPd: 0.7}},
   {k: "trapezes", name: "Trapèzes", ex: {shrug: 0.6}},   // one dumbbell
-  {k: "epaules", name: "Épaules", ex: {shPress: 1.1, dbShPress: 0.45, latRaiseMach: 0.8, frontRaise: 0.4, latRaise: 0.2, leanLatRaise: 0.25, revFly: 0.4, revPecDeck: 0.8}},
+  {k: "epaules", name: "Épaules", ex: {shPress: 1.1, dbShPress: 0.45, latRaiseMach: 0.8, frontRaise: 0.4, latRaise: 0.2, leanLatRaise: 0.25, revFly: 0.4, revPecDeck: 0.8}},   // facePull kept out: a rear-delt/upper-back pull says nothing about the other shoulder lifts
   {k: "biceps", name: "Biceps", ex: {bayCurl: 0.4, preacher: 0.6, hammer: 0.4, machCurl: 0.7}},
   {k: "triceps", name: "Triceps", ex: {ohTri: 0.7, pushdown: 0.9, triHigh: 0.9, skull: 0.7}},
   {k: "quads", name: "Quadriceps", ex: {hack: 2.6, pendulum: 2.6, legPress: 4.0, legExt: 2.4, legExtFree: 2.0}},
@@ -3338,6 +3344,14 @@ function seedPlan(force) {                    // once per load: remember the pro
     saveRewards((S.rewards?.items || []).map(i => i.name === "Une Monster bien fraîche" ? {...i, name: "Une Monster Ultra White bien fraîche"} : {...i}));
     mark("monster1105");
   }
+  if (pid === "base" && !done("fp1110")) {         // 10 Nov: seated rope face pull logged as reverse pec deck
+    for (const ses of S.sessions.filter(x => x.date === "2026-11-10" && x.sets?.revPecDeck && !x.sets.facePull)) {
+      const sets = {...ses.sets}; sets.facePull = sets.revPecDeck; delete sets.revPecDeck;
+      const doc = {...ses, sets, grip: {...(ses.grip || {}), facePull: "Corde"}}; delete doc.id;
+      S.sessions = S.sessions.map(x => x.id === ses.id ? {id: ses.id, ...doc} : x); queueSet("sessions/" + ses.id, doc);
+    }
+    mark("fp1110");
+  }
   if (pid === "base" && !done("pt1106")) {         // 6 Nov PT: extra triceps exercise + bonus pec deck set made up for the left-out sets
     for (const ses of S.sessions.filter(x => x.date === "2026-11-06" && x.type === "PT" && x.valid && !x.full)) {
       const doc = {...ses, full: true, xp: (Number(ses.xp) || 0) + 40, gold: (Number(ses.gold) || 0) + 30}; delete doc.id;
@@ -3583,7 +3597,7 @@ function toggleSet(ex, i) {
   if (it && !(it.test && i === 0) && exq && exq.eq !== "bw" && kg0 > 0) {    // the next sets follow what he really did
     const step = exq.eq === "db" ? 2 : INC[exq.eq] || 2.5, lo = it.reps[0], hi = it.reps[1], e1 = e1rm(ex, kg0, rp);
     if (rp < lo) { const k2 = Math.floor(e1 / (1 + lo / 30) / step) * step; if (k2 > 0 && k2 < kg0) { nextKg = fmtIn(k2); toast(`[Système] ${rp} reps, sous les ${lo} visées : séries suivantes à ${fmt(k2)} kg pour rester dans la fourchette.`, "red"); } }
-    else if (rp >= hi + 3) { const k2 = Math.round((kg0 + step) * 100) / 100; nextKg = fmtIn(k2); toast(`[Système] ${rp} reps, bien au-dessus des ${hi} : séries suivantes à ${fmt(k2)} kg.`, "ok"); }
+    else if (rp >= hi + 2) { const k2 = Math.round((kg0 + step) * 100) / 100; nextKg = fmtIn(k2); toast(`[Système] ${rp} reps, bien au-dessus des ${hi} : séries suivantes à ${fmt(k2)} kg.`, "ok"); }
   }
   if (!(it && it.test && i === 0)) for (let k = i + 1; k < rows.length; k++) if (!rows[k].done && !rows[k].ek) rows[k].kg = nextKg;
   const pb = prevBest(ex, (d.grip || {})[ex]), cur = e1rm(ex, parseNum(r.kg), Math.round(reps));
