@@ -658,6 +658,7 @@ const EX = {
   hack:        {n: "Hack squat (machine)", kind: "poly", eq: "machine"},
   pendulum:    {n: "Pendulum squat (machine pendule)", kind: "poly", eq: "machine"},
   legCurl:     {n: "Leg curl assis", kind: "iso", eq: "machine"},
+  legCurlFree: {n: "Leg curl à disques", kind: "iso", eq: "machine"},
   legPress:    {n: "Presse à cuisses 45°", kind: "poly", eq: "machine"},
   legExt:      {n: "Leg extension", kind: "iso", eq: "machine"},
   calves:      {n: "Mollets debout", kind: "iso", eq: "machine"},
@@ -690,9 +691,9 @@ const EX = {
   yRaise:      {n: "Y-raise à la poulie", kind: "iso", eq: "cable"},
 };
 const RESTTXT = {180: "3 min", 150: "2-3 min", 120: "2 min", 90: "90 s", 75: "60-90 s", 60: "60 s"};
-const ALTS = {bench: "smithBench", smithBench: "bench", legExt: "legExtFree", legExtFree: "legExt", dbShPress: "shPress", shPress: "dbShPress", revPecDeck: "revFly", revFly: "revPecDeck", facePull: "revFly", pecDeck: "flySeated", flySeated: "pecDeck"};   // same muscle, other machine: kept apart in the stats (2 Nov)
+const ALTS = {bench: "smithBench", smithBench: "bench", legExt: "legExtFree", legExtFree: "legExt", dbShPress: "shPress", shPress: "dbShPress", revPecDeck: "revFly", revFly: "revPecDeck", facePull: "revFly", pecDeck: "flySeated", flySeated: "pecDeck", legCurl: "legCurlFree", legCurlFree: "legCurl"};   // same muscle, other machine: kept apart in the stats (2 Nov)
 const ALT_CUE = {smithBench: "Smith : barre guidée sur rails, banc placé pour que la barre descende au bas des pecs ; touche sans rebond.", legExtFree: "Version à disques : pause 1 s en haut, descente contrôlée.",
-  bench: "Omoplates serrées et basses, pieds ancrés ; barre au bas des pecs, touche sans rebond. Barres de sécurité.", legExt: "Pause 1 s en haut, descente contrôlée.",
+  bench: "Omoplates serrées et basses, pieds ancrés ; barre au bas des pecs, touche sans rebond. Barres de sécurité.", legExt: "Pause 1 s en haut, descente contrôlée.", legCurlFree: "Version à disques : buste penché en avant pour étirer les ischios, pause 1 s en bas, retour lent.", legCurl: "Buste penché en avant pour étirer les ischios.",
   shPress: "Machine : dos bien calé, descends les poignées au niveau du menton.", dbShPress: "Assis, haltères à hauteur d'oreilles, pousse vers le haut. Charge notée = UN haltère.",
   revFly: "Poulies à hauteur d'épaules, tiens les câbles eux-mêmes, bras quasi tendus, tire en arc vers l'extérieur.", revPecDeck: "Poitrine collée au pad, bras quasi tendus, pousse les mains loin sur les côtés."};
 const GRIPS_FP = ["Corde", "Neutre (poignées)", "Barre"], GRIPS_BACK = ["Large", "Moyenne", "Serrée", "Neutre", "Supination"], GRIPS_PRESS = ["Large", "Moyenne", "Serrée", "Neutre"], GRIPS_ROPE = ["Barre", "Corde", "V"];
@@ -1638,7 +1639,7 @@ function suggest(it, info, grip) {
   else if (!last && it.maint) out.text = `Première fois : une charge qui te laisse 3 reps en réserve à ${hi} reps. Pas à l'échec.`;
   else if (!last) out.text = it.rir.txt.startsWith("à l'échec") ? `Première fois : choisis une charge avec laquelle tu arrives à l'échec vers ${hi} reps.` : `Première fois : choisis une charge qui laisse ${it.rir.txt.replace(", jamais à l'échec", "")} à ${hi} reps.`;
   else {
-    const top = Math.max(...last.sets.map(s => Number(s.kg) || 0)), held = last.sets.filter(s => Number(s.reps) >= lo).map(s => Number(s.kg) || 0);
+    const top = Math.max(...last.sets.map(s => Number(s.kg) || 0)), held = last.sets.filter(s => Number(s.reps) >= lo - 1).map(s => Number(s.kg) || 0);   // one rep short = almost there: keep that load (11 Nov)
     const stepB = stepOf(ex.eq), best1 = bestE1(it.ex, last.sets);
     const base = held.length ? Math.max(...held) : ex.eq === "bw" ? top : Math.max(stepB, Math.floor(best1 / (1 + lo / 30) / stepB) * stepB);   // heaviest load held in the range, else the load for its bottom
     const allTop = last.sets.length >= Math.min(2, it.sets) && last.sets.every(s => (Number(s.kg) || 0) === base && Number(s.reps) >= hi);
@@ -2616,7 +2617,7 @@ const STRENGTH = [                          // the e1RM / body-weight ratio of r
   {k: "biceps", name: "Biceps", ex: {bayCurl: 0.4, preacher: 0.6, hammer: 0.4, machCurl: 0.7}},
   {k: "triceps", name: "Triceps", ex: {ohTri: 0.7, pushdown: 0.9, triHigh: 0.9, skull: 0.7}},
   {k: "quads", name: "Quadriceps", ex: {hack: 2.6, pendulum: 2.6, legPress: 4.0, legExt: 2.4, legExtFree: 2.0}},
-  {k: "ischios", name: "Ischios", ex: {legCurl: 1.2}},
+  {k: "ischios", name: "Ischios", ex: {legCurl: 1.2, legCurlFree: 1.0}},
   {k: "fessiers", name: "Fessiers", ex: {kickback: 1.6, hipThrust: 2.2}},
   {k: "mollets", name: "Mollets", ex: {calves: 2.5}},
 ];
@@ -3630,8 +3631,8 @@ function toggleSet(ex, i) {
   const exq = EX[ex], kg0 = parseNum(r.kg), rp = Math.round(reps);
   if (it && !(it.test && i === 0) && exq && exq.eq !== "bw" && kg0 > 0) {    // the next sets follow what he really did
     const step = stepOf(exq.eq), lo = it.reps[0], hi = it.reps[1], e1 = e1rm(ex, kg0, rp);
-    if (rp < lo) { const k2 = Math.floor(e1 / (1 + lo / 30) / step) * step; if (k2 > 0 && k2 < kg0) { nextKg = fmtIn(k2); toast(`[Système] ${rp} reps, sous les ${lo} visées : séries suivantes à ${fmt(k2)} kg pour rester dans la fourchette.`, "red"); } }
-    else if (rp >= hi + (felixPush(it, {p: d.week, deload: d.deload}) ? 0 : 2)) { const k2 = stepUp(kg0, step); nextKg = fmtIn(k2); toast(rp >= hi + 2 ? `[Système] ${rp} reps, bien au-dessus des ${hi} : séries suivantes à ${fmt(k2)} kg.` : `[Système] Séries suivantes à ${fmt(k2)} kg.`, "ok"); }
+    if (rp < lo - 1) { const k2 = Math.floor(e1 / (1 + lo / 30) / step) * step; if (k2 > 0 && k2 < kg0) { nextKg = fmtIn(k2); toast(`[Système] ${rp} reps, sous les ${lo} visées : séries suivantes à ${fmt(k2)} kg pour rester dans la fourchette.`, "red"); } }
+    else if (rp >= hi + (felixPush(it, {p: d.week, deload: d.deload}) ? 0 : 1)) { const k2 = stepUp(kg0, step); nextKg = fmtIn(k2); toast(rp >= hi + 1 ? `[Système] ${rp} reps, bien au-dessus des ${hi} : séries suivantes à ${fmt(k2)} kg.` : `[Système] Séries suivantes à ${fmt(k2)} kg.`, "ok"); }
   }
   if (!(it && it.test && i === 0)) for (let k = i + 1; k < rows.length; k++) if (!rows[k].done && !rows[k].ek) rows[k].kg = nextKg;
   const pb = prevBest(ex, (d.grip || {})[ex]), cur = e1rm(ex, parseNum(r.kg), Math.round(reps));
