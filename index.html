@@ -931,7 +931,8 @@ const TEST_EX = {DP: ["bench", "csRow"], PT: ["inclBar"]};
 const GAUTHIER_ADD = {                      // 5 Nov, his photos: small traps, width from the side delts -> each trained twice a week
   // 10 Nov (Nippard tier lists): Tuesday triceps moved to Wednesday's legs + complement (skullcrusher, S tier)
   DB: [{ex: "latRaise", sets: 3, reps: [12, 15], rest: 60, cue: "2e séance d'épaules latérales, à la poulie (le n° 1 de Jeff Nippard pour les épaules) : poulie basse, un bras, coude légèrement fléchi, monte jusqu'à l'horizontale, descente lente. C'est ce qui élargit la carrure."}],
-  PT: [{ex: "yRaise", sets: 3, reps: [12, 15], rest: 75, cue: "Épaules latérales ET haut des trapèzes, tes deux points à travailler : poulies basses croisées (ou une poulie, un bras), monte les bras en Y au-dessus de la tête, pouces vers le haut, pause 1 s, descente lente. Bras levés, le haut des trapèzes travaille plus fort qu'aux shrugs."}],   // replaces Friday's shrugs (Nippard: overhead raises > standing shrugs for upper traps)
+  PT: [{ex: "shrug", sets: 3, reps: [10, 15], rest: 90, cue: "2e séance de trapèzes, 3 jours après mardi : prends lourd, monte les épaules droit vers les oreilles, pause 1 s en haut, descente lente ; bras tendus, sans rouler. Au-dessus de 15 reps, le Système monte la charge."},   // 11 Nov: traps were the lowest of his weak points (6 sets/week)
+       {ex: "yRaise", sets: 3, reps: [12, 15], rest: 75, cue: "Épaules latérales ET haut des trapèzes, tes deux points à travailler : poulies basses croisées (ou une poulie, un bras), monte les bras en Y au-dessus de la tête, pouces vers le haut, pause 1 s, descente lente. Bras levés, le haut des trapèzes travaille plus fort qu'aux shrugs."}],   // replaces Friday's shrugs (Nippard: overhead raises > standing shrugs for upper traps)
   J: [{ex: "skull", sets: 3, reps: [8, 12], rest: 90, cue: "Complément après les jambes. Barre EZ, allongé : descends la barre derrière le haut de la tête (pas sur le front) pour étirer la longue portion, coudes qui restent serrés."},
       {ex: "lowHighFly", sets: 2, reps: [12, 15], rest: 75, cue: "Complément haut des pecs, à mi-chemin entre lundi et vendredi : poulies basses, mains qui montent vers le menton, serre 1 s en haut."}],
 };
@@ -989,7 +990,8 @@ const MATHIS_NECK = {latRaiseMach: NECK, leanLatRaise: NECK, pullupPro: NECK, pu
 const PLANS = {
   base: {id: "base", sess: {J: GAUTHIER_J}, swap: GAUTHIER_SWAP, add: GAUTHIER_ADD, cueAdd: {
       flySeated: " C'est l'écarté AUX CÂBLES (poulies), pas la machine pec deck : les câbles gardent la tension bras ouverts, en étirement.",
-      ohTri: " Prends la barre droite plutôt que la corde : c'est le n° 1 de Jeff Nippard pour les triceps."}, drop: ["calves"], keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
+      ohTri: " Prends la barre droite plutôt que la corde : c'est le n° 1 de Jeff Nippard pour les triceps.",
+      latRaise: " Dernière série : une fois à l'échec, enchaîne 3 à 5 demi-reps côté étirement (en bas du mouvement).", latRaiseMach: " Dernière série : une fois à l'échec, enchaîne 3 à 5 demi-reps côté étirement (en bas du mouvement).", pecDeck: " Dernière série : une fois à l'échec, enchaîne 3 à 5 demi-reps côté étirement (en bas du mouvement).", machCurl: " Dernière série : une fois à l'échec, enchaîne 3 à 5 demi-reps côté étirement (en bas du mouvement)."}, minRest: 90, noJoker: true, drop: ["calves"], keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
     intro: "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat",
     lead: "Lundi pecs/dos, mardi épaules/trapèzes, mercredi jambes + complément (triceps, haut des pecs), jeudi dos/biceps, vendredi pecs/triceps. Week-end : repos.",
     s1: "Première séance : tu réapprends les mouvements, rien de lourd. Que des gros mouvements : 2 pour les pecs, 2 pour le dos, 2 pour les jambes."},
@@ -1017,9 +1019,10 @@ const planOf = p => (p && PLANS[p.program]) ? p.program : (detectPlan(p?.name, c
 const curPlan = () => PLANS[planOf(typeof S !== "undefined" ? S.profile : null)];
 const sessFor = ty => {
   const PL = curPlan(), list = (PL.sess || {})[ty] || SESS[ty]; if (!list) return list;
-  const sw = PL.swap || {}, drop = PL.drop || [], ca = PL.cueAdd || {};
+  const sw = PL.swap || {}, drop = PL.drop || [], ca = PL.cueAdd || {}, mr = PL.minRest || 0;
   return [...list.filter(it => !drop.includes(it.ex)).map(it => sw[it.ex] ? {...it, ...sw[it.ex]} : it), ...((PL.add || {})[ty] || [])]
-    .map(it => ca[it.ex] ? {...it, cue: it.cue + ca[it.ex]} : it);   // a note added to some exercises (Mathis's neck)
+    .map(it => ca[it.ex] ? {...it, cue: it.cue + ca[it.ex]} : it)   // a note added to some exercises (Mathis's neck)
+    .map(it => mr && !it.superset && it.rest < mr ? {...it, rest: mr} : it);   // Gauthier, 11 Nov: 90 s minimum between sets
 };
 const planTest = () => curPlan().test || {};
 const tyLabel = ty => ty === "FB" ? "Full body" : TYPES[ty]?.solo ? TYPES[ty].name : "Séance " + ty + " · " + (TYPES[ty]?.name || "");
@@ -1061,7 +1064,7 @@ const sessName = s => tyLabel(s.type);
 const lastBlockWeek = () => PROGRAM_WEEKS + deloadWeeks().filter(d => progWeek(d) <= PROGRAM_WEEKS).length;
 const jokersUsed = () => deloadWeeks().filter(d => { const p = progWeek(d); return p >= 2 && p <= PROGRAM_WEEKS; }).length;
 function jokerState(cw) {
-  const info = weekInfo(cw); if (!info) return null;
+  const info = weekInfo(cw); if (!info || (curPlan().noJoker && !info.deload)) return null;
   const started = S.sessions.some(s => sessionCw(s) === cw) || !!(S.draft && S.draft.active && S.draft.cw === cw);
   if (info.deload) return {active: true, canCancel: !started};
   if (info.after) return {active: false, free: true, canUse: !started && !deloadWeeks().some(d => progWeek(d) > PROGRAM_WEEKS)};
@@ -2185,7 +2188,7 @@ function weekPlanning(cw0) {
 function blockDoneWin(cw) {
   const js = jokerState(cw);
   return `<section class="win"><h2 class="win-title">Bloc terminé</h2><p class="sys-line">[Les 8 semaines du programme sont terminées.]</p>
-    <p>Le Système conseille une semaine allégée, puis un nouveau bloc. Demande à Claude de le préparer à partir de ton Journal. Ta quête quotidienne continue.</p>
+    <p>${curPlan().noJoker ? "Le Système prépare" : "Le Système conseille une semaine allégée, puis"} un nouveau bloc. Demande à Claude de le préparer à partir de ton Journal. Ta quête quotidienne continue.</p>
     ${js && js.canUse ? `<button class="btn" data-act="jokerAsk" data-cw="${cw}">Lancer la semaine allégée de fin de bloc</button>` : ""}</section>`;
 }
 const SLEEP_CHOICES = [4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
@@ -2251,7 +2254,7 @@ function viewDungeons() {
       <div class="chips">${weekPlan(cw).map(chip).join("")}</div></div>`);
   }
   const jl = jokersUsed() >= JOKERS ? "utilisé" : "disponible (onglet Statut, avant le premier donjon de la semaine)";
-  return topbar() + `<section class="win"><h2 class="win-title">Carte des donjons</h2><p class="lead">8 semaines de programme à partir du ${fmtDay(startDate(), {day: "numeric", month: "long"})}. ${curPlan().lead} Touche un donjon pour voir ses exercices.</p><p class="small">Joker semaine allégée : ${jl}.</p>${weeks.join("")}</section>` + (curPlan().id === "base" ? grimoire() : planGrimoire());
+  return topbar() + `<section class="win"><h2 class="win-title">Carte des donjons</h2><p class="lead">8 semaines de programme à partir du ${fmtDay(startDate(), {day: "numeric", month: "long"})}. ${curPlan().lead} Touche un donjon pour voir ses exercices.</p>${curPlan().noJoker ? "" : `<p class="small">Joker semaine allégée : ${jl}.</p>`}${weeks.join("")}</section>` + (curPlan().id === "base" ? grimoire() : planGrimoire());
 }
 function planGrimoire() {
   const id = curPlan().id;
@@ -2288,25 +2291,25 @@ function grimoire() {
     <details class="fold" open><summary>Ta semaine</summary><div><ul class="rules">
       <li><b>Lundi : pecs / dos en FORCE.</b> Les pecs d'abord : c'est ton point faible, et le couché lourd demande d'être frais. Puis le dos. Lourd : 4-8 reps sur les gros exos, 2-3 min de repos, à l'échec.</li>
       <li><b>Mardi : épaules / trapèzes</b>, avec un peu d'avant d'épaule.</li>
-      <li><b>Mercredi : grosse séance jambes une semaine sur deux</b>, à fond comme tu aimes. L'autre mercredi : complément bras, épaules et haut des pecs, puis un <b>petit rappel jambes</b> (2 séries de hack squat + 2 de leg curl, 3 reps en réserve, environ 80 % de tes charges). Au milieu de la semaine, les jambes ne gênent aucune séance du haut, et le dos (lundi → jeudi) comme les pecs (lundi → vendredi) gardent 3-4 jours de récupération.</li>
+      <li><b>Mercredi : jambes + complément.</b> Une seule machine de squat (hack ou pendule), leg curl, hip thrust, leg extension, à fond comme tu aimes. Puis le complément : skullcrusher pour les triceps et écarté de bas en haut pour le haut des pecs. Au milieu de la semaine, les jambes ne gênent aucune séance du haut.</li>
       <li><b>Jeudi : dos / biceps en TECHNIQUE.</b> Le dos une 2e fois, plus léger : 10-15 reps, descente en 3 s, pause en étirement, 1-2 reps en réserve. Les biceps, eux, vont à l'échec. Puis 3 séries d'élévations latérales : la largeur d'épaules, ton meilleur levier pour paraître plus imposant.</li>
-      <li><b>Vendredi : pecs / triceps en TECHNIQUE.</b> Les pecs une 2e fois, même logique : incliné barre puis couché technique (pas de chest press, tu fais du couché). Les triceps vont à l'échec. Puis 3 séries de shrugs, 3 jours après mardi : tes trapèzes travaillent 2 fois par semaine.</li>
+      <li><b>Vendredi : pecs / triceps en TECHNIQUE.</b> Les pecs une 2e fois, même logique : incliné barre puis couché technique. Les triceps vont à l'échec. Puis 3 séries de shrugs lourds et 3 de Y-raise : tes trapèzes travaillent 2 fois par semaine.</li>
       <li>Force puis technique : la séance lourde fait progresser les charges, la séance légère ajoute du volume sans t'écraser, et tu récupères pour le lundi suivant. C'est la logique des programmes de Nippard (une séance lourde, une séance plus volumineuse par muscle) et celle qui t'a fait progresser l'an dernier.</li>
-      <li>Pourquoi ce rappel : tes 5-6 jours de courbatures viennent surtout du fait que les jambes ne travaillent que toutes les deux semaines. Une petite dose entre deux grosses séances habitue le muscle (on appelle ça « l'effet de la séance répétée ») : les courbatures du gros jour baissent nettement en 2-3 cycles, et les jambes travaillent tous les 7 jours au lieu de 14. Le rappel ne compte pas dans tes records.</li>
+      <li>Repos : 2-3 min sur les gros exercices, <b>90 s minimum sur tous les autres</b>. Sous 90 s, le muscle n'a pas récupéré et tu perds des reps.</li>
       <li>Samedi et dimanche : repos, tout se fait du lundi au vendredi. Un donjon peut se faire un autre jour (bouton « Changer de jour »). Une séance peut sauter sans pénalité : 4 sur 5 suffisent.</li></ul></div></details>
     <details class="fold"><summary>La méthode (Jeff Nippard)</summary><div><ul class="rules">
       <li>Exercices choisis d'après ses classements : en priorité ceux qui étirent le muscle sous la charge (incliné, écarté poulie, extension au-dessus de la tête, pull-over…).</li>
       <li>Pecs et dos deux fois par semaine : environ 16 séries de pecs et 16 de dos par semaine.</li>
       <li>La reprise est finie : à partir de S3, toutes les séries comme écrit, chacune à l'échec. En forme ? Le bouton « Ajouter une série » est sous chaque exercice.</li>
       <li>Double progression : même charge jusqu'au haut de la fourchette sur toutes les séries, puis on monte.</li>
-      <li>Effort : ton choix, chaque série à l'échec (au pire une demi-rep avant).</li></ul></div></details>
+      <li>Effort : ton choix, chaque série à l'échec (au pire une demi-rep avant). Sur la dernière série des élévations latérales, du pec deck et du curl machine : 3 à 5 demi-reps côté étirement après l'échec.</li>
     <details class="fold"><summary>Prises et machines</summary><div><p>Sous les tirages, rowings et développés, choisis la prise que tu as prise (large, serrée, neutre…) : la force change avec la prise, alors le Système compare et suggère tes charges prise par prise. Machine prise ? « Autre version » (Smith au lieu de la barre, leg extension à disques…) garde des stats séparées, et « Passer l'exercice » le retire si la machine est en panne.</p></div></details>
     <details class="fold"><summary>L'échec</summary><div><p>Chaque série va jusqu'à l'échec : tu t'arrêtes quand la rep suivante ne passerait plus avec une bonne technique (au pire une demi-rep avant). Au développé couché : barres de sécurité ou pareur, toujours. Si une articulation fait mal (épaule, coude, genou), garde une rep en réserve sur cet exercice.</p></div></details>
     <details class="fold"><summary>Monter les charges</summary><div><p>Tu gardes la même charge jusqu'à faire le haut de la fourchette de reps sur toutes les séries. Ensuite, +5 kg (ou l'haltère au-dessus). Sinon, vise une rep de plus que la dernière fois. Le Système fait ce calcul pour toi dans chaque donjon.</p></div></details>
-    <details class="fold"><summary>Joker : semaine allégée</summary><div><p>Une fois par bloc, la semaine de ton choix (à activer dans l'onglet Statut, avant le premier donjon de la semaine). Moitié des séries, mêmes charges, 3 reps en réserve, jamais à l'échec. Le programme fait une pause d'une semaine puis reprend là où tu l'as laissé. À prendre quand la fatigue s'accumule, si tu dors mal ou si tes articulations tirent.</p></div></details>
+    <details class="fold"><summary>Pas de semaine allégée</summary><div><p>Ton choix (11 nov.) : on pousse toutes les semaines, sans semaine allégée. Si une séance baisse nettement, dors plus avant de toucher au programme.</p></div></details>
     <details class="fold"><summary>Courbatures</summary><div><p>Si un muscle est encore courbaturé quand tu le retravailles, retire-lui une série cette fois-là. Le bouton est sous chaque exercice, dans le donjon.</p></div></details>
     <details class="fold"><summary>Échauffement</summary><div><p>5 min de cardio léger, 2 séries de montée progressive sur le premier exercice, puis 1 série légère avant chaque nouveau mouvement.</p></div></details>
-    <details class="fold"><summary>Bilan de S8</summary><div><p>Au rowing poitrine appuyée et au couché (lundi), à l'incliné barre et au chest press (vendredi) : première série avec ta charge de S4 et un maximum de reps propres. Ensuite, le Système conseille une semaine allégée avant le bloc suivant.</p></div></details>
+    <details class="fold"><summary>Bilan de S8</summary><div><p>Au rowing poitrine appuyée et au couché (lundi), à l'incliné barre et au chest press (vendredi) : première série avec ta charge de S4 et un maximum de reps propres. Ensuite, le Système prépare le bloc suivant.</p></div></details>
   </section>`;
 }
 
