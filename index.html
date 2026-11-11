@@ -691,9 +691,9 @@ const EX = {
   yRaise:      {n: "Y-raise à la poulie", kind: "iso", eq: "cable"},
 };
 const RESTTXT = {180: "3 min", 150: "2-3 min", 120: "2 min", 90: "90 s", 75: "60-90 s", 60: "60 s"};
-const ALTS = {bench: "smithBench", smithBench: "bench", legExt: "legExtFree", legExtFree: "legExt", dbShPress: "shPress", shPress: "dbShPress", revPecDeck: "revFly", revFly: "revPecDeck", facePull: "revFly", pecDeck: "flySeated", flySeated: "pecDeck", legCurl: "legCurlFree", legCurlFree: "legCurl"};   // same muscle, other machine: kept apart in the stats (2 Nov)
+const ALTS = {bench: "smithBench", smithBench: "bench", legExt: "legExtFree", legExtFree: "legExt", dbShPress: "shPress", shPress: "dbShPress", revPecDeck: "revFly", revFly: "revPecDeck", facePull: "revFly", pecDeck: "flySeated", flySeated: "pecDeck", legCurl: "legCurlFree", legCurlFree: "legCurl", hack: "pendulum", pendulum: "hack"};   // same muscle, other machine: kept apart in the stats (2 Nov)
 const ALT_CUE = {smithBench: "Smith : barre guidée sur rails, banc placé pour que la barre descende au bas des pecs ; touche sans rebond.", legExtFree: "Version à disques : pause 1 s en haut, descente contrôlée.",
-  bench: "Omoplates serrées et basses, pieds ancrés ; barre au bas des pecs, touche sans rebond. Barres de sécurité.", legExt: "Pause 1 s en haut, descente contrôlée.", legCurlFree: "Version à disques : buste penché en avant pour étirer les ischios, pause 1 s en bas, retour lent.", legCurl: "Buste penché en avant pour étirer les ischios.",
+  bench: "Omoplates serrées et basses, pieds ancrés ; barre au bas des pecs, touche sans rebond. Barres de sécurité.", legExt: "Pause 1 s en haut, descente contrôlée.", pendulum: "Pendule : descends le plus bas possible, dos collé, genoux qui avancent ; c'est l'étirement en bas qui fait le travail.", hack: "Dos collé au dossier, descends profond, genoux dans l'axe des pieds.", legCurlFree: "Version à disques : buste penché en avant pour étirer les ischios, pause 1 s en bas, retour lent.", legCurl: "Buste penché en avant pour étirer les ischios.",
   shPress: "Machine : dos bien calé, descends les poignées au niveau du menton.", dbShPress: "Assis, haltères à hauteur d'oreilles, pousse vers le haut. Charge notée = UN haltère.",
   revFly: "Poulies à hauteur d'épaules, tiens les câbles eux-mêmes, bras quasi tendus, tire en arc vers l'extérieur.", revPecDeck: "Poitrine collée au pad, bras quasi tendus, pousse les mains loin sur les côtés."};
 const GRIPS_FP = ["Corde", "Neutre (poignées)", "Barre"], GRIPS_BACK = ["Large", "Moyenne", "Serrée", "Neutre", "Supination"], GRIPS_PRESS = ["Large", "Moyenne", "Serrée", "Neutre"], GRIPS_ROPE = ["Barre", "Corde", "V"];
@@ -935,6 +935,12 @@ const GAUTHIER_ADD = {                      // 5 Nov, his photos: small traps, w
   J: [{ex: "skull", sets: 3, reps: [8, 12], rest: 90, cue: "Complément après les jambes. Barre EZ, allongé : descends la barre derrière le haut de la tête (pas sur le front) pour étirer la longue portion, coudes qui restent serrés."},
       {ex: "lowHighFly", sets: 2, reps: [12, 15], rest: 75, cue: "Complément haut des pecs, à mi-chemin entre lundi et vendredi : poulies basses, mains qui montent vers le menton, serre 1 s en haut."}],
 };
+const GAUTHIER_J = [                        // 11 Nov: hack + pendulum + press was the same movement twice, he was "finito" at the hip thrust
+  {ex: "hack", sets: 4, reps: [8, 10], rest: 150, cue: "Ta seule machine de squat du jour, donc 4 séries : dos collé au dossier, descends profond, genoux dans l'axe des pieds. Pendule pris ou envie de changer : « Autre version »."},
+  {ex: "legCurl", sets: 3, reps: [10, 12], rest: 90, cue: "Buste penché en avant pour étirer les ischios. Machine à disques : « Autre version »."},
+  {ex: "hipThrust", sets: 3, reps: [8, 12], rest: 120, cue: "Fessiers, placé tôt pour être frais : dos calé sur le dossier, pieds à plat, menton rentré ; pousse les hanches vers le haut jusqu'à l'alignement épaules-genoux, serre 1 s en haut, descente contrôlée. Ne cambre pas le bas du dos."},
+  {ex: "legExt", sets: 3, reps: [12, 15], rest: 90, cue: "Pause 1 s en haut, descente contrôlée. Machine à disques : « Autre version »."},
+];
 const SHRUG = {ex: "shrug", sets: 2, reps: [10, 15], rest: 75, cue: "Monte les épaules droit vers les oreilles, pause 1 s en haut, descente lente ; bras tendus, sans rouler les épaules."};
 const GAUTHIER_SWAP = {                       // his own picks (30 Oct): close-grip cable row, rows on the cable, the long-head curl machine
   cableRow: {ex: "rowCableClose", cue: "Poulie basse, poignée serrée (triangle) : laisse les épaules avancer pour étirer, puis tire les coudes le long du corps et serre les omoplates."},
@@ -981,7 +987,7 @@ const MATHIS_ADD = {
 const NECK_ROW = " Cou (il te gêne sur le rowing) : tête dans le prolongement du dos, regard vers le sol un peu devant toi, menton rentré ; ne relève pas la tête et ne hausse pas les épaules en tirant. Si ça tire encore, baisse la charge.";
 const MATHIS_NECK = {latRaiseMach: NECK, leanLatRaise: NECK, pullupPro: NECK, pullup: NECK, csRow: NECK_ROW, dbRow: NECK_ROW, smithBench: NECK, inclBar: NECK};
 const PLANS = {
-  base: {id: "base", swap: GAUTHIER_SWAP, add: GAUTHIER_ADD, cueAdd: {
+  base: {id: "base", sess: {J: GAUTHIER_J}, swap: GAUTHIER_SWAP, add: GAUTHIER_ADD, cueAdd: {
       flySeated: " C'est l'écarté AUX CÂBLES (poulies), pas la machine pec deck : les câbles gardent la tension bras ouverts, en étirement.",
       ohTri: " Prends la barre droite plutôt que la corde : c'est le n° 1 de Jeff Nippard pour les triceps."}, drop: ["calves"], keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
     intro: "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat",
@@ -2355,7 +2361,7 @@ function exCard(it, i, d) {
   const minus = (n > 1 && !(lastRow && lastRow.done)) ? `<button class="link" data-act="minus" data-ex="${it.ex}">${(d.plus || {})[it.ex] > 0 ? "Retirer la série ajoutée" : "Encore courbaturé ? Retirer une série"}</button>` : "";
   const unminus = m > 0 ? `<button class="link" data-act="unminus" data-ex="${it.ex}">Remettre la série retirée</button>` : "";
   const plus = !d.deload && n > 0 && n < it.sets + 2 ? `<button class="link" data-act="plus" data-ex="${it.ex}">En forme ? Ajouter une série</button>` : "";
-  const anyDone = rows.some(r => r.done), alt0 = ALTS[it.ex], alt = alt0 && !(curPlan().id === "felix" && EX[alt0].eq === "db") ? alt0 : null;
+  const anyDone = rows.some(r => r.done), alt0 = ALTS[it.ex], alt = alt0 && !(curPlan().id === "felix" && EX[alt0].eq === "db") && !(d.sets || {})[alt0] && !draftPlan(d).some(x => x.ex === alt0) ? alt0 : null;
   const altBtn = alt && !anyDone ? `<button class="link" data-act="alt" data-ex="${it.base || it.ex}" data-to="${alt}">Machine prise ? Autre version : ${esc(EX[alt].n)}</button>` : "";
   const skip = it.added && !anyDone ? `<button class="link" data-act="removeExtra" data-ex="${it.ex}">Retirer cet exercice</button>` : n > 0 && !anyDone ? `<button class="link" data-act="skipEx" data-ex="${it.ex}">Retirer cet exercice (machine prise, en panne, pas le jour…)</button>` : n === 0 ? `<button class="link" data-act="unskipEx" data-ex="${it.ex}">Remettre l'exercice</button>` : "";
   const wu = !anyDone && n > 0 ? warmupFor(it, i, d, parseNum(rows[0]?.kg) || sugKg) : null;
