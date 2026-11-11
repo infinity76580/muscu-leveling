@@ -2985,6 +2985,12 @@ function familyLink(key) {
 function modalFamily(m) {
   return `<div class="win"><h2 class="win-title">Repas de famille</h2>
     <p class="muted small">Pour un grand repas que tu ne peux pas peser : choisis la taille, le Système compte une estimation. Une fois par semaine, sans pénalité.</p>
+    ${curPlan().id === "base" ? `<details class="fold"><summary>Comment gérer le repas</summary><div><ul class="rules">
+      <li>Apéro : un seul truc à grignoter, et un seul verre d'alcool au maximum.</li>
+      <li>Assiette : commence par la viande ou le poisson avec des légumes. Le féculent : l'équivalent de ton poing. Si tu te ressers, reprends de la viande, pas du féculent.</li>
+      <li>Fromage OU dessert, pas les deux. Un morceau de pain.</li>
+      <li>Le soir : léger et protéiné, environ 400 kcal (fromage blanc + un fruit, ou une omelette de 3 œufs + légumes).</li>
+      <li>Ça a débordé ? Rien à rattraper : le lundi, tu manges ton objectif normal, pas moins.</li></ul></div></details>` : ""}
     <div class="seg" role="group" aria-label="Repas"><button class="${m.slot === "midi" ? "on" : ""}" data-act="familySlot" data-s="midi">Midi</button><button class="${m.slot === "soir" ? "on" : ""}" data-act="familySlot" data-s="soir">Soir</button></div>
     <div class="ask-b">${FAMILY.map(f => `<button class="btn ghost wide" data-act="familyAdd" data-k="${f.k}">${esc(f.label)} · environ ${fmt(f.kcal, 0)} kcal</button>`).join("")}</div>
     <div class="m-actions"><button class="btn ghost wide" data-act="closeModal">Annuler</button></div></div>`;
@@ -3336,6 +3342,11 @@ function seedPlan(force) {                    // once per load: remember the pro
       if (changed) { const doc = {...ses, sets}; delete doc.id; S.sessions = S.sessions.map(x => x.id === ses.id ? {id: ses.id, ...doc} : x); queueSet("sessions/" + ses.id, doc); }
     }
     mark("fix1029");
+  }
+  if (pid === "base" && !done("kcal1111")) {   // target 2 200 kcal (Sunday family meal + Saturday free day stay as they are)
+    const cur = calcPlan(prof(), (avgWeight(today()) ?? Number(prof().weight)) || 75).kcal;
+    prof().kcalAdj = (Number(prof().kcalAdj) || 0) + (2200 - cur); prof().kcalAdjDate = today();
+    mark("kcal1111");
   }
   if (pid === "base" && !done("bf1029")) {    // his scale says 28 % body fat (29 Oct): use it, no tape measure needed
     prof().bf = 28; prof().bfScale = true;
