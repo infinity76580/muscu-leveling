@@ -287,6 +287,8 @@ ol.steps b{color:#fff}
 .chal{font-size:14px;padding:8px 10px;margin-top:6px;border-left:2px solid var(--gold);background:rgba(245,201,90,.08)}
 .chal b{color:var(--gold)}
 .chal .btn{display:block;margin-top:8px}
+.rec{font-size:13px;padding:6px 10px;margin-top:6px;border-left:2px solid #ff6b8b;background:rgba(255,107,139,.07)}
+.rec b{color:#fff}
 .sets{display:grid;gap:8px}
 .set-row{display:grid;grid-template-columns:26px minmax(0,1fr) minmax(0,1fr) 54px;gap:8px;align-items:center}
 .set-row.head span{font:600 10px var(--font-display);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-align:center}
@@ -1667,7 +1669,7 @@ function suggest(it, info, grip) {
       out.text = `La dernière fois, ${fmt(Number(bs.kg))} kg × ${bs.reps} : au-dessus des ${hi} reps visées. On monte à ${fmt(out.kg)} kg. Si une série tombe sous ${lo}, les suivantes s'ajusteront.`; }
     else if (allTop) { out.kg = stepUp(base, stepB); out.kind = "up"; out.text = `Tu as fait ${hi} reps sur toutes les séries : ${incText(ex.eq)}.`; }
     else { out.kg = base; out.reps = last.sets.map(s => Math.min(hi, Math.max(lo, (Number(s.reps) || 0) + 1)));
-      out.text = base < top ? `La dernière fois, ${fmt(top)} kg ne tenait pas ${lo} reps : repars de ${fmt(base)} kg et vise une rep de plus.` : "Même charge : vise une rep de plus que la dernière fois."; }
+      out.text = base < top ? `La dernière fois, ${fmt(top)} kg ne tenait pas ${lo} reps : repars de ${fmt(base)} kg et vise une rep de plus.` : "Même charge : bats ta dernière fois d'au moins une rep sur chaque série."; }
   }
   const flat = last && last.sets.length >= 2 && last.sets.every(s => Number(s.reps) === Number(last.sets[0].reps)) ? Number(last.sets[0].reps) : 0;
   if (felixPush(it, info) && last && out.kg != null && out.kind !== "up" && out.kind !== "est" && ex.eq !== "bw") {   // 10 Nov: same number on every set = he stops early -> one step up, quietly
@@ -1680,8 +1682,7 @@ function suggest(it, info, grip) {
   if (["base", "felix", "mathis"].includes(curPlan().id) && last && out.kg != null && out.kind !== "up" && out.kind !== "est" && !info.deload && !it.maint && ex.eq !== "bw") {   // 12 Nov: "suppose que je peux plus lourd, même si ce n'est que pour tenter"
     const atBase = last.sets.filter(s => (Number(s.kg) || 0) >= out.kg).map(s => Number(s.reps) || 0), bestR = atBase.length ? Math.max(...atBase) : 0;
     if (bestR >= lo) {   // 12 Nov, his rule: "si j'en ai fait 10 et que c'est 12 le max, tu me proposes quand même le niveau au-dessus" (a missed 1st set = a strength set)
-      if (curPlan().id === "felix") { out.kg = stepUp(out.kg, stepOf(ex.eq)); out.kind = "up"; out.reps = []; out.text = `Nouvelle charge : ${fmt(out.kg)} kg. Vise au moins ${lo} reps sur chaque série.`; }   // Félix: the push stays quiet
-      else out.chal = stepUp(out.kg, stepOf(ex.eq));   // then: "faut pas que ce soit obligé" -> a challenge he can take or leave
+      out.chal = stepUp(out.kg, stepOf(ex.eq));   // "faut pas que ce soit obligé" -> a challenge to take or leave (Félix too, his call 12 Nov)
     }
   }
   if (it.test) {
@@ -2367,8 +2368,11 @@ function exCard(it, i, d) {
   const sugKg = sg.kind === "test" && sg.testKg != null ? sg.testKg : sg.kg;
   const sugg = sg.text ? `<div class="sugg ${sg.kind}">${sugKg != null ? `Le Système suggère <b>${fmt(sugKg)} kg</b>. ` : ""}${esc(sg.text)}</div>` : "";
   const chalKg = (d.chal || {})[it.ex], anyDone0 = rows.some(r => r.done);
-  const chal = chalKg != null ? `<div class="chal on"><b>[Épreuve acceptée]</b> ${fmt(chalKg)} kg. Fais au moins ${it.reps[0]} reps sur une série à cette charge : +10 or et +10 XP.</div>`
-    : sg.chal != null && !anyDone0 && !d.deload ? `<div class="chal"><b>[Le Système te met à l'épreuve]</b> Ose <b>${fmt(sg.chal)} kg</b> dès la 1re série. Au moins ${it.reps[0]} reps : +10 or et +10 XP. Si ça ne passe pas, ça te fait une série de force, et les suivantes redescendent toutes seules.<button class="btn small" data-act="chal" data-ex="${it.ex}" data-kg="${sg.chal}">Relever l'épreuve</button></div>` : "";
+  const chal = chalKg != null ? `<div class="chal on"><b>[Épreuve acceptée]</b> ${fmt(chalKg)} kg × ${it.reps[0]} reps. Va les chercher : +10 or, +10 XP.</div>`
+    : sg.chal != null && !anyDone0 && !d.deload ? `<div class="chal"><b>[Le Système te met à l'épreuve]</b> Monte d'un cran : <b>${fmt(sg.chal)} kg</b>. Objectif : ${it.reps[0]} reps. Récompense : +10 or, +10 XP.<button class="btn small" data-act="chal" data-ex="${it.ex}" data-kg="${sg.chal}">Relever l'épreuve</button></div>` : "";
+  const recKg = parseNum((rows.find(r => !r.done) || {}).kg) || chalKg || sg.kg, pbE = prevBest(it.ex, grip);
+  let recN = 0; if (recKg > 0 && pbE > 0 && ex.eq !== "bw") for (let k = 1; k <= it.reps[1] + 5; k++) if (e1rm(it.ex, recKg, k) > pbE + 0.05) { recN = k; break; }
+  const rec = recN && rows.slice(0, n).some(r => !r.done) ? `<div class="rec"><b>[Record à battre]</b> ${fmt(recKg)} kg × <b>${recN}</b> reps${recN <= it.reps[1] ? "" : " (ou monte de charge)"} = nouveau record.</div>` : "";
   const ph = k => (it.test && k === 0) ? "max" : (sg.reps[k] != null ? sg.reps[k] : (it.reps[0] === it.reps[1] ? it.reps[0] : it.reps[0] + "-" + it.reps[1]));
   const setRows = rows.slice(0, n).map((r, k) => `<div class="set-row ${r.done ? "done" : ""}"><span class="sn">${k + 1}</span>
       <input id="kg-${it.ex}-${k}" data-bind="dg" data-f="kg" data-ex="${it.ex}" data-i="${k}" inputmode="decimal" autocomplete="off" value="${esc(r.kg)}" placeholder="kg" aria-label="Charge en kg, série ${k + 1}">
@@ -2388,7 +2392,7 @@ function exCard(it, i, d) {
     <div class="ex-h"><span class="ex-n">${pad(i + 1)}</span><div><h3>${esc(ex.n)}</h3><div class="tags">${tags}</div></div></div>
     <div class="target"><b>${n} × ${repsTxt(it)}</b> · ${it.rir.txt}</div>
     ${it.rir.fail ? `<div class="fail">Dernière série : jusqu'à l'échec</div>` : ""}
-    <p class="cue">${esc(it.cue)}</p>${gripRow}${last}${sugg}${chal}${warmLine}${n === 0 ? `<p class="muted small">Exercice passé (machine prise ou en panne).</p>` : ""}
+    <p class="cue">${esc(it.cue)}</p>${gripRow}${last}${sugg}${chal}${rec}${warmLine}${n === 0 ? `<p class="muted small">Exercice passé (machine prise ou en panne).</p>` : ""}
     <div class="sets" ${n === 0 ? "hidden" : ""}><div class="set-row head" aria-hidden="true"><span></span><span>${ex.eq === "bw" ? "Lest kg" : "kg"}</span><span>Reps</span><span></span></div>${setRows}</div>
     <div class="set-links">${plus}${n > 0 ? minus + unminus : ""}${altBtn}${skip}</div></article>`;
 }
