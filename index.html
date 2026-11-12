@@ -1674,11 +1674,12 @@ function suggest(it, info, grip) {
       out.text = `Nouvelle charge : ${fmt(out.kg)} kg. Vise au moins ${lo} reps sur chaque série.`;
     }
   }
-  if (curPlan().id === "base" && last && out.kg != null && out.kind !== "up" && out.kind !== "est" && !info.deload && !it.maint && ex.eq !== "bw") {   // 12 Nov: "suppose que je peux plus lourd, même si ce n'est que pour tenter"
+  if (["base", "felix", "mathis"].includes(curPlan().id) && last && out.kg != null && out.kind !== "up" && out.kind !== "est" && !info.deload && !it.maint && ex.eq !== "bw") {   // 12 Nov: "suppose que je peux plus lourd, même si ce n'est que pour tenter"
     const atBase = last.sets.filter(s => (Number(s.kg) || 0) >= out.kg).map(s => Number(s.reps) || 0), bestR = atBase.length ? Math.max(...atBase) : 0;
     if (bestR >= lo) {   // 12 Nov, his rule: "si j'en ai fait 10 et que c'est 12 le max, tu me proposes quand même le niveau au-dessus" (a missed 1st set = a strength set)
       out.kg = stepUp(out.kg, stepOf(ex.eq)); out.kind = "up"; out.reps = [];
-      out.text = `À tenter : ${fmt(out.kg)} kg dès la 1re série. Vise ${lo} reps ou plus ; si tu tombes sous ${lo - 1}, les séries suivantes redescendent toutes seules.`;
+      out.text = curPlan().id === "felix" ? `Nouvelle charge : ${fmt(out.kg)} kg. Vise au moins ${lo} reps sur chaque série.`   // Félix: the push stays quiet
+        : `À tenter : ${fmt(out.kg)} kg dès la 1re série. Vise ${lo} reps ou plus ; si tu tombes sous ${lo - 1}, les séries suivantes redescendent toutes seules.`;
     }
   }
   if (it.test) {
