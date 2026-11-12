@@ -191,6 +191,11 @@ label,.lbl{font:600 12px var(--font-display);letter-spacing:.12em;text-transform
 .chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .chip{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:8px 9px;background:rgba(20,50,110,.3);border:1px solid rgba(90,170,255,.3);color:var(--text);font-family:var(--font-display);text-align:left;cursor:pointer;border-radius:2px;min-height:44px;min-width:0}
 .chip b{font-size:16px;line-height:1.1}
+.chips.n5{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.chips.n5 .chip{padding:7px 5px}
+.chips.n5 .chip span{font-size:11px}
+.chips.n5 .chip i{font-size:9px;letter-spacing:0}
+.chip.today{border-color:var(--glow);box-shadow:0 0 10px rgba(90,170,255,.45)}
 .chip span{font-size:12px;color:var(--muted);white-space:nowrap}
 .chip i{font-style:normal;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .chip.st-done{border-color:var(--ok);background:rgba(60,220,160,.12)}
@@ -2158,7 +2163,7 @@ function portalCard(p, label, sub, compact) {
 const CHIP_LABEL = {done: "Nettoyé", partial: "Partiel", missed: "Raté", today: "Ouvert", late: "Retard", open: "À venir", future: "Fermé", bonus: "Option", skipped: "Pas fait"};
 function chip(p) {
   if (p.bonus) return `<button class="chip chip-bonus st-${p.st}" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}"><b>+${p.ty}</b><span>Bonus grosse semaine : ${TYPES[p.ty].name}</span><i>${CHIP_LABEL[p.st]}</i></button>`;
-  return `<button class="chip st-${p.st}" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}"><b>${TYPES[p.ty].chip || p.ty}</b><span>${fmtDay(fromStr(p.date), {weekday: "short", day: "numeric"})}</span><i>${CHIP_LABEL[p.st]}</i></button>`;
+  return `<button class="chip st-${p.st} ${p.date === today() ? "today" : ""}" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}"><b>${TYPES[p.ty].chip || p.ty}</b><span>${fmtDay(fromStr(p.date), {weekday: "short", day: "numeric"})}</span><i>${CHIP_LABEL[p.st]}</i></button>`;
 }
 function portalWin() {
   if (S.draft && S.draft.active) return "";
@@ -2263,7 +2268,7 @@ function viewDungeons() {
     const d1 = weekStart(cw), d2 = addDays(d1, 6), W = info.W;
     weeks.push(`<div class="wk ${cw === curW ? "cur" : ""} ${cw < curW ? "past" : ""} ${info.deload ? "is-deload" : ""}"><div class="wk-l"><b>${info.deload ? "Joker" : "S" + info.p}</b><span>${fmtDay(d1, {day: "numeric", month: "short"})} – ${fmtDay(d2, {day: "numeric", month: "short"})}</span></div>
       <div class="wk-m"><span class="wk-phase">${W.phase} ${rankBadgeInline(W.rank)}</span><span class="muted">Reps en réserve : ${W.rirTxt}</span><span class="muted">Séries : ${W.setsTxt}</span></div>
-      <div class="chips">${weekPlan(cw).map(chip).join("")}</div></div>`);
+      ${(ps => `<div class="chips ${ps.length >= 5 ? "n5" : ""}">${ps.map(chip).join("")}</div>`)([...weekPlan(cw)].sort((a, b) => String(a.date || "9").localeCompare(String(b.date || "9"))))}</div>`);
   }
   const jl = jokersUsed() >= JOKERS ? "utilisé" : "disponible (onglet Statut, avant le premier donjon de la semaine)";
   return topbar() + `<section class="win"><h2 class="win-title">Carte des donjons</h2><p class="lead">8 semaines de programme à partir du ${fmtDay(startDate(), {day: "numeric", month: "long"})}. ${curPlan().lead} Touche un donjon pour voir ses exercices.</p>${curPlan().noJoker ? "" : `<p class="small">Joker semaine allégée : ${jl}.</p>`}${weeks.join("")}</section>` + (curPlan().id === "base" ? grimoire() : planGrimoire());
@@ -2334,6 +2339,7 @@ function viewDungeon() {
     <div class="xpbar" role="progressbar" aria-label="Séries faites" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
     <section class="win"><h2 class="win-title">${esc(TYPES[d.type].gate)}</h2>
       <p class="sys-line">[Vous êtes entré dans un donjon de rang ${W.rank}.] ${doneReq} / ${planned} séries</p>
+      ${d.hype ? `<p class="sugg up">[Message du Système] ${esc(d.hype)}</p>` : ""}
       <button class="q ${d.warm ? "on" : ""}" data-act="warm" role="checkbox" aria-checked="${!!d.warm}"><span class="box" aria-hidden="true"></span><span class="q-l">Échauffement</span><span class="q-t">${d.warm ? "[Fait]" : "[À faire]"}</span></button>
       <p class="muted small">5 min de cardio léger, 2 séries de montée progressive sur le premier exercice, puis 1 série légère avant chaque nouveau mouvement.</p>
       ${d.deload ? `<p class="sugg">Semaine allégée : moitié des séries, mêmes charges, 3 reps en réserve. Tu dois sortir frais.</p>` : ""}
@@ -3617,7 +3623,9 @@ function draftPlan(d) {                       // the planned exercises, with the
   const plan = planFor(d.cw, d.type).map(it => { const a = (d.alt || {})[it.ex]; return a ? {...it, ex: a, base: it.ex, cue: ALT_CUE[a] || it.cue} : it; });
   const extra = (d.extra || []).filter(x => EX[x.ex] && !plan.some(it => it.ex === x.ex)).map((x, i) => ({...x, idx: 100 + i, opt: true, added: true,
     rir: rirFor((weekInfo(d.cw) || {p: 1}).p, x, 0, d.type, d.deload)}));
-  return [...plan, ...extra];
+  const out = [...plan];
+  for (const x of extra) { const at = x.before ? out.findIndex(it => it.ex === x.before) : -1; if (at >= 0) out.splice(at, 0, x); else out.push(x); }   // 12 Nov: where he added it
+  return [...out.filter(it => setsTarget(it, d) > 0), ...out.filter(it => setsTarget(it, d) <= 0)];   // removed ones sink to the bottom
 }
 const setDone = r => !!r && (r.done || parseNum(r.reps) > 0);   // ticked, or reps typed and the tick forgotten
 function setCount(d, plan, isDone) {            // planned = what the plan asks (added sets excluded); extra sets make up for missing ones
@@ -3667,9 +3675,28 @@ function enterDungeon(cw, ty) {
   }
   S.draft = {active: true, key: `W${cw}-${ty}`, cw, week: info.p, deload: !!info.deload, bonus: info.bonus === ty, type: ty, startedAt: new Date().toISOString(), warm: false, minus: {}, sets, grip, alt: {}};
   state.toastedPr = {}; state.chalWon = {}; state.modal = null; state.rest = null;
+  S.draft.hype = hypeFor(ty);
   saveDraft(true); chime("sys");
   state.view = "dungeon"; requestWakeLock(); window.scrollTo(0, 0); render();
   toast(`[Vous êtes entré dans le donjon.] ${esc(TYPES[ty].gate)}`);
+  pushFx({kind: "level", eyebrow: "[Message du Système]", mid: esc(S.draft.hype)});
+}
+function hypeFor(ty) {                        // 12 Nov: "un message d'encouragement en début de séance, qui se base sur une donnée"
+  const pick = a => a[Math.floor(Math.random() * a.length)], out = [];
+  const last = sessionsSorted().filter(s => s.type === ty && s.valid && !s.dup).pop(), cw = weekOfStr(today());
+  const wk = S.sessions.filter(s => sessionCw(s) === cw && s.valid && !s.dup).length;
+  if (last) {
+    const pr = (last.prs || []).length, ch = (last.chalWon || []).length;
+    if (pr >= 2) out.push(`Dernière fois sur ce donjon : ${pr} records battus. On continue sur cette lancée.`);
+    else if (pr === 1) out.push(`Dernière fois : un record sur ${(EX[last.prs[0].ex]?.n || "un exercice").split(" (")[0].toLowerCase()}. Aujourd'hui, le Système en veut d'autres.`);
+    if (ch) out.push(`Dernière fois : ${ch} épreuve${ch > 1 ? "s" : ""} réussie${ch > 1 ? "s" : ""}. Le Système en a préparé d'autres.`);
+    if (last.feeling === "Bien" || last.feeling === "Inarrêtable") out.push(`Dernière fois, tu es sorti « ${last.feeling} ». Reprends exactement là où tu t'es arrêté.`);
+    if (last.feeling === "Dur" || last.feeling === "Écrasé") out.push("La dernière fois était dure. C'est comme ça qu'on monte de rang. Revanche.");
+  }
+  if (wk >= 2) out.push(`${wk + 1}e donjon de la semaine. Le Système prend note.`);
+  const gen = ["Le Système a confiance en toi. Déchire tout.", "Aujourd'hui, on ne négocie pas avec la charge.", "Chaque rep te rapproche du rang suivant. Va les chercher.", "Personne ne soulèvera à ta place. Entre, et prends tout.",
+    "Le Joueur d'hier était plus faible. Prouve-le.", "Une rep de plus que la dernière fois. C'est le minimum que le Système accepte."];
+  return out.length && Math.random() < 0.8 ? pick(out) : pick(gen);
 }
 function prevBest(exId, grip) { let b = 0; for (const s of S.sessions) if (Array.isArray(s.sets?.[exId]) && (!grip || !s.grip?.[exId] || s.grip[exId] === grip)) b = Math.max(b, bestE1(exId, s.sets[exId])); return b; }
 function toggleSet(ex, i) {
@@ -3858,7 +3885,8 @@ function rewardsFromEditor(m) {
 
 /* ================= events ================= */
 const ACTIONS = {
-  go: a => { state.view = a.dataset.v; state.setDraft = a.dataset.v === "settings" ? null : state.setDraft; if (["status", "dungeons", "meals", "body", "shop", "journal"].includes(state.view)) { try { localStorage.setItem("gl-tab", state.view); } catch (e) {} } state.modal = null; window.scrollTo(0, 0); render(); },
+  go: a => { state.view = a.dataset.v; state.setDraft = a.dataset.v === "settings" ? null : state.setDraft; if (["status", "dungeons", "meals", "body", "shop", "journal"].includes(state.view)) { try { localStorage.setItem("gl-tab", state.view); } catch (e) {} } state.modal = null; window.scrollTo(0, 0); render();
+    if (state.view === "dungeons") setTimeout(() => { const w = document.querySelector(".wk.cur"); if (w) window.scrollTo(0, Math.max(0, w.getBoundingClientRect().top + window.scrollY - 80)); }, 30); },
   preview: a => { state.modal = {kind: "preview", cw: Number(a.dataset.cw), ty: a.dataset.ty}; renderModal(); },
   enter: a => enterDungeon(Number(a.dataset.cw), a.dataset.ty),
   jokerAsk: a => askJoker(Number(a.dataset.cw)),
@@ -4041,7 +4069,8 @@ const ACTIONS = {
     saveDraft(); render(); },
   addExOpen: () => { state.modal = {kind: "addEx", q: ""}; renderModal(); },
   addExPick: a => { const ex = a.dataset.ex, d = S.draft; if (!d || !EX[ex]) return; const poly = EX[ex].kind === "poly";
-    d.extra = [...(d.extra || []), {ex, sets: 3, reps: poly ? [6, 10] : [10, 15], rest: poly ? 120 : 75, cue: "Exercice ajouté par toi : amplitude complète, contrôle la descente."}];
+    const next = draftPlan(d).find(it => setsTarget(it, d) > 0 && !(d.sets[it.ex] || []).some(r => r.done));   // goes before the next exercise not started
+    d.extra = [...(d.extra || []), {ex, before: next ? next.ex : null, sets: 3, reps: poly ? [6, 10] : [10, 15], rest: poly ? 120 : 75, cue: "Exercice ajouté par toi : amplitude complète, contrôle la descente."}];
     const it = draftPlan(d).find(x => x.ex === ex);
     if (it && !(d.sets[ex] || []).length) { const sg = suggest(it, {p: d.week, deload: !!d.deload}, (d.grip || {})[ex]); d.sets[ex] = Array.from({length: it.sets}, () => ({kg: sg.kg != null ? fmtIn(sg.kg) : "", reps: "", done: false})); }
     state.modal = null; saveDraft(); render(); renderModal(); toast(`[Ajouté] ${esc(EX[ex].n)}`, "ok");
