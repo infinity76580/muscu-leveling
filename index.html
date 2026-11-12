@@ -2704,7 +2704,7 @@ const PHYSIQUE = {
     strong: ["Toujours très sec : abdos visibles, aucun gras à perdre. Tout ce que tu manges en plus peut partir dans le muscle.", "La taille fine et le dos qui s'élargit déjà sous les bras : la base d'un V.", "De profil, l'épaule avant est bien dessinée, et ta posture est droite."],
     weak: ["La masse en général : c'est le point n° 1. Avec 70 kg pour 1,76 m, ton corps a besoin de plus de nourriture pour construire.", "Les pecs, surtout le haut : de profil, la poitrine est encore plate.", "La largeur des épaules : vue de face et de dos, la carrure reste étroite par rapport à la taille.", "Les bras et le haut du dos (trapèzes, arrière d'épaule) : encore fins sur la photo de dos."],
     done: ["Ton programme visait déjà ces points depuis le 5 novembre : pecs 2 fois par semaine (Smith, pec deck, écarté poulie), épaules latérales 3 fois par semaine, oiseau pour l'arrière d'épaule le mardi, bras à chaque séance du haut. On le garde : il faut lui laisser le temps de marcher.", "Nouveau : les charges montent de 5 kg en 5 kg (haltères de 2 en 2), et une série au-dessus de la fourchette fait monter les suivantes."],
-    note: "Ce qui te manque n'est pas à la salle, c'est dans l'assiette. Les jours où tu notes tes repas, tu es vers 2 100 kcal et 100 g de protéines, alors que ton objectif est autour de 2 800 kcal et 145 g. Ajoute 700 kcal par jour, par exemple un grand verre de lait avec flocons d'avoine, banane et beurre de cacahuète, plus un skyr. Objectif : +0,25 kg par semaine sur la balance. Prochaine série de photos dans 2 semaines, même endroit, même lumière."}],
+    note: "Ce qui te manque n'est pas à la salle, c'est dans l'assiette. Les jours où tu notes tes repas, tu es en moyenne vers 2 200 kcal et 125 g de protéines, alors que ton objectif est autour de 2 800 kcal et 145 g. Ajoute 600 kcal par jour, par exemple un grand verre de lait avec flocons d'avoine, banane et beurre de cacahuète, plus un skyr. Objectif : +0,25 kg par semaine sur la balance. Prochaine série de photos dans 2 semaines, même endroit, même lumière."}],
 };
 function photoAskBox() {                        // ask the Système for an analysis of the photos
   const ask = photoAsk(), a = physNow(), pending = ask && (!a || String(ask.at) > (a.at || a.date + "T00:00:00Z"));
@@ -3384,6 +3384,10 @@ function seedPlan(force) {                    // once per load: remember the pro
       const doc = {...ses, dup: true}; delete doc.id; S.sessions = S.sessions.filter(x => x.id !== ses.id); queueSet("sessions/" + ses.id, doc);
     }
     mark("dedup1102");
+  }
+  if (pid === "felix" && !done("prot1112")) {   // 12 Nov: the auto target (22 % body fat default at 120 kg) gave 270 g; Gauthier set 180 g
+    if (!(Number(prof().proteinManual) > 0)) prof().proteinManual = 180;
+    mark("prot1112");
   }
   if (pid === "felix" && !done("felixWeek1102")) {   // week of 2 Nov: his shoulders/arms session done Monday counts as Monday; then Tue, Thu (with Gauthier), Sat
     const cw = weekOfStr("2026-11-02");
