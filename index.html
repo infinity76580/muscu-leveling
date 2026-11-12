@@ -1674,7 +1674,7 @@ function suggest(it, info, grip) {
       out.text = `La dernière fois, ${fmt(Number(bs.kg))} kg × ${bs.reps} : au-dessus des ${hi} reps visées. On monte à ${fmt(out.kg)} kg. Si une série tombe sous ${lo}, les suivantes s'ajusteront.`; }
     else if (allTop) { out.kg = stepUp(base, stepB); out.kind = "up"; out.text = `Tu as fait ${hi} reps sur toutes les séries : ${incText(ex.eq)}.`; }
     else { out.kg = base; out.reps = last.sets.map(s => Math.min(hi, Math.max(lo, (Number(s.reps) || 0) + 1)));
-      out.text = base < top ? `La dernière fois, ${fmt(top)} kg ne tenait pas ${lo} reps : repars de ${fmt(base)} kg et vise une rep de plus.` : "Même charge : bats ta dernière fois d'au moins une rep sur chaque série."; }
+      out.text = base < top ? `La dernière fois, ${fmt(top)} kg ne tenait pas ${lo} reps : repars de ${fmt(base)} kg et vise une rep de plus.` : `Même charge. Objectif : ${out.reps.join(" · ")} reps.`; }
   }
   const flat = last && last.sets.length >= 2 && last.sets.every(s => Number(s.reps) === Number(last.sets[0].reps)) ? Number(last.sets[0].reps) : 0;
   if (felixPush(it, info) && last && out.kg != null && out.kind !== "up" && out.kind !== "est" && ex.eq !== "bw") {   // 10 Nov: same number on every set = he stops early -> one step up, quietly
