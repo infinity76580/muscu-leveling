@@ -284,6 +284,9 @@ ol.steps b{color:#fff}
 .sugg b{font-family:var(--font-display);color:#fff}
 .sugg.up{border-color:var(--ok);background:rgba(94,240,184,.08)}
 .sugg.test{border-color:var(--gold);background:rgba(245,201,90,.08)}
+.chal{font-size:14px;padding:8px 10px;margin-top:6px;border-left:2px solid var(--gold);background:rgba(245,201,90,.08)}
+.chal b{color:var(--gold)}
+.chal .btn{display:block;margin-top:8px}
 .sets{display:grid;gap:8px}
 .set-row{display:grid;grid-template-columns:26px minmax(0,1fr) minmax(0,1fr) 54px;gap:8px;align-items:center}
 .set-row.head span{font:600 10px var(--font-display);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-align:center}
@@ -1677,9 +1680,8 @@ function suggest(it, info, grip) {
   if (["base", "felix", "mathis"].includes(curPlan().id) && last && out.kg != null && out.kind !== "up" && out.kind !== "est" && !info.deload && !it.maint && ex.eq !== "bw") {   // 12 Nov: "suppose que je peux plus lourd, même si ce n'est que pour tenter"
     const atBase = last.sets.filter(s => (Number(s.kg) || 0) >= out.kg).map(s => Number(s.reps) || 0), bestR = atBase.length ? Math.max(...atBase) : 0;
     if (bestR >= lo) {   // 12 Nov, his rule: "si j'en ai fait 10 et que c'est 12 le max, tu me proposes quand même le niveau au-dessus" (a missed 1st set = a strength set)
-      out.kg = stepUp(out.kg, stepOf(ex.eq)); out.kind = "up"; out.reps = [];
-      out.text = curPlan().id === "felix" ? `Nouvelle charge : ${fmt(out.kg)} kg. Vise au moins ${lo} reps sur chaque série.`   // Félix: the push stays quiet
-        : `À tenter : ${fmt(out.kg)} kg dès la 1re série. Vise ${lo} reps ou plus ; si tu tombes sous ${lo - 1}, les séries suivantes redescendent toutes seules.`;
+      if (curPlan().id === "felix") { out.kg = stepUp(out.kg, stepOf(ex.eq)); out.kind = "up"; out.reps = []; out.text = `Nouvelle charge : ${fmt(out.kg)} kg. Vise au moins ${lo} reps sur chaque série.`; }   // Félix: the push stays quiet
+      else out.chal = stepUp(out.kg, stepOf(ex.eq));   // then: "faut pas que ce soit obligé" -> a challenge he can take or leave
     }
   }
   if (it.test) {
@@ -2364,6 +2366,9 @@ function exCard(it, i, d) {
   const last = sg.last ? `<div class="hist"><span>Dernière fois</span>${sg.last.sets.map(s => `${fmt(s.kg)}×${s.reps}`).join(" · ")} <small class="muted">(S${sg.last.week}${sg.last.grip ? ", prise " + sg.last.grip.toLowerCase() : ""})</small></div>` : "";
   const sugKg = sg.kind === "test" && sg.testKg != null ? sg.testKg : sg.kg;
   const sugg = sg.text ? `<div class="sugg ${sg.kind}">${sugKg != null ? `Le Système suggère <b>${fmt(sugKg)} kg</b>. ` : ""}${esc(sg.text)}</div>` : "";
+  const chalKg = (d.chal || {})[it.ex], anyDone0 = rows.some(r => r.done);
+  const chal = chalKg != null ? `<div class="chal on"><b>[Épreuve acceptée]</b> ${fmt(chalKg)} kg. Fais au moins ${it.reps[0]} reps sur une série à cette charge : +10 or et +10 XP.</div>`
+    : sg.chal != null && !anyDone0 && !d.deload ? `<div class="chal"><b>[Le Système te met à l'épreuve]</b> Ose <b>${fmt(sg.chal)} kg</b> dès la 1re série. Au moins ${it.reps[0]} reps : +10 or et +10 XP. Si ça ne passe pas, ça te fait une série de force, et les suivantes redescendent toutes seules.<button class="btn small" data-act="chal" data-ex="${it.ex}" data-kg="${sg.chal}">Relever l'épreuve</button></div>` : "";
   const ph = k => (it.test && k === 0) ? "max" : (sg.reps[k] != null ? sg.reps[k] : (it.reps[0] === it.reps[1] ? it.reps[0] : it.reps[0] + "-" + it.reps[1]));
   const setRows = rows.slice(0, n).map((r, k) => `<div class="set-row ${r.done ? "done" : ""}"><span class="sn">${k + 1}</span>
       <input id="kg-${it.ex}-${k}" data-bind="dg" data-f="kg" data-ex="${it.ex}" data-i="${k}" inputmode="decimal" autocomplete="off" value="${esc(r.kg)}" placeholder="kg" aria-label="Charge en kg, série ${k + 1}">
@@ -2383,7 +2388,7 @@ function exCard(it, i, d) {
     <div class="ex-h"><span class="ex-n">${pad(i + 1)}</span><div><h3>${esc(ex.n)}</h3><div class="tags">${tags}</div></div></div>
     <div class="target"><b>${n} × ${repsTxt(it)}</b> · ${it.rir.txt}</div>
     ${it.rir.fail ? `<div class="fail">Dernière série : jusqu'à l'échec</div>` : ""}
-    <p class="cue">${esc(it.cue)}</p>${gripRow}${last}${sugg}${warmLine}${n === 0 ? `<p class="muted small">Exercice passé (machine prise ou en panne).</p>` : ""}
+    <p class="cue">${esc(it.cue)}</p>${gripRow}${last}${sugg}${chal}${warmLine}${n === 0 ? `<p class="muted small">Exercice passé (machine prise ou en panne).</p>` : ""}
     <div class="sets" ${n === 0 ? "hidden" : ""}><div class="set-row head" aria-hidden="true"><span></span><span>${ex.eq === "bw" ? "Lest kg" : "kg"}</span><span>Reps</span><span></span></div>${setRows}</div>
     <div class="set-links">${plus}${n > 0 ? minus + unminus : ""}${altBtn}${skip}</div></article>`;
 }
@@ -3657,7 +3662,7 @@ function enterDungeon(cw, ty) {
     });
   }
   S.draft = {active: true, key: `W${cw}-${ty}`, cw, week: info.p, deload: !!info.deload, bonus: info.bonus === ty, type: ty, startedAt: new Date().toISOString(), warm: false, minus: {}, sets, grip, alt: {}};
-  state.toastedPr = {}; state.modal = null; state.rest = null;
+  state.toastedPr = {}; state.chalWon = {}; state.modal = null; state.rest = null;
   saveDraft(true); chime("sys");
   state.view = "dungeon"; requestWakeLock(); window.scrollTo(0, 0); render();
   toast(`[Vous êtes entré dans le donjon.] ${esc(TYPES[ty].gate)}`);
@@ -3680,6 +3685,8 @@ function toggleSet(ex, i) {
     else if (rp >= hi + (felixPush(it, {p: d.week, deload: d.deload}) ? 0 : 1)) { const k2 = stepUp(kg0, step); nextKg = fmtIn(k2); toast(rp >= hi + 1 ? `[Système] ${rp} reps, bien au-dessus des ${hi} : séries suivantes à ${fmt(k2)} kg.` : `[Système] Séries suivantes à ${fmt(k2)} kg.`, "ok"); }
   }
   if (!(it && it.test && i === 0)) for (let k = i + 1; k < rows.length; k++) if (!rows[k].done && !rows[k].ek) rows[k].kg = nextKg;
+  const ck = (d.chal || {})[ex];
+  if (ck != null && it && parseNum(r.kg) >= ck && rp >= it.reps[0] && !(state.chalWon || {})[ex]) { state.chalWon = {...(state.chalWon || {}), [ex]: true}; toast(`[Épreuve réussie] ${fmt(ck)} kg × ${rp} : +10 or, +10 XP.`, "gold"); }
   const pb = prevBest(ex, (d.grip || {})[ex]), cur = e1rm(ex, parseNum(r.kg), Math.round(reps));
   if (pb > 0 && cur > pb + 0.05 && !state.toastedPr[ex]) { state.toastedPr[ex] = true; toast(`[Record en vue] ${esc(EX[ex].n)} : 1RM estimé ${fmt(cur, 1)} kg`, "gold"); }
   saveDraft(); chime("sys");
@@ -3713,11 +3720,12 @@ async function finishDungeon() {
   const prs = [];
   for (const [ex, rows] of Object.entries(setsOut)) { const cur = bestE1(ex, rows), pb = prevBest(ex, (d.grip || {})[ex]); if (pb > 0 && cur > pb + 0.05) prs.push({ex, e1: r1(cur), prev: r1(pb)}); }
   const loot = valid ? rollLoot() : null, fin = !!d.fin && !!curPlan().finisher;
-  const xp = done * 10 + (full ? 60 : valid ? 20 : 0) + prs.length * 25 + (fin ? 20 : 0);
-  const gold = (full ? 50 : valid ? 20 : 0) + prs.length * 10 + (loot ? loot.gold : 0) + (fin ? 10 : 0);
+  const chalTaken = Object.entries(d.chal || {}).filter(([ex]) => setsOut[ex]), chalWon = chalTaken.filter(([ex, kg]) => { const it = plan.find(x => x.ex === ex); return it && setsOut[ex].some(r => r.kg >= kg && r.reps >= it.reps[0]); }).map(([ex]) => ex);
+  const xp = done * 10 + (full ? 60 : valid ? 20 : 0) + prs.length * 25 + (fin ? 20 : 0) + chalWon.length * 10;
+  const gold = (full ? 50 : valid ? 20 : 0) + prs.length * 10 + (loot ? loot.gold : 0) + (fin ? 10 : 0) + chalWon.length * 10;
   const now = new Date();
   const doc = {key: d.key, cw: d.cw, week: d.week, deload: !!d.deload, bonus: !!d.bonus, type: d.type, date: today(), startedAt: d.startedAt, finishedAt: now.toISOString(), minutes: Math.max(1, Math.round((now - new Date(d.startedAt)) / 60000)),
-    sets: setsOut, planned, done, doneReq, full, valid, xp, gold, prs, loot, feeling: m.feeling || null, note: (m.note || "").slice(0, 4000), grip: Object.fromEntries(Object.entries(d.grip || {}).filter(([ex]) => setsOut[ex])), minus: d.minus, plus: d.plus || {}, warm: !!d.warm, finisher: fin};
+    sets: setsOut, planned, done, doneReq, full, valid, xp, gold, prs, loot, feeling: m.feeling || null, note: (m.note || "").slice(0, 4000), grip: Object.fromEntries(Object.entries(d.grip || {}).filter(([ex]) => setsOut[ex])), chal: Object.fromEntries(chalTaken), chalWon, minus: d.minus, plus: d.plus || {}, warm: !!d.warm, finisher: fin};
   const id = d.key + "-" + now.getTime().toString(36);
   try { await Store.db.collection("sessions").doc(id).set(doc); }
   catch (e) { state.finishing = false; writeError(e); return; }
@@ -4016,6 +4024,9 @@ const ACTIONS = {
     const sg = suggest(it, {p: d.week, deload: !!d.deload}, d.grip[ex]);   // new grip: new suggested load on the sets not done yet
     if (sg.kg != null) for (const r of (d.sets[ex] || [])) if (!r.done) r.kg = fmtIn(sg.kg);
     saveDraft(); render(); },
+  chal: a => { const ex = a.dataset.ex, kg = Number(a.dataset.kg), d = S.draft; if (!d || !(kg > 0) || (d.sets[ex] || []).some(r => r.done)) return;
+    d.chal = {...(d.chal || {}), [ex]: kg}; for (const r of (d.sets[ex] || [])) if (!r.done && !r.ek) r.kg = fmtIn(kg);
+    saveDraft(); chime("sys"); toast(`[Épreuve acceptée] ${esc(EX[ex].n)} : ${fmt(kg)} kg.`, "gold"); render(); },
   alt: a => { const base = a.dataset.ex, to = a.dataset.to, d = S.draft, cur = (d.alt || {})[base] || base;
     if ((d.sets[cur] || []).some(r => r.done)) return;
     d.alt = {...(d.alt || {})}; if (to === base) delete d.alt[base]; else d.alt[base] = to;
