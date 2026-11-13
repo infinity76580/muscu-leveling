@@ -700,10 +700,11 @@ const EX = {
   facePull:    {n: "Face pull assis (poulie)", kind: "iso", eq: "cable"},
   hipThrust:   {n: "Hip thrust à la machine", kind: "poly", eq: "machine"},
   yRaise:      {n: "Y-raise à la poulie", kind: "iso", eq: "cable"},
+  uprightRow:  {n: "Rowing menton barre droite", kind: "iso", eq: "bar"},
 };
 const RESTTXT = {180: "3 min", 150: "2-3 min", 120: "2 min", 90: "90 s", 75: "60-90 s", 60: "60 s"};
-const ALTS = {bench: "smithBench", smithBench: "bench", legExt: "legExtFree", legExtFree: "legExt", dbShPress: "shPress", shPress: "dbShPress", revPecDeck: "revFly", revFly: "revPecDeck", facePull: "revFly", pecDeck: "flySeated", flySeated: "pecDeck", legCurl: "legCurlFree", legCurlFree: "legCurl", hack: "pendulum", pendulum: "hack", uniPd: "isoPd", isoPd: "uniPd"};   // same muscle, other machine: kept apart in the stats (2 Nov)
-const ALT_CUE = {isoPd: "Machine à disques, un bras à la fois : bras tendu en haut pour étirer le dos, tire le coude vers la hanche, retour lent. Note les disques du côté que tu tires.", uniPd: "Poulie haute, à genoux, une poignée : coude vers la hanche, en haut laisse l'épaule monter pour étirer.", smithBench: "Smith : barre guidée sur rails, banc placé pour que la barre descende au bas des pecs ; touche sans rebond.", legExtFree: "Version à disques : pause 1 s en haut, descente contrôlée.",
+const ALTS = {bench: "smithBench", smithBench: "bench", legExt: "legExtFree", legExtFree: "legExt", dbShPress: "shPress", shPress: "dbShPress", revPecDeck: "revFly", revFly: "revPecDeck", facePull: "revFly", pecDeck: "flySeated", flySeated: "pecDeck", legCurl: "legCurlFree", legCurlFree: "legCurl", hack: "pendulum", pendulum: "hack", uniPd: "isoPd", isoPd: "uniPd", uprightRow: "yRaise", yRaise: "uprightRow"};   // same muscle, other machine: kept apart in the stats (2 Nov)
+const ALT_CUE = {uprightRow: "Barre droite, mains un peu plus larges que les épaules : monte la barre le long du corps jusqu'au bas de la poitrine, coudes plus hauts que les poignets, pause 1 s, descente lente.", yRaise: "Poulies basses croisées (ou une poulie, un bras) : monte les bras en Y au-dessus de la tête, pouces vers le haut, pause 1 s, descente lente.", isoPd: "Machine à disques, un bras à la fois : bras tendu en haut pour étirer le dos, tire le coude vers la hanche, retour lent. Note les disques du côté que tu tires.", uniPd: "Poulie haute, à genoux, une poignée : coude vers la hanche, en haut laisse l'épaule monter pour étirer.", smithBench: "Smith : barre guidée sur rails, banc placé pour que la barre descende au bas des pecs ; touche sans rebond.", legExtFree: "Version à disques : pause 1 s en haut, descente contrôlée.",
   bench: "Omoplates serrées et basses, pieds ancrés ; barre au bas des pecs, touche sans rebond. Barres de sécurité.", legExt: "Pause 1 s en haut, descente contrôlée.", pendulum: "Pendule : descends le plus bas possible, dos collé, genoux qui avancent ; c'est l'étirement en bas qui fait le travail.", hack: "Dos collé au dossier, descends profond, genoux dans l'axe des pieds.", legCurlFree: "Version à disques : buste penché en avant pour étirer les ischios, pause 1 s en bas, retour lent.", legCurl: "Buste penché en avant pour étirer les ischios.",
   shPress: "Machine : dos bien calé, descends les poignées au niveau du menton.", dbShPress: "Assis, haltères à hauteur d'oreilles, pousse vers le haut. Charge notée = UN haltère.",
   revFly: "Poulies à hauteur d'épaules, tiens les câbles eux-mêmes, bras quasi tendus, tire en arc vers l'extérieur.", revPecDeck: "Poitrine collée au pad, bras quasi tendus, pousse les mains loin sur les côtés."};
@@ -811,8 +812,8 @@ SESS.DB = [                                 // TECHNIQUE for the back (2nd back 
   {ex: "hammer", sets: 2, reps: [10, 12], rest: 60, perArm: true, cue: "Coude fixe, montée contrôlée."},
 ];
 SESS.PT = [                                 // TECHNIQUE for the chest (2nd chest day): lighter, more reps, slow
+  {ex: "bench", sets: 3, reps: [10, 12], rest: 120, tech: true, cue: "Couché technique : nettement plus léger que lundi. Descente en 3 s, 1 s de pause sur la poitrine, pousse sans rebond."},   // he benches, no chest press (5 Nov)   // 13 Nov: "je préfère commencer par du développé couché"
   {ex: "inclBar", sets: 3, reps: [10, 12], rest: 120, tech: true, cue: "Technique : barre ou Smith, banc à ~30°, plus léger que lundi. Descente en 3 s jusqu'au haut des pecs, 1 s de pause, pousse."},
-  {ex: "bench", sets: 3, reps: [10, 12], rest: 120, tech: true, cue: "Couché technique : nettement plus léger que lundi. Descente en 3 s, 1 s de pause sur la poitrine, pousse sans rebond."},   // he benches, no chest press (5 Nov)
   {ex: "pecDeck", sets: 2, reps: [15, 20], rest: 60, tech: true, cue: "Technique : épaules plaquées en arrière, ouvre en grand, contraction 1 s."},
   {ex: "ohTri", sets: 3, reps: [10, 12], rest: 90, cue: "Dos à la poulie, coudes près de la tête, descends loin derrière la tête pour étirer la longue portion."},
   {ex: "pushdown", sets: 2, reps: [12, 15], rest: 60, cue: "Coudes collés au corps, extension complète."},
@@ -943,7 +944,7 @@ const GAUTHIER_ADD = {                      // 5 Nov, his photos: small traps, w
   // 10 Nov (Nippard tier lists): Tuesday triceps moved to Wednesday's legs + complement (skullcrusher, S tier)
   DB: [{ex: "latRaise", sets: 3, reps: [12, 15], rest: 60, cue: "2e séance d'épaules latérales, à la poulie (le n° 1 de Jeff Nippard pour les épaules) : poulie basse, un bras, coude légèrement fléchi, monte jusqu'à l'horizontale, descente lente. C'est ce qui élargit la carrure."}],
   PT: [{ex: "shrug", sets: 3, reps: [10, 15], rest: 90, cue: "2e séance de trapèzes, 3 jours après mardi : prends lourd, monte les épaules droit vers les oreilles, pause 1 s en haut, descente lente ; bras tendus, sans rouler. Au-dessus de 15 reps, le Système monte la charge."},   // 11 Nov: traps were the lowest of his weak points (6 sets/week)
-       {ex: "yRaise", sets: 3, reps: [12, 15], rest: 75, cue: "Épaules latérales ET haut des trapèzes, tes deux points à travailler : poulies basses croisées (ou une poulie, un bras), monte les bras en Y au-dessus de la tête, pouces vers le haut, pause 1 s, descente lente. Bras levés, le haut des trapèzes travaille plus fort qu'aux shrugs."}],   // replaces Friday's shrugs (Nippard: overhead raises > standing shrugs for upper traps)
+       {ex: "uprightRow", sets: 3, reps: [10, 15], rest: 75, cue: "Haut des trapèzes et épaules, tes deux points à travailler : barre droite, mains un peu plus larges que les épaules, monte la barre le long du corps jusqu'au bas de la poitrine, coudes plus hauts que les poignets, pause 1 s, descente lente. Poulies libres ? « Autre version » : Y-raise."}],   // 13 Nov: "le Y est compliqué à la salle", he did the bar version   // replaces Friday's shrugs (Nippard: overhead raises > standing shrugs for upper traps)
   J: [{ex: "skull", sets: 3, reps: [8, 12], rest: 90, cue: "Complément après les jambes. Barre EZ, allongé : descends la barre derrière le haut de la tête (pas sur le front) pour étirer la longue portion, coudes qui restent serrés."},
       {ex: "lowHighFly", sets: 2, reps: [12, 15], rest: 75, cue: "Complément haut des pecs, à mi-chemin entre lundi et vendredi : poulies basses, mains qui montent vers le menton, serre 1 s en haut."}],
 };
@@ -1598,7 +1599,7 @@ function compute() {
 
 /* ================= coaching: what load today ================= */
 const maintIn = (s, exId) => (sessFor(s.type) || []).some(it => it.ex === exId && it.maint);   // light leg reminder: not a performance
-function perfHistory(exId) { return sessionsSorted().filter(s => !s.deload && Array.isArray(s.sets?.[exId]) && s.sets[exId].length && !maintIn(s, exId)).map(s => ({tech: (sessFor(s.type) || []).some(it => it.ex === exId && it.tech), grip: s.grip?.[exId] || null, week: s.week, cw: sessionCw(s), type: s.type, date: s.date, sets: s.sets[exId]})); }
+function perfHistory(exId) { return sessionsSorted().filter(s => !s.deload && Array.isArray(s.sets?.[exId]) && s.sets[exId].length && !maintIn(s, exId)).map(s => ({tech: (sessFor(s.type) || []).some(it => it.ex === exId && it.tech), grip: s.grip?.[exId] || null, week: s.week, cw: sessionCw(s), type: s.type, date: s.date, sets: s.sets[exId], chal: s.chal?.[exId] ?? null, chalWon: (s.chalWon || []).includes(exId)})); }
 function incText(eq) { return eq === "db" ? "prends l'haltère au-dessus (+2 kg)" : eq === "bw" ? "ajoute 5 kg de lest (ou retire 5 kg d'assistance)" : eq === "cable" ? "passe au cran au-dessus (+5 kg)" : "ajoute 5 kg"; }
 const gripLast = exId => { const h = perfHistory(exId).filter(x => x.grip); return h.length ? h[h.length - 1].grip : GRIP_DEFAULT[exId] || null; };
 const GRIP_FACTOR = {Large: 1, Moyenne: 1.03, Serrée: 1.05, Neutre: 1.05, Supination: 1.03};   // pulls: close / neutral a bit stronger
@@ -1661,7 +1662,9 @@ function suggest(it, info, grip) {
   else {
     const top = Math.max(...last.sets.map(s => Number(s.kg) || 0)), held = last.sets.filter(s => Number(s.reps) >= lo - 1).map(s => Number(s.kg) || 0);   // one rep short = almost there: keep that load (11 Nov)
     const stepB = stepOf(ex.eq), best1 = bestE1(it.ex, last.sets);
-    const base = held.length ? Math.max(...held) : ex.eq === "bw" ? top : Math.max(stepB, Math.floor(best1 / (1 + lo / 30) / stepB) * stepB);   // heaviest load held in the range, else the load for its bottom
+    let base = held.length ? Math.max(...held) : ex.eq === "bw" ? top : Math.max(stepB, Math.floor(best1 / (1 + lo / 30) / stepB) * stepB);   // heaviest load held in the range, else the load for its bottom
+    const lostChal = last.chal != null && !last.chalWon, prevS = lostChal ? hist[hist.length - 2] : null;
+    if (prevS && Array.isArray(prevS.sets)) { const ph = prevS.sets.filter(s => Number(s.reps) >= lo - 1).map(s => Number(s.kg) || 0); if (ph.length) base = Math.max(base, Math.max(...ph)); }   // 13 Nov: a missed épreuve (incline 35x4, then 25) doesn't send him under the 30 he held before
     const allTop = last.sets.length >= Math.min(2, it.sets) && last.sets.every(s => (Number(s.kg) || 0) === base && Number(s.reps) >= hi);
     if (info.deload) { out.kg = base; out.text = "Semaine allégée : même charge, moitié des séries, sans forcer."; }
     else if (it.maint) { out.kg = roundTo(base * 0.8, stepB); out.text = `Rappel : environ 80 % de ta charge du gros jour (${fmt(base)} kg), 3 reps en réserve. Ça entretient, ça ne doit pas fatiguer.`; }
@@ -1685,8 +1688,10 @@ function suggest(it, info, grip) {
     }
   }
   if (["base", "felix", "mathis"].includes(curPlan().id) && last && out.kg != null && out.kind !== "up" && out.kind !== "est" && !info.deload && !it.maint && ex.eq !== "bw") {   // 12 Nov: "suppose que je peux plus lourd, même si ce n'est que pour tenter"
-    const atBase = last.sets.filter(s => (Number(s.kg) || 0) >= out.kg).map(s => Number(s.reps) || 0), bestR = atBase.length ? Math.max(...atBase) : 0;
-    if (bestR >= lo) {   // 12 Nov, his rule: "si j'en ai fait 10 et que c'est 12 le max, tu me proposes quand même le niveau au-dessus" (a missed 1st set = a strength set)
+    const i0 = last.sets.findIndex(s => (Number(s.kg) || 0) >= out.kg - 0.01), from = i0 < 0 ? [] : last.sets.slice(i0), atBase = from.filter(s => Math.abs((Number(s.kg) || 0) - out.kg) < 0.01);
+    const held = atBase.length > 0 && atBase.every(s => Number(s.reps) >= lo) && from.every(s => (Number(s.kg) || 0) >= out.kg - 0.01);   // 13 Nov: "c'était juste" = a set under the bottom, or the load dropped -> no épreuve
+    const ck = stepUp(out.kg, stepOf(ex.eq)), triedMissed = last.sets.some(s => (Number(s.kg) || 0) >= ck - 0.01 && Number(s.reps) < lo);   // he already tried that load last time and missed the bottom (pec deck 30x9)
+    if (held && !triedMissed) {   // 12 Nov, his rule: "si j'en ai fait 10 et que c'est 12 le max, tu me proposes quand même le niveau au-dessus" (a missed 1st set = a strength set)
       out.chal = stepUp(out.kg, stepOf(ex.eq));   // "faut pas que ce soit obligé" -> a challenge to take or leave (Félix too, his call 12 Nov)
     }
   }
@@ -2310,7 +2315,7 @@ function grimoire() {
       <li><b>Mardi : épaules / trapèzes</b>, avec un peu d'avant d'épaule.</li>
       <li><b>Mercredi : jambes + complément.</b> Une seule machine de squat (hack ou pendule), leg curl, hip thrust, leg extension, à fond comme tu aimes. Puis le complément : skullcrusher pour les triceps et écarté de bas en haut pour le haut des pecs. Au milieu de la semaine, les jambes ne gênent aucune séance du haut.</li>
       <li><b>Jeudi : dos / biceps en TECHNIQUE.</b> Le dos une 2e fois, plus léger : 10-15 reps, descente en 3 s, pause en étirement, 1-2 reps en réserve. Les biceps, eux, vont à l'échec. Puis 3 séries d'élévations latérales : la largeur d'épaules, ton meilleur levier pour paraître plus imposant.</li>
-      <li><b>Vendredi : pecs / triceps en TECHNIQUE.</b> Les pecs une 2e fois, même logique : incliné barre puis couché technique. Les triceps vont à l'échec. Puis 3 séries de shrugs lourds et 3 de Y-raise : tes trapèzes travaillent 2 fois par semaine.</li>
+      <li><b>Vendredi : pecs / triceps en TECHNIQUE.</b> Les pecs une 2e fois, même logique : couché technique puis incliné barre. Les triceps vont à l'échec. Puis 3 séries de shrugs lourds et 3 de Y-raise : tes trapèzes travaillent 2 fois par semaine.</li>
       <li>Force puis technique : la séance lourde fait progresser les charges, la séance légère ajoute du volume sans t'écraser, et tu récupères pour le lundi suivant. C'est la logique des programmes de Nippard (une séance lourde, une séance plus volumineuse par muscle) et celle qui t'a fait progresser l'an dernier.</li>
       <li>Repos : 2-3 min sur les gros exercices, <b>90 s minimum sur tous les autres</b>. Sous 90 s, le muscle n'a pas récupéré et tu perds des reps.</li>
       <li>Samedi et dimanche : repos, tout se fait du lundi au vendredi. Un donjon peut se faire un autre jour (bouton « Changer de jour »). Une séance peut sauter sans pénalité : 4 sur 5 suffisent.</li></ul></div></details>
@@ -3432,6 +3437,14 @@ function seedPlan(force) {                    // once per load: remember the pro
     for (const d of ["2026-11-07", "2026-11-08"]) if (!(S.meals[d]?.items || []).some(x => x.src === "weekend")) saveMeals(d, [...(S.meals[d]?.items || []).map(x => ({...x})), {...W, id: "we" + d.slice(-2), slot: "soir"}]);
     mark("weekend1107");
   }
+  if (pid === "base" && !done("upright1113")) {   // 13 Nov note: "le Y est compliqué ... j'ai fait 40x9 et 40x8" (bar pulled vertically for the traps)
+    for (const ses of S.sessions.filter(x => x.date === "2026-11-13" && Array.isArray(x.sets?.yRaise) && x.sets.yRaise.every(r => Number(r.reps) <= 1) && !x.sets.uprightRow)) {
+      const sets = {...ses.sets, uprightRow: [{kg: 40, reps: 9}, {kg: 40, reps: 8}]}; delete sets.yRaise;
+      const doc = {...ses, sets, done: (Number(ses.done) || 0) - ses.sets.yRaise.length + 2}; delete doc.id;
+      S.sessions = S.sessions.map(x => x.id === ses.id ? {id: ses.id, ...doc} : x); queueSet("sessions/" + ses.id, doc);
+    }
+    mark("upright1113");
+  }
   if (pid === "base" && !done("hammer1112")) {   // 12 Nov: "les curls marteau c'est en comptant chaque bras comme rep" -> now per arm
     for (const ses of S.sessions.filter(x => Array.isArray(x.sets?.hammer) && !x.hammerPerArm)) {
       const doc = {...ses, hammerPerArm: true, sets: {...ses.sets, hammer: ses.sets.hammer.map(r => ({...r, reps: Math.ceil((Number(r.reps) || 0) / 2)}))}}; delete doc.id;
@@ -3712,7 +3725,9 @@ function toggleSet(ex, i) {
   const exq = EX[ex], kg0 = parseNum(r.kg), rp = Math.round(reps);
   if (it && !(it.test && i === 0) && exq && exq.eq !== "bw" && kg0 > 0) {    // the next sets follow what he really did
     const step = stepOf(exq.eq), lo = it.reps[0], hi = it.reps[1], e1 = e1rm(ex, kg0, rp);
-    if (rp < lo - 1) { const k2 = Math.floor(e1 / (1 + lo / 30) / step) * step; if (k2 > 0 && k2 < kg0) { nextKg = fmtIn(k2); toast(`[Système] ${rp} reps, sous les ${lo} visées : séries suivantes à ${fmt(k2)} kg pour rester dans la fourchette.`, "red"); } }
+    if (rp < lo - 1) { let k2 = Math.floor(e1 / (1 + lo / 30) / step) * step;
+      const ck0 = (d.chal || {})[ex]; if (ck0 != null && kg0 >= ck0) { const b0 = suggest(it, {p: d.week, deload: !!d.deload}, (d.grip || {})[ex]).kg; if (b0 > 0 && b0 < kg0) k2 = Math.max(k2, b0); }   // 13 Nov: a missed épreuve goes back to his usual load, not under it
+      if (k2 > 0 && k2 < kg0) { nextKg = fmtIn(k2); toast(`[Système] ${rp} reps, sous les ${lo} visées : séries suivantes à ${fmt(k2)} kg pour rester dans la fourchette.`, "red"); } }
     else if (rp >= hi + (felixPush(it, {p: d.week, deload: d.deload}) ? 0 : 1)) { const k2 = stepUp(kg0, step); nextKg = fmtIn(k2); toast(rp >= hi + 1 ? `[Système] ${rp} reps, bien au-dessus des ${hi} : séries suivantes à ${fmt(k2)} kg.` : `[Système] Séries suivantes à ${fmt(k2)} kg.`, "ok"); }
   }
   if (!(it && it.test && i === 0)) for (let k = i + 1; k < rows.length; k++) if (!rows[k].done && !rows[k].ek) rows[k].kg = nextKg;
