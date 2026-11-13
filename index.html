@@ -1673,9 +1673,15 @@ function suggest(it, info, grip) {
       out.text = `Sur tes poulies, le cran suivant (+5 kg) est un trop gros saut à ${fmt(base)} kg : reste à ${fmt(base)} kg et monte jusqu'à ${hi + 5} reps sur toutes les séries, puis passe au cran au-dessus.`; }
     else if (ex.eq !== "bw" && last.sets.some(s => (Number(s.kg) || 0) >= base && Number(s.reps) > hi)) {   // a set past the range: go up now, from what the best set shows
       const bs = bestSet(it.ex, last.sets.filter(s => (Number(s.kg) || 0) >= base && Number(s.reps) > hi)), cap = Math.max(base + 2 * stepB, base * 1.1), aim = Math.floor(best1 / (1 + hi / 30) / stepB) * stepB;
-      out.kg = Math.round(Math.min(Math.max(Math.floor(cap / stepB + 1e-6) * stepB, stepUp(base, stepB)), Math.max(stepUp(base, stepB), aim)) * 100) / 100; out.kind = "up";
-      out.text = `La dernière fois, ${fmt(Number(bs.kg))} kg × ${bs.reps} : au-dessus des ${hi} reps visées. On monte à ${fmt(out.kg)} kg. Si une série tombe sous ${lo}, les suivantes s'ajusteront.`; }
-    else if (allTop) { out.kg = stepUp(base, stepB); out.kind = "up"; out.text = `Tu as fait ${hi} reps sur toutes les séries : ${incText(ex.eq)}.`; }
+      if (curPlan().id === "felix") {
+        out.kg = Math.round(Math.min(Math.max(Math.floor(cap / stepB + 1e-6) * stepB, stepUp(base, stepB)), Math.max(stepUp(base, stepB), aim)) * 100) / 100; out.kind = "up";
+        out.text = `La dernière fois, ${fmt(Number(bs.kg))} kg × ${bs.reps} : au-dessus des ${hi} reps visées. On monte à ${fmt(out.kg)} kg. Si une série tombe sous ${lo}, les suivantes s'ajusteront.`;
+      } else {   // 13 Nov: the step up is his choice (the épreuve below), never forced
+        out.kg = base; out.reps = last.sets.filter(s => Math.abs((Number(s.kg) || 0) - base) < 0.01).map(s => (Number(s.reps) || 0) + 1);
+        out.text = `La dernière fois, ${fmt(base)} kg × ${bs.reps} : au-dessus des ${hi} reps visées.`;
+      } }
+    else if (allTop && curPlan().id === "felix") { out.kg = stepUp(base, stepB); out.kind = "up"; out.text = `Tu as fait ${hi} reps sur toutes les séries : ${incText(ex.eq)}.`; }
+    else if (allTop) { out.kg = base; out.reps = []; out.text = `Tu as fait ${hi} reps sur toutes les séries à ${fmt(base)} kg.`; }
     else { out.kg = base; out.reps = last.sets.map(s => Math.min(hi, Math.max(lo, (Number(s.reps) || 0) + 1)));
       out.text = base < top ? `La dernière fois, ${fmt(top)} kg ne tenait pas ${lo} reps : repars de ${fmt(base)} kg et vise une rep de plus.` : `Même charge. Objectif : ${out.reps.join(" · ")} reps.`; }
   }
@@ -1688,9 +1694,10 @@ function suggest(it, info, grip) {
     }
   }
   if (["base", "felix", "mathis"].includes(curPlan().id) && last && out.kg != null && out.kind !== "up" && out.kind !== "est" && !info.deload && !it.maint && ex.eq !== "bw") {   // 12 Nov: "suppose que je peux plus lourd, même si ce n'est que pour tenter"
-    const i0 = last.sets.findIndex(s => (Number(s.kg) || 0) >= out.kg - 0.01), from = i0 < 0 ? [] : last.sets.slice(i0), atBase = from.filter(s => Math.abs((Number(s.kg) || 0) - out.kg) < 0.01);
-    const held = atBase.length > 0 && atBase.every(s => Number(s.reps) >= lo) && from.every(s => (Number(s.kg) || 0) >= out.kg - 0.01);   // 13 Nov: "c'était juste" = a set under the bottom, or the load dropped -> no épreuve
-    const ck = stepUp(out.kg, stepOf(ex.eq)), triedMissed = last.sets.some(s => (Number(s.kg) || 0) >= ck - 0.01 && Number(s.reps) < lo);   // he already tried that load last time and missed the bottom (pec deck 30x9)
+    const atBase = last.sets.filter(s => (Number(s.kg) || 0) >= out.kg - 0.01), bestR = atBase.length ? Math.max(...atBase.map(s => Number(s.reps) || 0)) : 0;
+    const held = bestR >= hi + 1 || (atBase.length >= 2 && atBase.every(s => Number(s.reps) >= hi));   // 13 Nov, his principle: only when the next step would still land in the range (45x12 on 10-12: no; 45x13-14: yes)
+    const ck = stepUp(out.kg, stepOf(ex.eq)), f0 = last.sets[0] || {}, triedMissed = (Number(f0.kg) || 0) >= ck - 0.01 && Number(f0.reps) < lo;   // tried fresh (1st set) last time and missed; a tired 2nd set doesn't count (pulldown 50x13 then 55x8)
+    if (held && triedMissed) out.text += ` ${fmt(ck)} kg ne passait pas encore en 1re série : bats d'abord tes reps à ${fmt(out.kg)} kg.`;
     if (held && !triedMissed) {   // 12 Nov, his rule: "si j'en ai fait 10 et que c'est 12 le max, tu me proposes quand même le niveau au-dessus" (a missed 1st set = a strength set)
       out.chal = stepUp(out.kg, stepOf(ex.eq));   // "faut pas que ce soit obligé" -> a challenge to take or leave (Félix too, his call 12 Nov)
     }
@@ -2302,7 +2309,7 @@ function planGrimoire() {
   ];
   return `<section class="win"><h2 class="win-title">Ton programme</h2><ul class="rules">${own.map(x => `<li>${x}</li>`).join("")}</ul>
     <details class="fold"><summary>Reps en réserve</summary><div><p>C'est le nombre de reps que tu pourrais encore faire au moment où tu poses la charge. « 2 en réserve » : tu t'arrêtes 2 reps avant de ne plus pouvoir bouger la charge.</p></div></details>
-    <details class="fold"><summary>Monter les charges</summary><div><p>Tu gardes la même charge jusqu'à faire le haut de la fourchette de reps sur toutes les séries. Ensuite, +5 kg (ou l'haltère au-dessus). Sinon, vise une rep de plus que la dernière fois. Le Système fait ce calcul pour toi dans chaque donjon.</p></div></details>
+    <details class="fold"><summary>Monter les charges</summary><div><p>${id === "felix" ? "Tu gardes la même charge jusqu'à faire le haut de la fourchette de reps sur toutes les séries. Ensuite, +5 kg (ou l'haltère au-dessus). Sinon, vise une rep de plus que la dernière fois. Le Système fait ce calcul pour toi dans chaque donjon." : "Tu gardes la même charge et tu bats tes reps de la dernière fois. Dès qu'une série dépasse le haut de la fourchette, le Système te propose le cran au-dessus (+5 kg, haltères +2 kg) : c'est une épreuve, tu la relèves ou non. Réussie : +10 or, +10 XP. Ratée : tu repars à ta charge habituelle."}</p></div></details>
     <details class="fold"><summary>Joker : semaine allégée</summary><div><p>Une fois par bloc, la semaine de ton choix (onglet Statut, avant le premier donjon de la semaine). Moitié des séries, mêmes charges, 3 reps en réserve. Le programme fait une pause d'une semaine puis reprend. À prendre si tes perfs baissent deux séances de suite, si tu dors mal ou si tes articulations tirent.</p></div></details>
     <details class="fold"><summary>Courbatures</summary><div><p>Si un muscle est encore courbaturé quand tu le retravailles, retire-lui une série cette fois-là. Le bouton est sous chaque exercice, dans le donjon.</p></div></details>
     <details class="fold"><summary>Échauffement</summary><div><p>5 min de cardio léger, 2 séries de montée progressive sur le premier exercice, puis 1 série légère avant chaque nouveau mouvement.</p></div></details></section>`;
@@ -2327,7 +2334,7 @@ function grimoire() {
       <li>Effort : ton choix, chaque série à l'échec (au pire une demi-rep avant). Sur la dernière série des élévations latérales, du pec deck et du curl machine : 3 à 5 demi-reps côté étirement après l'échec.</li>
     <details class="fold"><summary>Prises et machines</summary><div><p>Sous les tirages, rowings et développés, choisis la prise que tu as prise (large, serrée, neutre…) : la force change avec la prise, alors le Système compare et suggère tes charges prise par prise. Machine prise ? « Autre version » (Smith au lieu de la barre, leg extension à disques…) garde des stats séparées, et « Passer l'exercice » le retire si la machine est en panne.</p></div></details>
     <details class="fold"><summary>L'échec</summary><div><p>Chaque série va jusqu'à l'échec : tu t'arrêtes quand la rep suivante ne passerait plus avec une bonne technique (au pire une demi-rep avant). Au développé couché : barres de sécurité ou pareur, toujours. Si une articulation fait mal (épaule, coude, genou), garde une rep en réserve sur cet exercice.</p></div></details>
-    <details class="fold"><summary>Monter les charges</summary><div><p>Tu gardes la même charge jusqu'à faire le haut de la fourchette de reps sur toutes les séries. Ensuite, +5 kg (ou l'haltère au-dessus). Sinon, vise une rep de plus que la dernière fois. Le Système fait ce calcul pour toi dans chaque donjon.</p></div></details>
+    <details class="fold"><summary>Monter les charges</summary><div><p>Tu gardes la même charge et tu bats tes reps de la dernière fois. Dès qu'une série dépasse le haut de la fourchette, le Système te propose le cran au-dessus (+5 kg, haltères +2 kg) : c'est une épreuve, tu la relèves ou non. Réussie (au moins le bas de la fourchette à cette charge) : +10 or, +10 XP. Ratée : tu repars à ta charge habituelle. Pendant la séance, une série au-dessus de la fourchette débloque aussi l'épreuve pour les séries suivantes.</p></div></details>
     <details class="fold"><summary>Joker : semaine allégée</summary><div><p>Une fois par bloc, la semaine de ton choix (à activer dans l'onglet Statut, avant le premier donjon de la semaine). Moitié des séries, mêmes charges, 3 reps en réserve, jamais à l'échec. Le programme fait une pause d'une semaine puis reprend là où tu l'as laissé. À prendre quand la fatigue s'accumule, si tu dors mal ou si tes articulations tirent.</p></div></details>
     <details class="fold"><summary>Courbatures</summary><div><p>Si un muscle est encore courbaturé quand tu le retravailles, retire-lui une série cette fois-là. Le bouton est sous chaque exercice, dans le donjon.</p></div></details>
     <details class="fold"><summary>Échauffement</summary><div><p>5 min de cardio léger, 2 séries de montée progressive sur le premier exercice, puis 1 série légère avant chaque nouveau mouvement.</p></div></details>
@@ -2380,11 +2387,12 @@ function exCard(it, i, d) {
   const sugg = sg.text ? `<div class="sugg ${sg.kind}">${sugKg != null ? `Le Système suggère <b>${fmt(sugKg)} kg</b>. ` : ""}${esc(sg.text)}</div>` : "";
   const chalKg = (d.chal || {})[it.ex], anyDone0 = rows.some(r => r.done);
   const chal = chalKg != null ? `<div class="chal on"><b>[Épreuve acceptée]</b> ${fmt(chalKg)} kg × ${it.reps[0]} reps. Va les chercher : +10 or, +10 XP.</div>`
-    : sg.chal != null && !anyDone0 && !d.deload ? `<div class="chal"><b>[Le Système te met à l'épreuve]</b> Monte d'un cran : <b>${fmt(sg.chal)} kg</b>. Objectif : ${it.reps[0]} reps. Récompense : +10 or, +10 XP.<button class="btn small" data-act="chal" data-ex="${it.ex}" data-kg="${sg.chal}">Relever l'épreuve</button></div>` : "";
+    : sg.chal != null && !anyDone0 && !d.deload ? `<div class="chal"><b>[Le Système te met à l'épreuve]</b> Monte d'un cran : <b>${fmt(sg.chal)} kg</b>. Objectif : ${it.reps[0]} reps. Récompense : +10 or, +10 XP.<button class="btn small" data-act="chal" data-ex="${it.ex}" data-kg="${sg.chal}">Relever l'épreuve</button></div>`
+    : (d.midChal || {})[it.ex] != null && rows.slice(0, setsTarget(it, d)).some(r => !r.done) && !d.deload ? `<div class="chal"><b>[Le Système te met à l'épreuve]</b> Tu es au-dessus de la fourchette : séries suivantes à <b>${fmt(d.midChal[it.ex])} kg</b> ? Objectif : ${it.reps[0]} reps. Récompense : +10 or, +10 XP.<button class="btn small" data-act="chal" data-ex="${it.ex}" data-kg="${d.midChal[it.ex]}">Relever l'épreuve</button></div>` : "";
   const recKg = parseNum((rows.find(r => !r.done) || {}).kg) || chalKg || sg.kg, pbE = prevBest(it.ex, grip);
   let recN = 0; if (recKg > 0 && pbE > 0 && ex.eq !== "bw") for (let k = 1; k <= it.reps[1] + 5; k++) if (e1rm(it.ex, recKg, k) > pbE + 0.05) { recN = k; break; }
   const rec = recN && rows.slice(0, n).some(r => !r.done) ? `<div class="rec"><b>[Record à battre]</b> ${fmt(recKg)} kg × <b>${recN}</b> reps${recN <= it.reps[1] ? "" : " (ou monte de charge)"} = nouveau record.</div>` : "";
-  const ph = k => (it.test && k === 0) ? "max" : (sg.reps[k] != null ? sg.reps[k] : (it.reps[0] === it.reps[1] ? it.reps[0] : it.reps[0] + "-" + it.reps[1]));
+  const ph = k => (it.test && k === 0) ? "max" : chalKg != null && parseNum(rows[k]?.kg) >= chalKg ? (it.reps[0] + "-" + it.reps[1]) : (sg.reps[k] != null ? sg.reps[k] : (it.reps[0] === it.reps[1] ? it.reps[0] : it.reps[0] + "-" + it.reps[1]));
   const setRows = rows.slice(0, n).map((r, k) => `<div class="set-row ${r.done ? "done" : ""}"><span class="sn">${k + 1}</span>
       <input id="kg-${it.ex}-${k}" data-bind="dg" data-f="kg" data-ex="${it.ex}" data-i="${k}" inputmode="decimal" autocomplete="off" value="${esc(r.kg)}" placeholder="kg" aria-label="Charge en kg, série ${k + 1}">
       <input id="rp-${it.ex}-${k}" data-bind="dg" data-f="reps" data-ex="${it.ex}" data-i="${k}" inputmode="numeric" autocomplete="off" value="${esc(r.reps)}" placeholder="${ph(k)}" aria-label="Reps, série ${k + 1}">
@@ -3728,6 +3736,8 @@ function toggleSet(ex, i) {
     if (rp < lo - 1) { let k2 = Math.floor(e1 / (1 + lo / 30) / step) * step;
       const ck0 = (d.chal || {})[ex]; if (ck0 != null && kg0 >= ck0) { const b0 = suggest(it, {p: d.week, deload: !!d.deload}, (d.grip || {})[ex]).kg; if (b0 > 0 && b0 < kg0) k2 = Math.max(k2, b0); }   // 13 Nov: a missed épreuve goes back to his usual load, not under it
       if (k2 > 0 && k2 < kg0) { nextKg = fmtIn(k2); toast(`[Système] ${rp} reps, sous les ${lo} visées : séries suivantes à ${fmt(k2)} kg pour rester dans la fourchette.`, "red"); } }
+    else if (curPlan().id !== "felix" && rp >= hi + 1) { const k2 = stepUp(kg0, step);   // 13 Nov: +5 kg right after a big set worked 5 times out of 10 -> his choice
+      if (rows.slice(i + 1).some(x => !x.done) && !((d.chal || {})[ex] >= k2)) { d.midChal = {...(d.midChal || {}), [ex]: k2}; toast(`[Système] ${rp} reps, au-dessus des ${hi} : épreuve débloquée à ${fmt(k2)} kg.`, "gold"); } }
     else if (rp >= hi + (felixPush(it, {p: d.week, deload: d.deload}) ? 0 : 1)) { const k2 = stepUp(kg0, step); nextKg = fmtIn(k2); toast(rp >= hi + 1 ? `[Système] ${rp} reps, bien au-dessus des ${hi} : séries suivantes à ${fmt(k2)} kg.` : `[Système] Séries suivantes à ${fmt(k2)} kg.`, "ok"); }
   }
   if (!(it && it.test && i === 0)) for (let k = i + 1; k < rows.length; k++) if (!rows[k].done && !rows[k].ek) rows[k].kg = nextKg;
@@ -4071,7 +4081,7 @@ const ACTIONS = {
     const sg = suggest(it, {p: d.week, deload: !!d.deload}, d.grip[ex]);   // new grip: new suggested load on the sets not done yet
     if (sg.kg != null) for (const r of (d.sets[ex] || [])) if (!r.done) r.kg = fmtIn(sg.kg);
     saveDraft(); render(); },
-  chal: a => { const ex = a.dataset.ex, kg = Number(a.dataset.kg), d = S.draft; if (!d || !(kg > 0) || (d.sets[ex] || []).some(r => r.done)) return;
+  chal: a => { const ex = a.dataset.ex, kg = Number(a.dataset.kg), d = S.draft; if (!d || !(kg > 0) || ((d.sets[ex] || []).some(r => r.done) && (d.midChal || {})[ex] !== kg)) return;
     d.chal = {...(d.chal || {}), [ex]: kg}; for (const r of (d.sets[ex] || [])) if (!r.done && !r.ek) r.kg = fmtIn(kg);
     saveDraft(); chime("sys"); toast(`[Épreuve acceptée] ${esc(EX[ex].n)} : ${fmt(kg)} kg.`, "gold"); render(); },
   alt: a => { const base = a.dataset.ex, to = a.dataset.to, d = S.draft, cur = (d.alt || {})[base] || base;
