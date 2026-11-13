@@ -813,7 +813,7 @@ SESS.DB = [                                 // TECHNIQUE for the back (2nd back 
 ];
 SESS.PT = [                                 // TECHNIQUE for the chest (2nd chest day): lighter, more reps, slow
   {ex: "bench", sets: 3, reps: [10, 12], rest: 120, tech: true, cue: "Couché technique : nettement plus léger que lundi. Descente en 3 s, 1 s de pause sur la poitrine, pousse sans rebond."},   // he benches, no chest press (5 Nov)   // 13 Nov: "je préfère commencer par du développé couché"
-  {ex: "inclBar", sets: 3, reps: [10, 12], rest: 120, tech: true, cue: "Technique : barre ou Smith, banc à ~30°, plus léger que lundi. Descente en 3 s jusqu'au haut des pecs, 1 s de pause, pousse."},
+  {ex: "inclBar", sets: 3, reps: [10, 12], rest: 120, tech: true, cue: "Technique : à la Smith, banc à ~30°, juste après le couché. Plus léger que lundi : descente en 3 s jusqu'au haut des pecs, 1 s de pause, pousse."}   // 13 Nov: "d'abord du développé couché, puis de la Smith",
   {ex: "pecDeck", sets: 2, reps: [15, 20], rest: 60, tech: true, cue: "Technique : épaules plaquées en arrière, ouvre en grand, contraction 1 s."},
   {ex: "ohTri", sets: 3, reps: [10, 12], rest: 90, cue: "Dos à la poulie, coudes près de la tête, descends loin derrière la tête pour étirer la longue portion."},
   {ex: "pushdown", sets: 2, reps: [12, 15], rest: 60, cue: "Coudes collés au corps, extension complète."},
@@ -917,11 +917,11 @@ const TYPES = {
   A:  {name: "Pec / Dos lourd", day: 0, gate: "Donjon de fer"},
   B:  {name: "Épaules / Bras", day: 1, gate: "Tour des poulies"},
   C:  {name: "Pec / Dos étirement", day: 3, gate: "Caverne de l'étirement"},
-  J:  {get name() { return curPlan().id === "base" ? "Jambes + complément" : "Jambes"; }, get solo() { return curPlan().id === "base"; }, day: 5, gate: "Gouffre des jambes"},
-  DP: {get name() { return curPlan().id === "base" ? "Pecs / Dos · force" : "Pecs / Dos"; }, day: 0, gate: "Donjon de fer", solo: true},
+  J:  {get name() { return curPlan().id !== "felix" ? "Jambes + complément" : "Jambes"; }, get solo() { return curPlan().id !== "felix"; }, day: 5, gate: "Gouffre des jambes"},
+  DP: {get name() { return curPlan().id !== "felix" ? "Pecs / Dos · force" : "Pecs / Dos"; }, day: 0, gate: "Donjon de fer", solo: true},
   EP: {name: "Épaules / Trapèzes", day: 1, gate: "Tour des épaules", solo: true},
   EB: {get name() { return curPlan().id === "felix" ? "Épaules / Dos / Bras" : "Épaules / Bras"; }, day: 1, gate: "Tour des poulies", solo: true},
-  DB: {get name() { return curPlan().id === "base" ? "Dos / Biceps · technique" : "Dos / Biceps"; }, day: 3, gate: "Puits du dos", solo: true},
+  DB: {get name() { return curPlan().id !== "felix" ? "Dos / Biceps · technique" : "Dos / Biceps"; }, day: 3, gate: "Puits du dos", solo: true},
   PT: {name: "Pecs / Triceps · technique", day: 4, gate: "Forge des pecs", solo: true},
   CO: {name: "Complément + rappel jambes", day: 5, gate: "Salle des compléments", solo: true},
   H:  {name: "Haut, pecs prioritaires", day: 4, gate: "Citadelle haute"},
@@ -993,6 +993,16 @@ const MATHIS_SWAP = {                        // his answers (5 Nov): Smith for t
   flySeated: {sets: 3, cue: "Tes pecs sont ta priorité : coudes légèrement fléchis et figés, ouvre en grand, serre 1 s devant la poitrine. Dernière série à l'échec."},
 };
 const NECK = " Cou : épaules basses, regard devant, ne hausse pas les épaules et ne tends pas le menton.";
+const MATHIS5_FROM = "2026-11-16", MATHIS5_TYPES = ["DP", "EP", "J", "DB", "PT"];   // 13 Nov: from this Monday, Gauthier's week for Mathis
+const mathis5 = cw => curPlan().id === "mathis" && cw >= 1 && toStr(weekStart(cw)) >= MATHIS5_FROM;
+const MATHIS5_ADD = {                        // his points (photos 10 Nov): upper chest, shoulder width, arms; Gauthier's traps work is not his
+  EP: [{ex: "preacher", sets: 2, reps: [10, 12], rest: 90, cue: "Tes bras, un de tes points à travailler : coude bien calé sur le pupitre, descends jusqu'à l'étirement complet, monte sans décoller le coude."}],
+  DB: [{ex: "latRaise", sets: 3, reps: [12, 15], rest: 75, cue: "Largeur d'épaules, un de tes points à travailler : poulie basse, un bras, coude légèrement fléchi, monte jusqu'à l'horizontale, descente lente."}],
+  PT: [{ex: "lowHighFly", sets: 3, reps: [12, 15], rest: 75, cue: "Haut des pecs, ton point n° 1 après la masse : poulies basses, mains qui montent vers le menton, serre 1 s en haut, descente lente."}],
+  J: [{ex: "skull", sets: 3, reps: [8, 12], rest: 90, cue: "Complément après les jambes, pour tes bras. Barre EZ, allongé : descends la barre derrière le haut de la tête (pas sur le front), coudes serrés."},
+      {ex: "lowHighFly", sets: 2, reps: [12, 15], rest: 75, cue: "Complément haut des pecs, à mi-chemin entre lundi et vendredi : poulies basses, mains qui montent vers le menton, serre 1 s en haut."}],
+};
+const MATHIS5_CUE = {bench: {cue: "Force. 3 séries lourdes. Omoplates serrées et basses, pieds ancrés, barre au bas des pecs, touche sans rebond. Lourd : barres de sécurité ou pareur. Smith ? « Autre version »."}};
 const MATHIS_ADD = {
   P: [{ex: "pecDeck", sets: 3, reps: [12, 15], rest: 75, cue: "Pecs en retard : ouvre en grand pour étirer, serre 1 s devant la poitrine, coudes légèrement fléchis. Dernière série à l'échec."}],
   T: [{ex: "latRaise", sets: 3, reps: [12, 15], rest: 60, cue: "3e séance d'épaules de la semaine, pour élargir la carrure : poulie basse, un bras, monte jusqu'à l'horizontale, descente lente." + NECK}],   // photos 5 Nov: narrow shoulders
@@ -1013,10 +1023,10 @@ const PLANS = {
     lead: "Lundi pecs/dos, mercredi jambes, vendredi épaules/dos/bras : les jours de Gauthier, version débutant. 10 à 15 min de cardio (marche inclinée ou rameur) à la fin de chaque séance. Mardi, jeudi et week-end : repos.",
     s1: "Tu apprends les mouvements : 2 séries par exercice, 3 reps en réserve, charges légères. La technique avant la charge."},
   mathis: {id: "mathis", label: "Prise de muscle (programme de Mathis)", goal: "gain", title: "Guerrier assidu", fbFirst: false, big: [], weeks: WEEKS_MATHIS,
-    test: {P: ["smithBench", "dips"], T: ["pullupPro", "csRow"], HC: ["inclBar", "pullup"]}, sess: SESS_MATHIS, swap: MATHIS_SWAP, add: MATHIS_ADD, cueAdd: MATHIS_NECK,
+    test: {P: ["smithBench", "dips"], T: ["pullupPro", "csRow"], HC: ["inclBar", "pullup"], DP: ["bench", "csRow"], PT: ["inclBar"]}, sess: SESS_MATHIS, swap: MATHIS_SWAP, add: MATHIS_ADD, cueAdd: MATHIS_NECK,
     keyLifts: [["smithBench", "Poussée", "Couché Smith"], ["dips", "Poussée", "Dips (lest)"], ["pullupPro", "Tirage", "Tractions pronation (lest)"], ["csRow", "Tirage", "Rowing appuyé"], ["inclBar", "Haut complet", "Incliné Smith"], ["pullup", "Haut complet", "Tractions neutres (lest)"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]],
     intro: "Le Système a détecté un guerrier assidu, déjà habitué de la salle. Il te propose un contrat",
-    lead: "Lundi Poussée, mardi Tirage, jeudi Haut complet, samedi grosse séance Jambes (semaines impaires) ou Bras et épaules (semaines paires). Mercredi, vendredi et dimanche : repos.",
+    get lead() { return today() >= MATHIS5_FROM ? "Depuis le 16 novembre, la semaine de Gauthier : lundi pecs/dos (force), mardi épaules/trapèzes, mercredi jambes + complément, jeudi dos/biceps (technique), vendredi pecs/triceps (technique). Les compléments travaillent tes points à toi : haut des pecs, largeur d'épaules, bras. Week-end : repos." : "Lundi Poussée, mardi Tirage, jeudi Haut complet, samedi grosse séance Jambes (semaines impaires) ou Bras et épaules (semaines paires). Mercredi, vendredi et dimanche : repos."; },
     s1: "Semaine de calibrage : trouve tes charges dans les nouvelles fourchettes de reps, sans aller à l'échec."},
 };
 const cloudName = () => Cloud && Cloud.signedIn() ? Cloud.email() : "";
@@ -1030,7 +1040,9 @@ function detectPlan(...names) {              // by login, name or pseudo, accent
 const planOf = p => (p && PLANS[p.program]) ? p.program : (detectPlan(p?.name, cloudName()) || "base");
 const curPlan = () => PLANS[planOf(typeof S !== "undefined" ? S.profile : null)];
 const sessFor = ty => {
-  const PL = curPlan(), list = (PL.sess || {})[ty] || SESS[ty]; if (!list) return list;
+  const PL0 = curPlan(), m5 = PL0.id === "mathis" && MATHIS5_TYPES.includes(ty);   // Mathis from 16 Nov: Gauthier's sessions, his own extras
+  const PL = m5 ? {...PLANS.base, swap: {...GAUTHIER_SWAP, ...MATHIS5_CUE}, add: MATHIS5_ADD, cueAdd: {...PLANS.base.cueAdd, ...MATHIS_NECK}} : PL0;
+  const list = (PL.sess || {})[ty] || SESS[ty]; if (!list) return list;
   const sw = PL.swap || {}, drop = PL.drop || [], ca = PL.cueAdd || {}, mr = PL.minRest || 0;
   return [...list.filter(it => !drop.includes(it.ex)).map(it => sw[it.ex] ? {...it, ...sw[it.ex]} : it), ...((PL.add || {})[ty] || [])]
     .map(it => ca[it.ex] ? {...it, cue: it.cue + ca[it.ex]} : it)   // a note added to some exercises (Mathis's neck)
@@ -1042,6 +1054,7 @@ function planSched(info) {
   const id = curPlan().id;
   if (info.custom) return "Cette semaine : " + info.types.map(ty => `${TYPES[ty].name.toLowerCase()} ${fmtDay(fromStr(plannedDate(info.cw, ty)), {weekday: "long"})}`).join(", ") + ".";
   if (id === "mathis" && info.p === 1 && !info.deload) return "Cette semaine : full body jeudi avec Gauthier et Félix, puis grosse séance Jambes samedi. Poussée et Tirage restent ouverts si tu veux les rattraper.";
+  if (id === "mathis" && mathis5(info.cw)) return info.deload ? "Mêmes jours que d'habitude, moitié des séries, mêmes charges." : "Lundi pecs/dos (force), mardi épaules/trapèzes, mercredi jambes + complément, jeudi dos/biceps (technique), vendredi pecs/triceps (technique) : la semaine de Gauthier, avec tes points à toi. Week-end : repos.";
   if (id === "mathis") return info.deload ? "Mêmes jours que d'habitude, moitié des séries, mêmes charges." : `Lundi Poussée, mardi Tirage, jeudi Haut complet, samedi ${TYPES[info.types[3]].name.toLowerCase()}. Mercredi, vendredi et dimanche : repos.`;
   if (info.p === 1 && !info.deload) return id === "felix" ? "Une seule séance cette semaine : le full body, jeudi." : "Une seule séance cette semaine : la reprise, jeudi.";
   if (info.deload) return "Mêmes jours que d'habitude, moitié des séries, mêmes charges.";
@@ -1062,7 +1075,7 @@ function weekInfo(cw) {
   if (!(cw >= 1)) return null;
   const PL = curPlan(), p = progWeek(cw), deload = isDeload(cw);
   const x = PL.id === "mathis" ? (p % 2 ? "JX" : "BE") : PL.id === "felix" || cw >= 5 ? "J" : p % 2 === 0 ? "J" : "CO";   // Gauthier: legs every other week, then every Wednesday from 16 Nov (his call, 10 Nov)
-  const main = PL.id === "mathis" ? ["P", "T", p === 1 && !deload ? "FB" : "HC", x] : PL.id === "felix" ? (cw >= 4 ? ["DP", "J", "EB"] : ["DP", "EB", "DB", x]) : ["DP", "EP", "DB", "PT", x];   // week 1 Thursday: full body with the others
+  const main = PL.id === "mathis" && mathis5(cw) ? ["DP", "EP", "DB", "PT", "J"] : PL.id === "mathis" ? ["P", "T", p === 1 && !deload ? "FB" : "HC", x] : PL.id === "felix" ? (cw >= 4 ? ["DP", "J", "EB"] : ["DP", "EB", "DB", x]) : ["DP", "EP", "DB", "PT", x];   // week 1 Thursday: full body with the others
   const own = S.profile?.weekTypes?.[cw];
   if (own && !deload && p <= PROGRAM_WEEKS) return {cw, p, deload, W: PL.weeks[p], types: own, bonus: null, custom: true};
   if (deload) return {cw, p, deload, W: DELOAD, types: main, bonus: null, after: p > PROGRAM_WEEKS};
@@ -1101,7 +1114,7 @@ function rirFor(p, it, idx, ty, deload) {
   if (deload || it.maint) return {txt: "3 reps en réserve", fail: false};
   if (ty === "FB") return {txt: "3 reps en réserve", fail: false};
   const PL = curPlan().id, isPoly = EX[it.ex].kind === "poly";
-  if (PL === "base") return it.tech ? {txt: "technique : 1-2 reps en réserve, descente en 3 s", fail: !isPoly}   // 2nd day of a muscle: lighter, controlled (2 Nov)
+  if (PL === "base" || (PL === "mathis" && MATHIS5_TYPES.includes(ty))) return it.tech ? {txt: "technique : 1-2 reps en réserve, descente en 3 s", fail: !isPoly}   // Mathis from 16 Nov: Gauthier's week, same effort   // 2nd day of a muscle: lighter, controlled (2 Nov)
     : {txt: "à l'échec (0-1 rep en réserve)", fail: false};   // his choice (29 Oct): every set to failure, at worst half a rep short
   if (PL === "felix" && p <= 3) return {txt: "3 reps en réserve", fail: false};
   if (PL === "mathis") {
@@ -1518,7 +1531,7 @@ function weekBonus(cw) {
 }
 const FELIX_DAYS = {DP: 0, J: 2, EB: 4};     // Félix from 9 Nov: Monday chest/back, Wednesday legs, Friday shoulders/back/arms, on Gauthier's days
 const typeDay = (cw, ty) => { const id = curPlan().id;
-  if (id === "base" && cw >= 4 && (ty === "J" || ty === "CO")) return 2;   // Gauthier from 9 Nov: Monday to Friday, weekends free
+  if ((id === "base" && cw >= 4 || mathis5(cw)) && (ty === "J" || ty === "CO")) return 2;   // Gauthier from 9 Nov: Monday to Friday, weekends free
   if (id === "felix" && cw >= 4 && FELIX_DAYS[ty] != null) return FELIX_DAYS[ty];
   return TYPES[ty].day; };   // Gauthier from 9 Nov: Monday to Friday, weekends free
 const plannedDate = (cw, ty) => S.profile?.moves?.[cw]?.[ty] || toStr(addDays(weekStart(cw), typeDay(cw, ty)));   // moved by the player, or the usual day
@@ -2298,7 +2311,7 @@ function planGrimoire() {
     "<b>Tous les 15 jours</b>, le Système compare ta moyenne de poids et ton tour de taille, et te dit s'il faut changer tes calories.",
   ] : [
     "<b>Objectif : prendre du muscle.</b> Ce qui compte, c'est de finir chaque série près de l'échec, pas de faire beaucoup de reps.",
-    "<b>4 séances</b> : lundi Poussée, mardi Tirage, jeudi Haut complet, samedi grosse séance Jambes ou Bras et épaules, une semaine sur deux.",
+    today() >= MATHIS5_FROM ? "<b>5 séances, du lundi au vendredi, les mêmes que Gauthier</b> : lundi pecs/dos en force, mardi épaules/trapèzes, mercredi jambes + complément, jeudi dos/biceps en technique, vendredi pecs/triceps en technique. Les compléments sont à toi : haut des pecs, largeur d'épaules, bras." : "<b>4 séances</b> : lundi Poussée, mardi Tirage, jeudi Haut complet, samedi grosse séance Jambes ou Bras et épaules, une semaine sur deux.",
     "<b>2 exercices maximum pour un même muscle</b> dans une séance, mais pecs et dos deux fois par semaine. Rien pour l'avant d'épaule : les développés et les dips le travaillent déjà.",
     "<b>6-10 reps sur les gros exos, 10-15 sur l'isolation.</b> Gros exos à 1-2 reps de l'échec ; dernière série d'isolation à l'échec à partir de S2. Hack squat et pendule : jamais à l'échec. Pas de squat à la barre ni de soulevé de terre.",
     "<b>Double progression</b> : même charge jusqu'au haut de la fourchette sur toutes les séries, puis +5 kg (haltères : +2 kg). Tractions et dips : du lest dès que tu fais le haut de la fourchette au poids du corps (note le lest en kg).",
