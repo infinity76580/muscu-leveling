@@ -9,7 +9,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}[hidden]{display:none!important}</style>
-<script>window.GL_FILES = {"aliments": "aliments-1476f37b0d.json", "marques": "marques-74ed9c5319.json"};</script>
+<script>window.GL_FILES = {"aliments": "aliments-1476f37b0d.json", "marques": "marques-74ed9c5319.json"}; window.GL_IMGS = ["body", "gate_DB", "gate_DB_2", "gate_DB_3", "gate_DB_4", "gate_DP", "gate_DP_2", "gate_DP_3", "gate_DP_4", "gate_EB", "gate_EB_2", "gate_EB_3", "gate_EB_4", "gate_EP", "gate_EP_2", "gate_EP_3", "gate_EP_4", "gate_J", "gate_J_2", "gate_J_3", "gate_J_4", "gate_PT", "gate_PT_2", "gate_PT_3", "gate_PT_4", "hero_status", "levelup", "meals", "penalty", "shop"];</script>
 <script>window.GL_CLOUD = {"url": "https://dggtdutqcxakvbakezgq.supabase.co", "key": "sb_publishable_sE26taI8YshVMQxx97ui8Q_uZgirnY4"};</script>
 </head><body><title>Muscu Leveling</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -596,6 +596,75 @@ figcaption{font:600 11px var(--font-display);letter-spacing:.08em;color:var(--mu
 .bm-bar{grid-column:2;height:6px;border-radius:3px;background:rgba(140,180,255,.1);overflow:hidden}
 .bm-bar i{display:block;height:100%;border-radius:3px}
 .bm-rank{grid-column:3;grid-row:1/span 3;font:700 20px var(--font-display)}
+
+/* ===== 14 Nov: refonte néon ===== */
+:root{--cyan:#7fe9ff;--neon:#4fd1ff}
+body::after{content:"";position:fixed;inset:-25%;z-index:-1;pointer-events:none;background:radial-gradient(38% 28% at 22% 28%,rgba(50,140,255,.20),transparent 70%),radial-gradient(34% 26% at 78% 72%,rgba(140,90,255,.17),transparent 70%),radial-gradient(28% 20% at 60% 15%,rgba(80,220,255,.10),transparent 70%);animation:aurora 24s ease-in-out infinite alternate;will-change:transform}
+@keyframes aurora{0%{transform:translate3d(-4%,-3%,0) rotate(0deg) scale(1)}100%{transform:translate3d(4%,3%,0) rotate(10deg) scale(1.08)}}
+#fxCanvas{position:fixed;inset:0;z-index:-1;pointer-events:none}
+.scan{position:fixed;left:0;right:0;top:0;height:140px;z-index:6;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(130,210,255,.045) 60%,transparent);animation:scan 8s linear infinite}
+@keyframes scan{from{transform:translate3d(0,-160px,0)}to{transform:translate3d(0,110vh,0)}}
+.win{border-color:rgba(120,205,255,.6);box-shadow:inset 0 0 0 1px rgba(6,20,48,.9),inset 0 1px 0 rgba(170,230,255,.22),inset 0 0 42px rgba(50,150,255,.13),0 0 24px rgba(40,150,255,.24),0 0 70px rgba(40,110,255,.10)}
+.win-title{text-shadow:0 0 8px rgba(140,215,255,.9),0 0 22px rgba(80,170,255,.55)}
+.brand-mark{animation:flicker 7s infinite}
+@keyframes flicker{0%,92%,100%{opacity:1}93%{opacity:.35}94%{opacity:1}96%{opacity:.6}97%{opacity:1}}
+.fx-in{animation:winIn .62s cubic-bezier(.2,.9,.25,1) both}
+@keyframes winIn{0%{opacity:0;transform:translate3d(0,22px,0) scale(.975);filter:blur(8px) brightness(2.2)}55%{opacity:1;filter:blur(0) brightness(1.35)}100%{opacity:1;transform:none;filter:none}}
+.fx-in.win:not(.red){background-image:linear-gradient(105deg,transparent 38%,rgba(175,230,255,.20) 50%,transparent 62%),linear-gradient(180deg,var(--panel-top),var(--panel-bot));background-size:320% 100%,100% 100%;background-repeat:no-repeat;animation:winIn .62s cubic-bezier(.2,.9,.25,1) both,sheen 1.15s .22s ease-out both}
+@keyframes sheen{from{background-position:130% 0,0 0}to{background-position:-30% 0,0 0}}
+.fx-in.win::before,.fx-in.win::after{animation:cornerIn .55s .18s cubic-bezier(.2,.9,.25,1) both}
+@keyframes cornerIn{0%{opacity:0;transform:scale(.2);filter:drop-shadow(0 0 14px #fff)}100%{opacity:1;transform:none}}
+.typing::after{content:"▌";margin-left:2px;color:var(--cyan);animation:blink .55s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.btn,.q,.chk,.chip,.nav button{position:relative;overflow:hidden}
+.btn{transition:transform .09s,box-shadow .2s,background .2s}
+.btn:active,.chk:active,.q:active,.chip:active{transform:scale(.965)}
+.btn.primary{text-shadow:0 0 8px rgba(190,235,255,.9);box-shadow:0 0 22px rgba(70,170,255,.5),inset 0 0 14px rgba(170,225,255,.28)}
+.btn.primary::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 32%,rgba(255,255,255,.26) 50%,transparent 68%);transform:translateX(-130%);animation:btnSheen 3.4s ease-in-out infinite}
+@keyframes btnSheen{0%,58%{transform:translateX(-130%)}100%{transform:translateX(130%)}}
+.rip{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(200,240,255,.7),rgba(90,180,255,0) 70%);animation:rip .6s ease-out forwards}
+@keyframes rip{to{transform:scale(22);opacity:0}}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan)!important;box-shadow:0 0 0 1px var(--cyan),0 0 16px rgba(90,200,255,.45)!important}
+.nav{background:linear-gradient(180deg,rgba(6,16,36,.82),rgba(2,6,16,.96));box-shadow:0 -10px 30px rgba(20,90,220,.18)}
+.nav button.on::before{content:"";position:absolute;top:0;left:22%;right:22%;height:2px;background:var(--cyan);box-shadow:0 0 12px var(--cyan),0 0 26px var(--neon)}
+.nav button.on svg{filter:drop-shadow(0 0 6px rgba(130,220,255,.9))}
+.st-level b{text-shadow:0 0 18px rgba(120,200,255,.95),0 0 46px rgba(60,140,255,.7)}
+.toast{animation:toastIn .45s cubic-bezier(.2,.9,.25,1) both;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+@keyframes toastIn{0%{opacity:0;transform:translate3d(0,-14px,0) scaleX(.6);filter:brightness(2.5)}100%{opacity:1;transform:none;filter:none}}
+.fx::after{content:"";position:absolute;inset:-60%;pointer-events:none;background:repeating-conic-gradient(from 0deg,rgba(130,210,255,.11) 0 4deg,transparent 4deg 15deg);-webkit-mask:radial-gradient(circle,#000 0,transparent 52%);mask:radial-gradient(circle,#000 0,transparent 52%);animation:rays 20s linear infinite}
+.fx.rank::after,.fx.gold::after{background:repeating-conic-gradient(from 0deg,rgba(245,201,90,.15) 0 4deg,transparent 4deg 15deg)}
+@keyframes rays{to{transform:rotate(360deg)}}
+.gate-fx{position:fixed;inset:0;z-index:45;display:grid;place-items:center;background:radial-gradient(circle at 50% 50%,rgba(10,20,60,.6),rgba(1,3,10,.96) 70%);pointer-events:none;animation:portalOut .55s 1.55s ease-in both}
+.gate-fx i{position:absolute;width:78vmin;height:78vmin;border-radius:50%;background:repeating-conic-gradient(from 0deg,transparent 0 9deg,color-mix(in srgb,var(--pc) 55%,transparent) 11deg,transparent 15deg 22deg),radial-gradient(circle,#fff 0,color-mix(in srgb,var(--pc) 90%,#fff) 7%,color-mix(in srgb,var(--pc) 45%,transparent) 26%,rgba(60,30,140,.25) 50%,transparent 70%);box-shadow:0 0 90px color-mix(in srgb,var(--pc) 60%,transparent);animation:portalSpin 2s cubic-bezier(.3,.6,.3,1) both}
+@keyframes portalSpin{0%{transform:scale(.04) rotate(0);opacity:0}25%{opacity:1}100%{transform:scale(1.7) rotate(600deg);opacity:.85}}
+.gate-fx b{position:relative;font:700 clamp(18px,5.4vw,26px) var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:#fff;text-shadow:0 0 12px var(--pc),0 0 30px var(--pc);animation:portalTxt 1.6s ease-out both}
+@keyframes portalTxt{0%,30%{opacity:0;letter-spacing:.6em;filter:blur(6px)}60%{opacity:1;letter-spacing:.14em;filter:none}}
+@keyframes portalOut{to{opacity:0;transform:scale(1.15)}}
+body.fx-low::after,.fx-low #fxCanvas,.fx-low .scan,.fx-low .gate-fx{display:none}
+.fx-low .fx-in,.fx-low .fx-in.win::before,.fx-low .fx-in.win::after,.fx-low .btn.primary::after,.fx-low .fx::after,.fx-low .brand-mark{animation:none}
+@media (prefers-reduced-motion:reduce){body::after,.scan,#fxCanvas{display:none}.fx-in,.btn.primary::after,.fx::after{animation:none}}
+
+.art{position:relative;height:clamp(150px,46vw,240px);margin:-18px -16px 6px;overflow:hidden;border-bottom:1px solid rgba(120,205,255,.42);background:#020611}
+.art::before{content:"";position:absolute;inset:-8%;background:var(--img) center/cover no-repeat;animation:kenburns 20s ease-in-out infinite alternate;will-change:transform}
+.art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,8,20,0) 38%,rgba(4,12,28,.94)),radial-gradient(130% 95% at 50% 0,transparent 55%,rgba(3,8,20,.5))}
+.art i{position:absolute;inset:0;z-index:1;background:linear-gradient(105deg,transparent 42%,rgba(190,235,255,.17) 50%,transparent 58%);transform:translateX(-100%);animation:artSheen 7s ease-in-out infinite}
+@keyframes kenburns{0%{transform:scale(1.02) translate3d(1%,1%,0)}100%{transform:scale(1.15) translate3d(-2%,-3%,0)}}
+@keyframes artSheen{0%,62%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.win.red .art{border-bottom-color:rgba(255,90,110,.5)}
+.win.red .art::after{background:linear-gradient(180deg,rgba(25,3,10,0) 38%,rgba(25,3,10,.95)),radial-gradient(130% 95% at 50% 0,transparent 55%,rgba(25,3,10,.5))}
+.art.card{margin:0 0 12px;height:clamp(140px,42vw,210px);border:1px solid rgba(120,205,255,.4);box-shadow:0 0 22px rgba(60,160,255,.25)}
+.modal .art{margin:0 0 12px}
+.fx.level,.fx.rank{background-image:radial-gradient(circle at 50% 45%,rgba(40,120,255,.25),rgba(2,6,14,.82) 70%),url("img/levelup.webp?v=1");background-size:cover;background-position:center}
+.fx.rank{background-image:radial-gradient(circle at 50% 45%,rgba(245,201,90,.22),rgba(2,6,14,.85) 70%),url("img/levelup.webp?v=1")}
+.fx-low .art::before,.fx-low .art i{animation:none}
+@media (prefers-reduced-motion:reduce){.art::before,.art i{animation:none}}
+
+.art::before{animation-delay:var(--kb,0s)}
+.art.slides::before{display:none}
+.art.slides b{position:absolute;inset:-8%;background:var(--img) center/cover no-repeat;opacity:0;animation:kenburns 20s ease-in-out infinite alternate,slide 24s linear infinite;animation-delay:var(--kb,0s),calc(var(--sl,0s) + var(--k) * 6s)}
+@keyframes slide{0%{opacity:0}3%{opacity:1}25%{opacity:1}29%{opacity:0}100%{opacity:0}}
+.fx-low .art.slides b{animation:none}.fx-low .art.slides b:first-of-type{opacity:1}
+@media (prefers-reduced-motion:reduce){.art.slides b{animation:none}.art.slides b:first-of-type{opacity:1}}
 </style>
 
 <div id="app" class="wrap"></div>
@@ -927,6 +996,16 @@ const TYPES = {
   H:  {name: "Haut, pecs prioritaires", day: 4, gate: "Citadelle haute"},
 };
 const PROGRAM_WEEKS = 8;
+const IMG_V = 1, GATE_IMG = {DP: "gate_DP", EP: "gate_EP", J: "gate_J", DB: "gate_DB", PT: "gate_PT", EB: "gate_EB", P: "gate_PT", T: "gate_DB", HC: "gate_DP", JX: "gate_J", L: "gate_J", BE: "gate_EP", FB: "gate_DP", CO: "gate_PT", H: "gate_PT", A: "gate_DP", B: "gate_EB", C: "gate_DB"};
+const artPhase = () => { const t = Date.now() / 1000; return {kb: `-${(t % 40).toFixed(2)}s`, sl: `-${(t % 24).toFixed(2)}s`}; };   // follows the clock: a re-render never restarts the motion
+const art = (name, cls) => `<div class="art ${cls || ""}" style="--img:url('img/${name}.webp?v=${IMG_V}');--kb:${artPhase().kb}" aria-hidden="true"><i></i></div>`;   // 14 Nov: illustrations made in Gemini
+const gateArt = (ty, cls) => {               // up to 4 pictures per dungeon, crossfading every 6 s
+  const b = GATE_IMG[ty] || "gate_DP", have = window.GL_IMGS || [], l = [b, b + "_2", b + "_3", b + "_4"].filter((n, k) => k === 0 || have.includes(n));
+  if (l.length < 2) return art(b, cls);
+  while (l.length < 4) l.push(...l.slice(0, 4 - l.length));
+  const p = artPhase();
+  return `<div class="art slides ${cls || ""}" style="--kb:${p.kb};--sl:${p.sl}" aria-hidden="true">${l.slice(0, 4).map((n, k) => `<b style="--img:url('img/${n}.webp?v=${IMG_V}');--k:${k}"></b>`).join("")}<i></i></div>`;
+};
 const JOKERS = 1;
 const WEEKS = [null,
   {n: 1, phase: "Initiation", rank: "E", rirTxt: "3 partout (que des gros mouvements)", setsTxt: "2 par exo"},
@@ -1726,9 +1805,98 @@ function suggest(it, info, grip) {
   return out;
 }
 
+/* ================= 14 Nov: refonte néon (fond vivant, entrées, textes du Système, vibrations) ================= */
+var fxState = {lastView: null, canvas: null, ctx: null, motes: [], bursts: [], raf: 0, last: 0, dpr: 1, sprites: {}};
+function fxActive() { return !(S.profile && S.profile.fx === false) && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches); }
+function buzz(p) { try { if (S.profile && S.profile.vibe === false) return; if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+function fxSprite(h) {               // a glowing dot drawn once per colour, then stamped (cheaper than shadowBlur on phones)
+  if (fxState.sprites[h]) return fxState.sprites[h];
+  const c = document.createElement("canvas"); c.width = c.height = 32; const g = c.getContext("2d"), r = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+  r.addColorStop(0, `hsla(${h},100%,92%,1)`); r.addColorStop(.25, `hsla(${h},100%,70%,.9)`); r.addColorStop(1, `hsla(${h},100%,55%,0)`);
+  g.fillStyle = r; g.fillRect(0, 0, 32, 32); return (fxState.sprites[h] = c);
+}
+function fxMote(any) { return {x: Math.random(), y: any ? Math.random() : 1.04, r: 2 + Math.random() * 5, v: .012 + Math.random() * .03, a: .25 + Math.random() * .55, w: Math.random() * 6.28, h: Math.random() < .22 ? 265 : Math.random() < .5 ? 195 : 210}; }
+function fxInit() {
+  if (fxState.canvas || !document.body) return;
+  const c = document.createElement("canvas"); c.id = "fxCanvas"; document.body.prepend(c); fxState.canvas = c; fxState.ctx = c.getContext("2d");
+  const sc = document.createElement("div"); sc.className = "scan"; document.body.appendChild(sc);
+  const size = () => { const d = Math.min(2, window.devicePixelRatio || 1); c.width = innerWidth * d; c.height = innerHeight * d; c.style.width = innerWidth + "px"; c.style.height = innerHeight + "px"; fxState.dpr = d; };
+  size(); addEventListener("resize", size);
+  for (let i = 0; i < 34; i++) fxState.motes.push(fxMote(true));
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && !fxState.raf) fxLoop(); });
+  document.addEventListener("pointerdown", fxRipple, {passive: true});
+  fxLoop();
+}
+function fxLoop() {
+  const step = now => {
+    fxState.raf = 0; if (document.hidden) return;
+    if (now - fxState.last >= 33) {   // about 30 images a second is plenty for drifting dust
+      const dt = Math.min(.1, (now - (fxState.last || now)) / 1000); fxState.last = now;
+      const cx = fxState.ctx, c = fxState.canvas, d = fxState.dpr; cx.clearRect(0, 0, c.width, c.height);
+      if (fxActive()) {
+        cx.globalCompositeOperation = "lighter";
+        for (const m of fxState.motes) {
+          m.y -= m.v * dt; m.w += dt * .8; if (m.y < -.04) Object.assign(m, fxMote(false));
+          const sz = m.r * d * 2; cx.globalAlpha = m.a * (.55 + .45 * Math.sin(m.w * 2.3));
+          cx.drawImage(fxSprite(m.h), (m.x + Math.sin(m.w) * .012) * c.width - sz / 2, m.y * c.height - sz / 2, sz, sz);
+        }
+        fxState.bursts = fxState.bursts.filter(p => (p.life -= dt) > 0);
+        for (const p of fxState.bursts) {
+          p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 260 * dt; p.vx *= .99; const sz = p.r * d * 2;
+          cx.globalAlpha = Math.min(1, p.life * 1.6); cx.drawImage(fxSprite(p.h), p.x * d - sz / 2, p.y * d - sz / 2, sz, sz);
+        }
+        cx.globalAlpha = 1; cx.globalCompositeOperation = "source-over";
+      }
+    }
+    fxState.raf = requestAnimationFrame(step);
+  };
+  if (!fxState.raf) fxState.raf = requestAnimationFrame(step);
+}
+function fxBurst(h, n, x, y) {       // a spray of light from the centre of the screen (level up, rank, épreuve won)
+  if (!fxActive()) return; x = x ?? innerWidth / 2; y = y ?? innerHeight * .42;
+  for (let i = 0; i < n; i++) { const a = Math.random() * 6.283, v = 120 + Math.random() * 420; fxState.bursts.push({x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 140, r: 3 + Math.random() * 6, life: .8 + Math.random() * 1, h: h + (Math.random() * 24 - 12)}); }
+}
+function fxRipple(e) {
+  const b = e.target.closest && e.target.closest(".btn,.q,.chk,.chip,.nav button,[data-act]"); if (!b) return;
+  buzz(8); if (!fxActive() || !b.matches(".btn,.q,.chk,.chip,.nav button")) return;
+  const r = b.getBoundingClientRect(), s = document.createElement("span"); s.className = "rip";
+  s.style.left = (e.clientX - r.left) + "px"; s.style.top = (e.clientY - r.top) + "px"; b.appendChild(s); setTimeout(() => s.remove(), 650);
+}
+function fxType(el, delay) {         // a System line types itself
+  if (el.children.length) return; const full = el.textContent; if (!full || full.length > 220) return;
+  el.textContent = ""; el.classList.add("typing"); let i = 0;
+  setTimeout(function go() { if (!el.isConnected) return; i = Math.min(full.length, i + 2); el.textContent = full.slice(0, i); if (i < full.length) setTimeout(go, 16); else el.classList.remove("typing"); }, delay);
+}
+function fxDecode(el, delay) {       // a title decodes out of random glyphs
+  if (el.children.length) return; const full = el.textContent; if (!full) return; const G = "#%&<>/[]=+*"; let t0 = 0;   // symbols only: a half-decoded title must never read like a typo ("STATND", 14 Nov)
+  setTimeout(() => { const run = now => { if (!el.isConnected) return; t0 = t0 || now; const k = Math.min(1, (now - t0) / 480), n = Math.floor(full.length * k);
+    el.textContent = full.slice(0, n) + [...full.slice(n)].map(ch => ch === " " ? " " : G[Math.floor(Math.random() * G.length)]).join(""); if (k < 1) requestAnimationFrame(run); else el.textContent = full; };
+    requestAnimationFrame(run); }, delay);
+}
+function fxCount(el) {               // numbers count up
+  const txt = el.textContent, m = txt.match(/^\s*([\d\s\u202f]+)\s*$/); if (!m) return; const n = Number(m[1].replace(/[\s\u202f]/g, "")); if (!(n > 1)) return;
+  let t0 = 0; const run = now => { if (!el.isConnected) return; t0 = t0 || now; const k = Math.min(1, (now - t0) / 750), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = Math.round(n * e).toLocaleString("fr-FR"); if (k < 1) requestAnimationFrame(run); else el.textContent = txt; }; requestAnimationFrame(run);
+}
+function fxAfterRender() {
+  fxInit(); document.body.classList.toggle("fx-low", !fxActive());
+  const changed = fxState.lastView !== state.view; fxState.lastView = state.view; if (!changed || !fxActive()) return;
+  const app = document.getElementById("app");
+  [...app.children].forEach((el, i) => { el.classList.add("fx-in"); el.style.animationDelay = (i * 75) + "ms" + (el.classList.contains("win") ? ", " + (i * 75 + 220) + "ms" : "");
+    setTimeout(() => { el.classList.remove("fx-in"); el.style.animationDelay = ""; }, 1500 + i * 75); });   // safety net: a paused animation never hides the screen
+  [...app.querySelectorAll(".sys-line")].slice(0, 4).forEach((el, i) => fxType(el, 160 + i * 200));
+  [...app.querySelectorAll(".win-title")].slice(0, 6).forEach((el, i) => fxDecode(el, 40 + i * 75));
+  app.querySelectorAll(".st-level b").forEach(fxCount);
+}
+function fxPortal(rank) {            // entering a dungeon
+  buzz([20, 40, 20, 40, 90]); if (!fxActive()) return;
+  const d = document.createElement("div"); d.className = "gate-fx"; d.style.setProperty("--pc", `var(--r-${rank || "D"})`);
+  d.innerHTML = `<i></i><b>[Donjon de rang ${esc(rank || "D")}]</b>`; document.body.appendChild(d); setTimeout(() => d.remove(), 2200);
+}
 /* ================= sound, wake lock, toasts, fx ================= */
 let actx = null;
 function chime(kind) {
+  buzz(kind === "rest" ? [90, 60, 90] : kind === "level" ? [50, 40, 50, 40, 140] : 14);
   if (S.profile && S.profile.sound === false) return;
   try {
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
@@ -1747,6 +1915,7 @@ let wakeLock = null;
 async function requestWakeLock() { try { if (navigator.wakeLock) wakeLock = await navigator.wakeLock.request("screen"); } catch (e) { wakeLock = null; } }
 function releaseWakeLock() { try { wakeLock && wakeLock.release(); } catch (e) {} wakeLock = null; }
 function toast(html, kind) {
+  if (kind === "gold") { fxBurst(45, 40, innerWidth / 2, 60); buzz([25, 30, 25, 30, 25]); }
   const box = document.getElementById("toasts"); const el = document.createElement("div");
   el.className = "toast " + (kind || ""); el.innerHTML = html; box.appendChild(el);
   setTimeout(() => el.classList.add("out"), 3200); setTimeout(() => el.remove(), 3700);
@@ -1758,7 +1927,7 @@ function nextFx() {
   if (!f) { el.hidden = true; fxOn = false; return; }
   fxOn = true; el.className = "fx " + (f.kind || "");
   el.innerHTML = `<div class="fx-card"><div class="fx-eyebrow">${f.eyebrow}</div>${f.big ? `<div class="fx-big">${f.big}</div>` : ""}${f.mid ? `<div class="fx-mid">${f.mid}</div>` : ""}${f.sub ? `<div class="fx-sub">${f.sub}</div>` : ""}<button class="btn primary" data-act="fxNext">Continuer</button></div>`;
-  el.hidden = false; chime("level");
+  el.hidden = false; chime("level"); fxBurst(f.kind === "rank" || f.kind === "gold" ? 45 : 205, f.kind === "level" || f.kind === "rank" ? 110 : 55);
 }
 function rankFx(rank) {
   const rw = S.rewards?.rank?.[rank];
@@ -1812,7 +1981,7 @@ function render() {
   const tab = state.view === "settings" ? "" : state.view;
   nav.innerHTML = `<div class="nav-in">${[["status", "Statut", ICON.status], ["dungeons", "Donjons", ICON.gate], ["meals", "Repas", ICON.food], ["body", "Corps", ICON.body], ["shop", "Boutique", ICON.shop]].map(([v, l, i]) => `<button class="${tab === v ? "on" : ""}" data-act="go" data-v="${v}" ${tab === v ? 'aria-current="page"' : ""}>${i}<span>${l}</span></button>`).join("")}</div>`;
   restoreFocus(focus);
-  renderModal(); tick(); hydratePhotos();
+  renderModal(); tick(); hydratePhotos(); fxAfterRender();
 }
 const SAVE_LABEL = {db: ["Sauvegarde en ligne", ""], server: ["Sauvé sur ce PC", ""], cloud: ["Synchronisé", ""], local: ["Sauvé dans ce navigateur seulement", "local"]};
 const saveBadge = () => {
@@ -2137,7 +2306,7 @@ function viewStatus(P) { return topbar() + replyWin() + questionWin() + reportWi
 function statusWin(P) {
   const pct = Math.min(100, Math.round(P.into / P.need * 100)); const s = P.stats;
   const stat = (k, l, v) => `<div class="stat2"><span class="stat-k">${k}</span><b class="stat-v">${v}</b><span class="stat-l">${l}</span></div>`;
-  return `<section class="win" aria-label="Statut du Joueur"><h2 class="win-title">Statut</h2>
+  return `<section class="win" aria-label="Statut du Joueur">${art("hero_status")}<h2 class="win-title">Statut</h2>
     <div class="st-head"><div class="st-id"><div class="st-name">${esc(S.profile?.name || "Joueur")}</div><div class="st-title">Titre : <b>${esc(currentTitle(P))}</b></div>
       <div class="st-rank">${rankBadge(P.rank)}<span>Chasseur de rang ${P.rank}</span></div></div>
       <div class="st-level"><span>Niveau</span><b>${P.level}</b></div></div>
@@ -2151,7 +2320,7 @@ function statusWin(P) {
 function penaltyWin(P) {
   if (!P.penalty) return "";
   const {cw, name, cnt, reqd} = P.penalty;
-  return `<section class="win red"><h2 class="win-title">Zone de pénalité</h2>
+  return `<section class="win red">${art("penalty")}<h2 class="win-title">Zone de pénalité</h2>
     <p class="sys-line">[${name} (du ${fmtDay(weekStart(cw), {day: "numeric", month: "long"})}) : ${cnt} donjon${cnt > 1 ? "s" : ""} sur ${reqd} exigé${reqd > 1 ? "s" : ""}. Le Joueur n'a pas rempli ses obligations.]</p>
     <p><b>Quête de pénalité :</b> survivre à 40 minutes de marche rapide, d'une traite.</p>
     <p class="muted small">La boutique reste verrouillée tant que la quête n'est pas faite.</p>
@@ -2183,7 +2352,7 @@ function portalCard(p, label, sub, compact) {
   const info = weekInfo(p.cw), plan = planFor(p.cw, p.ty), rank = info.W.rank;
   if (compact) return `<div class="portal-mini" style="--rc:var(--r-${rank})"><span class="eyebrow">${label}</span><p><b>${esc(TYPES[p.ty].gate)}</b> · ${TYPES[p.ty].name}, environ ${estMinutes(plan)} min.</p>${sub ? `<p class="muted small">${sub}</p>` : ""}
     <div class="row"><button class="btn sm" data-act="enter" data-cw="${p.cw}" data-ty="${p.ty}">Entrer</button><button class="btn sm ghost" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}">Voir les exercices</button></div></div>`;
-  return `<div class="portal" style="--rc:var(--r-${rank})"><div class="gate" aria-hidden="true"><div class="gate-ring"></div><div class="gate-core"></div></div>
+  return gateArt(p.ty, "card") + `<div class="portal" style="--rc:var(--r-${rank})"><div class="gate" aria-hidden="true"><div class="gate-ring"></div><div class="gate-core"></div></div>
     <div><span class="eyebrow">${label} · <span class="nw">rang ${rank}</span></span><h3>${esc(TYPES[p.ty].gate)}</h3><p>${tyLabel(p.ty)}. ${plan.length} exercices, environ ${estMinutes(plan)} min.</p>${sub ? `<p class="muted small">${sub}</p>` : ""}${gapWarn(p.cw, p.ty, p.done)}</div>
     <div class="portal-actions"><button class="btn primary" data-act="enter" data-cw="${p.cw}" data-ty="${p.ty}">Entrer dans le donjon</button><button class="btn ghost" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}">Voir les exercices</button></div></div>`;
 }
@@ -2364,7 +2533,7 @@ function viewDungeon() {
   const pct = planned ? Math.round(doneReq / planned * 100) : 0;
   return `<div class="dg-top"><button class="btn ghost sm" data-act="dgMenu">Pause</button><div class="dg-name">${sessLabel(d)} · ${tyLabel(d.type)}</div><div class="dg-clock" id="dgClock">00:00</div></div>
     <div class="xpbar" role="progressbar" aria-label="Séries faites" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
-    <section class="win"><h2 class="win-title">${esc(TYPES[d.type].gate)}</h2>
+    <section class="win">${gateArt(d.type)}<h2 class="win-title">${esc(TYPES[d.type].gate)}</h2>
       <p class="sys-line">[Vous êtes entré dans un donjon de rang ${W.rank}.] ${doneReq} / ${planned} séries</p>
       ${d.hype ? `<p class="sugg up">[Message du Système] ${esc(d.hype)}</p>` : ""}
       <button class="q ${d.warm ? "on" : ""}" data-act="warm" role="checkbox" aria-checked="${!!d.warm}"><span class="box" aria-hidden="true"></span><span class="q-l">Échauffement</span><span class="q-t">${d.warm ? "[Fait]" : "[À faire]"}</span></button>
@@ -2471,7 +2640,7 @@ function viewShop(P) {
   const rankRows = ["D", "C", "B", "A", "S"].map(r => { const got = RANKS.indexOf(P.rank) >= RANKS.indexOf(r); const c = claimed(r); const name = S.rewards?.rank?.[r] || RANK_DEFAULT[r];
     return `<li class="rw ${c ? "claimed" : ""}"><span class="rw-n">${rankBadgeInline(r)} ${esc(name)}</span><span class="rw-c muted" style="color:var(--muted)">${c ? "Réclamée le " + fmtDay(fromStr(c.date), {day: "numeric", month: "short"}) : got ? "Débloquée" : "Au niveau " + RANK_LEVEL[r] + (r === "S" ? " + épreuves de S8" : "")}</span><button class="btn sm ${got && !c ? "gold" : "ghost"}" data-act="claimRank" data-r="${r}" ${got && !c ? "" : "disabled"}>${c ? "Prise" : got ? "Réclamer" : "Verrouillée"}</button></li>`; }).join("");
   const hist = [...S.purchases].sort((a, b) => String(b.ts || "").localeCompare(String(a.ts || ""))).slice(0, 12);
-  return topbar() + `<section class="win"><h2 class="win-title">Boutique du Système</h2><div class="money big"><i class="coin"></i><b>${fmt(P.gold, 0)}</b> or</div>
+  return topbar() + `<section class="win">${art("shop")}<h2 class="win-title">Boutique du Système</h2><div class="money big"><i class="coin"></i><b>${fmt(P.gold, 0)}</b> or</div>
       ${locked ? `<p class="lock">[Boutique verrouillée] Termine d'abord la quête de pénalité (onglet Statut).</p>` : `<p class="muted small">L'or se gagne dans les donjons, la quête quotidienne et les titres. Une semaine complète rapporte environ 700 à 900 or. Tu échanges, tu vas en profiter dans la vraie vie.</p>`}</section>
     ${tiers || `<section class="win"><p class="empty">Aucune récompense dans la boutique. Ajoute les tiennes avec le bouton ci-dessous.</p></section>`}
     <section class="win"><h2 class="win-title">Récompenses de rang</h2><p class="muted small">Gratuites : chaque nouveau rang débloque la sienne.</p><ul class="shop">${rankRows}</ul></section>
@@ -2651,7 +2820,7 @@ function viewBody(P) {
   const reading = R.ok
     ? `<p class="reading ${R.tone}">${esc(R.verdict)}</p><p class="muted small">Du ${fmtDay(fromStr(R.from), {day: "numeric", month: "short"})} au ${fmtDay(fromStr(R.to), {day: "numeric", month: "short"})} : poids ${sign(R.dw)}, ${R.scale ? `gras ${sign(R.df)}, muscle et reste ${sign(R.dl)}` : `tour de taille ${(R.dt > 0 ? "+" : "") + fmt(R.dt, 1)} cm`}${R.prs ? `, et ${plural(R.prs, "record battu", "records battus")} à la salle` : ""}. C'est un repère : les photos et tes perfs le confirment ou non.</p>`
     : `<p class="muted small">${R.text}</p>`;
-  return topbar() + `<section class="win"><h2 class="win-title">Poids de corps</h2>
+  return topbar() + `<section class="win">${art("body")}<h2 class="win-title">Poids de corps</h2>
       <div class="weigh"><label for="bodyWeighIn">Pesée de ce matin, à jeun</label><div class="weigh-in"><input id="bodyWeighIn" data-bind="weigh" data-key="${t}" inputmode="decimal" autocomplete="off" placeholder="—" value="${esc(wv)}"><span>kg</span></div></div>
       <div class="weigh"><label for="bodyBfIn">Masse grasse de ta balance${scale ? "" : " (si elle la donne)"}</label><div class="weigh-in"><input id="bodyBfIn" data-bind="bf" data-key="${t}" inputmode="decimal" autocomplete="off" placeholder="—" value="${esc(bv)}"><span>%</span></div></div>
       <div class="res-grid"><div class="res-cell"><b>${now == null ? "—" : fmt(now, 1)}</b><span>Moyenne 7 j</span></div><div class="res-cell"><b>${now == null || prev == null ? "—" : sign(now - prev)}</b><span>Sur 7 jours</span></div><div class="res-cell"><b>${now == null || start == null ? "—" : sign(now - start)}</b><span>Depuis le début</span></div></div>
@@ -3123,7 +3292,7 @@ function viewMeals(P) {
   const tickets = S.purchases.filter(p => (p.food || p.kind === "rank") && !p.usedOn);
   const ticketsWin = tickets.length ? `<section class="win"><h2 class="win-title">Tickets repas</h2><p class="muted small">Tes récompenses gagnées à la Boutique. Valide-la le jour où tu la manges : le repas compte comme noté et ses calories ne comptent pas.</p>
       ${tickets.map(t => `<div class="ticket"><span>${esc(t.name)}</span><button class="btn sm gold" data-act="ticketUse" data-pid="${esc(t.id)}" data-d="${key}">Valider</button></div>`).join("")}</section>` : "";
-  return topbar() + `<section class="win"><h2 class="win-title">Repas</h2>
+  return topbar() + `<section class="win">${art("meals")}<h2 class="win-title">Repas</h2>
       <div class="seg" role="group" aria-label="Jour"><button class="${off === -1 ? "on" : ""}" data-act="mealDay" data-o="-1">Hier</button><button class="${off === 0 ? "on" : ""}" data-act="mealDay" data-o="0">Aujourd'hui</button><button class="${off === 1 ? "on" : ""}" data-act="mealDay" data-o="1">Demain</button></div>
       ${off === 1 && !free ? `<p class="sys-line">[Demain · ${fmtDay(fromStr(key), {weekday: "long", day: "numeric", month: "long"})}]</p><p class="muted small">Note maintenant ce que tu as préparé : demain, tout sera déjà là. Ça ne compte qu'à partir de demain.</p>` : ""}
       ${free ? `<p class="sys-line">[Jour libre]</p><p>Cheat day : rien à noter ${off === 1 ? "demain" : "aujourd'hui"}, profite. Le Système a déjà compté ces calories dans ta semaine.</p>` : `
@@ -3277,7 +3446,7 @@ function viewSettings(P) {
   if (!state.setDraft) { const p = S.profile || {}, t = p.targets || {}, sv = v => v != null && v !== "" ? fmtIn(Number(v)) : "";
     state.setDraft = {name: p.name || "", program: planOf(p), weight: sv(p.weight), oldBench: sv(p.oldBench), height: sv(p.height), age: sv(p.age), neck: sv(p.neck), bf: sv(p.bf), activity: String(p.activity || 1.5),
       freeDay: String(p.freeDay == null ? 5 : p.freeDay), freeComp: p.freeComp !== false, studyMin: String(t.studyMin ?? 60), steps: String(t.steps ?? 8000), sleep: fmtIn(t.sleep ?? 7), water: fmtIn(t.water ?? 2),
-      kcalManual: sv(p.kcalManual), proteinManual: sv(p.proteinManual), fastH: String(p.fastH || ""), fastStart: p.fastStart || "12:00", legMaint: p.legMaint !== false, sound: p.sound !== false, title: p.title || "",
+      kcalManual: sv(p.kcalManual), proteinManual: sv(p.proteinManual), fastH: String(p.fastH || ""), fastStart: p.fastStart || "12:00", legMaint: p.legMaint !== false, sound: p.sound !== false, fx: p.fx !== false, vibe: p.vibe !== false, title: p.title || "",
       breakfast: eatsBreakfast(p), group: p.group !== false, qSteps: questOn(p, "steps"), qWater: questOn(p, "water"), qStudy: questOn(p, "study")}; }
   const s = state.setDraft;
   const owned = ACH.filter(a => P.achIds.has(a.id));
@@ -3305,6 +3474,8 @@ function viewSettings(P) {
       <div class="grid2">${f("steps", "Pas par jour", "numeric")}${f("water", "Eau (L)")}</div>
       ${tg("legMaint", "Un peu de jambes chaque semaine", "2 séries de hack squat + 2 de leg curl, légères, à la fin du complément, les semaines sans grosse séance jambes")}
       ${tg("sound", "Sons du Système", "Petit signal à chaque série et à la fin du repos")}
+      ${tg("fx", "Effets visuels", "Lumières, particules, apparitions et portail. À couper si ton téléphone rame")}
+      ${tg("vibe", "Vibrations", "Le téléphone vibre aux séries, aux records et aux montées de niveau (Android ; l'iPhone ne laisse pas les sites vibrer)")}
       ${Store.mode === "cloud" ? tg("group", "Partager avec le groupe", "Donjons terminés, records et rangs visibles par les autres joueurs ; repas, poids et photos restent privés") : ""}
       <div class="row"><button class="btn ghost" data-act="go" data-v="status">Retour</button><button class="btn primary" data-act="setSave">Enregistrer</button></div></section>
     ${Store.mode === "cloud" || Store.mode === "server" ? `<section class="win"><h2 class="win-title">Copie de sécurité</h2>
@@ -3632,7 +3803,7 @@ function modalPreview(m) {
   else if (cw < weekOfStr(today())) action = `<p class="muted small">Ce portail s'est refermé.</p>`;
   else action = `<p class="muted small">Ce portail s'ouvrira le ${fmtDay(fromStr(plannedDate(cw, ty)), {weekday: "long", day: "numeric", month: "long"})}. Pour le faire un autre jour, change son jour ci-dessus.</p>`;
   const when = p.bonus ? "Bonus de grosse semaine (Jambes le mercredi, Haut le vendredi)" : p.date ? "Prévu " + fmtDay(fromStr(p.date), {weekday: "long", day: "numeric", month: "long"}) : "";
-  return `<div class="win"><h2 class="win-title">${esc(TYPES[ty].gate)}</h2><p class="sys-line">${info.deload ? "Semaine allégée" : "S" + info.p} · ${tyLabel(ty)} · rang ${info.W.rank}</p>
+  return gateArt(ty) + `<div class="win"><h2 class="win-title">${esc(TYPES[ty].gate)}</h2><p class="sys-line">${info.deload ? "Semaine allégée" : "S" + info.p} · ${tyLabel(ty)} · rang ${info.W.rank}</p>
     <p class="muted small">${when} · environ ${estMinutes(plan)} min · échauffement d'abord</p>
     <ol class="pv-list">${rows}</ol>${can ? gapWarn(cw, ty, false) : ""}${moveRow(cw, ty, p)}<div class="m-actions">${action}<button class="btn ghost" data-act="closeModal">Fermer</button></div></div>`;
 }
@@ -3713,7 +3884,7 @@ function enterDungeon(cw, ty) {
   state.toastedPr = {}; state.chalWon = {}; state.modal = null; state.rest = null;
   S.draft.hype = hypeFor(ty);
   saveDraft(true); chime("sys");
-  state.view = "dungeon"; requestWakeLock(); window.scrollTo(0, 0); render();
+  fxPortal(info.W && info.W.rank); state.view = "dungeon"; requestWakeLock(); window.scrollTo(0, 0); render();
   toast(`[Vous êtes entré dans le donjon.] ${esc(TYPES[ty].gate)}`);
   pushFx({kind: "level", eyebrow: "[Message du Système]", mid: esc(S.draft.hype)});
 }
@@ -4170,7 +4341,7 @@ const ACTIONS = {
       neck: pos(s.neck) && r1(pos(s.neck)), bf: pos(s.bf), activity: Number(s.activity) || 1.5, freeDay: Number(s.freeDay), freeComp: !!s.freeComp,
       kcalManual: pos(s.kcalManual) && Math.round(pos(s.kcalManual)), proteinManual: pos(s.proteinManual) && Math.round(pos(s.proteinManual)),
       fastH: Number(s.fastH) || null, fastStart: /^\d{2}:\d{2}$/.test(s.fastStart || "") ? s.fastStart : "12:00",
-      targets: {...(p.targets || {}), steps, sleep, water, studyMin}, legMaint: !!s.legMaint, sound: !!s.sound, title: s.title || null,
+      targets: {...(p.targets || {}), steps, sleep, water, studyMin}, legMaint: !!s.legMaint, sound: !!s.sound, fx: !!s.fx, vibe: !!s.vibe, title: s.title || null,
       breakfast: !!s.breakfast, quests: {steps: !!s.qSteps, water: !!s.qWater, study: !!s.qStudy}, group: !!s.group};
     if (!next.foodStart) next.foodStart = toStr(addDays(fromStr(today()), 1));
     S.profile = next; queueSet("game/profile", next); state.setDraft = null; state.view = "status"; window.scrollTo(0, 0); render(); toast("[Réglages enregistrés]", "ok");
