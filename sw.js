@@ -1,4 +1,4 @@
-const CACHE = "gl-20261113-143751";
+const CACHE = "gl-20261114-095254";
 const DATA = {"aliments": "aliments-1476f37b0d.json", "marques": "marques-74ed9c5319.json"};   // content-hashed food tables: kept across app updates, refreshed only when they change
 const SHELL = ["./", "index.html", DATA.aliments, "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 const isData = p => /\/(aliments|marques)-[0-9a-f]{10}\.json$/.test(p);
