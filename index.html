@@ -665,6 +665,37 @@ body.fx-low::after,.fx-low #fxCanvas,.fx-low .scan,.fx-low .gate-fx{display:none
 @keyframes slide{0%{opacity:0}3%{opacity:1}25%{opacity:1}29%{opacity:0}100%{opacity:0}}
 .fx-low .art.slides b{animation:none}.fx-low .art.slides b:first-of-type{opacity:1}
 @media (prefers-reduced-motion:reduce){.art.slides b{animation:none}.art.slides b:first-of-type{opacity:1}}
+
+.set-row{position:relative}
+.set-pop{position:absolute;left:34px;top:50%;z-index:3;pointer-events:none;display:flex;align-items:center;gap:8px;transform:translateY(-50%);animation:popUp 1.5s cubic-bezier(.2,.9,.25,1) forwards}
+.set-pop b{font:700 34px/1 var(--font-display);color:var(--gc);text-shadow:0 0 12px var(--gc),0 0 28px var(--gc);animation:gradeIn .45s cubic-bezier(.2,1.6,.4,1) both}
+.set-pop span{font:700 13px var(--font-display);letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(4,14,34,.85);border:1px solid var(--gc);padding:3px 7px;box-shadow:0 0 12px color-mix(in srgb,var(--gc) 50%,transparent);white-space:nowrap}
+@keyframes gradeIn{0%{transform:scale(2.6);opacity:0;filter:blur(4px)}100%{transform:scale(1);opacity:1;filter:none}}
+@keyframes popUp{0%,60%{opacity:1;translate:0 0}100%{opacity:0;translate:0 -34px}}
+.set-row.flash{animation:rowFlash .7s ease-out}
+@keyframes rowFlash{0%{background:color-mix(in srgb,var(--gc,#5ef0b8) 35%,transparent);box-shadow:0 0 22px var(--gc,#5ef0b8)}100%{background:transparent;box-shadow:none}}
+.card-stamp{position:absolute;left:50%;top:44%;z-index:5;pointer-events:none;font:700 clamp(30px,10vw,46px)/1 var(--font-display);letter-spacing:.14em;color:var(--ok);border:3px solid var(--ok);padding:6px 16px;text-shadow:0 0 14px var(--ok);box-shadow:0 0 24px rgba(94,240,184,.5),inset 0 0 14px rgba(94,240,184,.35);background:rgba(3,14,20,.55);transform:translate(-50%,-50%) rotate(-8deg);animation:stampIn 1.7s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes stampIn{0%{opacity:0;transform:translate(-50%,-50%) rotate(-8deg) scale(2.4)}18%{opacity:1;transform:translate(-50%,-50%) rotate(-8deg) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) rotate(-8deg) scale(1.05)}}
+.stamp{position:fixed;left:50%;top:40%;z-index:46;pointer-events:none;text-align:center;font:700 clamp(28px,9vw,44px)/1.05 var(--font-display);letter-spacing:.1em;text-transform:uppercase;color:var(--gold);text-shadow:0 0 16px rgba(245,201,90,.9),0 0 40px rgba(245,201,90,.6);transform:translate(-50%,-50%);animation:bigStamp 1.8s cubic-bezier(.2,1.3,.4,1) forwards;white-space:nowrap}
+.stamp small{display:block;font:600 13px var(--font-display);letter-spacing:.3em;color:#fff;opacity:.85;margin-bottom:6px}
+.stamp::before{content:"";position:absolute;left:50%;top:50%;width:150vmax;height:150vmax;z-index:-1;translate:-50% -50%;background:repeating-conic-gradient(from 0deg,rgba(245,201,90,.13) 0 4deg,transparent 4deg 14deg);-webkit-mask:radial-gradient(circle,#000 0,transparent 30%);mask:radial-gradient(circle,#000 0,transparent 30%);animation:rays 6s linear infinite}
+.stamp.green{color:var(--ok);text-shadow:0 0 16px rgba(94,240,184,.9),0 0 40px rgba(94,240,184,.55)}
+.stamp.green::before{background:repeating-conic-gradient(from 0deg,rgba(94,240,184,.12) 0 4deg,transparent 4deg 14deg)}
+.stamp.blue{color:#fff;text-shadow:0 0 16px var(--cyan),0 0 40px var(--neon)}
+.stamp.blue::before{background:repeating-conic-gradient(from 0deg,rgba(127,233,255,.13) 0 4deg,transparent 4deg 14deg)}
+@keyframes bigStamp{0%{opacity:0;transform:translate(-50%,-50%) scale(2.2);filter:blur(6px)}16%{opacity:1;transform:translate(-50%,-50%) scale(1);filter:none}78%{opacity:1}100%{opacity:0;transform:translate(-50%,-62%) scale(1)}}
+.flash-white{position:fixed;inset:0;z-index:60;pointer-events:none;background:#fff;animation:flashW .55s ease-out forwards}
+@keyframes flashW{0%{opacity:.85}100%{opacity:0}}
+.shake{animation:shake .45s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes shake{10%,90%{transform:translate3d(-2px,0,0)}20%,80%{transform:translate3d(4px,0,0)}30%,50%,70%{transform:translate3d(-7px,2px,0)}40%,60%{transform:translate3d(7px,-2px,0)}}
+.fx-in .xpbar i{animation:barFill 1.3s .45s cubic-bezier(.2,.9,.25,1) both}
+@keyframes barFill{from{width:0}}
+.fx-in .res-title{animation:resStamp .75s .25s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes resStamp{0%{opacity:0;transform:scale(2.3);filter:blur(5px)}100%{opacity:1;transform:none;filter:none}}
+.restbar.done{animation:restPulse 1s ease-in-out 3}
+@keyframes restPulse{50%{box-shadow:0 -6px 30px rgba(94,240,184,.55);background:rgba(10,40,34,.97)}}
+.fx-low .set-pop,.fx-low .card-stamp,.fx-low .stamp::before,.fx-low .flash-white{display:none}
+.fx-low .shake,.fx-low .restbar.done{animation:none}
 </style>
 
 <div id="app" class="wrap"></div>
@@ -1886,7 +1917,44 @@ function fxAfterRender() {
     setTimeout(() => { el.classList.remove("fx-in"); el.style.animationDelay = ""; }, 1500 + i * 75); });   // safety net: a paused animation never hides the screen
   [...app.querySelectorAll(".sys-line")].slice(0, 4).forEach((el, i) => fxType(el, 160 + i * 200));
   [...app.querySelectorAll(".win-title")].slice(0, 6).forEach((el, i) => fxDecode(el, 40 + i * 75));
-  app.querySelectorAll(".st-level b").forEach(fxCount);
+  app.querySelectorAll(".st-level b").forEach(fxCount); app.querySelectorAll("[data-count]").forEach(fxCountIn);
+  if (state.view === "results" && state.results) { const r = state.results; if (r.doc.full) { setTimeout(() => fxBurst(205, 90), 450); buzz([30, 40, 30, 40, 120]); }
+    if (r.wb && r.wb.perfect) fxStamp(r.wb.big ? "Grosse semaine" : "Semaine complète", "[Bonus du Système]", "blue"); }
+}
+var fxStampAt = 0;
+function fxStamp(text, sub, cls) {      // a big stamp in the middle of the screen (record, épreuve, full week); never on top of another one
+  if (!fxActive()) return; const wait = Math.max(0, fxStampAt - Date.now()); fxStampAt = Date.now() + wait + 1300;
+  setTimeout(() => { const d = document.createElement("div"); d.className = "stamp " + (cls || ""); d.innerHTML = (sub ? `<small>${esc(sub)}</small>` : "") + esc(text);
+    document.body.appendChild(d); fxBurst(cls === "blue" ? 195 : cls === "green" ? 155 : 45, 60); setTimeout(() => d.remove(), 1900); }, wait);
+}
+function fxFlash() { if (!fxActive()) return; const d = document.createElement("div"); d.className = "flash-white"; document.body.appendChild(d); setTimeout(() => d.remove(), 600);
+  const a = document.getElementById("app"); a.classList.remove("shake"); void a.offsetWidth; a.classList.add("shake"); setTimeout(() => a.classList.remove("shake"), 500); }
+const GRADE_C = {S: "var(--gold)", A: "var(--violet)", B: "var(--cyan)"};
+function fxSetDone(ex, i, it, kg, rp, n, rowsDone) {   // the satisfying part of validating a set
+  if (!it || !fxActive()) return;
+  const lo = it.reps[0], hi = it.reps[1], hist = perfHistory(ex), last = hist[hist.length - 1], prev = last && last.sets[i];
+  let delta = "";
+  if (prev) { const pk = Number(prev.kg) || 0, pr = Number(prev.reps) || 0;
+    if (kg > pk + 0.01 && rp >= Math.min(pr, lo)) delta = `+${fmt(kg - pk)} kg`; else if (Math.abs(kg - pk) < 0.01 && rp > pr) delta = `+${rp - pr} rep${rp - pr > 1 ? "s" : ""}`; }
+  const pb = prevBest(ex, (S.draft.grip || {})[ex]), pr = pb > 0 && e1rm(ex, kg, rp) > pb + 0.05;
+  const grade = pr || rp > hi ? "S" : rp >= hi ? "A" : rp >= lo ? "B" : "";
+  const row = document.getElementById(`rp-${ex}-${i}`)?.closest(".set-row"), chk = row?.querySelector(".chk");
+  if (row && grade) {
+    row.style.setProperty("--gc", GRADE_C[grade]); row.classList.add("flash");
+    const c = chk ? chk.getBoundingClientRect() : row.getBoundingClientRect(), p = document.createElement("div");
+    p.className = "set-pop"; p.style.setProperty("--gc", GRADE_C[grade]);
+    p.innerHTML = `<b>${grade}</b>${delta ? `<span>${esc(delta)}</span>` : pr ? "<span>Record</span>" : ""}`; row.appendChild(p); setTimeout(() => p.remove(), 1600);
+    fxBurst(grade === "S" ? 45 : grade === "A" ? 265 : 190, grade === "S" ? 42 : grade === "A" ? 26 : 14, c.left + c.width / 2, c.top + c.height / 2);
+    buzz(grade === "S" ? [30, 30, 30, 30, 70] : grade === "A" ? [25, 25, 40] : 18);
+  }
+  if (rowsDone >= n) {                 // the whole exercise is done
+    fxStamp("Nettoyé", EX[ex].n.split(" (")[0], "green"); buzz([20, 40, 20, 40, 90]);
+  }
+}
+function fxCountIn(el) {             // "+325 XP": the number inside the text counts up
+  const txt = el.textContent, m = txt.match(/\d[\d\s\u202f]*/); if (!m) return; const n = Number(m[0].replace(/[\s\u202f]/g, "")); if (!(n > 1)) return;
+  let t0 = 0; const run = now => { if (!el.isConnected) return; t0 = t0 || now; const k = Math.min(1, (now - t0 - 350) / 900); if (k < 0) { el.textContent = txt.replace(m[0], "0"); requestAnimationFrame(run); return; }
+    const e = 1 - Math.pow(1 - k, 3); el.textContent = txt.replace(m[0], Math.round(n * e).toLocaleString("fr-FR")); if (k < 1) requestAnimationFrame(run); else el.textContent = txt; }; requestAnimationFrame(run);
 }
 function fxPortal(rank) {            // entering a dungeon
   buzz([20, 40, 20, 40, 90]); if (!fxActive()) return;
@@ -1915,6 +1983,7 @@ let wakeLock = null;
 async function requestWakeLock() { try { if (navigator.wakeLock) wakeLock = await navigator.wakeLock.request("screen"); } catch (e) { wakeLock = null; } }
 function releaseWakeLock() { try { wakeLock && wakeLock.release(); } catch (e) {} wakeLock = null; }
 function toast(html, kind) {
+  { const box0 = document.getElementById("toasts"); if ([...box0.children].some(t => t.innerHTML === html)) return; while (box0.children.length >= 2) box0.firstElementChild.remove(); }   // 14 Nov: no pile-up
   if (kind === "gold") { fxBurst(45, 40, innerWidth / 2, 60); buzz([25, 30, 25, 30, 25]); }
   const box = document.getElementById("toasts"); const el = document.createElement("div");
   el.className = "toast " + (kind || ""); el.innerHTML = html; box.appendChild(el);
@@ -1927,7 +1996,7 @@ function nextFx() {
   if (!f) { el.hidden = true; fxOn = false; return; }
   fxOn = true; el.className = "fx " + (f.kind || "");
   el.innerHTML = `<div class="fx-card"><div class="fx-eyebrow">${f.eyebrow}</div>${f.big ? `<div class="fx-big">${f.big}</div>` : ""}${f.mid ? `<div class="fx-mid">${f.mid}</div>` : ""}${f.sub ? `<div class="fx-sub">${f.sub}</div>` : ""}<button class="btn primary" data-act="fxNext">Continuer</button></div>`;
-  el.hidden = false; chime("level"); fxBurst(f.kind === "rank" || f.kind === "gold" ? 45 : 205, f.kind === "level" || f.kind === "rank" ? 110 : 55);
+  el.hidden = false; chime("level"); if (f.kind === "level" || f.kind === "rank") { fxFlash(); document.getElementById("toasts").innerHTML = ""; } fxBurst(f.kind === "rank" || f.kind === "gold" ? 45 : 205, f.kind === "level" || f.kind === "rank" ? 110 : 55);
 }
 function rankFx(rank) {
   const rw = S.rewards?.rank?.[rank];
@@ -2613,7 +2682,7 @@ function viewResults() {
   return `<section class="win"><h2 class="win-title">[Système]</h2><h1 class="res-title ${cls}">${title}</h1>
       <p class="sys-line" style="text-align:center">${sessLabel(d)} · ${sessName(d)}</p>
       <div class="res-grid"><div class="res-cell"><b>${d.doneReq}/${d.planned}</b><span>Séries</span></div><div class="res-cell"><b>${d.minutes}</b><span>Minutes</span></div><div class="res-cell"><b>${(d.prs || []).length}</b><span>Records</span></div></div>
-      <div class="gain"><span class="x">+${d.xp} XP</span><span class="g">+${d.gold - (d.loot && !r.opened ? d.loot.gold : 0)} or${d.loot && !r.opened ? " + coffre" : ""}</span></div>
+      <div class="gain"><span class="x" data-count>+${d.xp} XP</span><span class="g">+${d.gold - (d.loot && !r.opened ? d.loot.gold : 0)} or${d.loot && !r.opened ? " + coffre" : ""}</span></div>
       ${(() => { const sd = ["FOR", "VIT", "AGI", "INT", "PER"].map(k => [k, r.after.stats[k] - r.before.stats[k]]).filter(x => x[1] > 0); return sd.length ? `<div class="stat-gain">${sd.map(([k, v]) => `<span><b>${k}</b>+${v}</span>`).join("")}</div>` : ""; })()}
       ${r.wb && r.wb.xp > 0 ? `<p class="done-line" style="text-align:center">[${r.wb.big ? "Grosse semaine" : r.wb.perfect ? "Semaine complète" : "Bonus de semaine"}] +${r.wb.xp} XP · +${r.wb.gold} or</p>` : ""}
       ${d.valid ? "" : `<p class="muted small" style="text-align:center">Moins de la moitié des séries : ce donjon ne compte pas pour la semaine.</p>`}
@@ -3881,7 +3950,7 @@ function enterDungeon(cw, ty) {
     });
   }
   S.draft = {active: true, key: `W${cw}-${ty}`, cw, week: info.p, deload: !!info.deload, bonus: info.bonus === ty, type: ty, startedAt: new Date().toISOString(), warm: false, minus: {}, sets, grip, alt: {}};
-  state.toastedPr = {}; state.chalWon = {}; state.modal = null; state.rest = null;
+  state.toastedPr = {}; state.chalWon = {}; state.toldUp = {}; state.modal = null; state.rest = null;
   S.draft.hype = hypeFor(ty);
   saveDraft(true); chime("sys");
   fxPortal(info.W && info.W.rank); state.view = "dungeon"; requestWakeLock(); window.scrollTo(0, 0); render();
@@ -3927,21 +3996,22 @@ function toggleSet(ex, i) {
     if (rp < lo - 1) { let k2 = Math.floor(e1 / (1 + lo / 30) / step) * step;
       const ck0 = (d.chal || {})[ex]; if (ck0 != null && kg0 >= ck0) { const b0 = suggest(it, {p: d.week, deload: !!d.deload}, (d.grip || {})[ex]).kg; if (b0 > 0 && b0 < kg0) k2 = Math.max(k2, b0); }   // 13 Nov: a missed épreuve goes back to his usual load, not under it
       if (k2 > 0 && k2 < kg0) { nextKg = fmtIn(k2); toast(`[Système] ${rp} reps, sous les ${lo} visées : séries suivantes à ${fmt(k2)} kg pour rester dans la fourchette.`, "red"); } }
-    else if (curPlan().id !== "felix" && rp >= hi + 1) toast(`[Système] ${rp} reps, au-dessus des ${hi} : la prochaine fois, tu montes d'un cran.`, "ok");   // +5 kg right after a big set worked 5 times in 10: no change mid-exercise
+    else if (curPlan().id !== "felix" && rp >= hi + 1) { if (!(state.toldUp || {})[ex]) { state.toldUp = {...(state.toldUp || {}), [ex]: true}; toast(`[Système] ${rp} reps, au-dessus des ${hi} : la prochaine fois, tu montes d'un cran.`, "ok"); } }   // +5 kg right after a big set worked 5 times in 10: no change mid-exercise
     else if (rp >= hi + (felixPush(it, {p: d.week, deload: d.deload}) ? 0 : 1)) { const k2 = stepUp(kg0, step); nextKg = fmtIn(k2); toast(rp >= hi + 1 ? `[Système] ${rp} reps, bien au-dessus des ${hi} : séries suivantes à ${fmt(k2)} kg.` : `[Système] Séries suivantes à ${fmt(k2)} kg.`, "ok"); }
   }
   if (!(it && it.test && i === 0)) for (let k = i + 1; k < rows.length; k++) if (!rows[k].done && !rows[k].ek) rows[k].kg = nextKg;
   const ck = (d.chal || {})[ex];
   const pbT = ck != null && it ? prevBest(ex, (d.grip || {})[ex]) : 0;
-  if (ck != null && it && parseNum(r.kg) >= ck - 0.01 && (pbT > 0 ? e1rm(ex, parseNum(r.kg), rp) > pbT + 0.05 : rp >= it.reps[0]) && !(state.chalWon || {})[ex]) { state.chalWon = {...(state.chalWon || {}), [ex]: true}; toast(`[Épreuve réussie] ${fmt(parseNum(r.kg))} kg × ${rp} : nouveau record, +10 or, +10 XP.`, "gold"); }
+  if (ck != null && it && parseNum(r.kg) >= ck - 0.01 && (pbT > 0 ? e1rm(ex, parseNum(r.kg), rp) > pbT + 0.05 : rp >= it.reps[0]) && !(state.chalWon || {})[ex]) { state.chalWon = {...(state.chalWon || {}), [ex]: true}; fxStamp("Épreuve réussie", "+10 or · +10 XP"); if (!fxActive()) toast(`[Épreuve réussie] ${fmt(parseNum(r.kg))} kg × ${rp} : nouveau record, +10 or, +10 XP.`, "gold"); }
   const pb = prevBest(ex, (d.grip || {})[ex]), cur = e1rm(ex, parseNum(r.kg), Math.round(reps));
-  if (pb > 0 && cur > pb + 0.05 && !state.toastedPr[ex]) { state.toastedPr[ex] = true; toast(`[Record en vue] ${esc(EX[ex].n)} : 1RM estimé ${fmt(cur, 1)} kg`, "gold"); }
+  if (pb > 0 && cur > pb + 0.05 && !state.toastedPr[ex]) { state.toastedPr[ex] = true; if (!fxActive()) toast(`[Record en vue] ${esc(EX[ex].n)} : 1RM estimé ${fmt(cur, 1)} kg`, "gold"); else if (!(state.chalWon || {})[ex]) fxStamp("Nouveau record", `${EX[ex].n.split(" (")[0]} · 1RM estimé ${fmt(cur, 1)} kg`); }
   saveDraft(); chime("sys");
   const n = it ? setsTarget(it, d) : rows.length;
   const pairedSuperset = it && it.superset && ex === "triHigh";
   if (!pairedSuperset) startRest(it ? it.rest : 90);
   render();
-  if (i + 1 >= n) { const card = document.getElementById("ex-" + ex)?.nextElementSibling; if (card && card.classList.contains("ex")) setTimeout(() => card.scrollIntoView({behavior: "smooth", block: "start"}), 250); }
+  fxSetDone(ex, i, it, parseNum(r.kg), Math.round(reps), n, rows.slice(0, n).filter(x => x.done).length);
+  if (i + 1 >= n) { const card = document.getElementById("ex-" + ex)?.nextElementSibling; if (card && card.classList.contains("ex")) setTimeout(() => card.scrollIntoView({behavior: "smooth", block: "start"}), fxActive() ? 1300 : 250); }
 }
 function startRest(sec) { state.rest = {end: Date.now() + sec * 1000, total: sec * 1000, rang: false}; tick(); }
 function rollLoot() {
@@ -4041,7 +4111,9 @@ function toggleQuest(k) {
   const key = toStr(addDays(fromStr(today()), state.dayOffset));
   const on = !(S.days[key] || {})[k]; setDay(key, {[k]: on});
   if (on) chime("sys");
+  const qb = on ? document.querySelector(`[data-act=q][data-k="${k}"] .box`)?.getBoundingClientRect() : null;
   render();
+  if (qb) fxBurst(155, 18, qb.left + qb.width / 2, qb.top + qb.height / 2);
 }
 function saveSleep(key, val) {
   const s = String(val).trim();
@@ -4310,7 +4382,7 @@ const ACTIONS = {
   finishAsk: () => { state.modal = {kind: "finish", feeling: null, note: ""}; renderModal(); },
   feel: a => { state.modal.feeling = state.modal.feeling === a.dataset.f ? null : a.dataset.f; renderModal(); },
   finish: () => finishDungeon(),
-  openChest: () => { const r = state.results; if (!r || r.opened) return; r.opened = true; render(); chime("level"); setTimeout(resultsFx, 900); },
+  openChest: () => { const r = state.results; if (!r || r.opened) return; const cb = document.querySelector(".chest-btn")?.getBoundingClientRect(); r.opened = true; render(); chime("level"); if (cb) fxBurst(45, 70, cb.left + cb.width / 2, cb.top + cb.height / 3); buzz([40, 30, 40, 30, 120]); setTimeout(resultsFx, 900); },
   leaveResults: () => { state.results = null; state.view = "status"; window.scrollTo(0, 0); render(); },
   fxNext: () => nextFx(),
   buy: a => buy(a.dataset.id),
@@ -4410,7 +4482,7 @@ function tick() {
   if (state.rest && state.view === "dungeon") {
     const left = state.rest.end - now; rb.hidden = false;
     if (left <= 0) {
-      if (!state.rest.rang) { state.rest.rang = true; chime("rest"); try { navigator.vibrate && navigator.vibrate([120, 80, 120]); } catch (e) {} }
+      if (!state.rest.rang) { state.rest.rang = true; chime("rest"); }
       rb.classList.add("done"); document.getElementById("rbTime").textContent = "C'est reparti"; document.getElementById("rbLabel").textContent = "Repos terminé"; document.getElementById("rbFill").style.width = "100%";
       if (left < -10000) { state.rest = null; rb.hidden = true; }
     } else {
