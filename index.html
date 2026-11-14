@@ -696,6 +696,30 @@ body.fx-low::after,.fx-low #fxCanvas,.fx-low .scan,.fx-low .gate-fx{display:none
 @keyframes restPulse{50%{box-shadow:0 -6px 30px rgba(94,240,184,.55);background:rgba(10,40,34,.97)}}
 .fx-low .set-pop,.fx-low .card-stamp,.fx-low .stamp::before,.fx-low .flash-white{display:none}
 .fx-low .shake,.fx-low .restbar.done{animation:none}
+
+.chest-btn{width:200px;height:175px;color:var(--tc,var(--glow))}
+.chest-btn::before{content:"";position:absolute;left:50%;top:46%;width:340px;height:340px;translate:-50% -50%;border-radius:50%;pointer-events:none;opacity:0;background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--tc) 45%,transparent) 0 5deg,transparent 5deg 16deg);-webkit-mask:radial-gradient(circle,#000 0,transparent 62%);mask:radial-gradient(circle,#000 0,transparent 62%);transition:opacity .4s .25s}
+.chest-btn.open::before{opacity:1;animation:rays 9s linear infinite}
+.chest-svg,.chest-img{position:relative;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 14px color-mix(in srgb,var(--tc) 55%,transparent))}
+.chest-img{object-fit:contain;-webkit-mask:radial-gradient(circle,#000 58%,transparent 72%);mask:radial-gradient(circle,#000 58%,transparent 72%)}
+.chest-btn:not(.open){animation:chestFloat 2.6s ease-in-out infinite}
+@keyframes chestFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.chest-btn.shake{animation:chestShake .65s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes chestShake{10%,90%{transform:translate3d(-2px,0,0) rotate(-1deg)}20%,80%{transform:translate3d(4px,0,0) rotate(2deg)}30%,50%,70%{transform:translate3d(-6px,-2px,0) rotate(-3deg)}40%,60%{transform:translate3d(6px,-3px,0) rotate(3deg)}}
+.chest-svg .c-lid{transform-box:view-box;transform-origin:28px 82px;transition:transform .6s cubic-bezier(.25,1.6,.45,1)}
+.chest-btn.open .c-lid{transform:translate(-6px,-30px) rotate(-22deg)}
+.chest-svg .c-light{opacity:0;transition:opacity .35s .15s}
+.chest-btn.open .c-light{opacity:1;animation:chestLight 1.8s ease-in-out infinite}
+@keyframes chestLight{50%{opacity:.7}}
+.chest-svg .c-rune,.chest-svg .c-key{animation:runePulse 1.8s ease-in-out infinite}
+@keyframes runePulse{50%{opacity:.45}}
+.chest-btn.open .c-key{opacity:0}
+.chest-btn.open{animation:chestPop .55s cubic-bezier(.2,1.5,.4,1)}
+@keyframes chestPop{0%{transform:scale(.92)}60%{transform:scale(1.08)}100%{transform:none}}
+.gain span{white-space:nowrap}
+.loot{animation:lootIn .6s .2s cubic-bezier(.2,1.4,.4,1) both;font-size:20px}
+@keyframes lootIn{0%{opacity:0;transform:scale(1.8)}100%{opacity:1;transform:none}}
+.fx-low .chest-btn,.fx-low .chest-btn::before,.fx-low .chest-svg *{animation:none!important}
 </style>
 
 <div id="app" class="wrap"></div>
@@ -1911,7 +1935,7 @@ function fxCount(el) {               // numbers count up
 }
 function fxAfterRender() {
   fxInit(); document.body.classList.toggle("fx-low", !fxActive());
-  const changed = fxState.lastView !== state.view; fxState.lastView = state.view; if (!changed || !fxActive()) return;
+  const changed = fxState.lastView !== state.view; fxState.lastView = state.view; if (changed) fxStampClear(); if (!changed || !fxActive()) return;
   const app = document.getElementById("app");
   [...app.children].forEach((el, i) => { el.classList.add("fx-in"); el.style.animationDelay = (i * 75) + "ms" + (el.classList.contains("win") ? ", " + (i * 75 + 220) + "ms" : "");
     setTimeout(() => { el.classList.remove("fx-in"); el.style.animationDelay = ""; }, 1500 + i * 75); });   // safety net: a paused animation never hides the screen
@@ -1921,14 +1945,43 @@ function fxAfterRender() {
   if (state.view === "results" && state.results) { const r = state.results; if (r.doc.full) { setTimeout(() => fxBurst(205, 90), 450); buzz([30, 40, 30, 40, 120]); }
     if (r.wb && r.wb.perfect) fxStamp(r.wb.big ? "Grosse semaine" : "Semaine complète", "[Bonus du Système]", "blue"); }
 }
-var fxStampAt = 0;
+var fxStampAt = 0, fxStampTimers = [];
+function fxStampClear() { fxStampTimers.forEach(clearTimeout); fxStampTimers = []; fxStampAt = 0; document.querySelectorAll(".stamp").forEach(x => x.remove()); }   // a new screen starts clean
 function fxStamp(text, sub, cls) {      // a big stamp in the middle of the screen (record, épreuve, full week); never on top of another one
   if (!fxActive()) return; const wait = Math.max(0, fxStampAt - Date.now()); fxStampAt = Date.now() + wait + 1300;
-  setTimeout(() => { const d = document.createElement("div"); d.className = "stamp " + (cls || ""); d.innerHTML = (sub ? `<small>${esc(sub)}</small>` : "") + esc(text);
-    document.body.appendChild(d); fxBurst(cls === "blue" ? 195 : cls === "green" ? 155 : 45, 60); setTimeout(() => d.remove(), 1900); }, wait);
+  fxStampTimers.push(setTimeout(() => { const d = document.createElement("div"); d.className = "stamp " + (cls || ""); d.innerHTML = (sub ? `<small>${esc(sub)}</small>` : "") + esc(text);
+    document.body.appendChild(d); fxBurst(cls === "blue" ? 195 : cls === "green" ? 155 : 45, 60); setTimeout(() => d.remove(), 1900); }, wait));
 }
 function fxFlash() { if (!fxActive()) return; const d = document.createElement("div"); d.className = "flash-white"; document.body.appendChild(d); setTimeout(() => d.remove(), 600);
   const a = document.getElementById("app"); a.classList.remove("shake"); void a.offsetWidth; a.classList.add("shake"); setTimeout(() => a.classList.remove("shake"), 500); }
+const CHEST_SVG = `<svg class="chest-svg" viewBox="0 0 200 175" aria-hidden="true"><defs>
+<linearGradient id="chW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a3322"/><stop offset=".55" stop-color="#2c1d12"/><stop offset="1" stop-color="#160e08"/></linearGradient>
+<linearGradient id="chL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a3f2a"/><stop offset="1" stop-color="#2a1b10"/></linearGradient>
+<linearGradient id="chI" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8d9bb0"/><stop offset=".45" stop-color="#3a4452"/><stop offset="1" stop-color="#171c25"/></linearGradient>
+<linearGradient id="chG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff1b8"/><stop offset=".4" stop-color="#f5c95a"/><stop offset="1" stop-color="#8a5a12"/></linearGradient>
+<radialGradient id="chLight" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="currentColor" stop-opacity=".9"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient>
+<filter id="chGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<ellipse cx="100" cy="166" rx="74" ry="8" fill="#000" opacity=".55"/>
+<ellipse class="c-light" cx="100" cy="82" rx="78" ry="34" fill="url(#chLight)"/>
+<g class="c-body">
+<rect x="28" y="80" width="144" height="78" rx="6" fill="url(#chW)" stroke="#0b0705" stroke-width="2"/>
+<path d="M30 99H170M30 118H170M30 137H170" stroke="#120a05" stroke-width="2" opacity=".8"/>
+<path d="M34 92H166M34 111H166M34 130H166" stroke="#6a4a30" stroke-width="1" opacity=".35"/>
+<rect x="28" y="80" width="144" height="11" fill="url(#chI)"/><rect x="28" y="147" width="144" height="11" rx="3" fill="url(#chI)"/>
+<rect x="44" y="80" width="13" height="78" fill="url(#chI)"/><rect x="143" y="80" width="13" height="78" fill="url(#chI)"/>
+<g fill="#c9d3e0"><circle cx="50.5" cy="96" r="2"/><circle cx="50.5" cy="120" r="2"/><circle cx="50.5" cy="142" r="2"/><circle cx="149.5" cy="96" r="2"/><circle cx="149.5" cy="120" r="2"/><circle cx="149.5" cy="142" r="2"/></g>
+<path class="c-rune" d="M66 100l6-6 6 6-6 6zM122 100l6-6 6 6-6 6zM66 134h12M122 134h12M72 118v8M128 118v8" fill="none" stroke="currentColor" stroke-width="2" filter="url(#chGlow)"/>
+<rect x="86" y="86" width="28" height="34" rx="5" fill="url(#chG)" stroke="#6b4510" stroke-width="1.5"/>
+<circle cx="100" cy="100" r="4.5" fill="#1a0f04"/><path d="M98.4 102.5h3.2l1.2 9h-5.6z" fill="#1a0f04"/>
+<circle class="c-key" cx="100" cy="100" r="3" fill="currentColor" filter="url(#chGlow)"/></g>
+<g class="c-lid">
+<path d="M28 82V56Q28 26 100 22Q172 26 172 56V82Z" fill="url(#chL)" stroke="#0b0705" stroke-width="2"/>
+<path d="M30 58Q32 34 100 30Q168 34 170 58" fill="none" stroke="#6a4a30" stroke-width="1.2" opacity=".45"/>
+<path d="M28 72H172" stroke="#120a05" stroke-width="2" opacity=".7"/>
+<path d="M44 82V44Q46 32 57 29V82Z" fill="url(#chI)"/><path d="M156 82V44Q154 32 143 29V82Z" fill="url(#chI)"/>
+<rect x="28" y="74" width="144" height="9" fill="url(#chI)"/>
+<path class="c-rune" d="M78 50Q100 40 122 50M86 60h28" fill="none" stroke="currentColor" stroke-width="2" filter="url(#chGlow)"/>
+<g fill="#c9d3e0"><circle cx="50.5" cy="50" r="2"/><circle cx="50.5" cy="66" r="2"/><circle cx="149.5" cy="50" r="2"/><circle cx="149.5" cy="66" r="2"/></g></g></svg>`;
 const GRADE_C = {S: "var(--gold)", A: "var(--violet)", B: "var(--cyan)"};
 function fxSetDone(ex, i, it, kg, rp, n, rowsDone) {   // the satisfying part of validating a set
   if (!it || !fxActive()) return;
@@ -2676,8 +2729,8 @@ function viewResults() {
   const title = d.full ? "Donjon nettoyé" : d.valid ? "Donjon validé" : "Retraite";
   const TC = {"Commun": "var(--glow)", "Rare": "var(--blue)", "Épique": "var(--violet)", "Légendaire": "var(--gold)"};
   const prs = (d.prs || []).map(p => `<li><b>${esc(EX[p.ex]?.n || p.ex)}</b><br>1RM estimé ${fmt(p.e1, 1)} kg <span class="muted">(avant ${fmt(p.prev, 1)})</span></li>`).join("");
-  const chest = d.loot ? `<div class="chest"><button class="chest-btn ${r.opened ? "open" : ""}" data-act="openChest" style="--tc:${TC[d.loot.tier]}" aria-label="Ouvrir le coffre"><span class="chest-box"></span><span class="chest-lid"></span><span class="chest-lock"></span></button>
-      ${r.opened ? `<p class="loot" style="--tc:${TC[d.loot.tier]}">Coffre ${d.loot.tier} : +${d.loot.gold} or</p>` : `<button class="btn gold" data-act="openChest">Ouvrir le coffre</button>`}</div>` : "";
+  const chest = d.loot ? `<div class="chest"><button class="chest-btn ${r.opened ? "open" : ""}" data-act="${r.opened ? "openChest" : "chestShake"}" style="--tc:${TC[d.loot.tier]}" aria-label="Ouvrir le coffre">${(window.GL_IMGS || []).includes("chest_closed") ? `<img class="chest-img" src="img/${r.opened ? "chest_open" : "chest_closed"}.webp?v=${IMG_V}" alt="">` : CHEST_SVG}</button>
+      ${r.opened ? `<p class="loot" style="--tc:${TC[d.loot.tier]}">Coffre ${d.loot.tier} : +${d.loot.gold} or</p>` : `<button class="btn gold" data-act="chestShake">Ouvrir le coffre</button>`}</div>` : "";
   const newAch = r.after.ach.filter(a => !r.before.achIds.has(a.id));
   return `<section class="win"><h2 class="win-title">[Système]</h2><h1 class="res-title ${cls}">${title}</h1>
       <p class="sys-line" style="text-align:center">${sessLabel(d)} · ${sessName(d)}</p>
@@ -4382,6 +4435,9 @@ const ACTIONS = {
   finishAsk: () => { state.modal = {kind: "finish", feeling: null, note: ""}; renderModal(); },
   feel: a => { state.modal.feeling = state.modal.feeling === a.dataset.f ? null : a.dataset.f; renderModal(); },
   finish: () => finishDungeon(),
+  chestShake: () => {                 // the chest trembles, then opens
+    const b = document.querySelector(".chest-btn"); if (!b || b.classList.contains("shake") || state.results?.opened) return;
+    if (!fxActive()) return ACTIONS.openChest(); b.classList.add("shake"); buzz([15, 30, 15, 30, 15]); setTimeout(() => ACTIONS.openChest(), 650); },
   openChest: () => { const r = state.results; if (!r || r.opened) return; const cb = document.querySelector(".chest-btn")?.getBoundingClientRect(); r.opened = true; render(); chime("level"); if (cb) fxBurst(45, 70, cb.left + cb.width / 2, cb.top + cb.height / 3); buzz([40, 30, 40, 30, 120]); setTimeout(resultsFx, 900); },
   leaveResults: () => { state.results = null; state.view = "status"; window.scrollTo(0, 0); render(); },
   fxNext: () => nextFx(),
