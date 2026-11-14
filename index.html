@@ -1526,7 +1526,7 @@ function weekBonus(cw) {
   const c = weekCounts(cw), out = {xp: 0, gold: 0, perfect: false, big: false};
   if (!c.planned) return out;
   if (c.main >= c.planned) { out.perfect = true; out.xp += 200; out.gold += 150; }
-  else if (c.planned >= 4 && c.all >= c.planned - 1) { out.xp += 80; out.gold += 50; }
+  else if (!strictWeek(cw) && c.planned >= 4 && c.all >= c.planned - 1) { out.xp += 80; out.gold += 50; }   // no more consolation for a missed one
   if (out.perfect && c.bonusDone) { out.big = true; out.xp += 100; out.gold += 75; }
   return out;
 }
@@ -1549,10 +1549,12 @@ function weekPlan(cw) {
   return info.types.map(ty => mk(ty, false)).concat(info.bonus ? [mk(info.bonus, true)] : []);
 }
 const sickDays = cw => [...Array(7)].filter((_, i) => S.days[toStr(addDays(weekStart(cw), i))]?.sick).length;
+const STRICT_FROM = "2026-11-16", strictWeek = cw => cw >= 1 && toStr(weekStart(cw)) >= STRICT_FROM;
 function requiredSessions(info) {
   if (!info || !info.types.length) return 0;
   const created = S.profile?.createdDay;
-  let want = info.deload ? 2 : info.types.length === 1 ? 1 : info.custom ? Math.max(1, info.types.length - 1) : Math.max(3, info.types.length - 1);   // one session can always be missed
+  let want = strictWeek(info.cw) ? info.types.length   // 14 Nov: "une séance loupée est considérée comme pénalité"
+    : info.deload ? 2 : info.types.length === 1 ? 1 : info.custom ? Math.max(1, info.types.length - 1) : Math.max(3, info.types.length - 1);   // before: one session could always be missed
   if (created && !info.deload) want = Math.min(want, info.types.filter(ty => plannedDate(info.cw, ty) >= created).length);   // joined mid-week
   return want > 0 ? Math.max(1, want - sickDays(info.cw)) : 0;   // each sick day: one session less required
 }
@@ -2014,7 +2016,7 @@ function weekReport(cw) {
   if (w1) lines.push(`<li>Poids : <b>${fmt(w1, 1)} kg</b> en moyenne${w0 ? ` (${w1 - w0 >= 0 ? "+" : "−"}${fmt(Math.abs(w1 - w0), 1)} kg)` : ""}</li>`);
   if (sleep) lines.push(`<li>Sommeil : <b>${fmt(sleep, 1)} h</b> en moyenne (objectif ${fmt(sleepT, 1)} h)</li>`);
   const obj = [];
-  if (req && done < req) obj.push(`Fais tes ${req} donjons : c'est la base de tout le reste.`);
+  if (req && done < req) obj.push(`Fais tes ${requiredSessions(weekInfo(cw + 1)) || req} donjons : c'est la base de tout le reste.`);   // the coming week's count (all of them from 16 Nov)
   if (fd.length >= 3 && pr < pt * 0.9) obj.push(`Protéines : au moins ${fmt(roundTo(pt, 5), 0)} g chaque jour (tu étais à ${fmt(pr, 0)} g).`);
   if (fd.length >= 3 && goal === "gain" && kc < kt * 0.9) obj.push(`Mange au moins ${fmt(roundTo(kt, 50), 0)} kcal par jour : il t'en manquait ${fmt(roundTo(kt - kc, 50), 0)} en moyenne.`);
   if (fd.length >= 3 && goal !== "gain" && kc > kt * 1.1) obj.push(`Reste autour de ${fmt(roundTo(kt, 50), 0)} kcal par jour (tu étais à ${fmt(kc, 0)}).`);
@@ -2269,7 +2271,7 @@ function weekWin() {
     <div class="xpbar thin" aria-hidden="true"><i style="width:${Math.round(c.main / c.planned * 100)}%"></i></div>
     <ul class="rules"><li>${sched}</li>
       ${info.bonus ? `<li>Grosse semaine, si tu veux : un 5e donjon (${TYPES[info.bonus].name} en bonus), avec Jambes le mercredi et Haut le vendredi. +100 XP et +75 or de plus si toute la semaine est faite.</li>` : ""}
-      <li>Tous les donjons : +200 XP et +150 or${c.planned >= 4 ? `. ${c.planned - 1} donjons : +80 XP et +50 or` : ""}.</li>
+      <li>Tous les donjons : +200 XP et +150 or${c.planned >= 4 && !strictWeek(cw) ? `. ${c.planned - 1} donjons : +80 XP et +50 or` : ""}.</li>
       ${reqd ? `<li class="danger">${reqd === 1 ? "Aucun donjon" : "Moins de " + reqd + " donjons"} cette semaine : zone de pénalité.</li>` : ""}
       ${skipsInWeek(cw) ? `<li>Laissez-passer utilisé : ${plural(skipsInWeek(cw), "séance")} de moins exigée${skipsInWeek(cw) > 1 ? "s" : ""}.</li>` : ""}
       ${sickDays(cw) ? `<li>${plural(sickDays(cw), "jour")} de maladie : ${plural(reqd, "donjon")} suffi${reqd > 1 ? "sent" : "t"} cette semaine pour éviter la pénalité.</li>` : ""}
@@ -2338,7 +2340,7 @@ function grimoire() {
       <li><b>Vendredi : pecs / triceps en TECHNIQUE.</b> Les pecs une 2e fois, même logique : couché technique puis incliné barre. Les triceps vont à l'échec. Puis 3 séries de shrugs lourds et 3 de Y-raise : tes trapèzes travaillent 2 fois par semaine.</li>
       <li>Force puis technique : la séance lourde fait progresser les charges, la séance légère ajoute du volume sans t'écraser, et tu récupères pour le lundi suivant. C'est la logique des programmes de Nippard (une séance lourde, une séance plus volumineuse par muscle) et celle qui t'a fait progresser l'an dernier.</li>
       <li>Repos : 2-3 min sur les gros exercices, <b>90 s minimum sur tous les autres</b>. Sous 90 s, le muscle n'a pas récupéré et tu perds des reps.</li>
-      <li>Samedi et dimanche : repos, tout se fait du lundi au vendredi. Un donjon peut se faire un autre jour (bouton « Changer de jour »). Une séance peut sauter sans pénalité : 4 sur 5 suffisent.</li></ul></div></details>
+      <li>Samedi et dimanche : repos, tout se fait du lundi au vendredi. Un donjon peut se faire un autre jour (bouton « Changer de jour »). ${today() >= STRICT_FROM ? "Chaque donjon compte : un seul donjon manqué dans la semaine, c'est la zone de pénalité." : "Une séance peut sauter sans pénalité : 4 sur 5 suffisent."}</li></ul></div></details>
     <details class="fold"><summary>La méthode (Jeff Nippard)</summary><div><ul class="rules">
       <li>Exercices choisis d'après ses classements : en priorité ceux qui étirent le muscle sous la charge (incliné, écarté poulie, extension au-dessus de la tête, pull-over…).</li>
       <li>Pecs et dos deux fois par semaine : environ 16 séries de pecs et 16 de dos par semaine.</li>
