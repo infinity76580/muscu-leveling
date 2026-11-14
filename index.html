@@ -15,7 +15,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Chakra+Petch:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap">
 <style>
 /* Layout: one narrow column of glowing "System" windows over a dark void, bottom tab bar;
    a dungeon (gym session) runs full screen with a sticky header and a rest-timer bar. Single dark world on purpose. */
@@ -720,11 +720,410 @@ body.fx-low::after,.fx-low #fxCanvas,.fx-low .scan,.fx-low .gate-fx{display:none
 .loot{animation:lootIn .6s .2s cubic-bezier(.2,1.4,.4,1) both;font-size:20px}
 @keyframes lootIn{0%{opacity:0;transform:scale(1.8)}100%{opacity:1;transform:none}}
 .fx-low .chest-btn,.fx-low .chest-btn::before,.fx-low .chest-svg *{animation:none!important}
+
+/* ===== 14 Nov (soir) : Hunter OS, refonte complète validée sur maquette ===== */
+:root{--void:#05070d;--bg:#05070d;--glass:rgba(13,20,38,.72);--edge:rgba(140,200,255,.16);--edge2:rgba(140,200,255,.32);--cyan:#6fe3ff;--blue:#3d8bff;--violet:#9b7bff;--gold:#ffcf5c;--ok:#4ff0b0;--red:#ff4d6a;--red-soft:#ff8a9d;--orange:#ff9d4a;--glow:#9fe6ff;--text:#e9f1ff;--muted:#8d9bb8;--dim:#56627d;--faint:rgba(140,200,255,.10);--line:rgba(140,200,255,.28);--rad:18px;
+  --r-E:#a3aec2;--r-D:#4ff0b0;--r-C:#3d8bff;--r-B:#9b7bff;--r-A:#ff9d4a;--r-S:#ffcf5c;--font-display:"Rajdhani","Chakra Petch","Segoe UI",system-ui,sans-serif;--gx:max(16px,env(safe-area-inset-left,0px));--gy:max(16px,env(safe-area-inset-right,0px))}
+body{background:var(--bg)}
+body::before{background:radial-gradient(90% 45% at 50% -5%,rgba(61,139,255,.15),transparent 70%),radial-gradient(70% 40% at 85% 105%,rgba(155,123,255,.12),transparent 70%)}
+body.penalty::before{background:radial-gradient(90% 45% at 50% -5%,rgba(255,60,90,.2),transparent 70%),radial-gradient(70% 40% at 85% 105%,rgba(255,60,90,.1),transparent 70%)}
+body::after{opacity:.55}
+.scan{display:none}
+.wrap{gap:16px;padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))}
+/* glass panels, no corner brackets */
+.win{border-radius:var(--rad);background:var(--glass);border:1px solid var(--edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 10px 30px rgba(0,0,0,.35);padding:16px 14px;overflow:hidden}
+.win::before,.win::after{display:none}
+.win-title{justify-content:flex-start;text-align:left;font:700 13px/1.2 var(--font-display);letter-spacing:.24em;color:#cfe6ff;text-shadow:none;gap:10px}
+.win-title::before{content:"";flex:none;width:7px;height:7px;min-width:0;background:var(--cyan);box-shadow:0 0 10px var(--cyan);transform:rotate(45deg)}
+.win-title::after{background:linear-gradient(90deg,var(--edge2),transparent)}
+.win.red{background:linear-gradient(180deg,rgba(60,8,22,.86),rgba(22,4,10,.9));border-color:rgba(255,77,106,.5);box-shadow:0 0 30px rgba(255,40,70,.18)}
+.win.red .win-title{color:var(--red-soft)}.win.red .win-title::before{background:var(--red);box-shadow:0 0 10px var(--red)}
+.win.red .win-title::after{background:linear-gradient(90deg,rgba(255,77,106,.5),transparent)}
+.win.resume{border-color:rgba(255,207,92,.5);box-shadow:0 0 24px rgba(255,207,92,.15)}
+.fx-in{animation:none}
+.sys-line{font:600 15px var(--font-display);letter-spacing:.03em;color:var(--glow)}
+/* top bar */
+.top{padding-top:env(safe-area-inset-top,0px)}
+.brand-mark{font:700 13px var(--font-display);letter-spacing:.42em;color:#fff;text-shadow:0 0 12px rgba(111,227,255,.7)}
+.save{font:600 10px var(--font-display);letter-spacing:.18em;color:var(--ok)}
+.save.local{color:var(--orange)}
+.icon-btn{width:40px;height:40px;border-radius:12px;background:rgba(10,16,30,.55);border:1px solid var(--edge);color:#cfe6ff;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.icon-btn svg{width:19px;height:19px}
+/* buttons, fields, small controls */
+.btn{border-radius:14px;font:700 14px/1.15 var(--font-display);letter-spacing:.14em;background:rgba(111,227,255,.07);border:1px solid var(--edge2);color:#dff3ff}
+.btn:hover{background:rgba(111,227,255,.13)}
+.btn.primary{color:#04101f;background:linear-gradient(180deg,#a8f1ff,#4fc6ff);border-color:transparent;box-shadow:0 0 0 1px rgba(255,255,255,.45) inset,0 8px 26px rgba(79,198,255,.42);text-shadow:none}
+.btn.gold{color:#1d1204;background:linear-gradient(180deg,#ffe7a3,#f5b93a);border-color:transparent;box-shadow:0 0 0 1px rgba(255,255,255,.4) inset,0 8px 24px rgba(245,185,58,.35)}
+.btn.danger{color:#fff;background:linear-gradient(180deg,#ff7088,#e3304f);border-color:transparent;box-shadow:0 8px 24px rgba(255,77,106,.35)}
+.btn.ghost{background:transparent;border-color:var(--edge)}
+.btn.sm{border-radius:11px}
+.btn[disabled]{opacity:.4}
+input,select,textarea{border-radius:12px;background:rgba(5,9,18,.72);border:1px solid var(--edge2)}
+.seg{gap:4px;padding:4px;border-radius:14px;background:rgba(8,12,24,.6);border:1px solid var(--edge)}
+.seg button{border-radius:10px;min-height:36px;padding:8px 14px;letter-spacing:.12em}
+.seg button.on{background:rgba(111,227,255,.14);color:#fff;box-shadow:inset 0 0 0 1px var(--edge2)}
+.tag{border-radius:7px;background:rgba(140,200,255,.06);border-color:var(--edge);color:#bcd0ee}
+.reading{border:1px solid var(--edge2);border-radius:12px;background:rgba(111,227,255,.06);font-size:15px}
+.reading.good{border-color:rgba(79,240,176,.45);background:rgba(79,240,176,.07)}
+.reading.warn{border-color:rgba(255,157,74,.45);background:rgba(255,157,74,.07)}
+.sugg{border:1px solid var(--edge2);border-radius:12px;background:rgba(111,227,255,.06)}
+.sugg.up{border-color:rgba(79,240,176,.45);background:rgba(79,240,176,.07)}
+.sugg.test{border-color:rgba(255,207,92,.45);background:rgba(255,207,92,.07)}
+.malus{border:1px solid rgba(255,77,106,.45);border-radius:12px;background:rgba(255,77,106,.08)}
+.gap-warn{border:1px solid rgba(255,157,74,.45);border-radius:12px}
+.empty{border-radius:14px;border-color:var(--edge)}
+.xpbar,.kbar{border:0;border-radius:999px;background:rgba(140,200,255,.1)}
+.xpbar i,.kbar i{border-radius:999px}
+.sleep-pick button,.qty-chips button,.day-pick button,.feel button,.grip-b button,.keep,.x{border-radius:12px;border-color:var(--edge2);background:rgba(10,16,32,.6)}
+.sleep-pick button.on,.qty-chips button.on,.day-pick button.on,.feel button.on{background:rgba(111,227,255,.16);border-color:var(--cyan)}
+details.fold{border-top-color:var(--faint)}
+details.fold summary::after{color:var(--cyan)}
+.log{border-radius:14px;border-color:var(--edge);background:rgba(10,16,32,.55)}
+.ph-grid img,.ph-cmp img,.ph-empty{border-radius:12px}
+.food-res{border-radius:12px;border-color:var(--edge)}
+.cheer{border-radius:999px}
+.toast{border-radius:14px;background:rgba(8,12,24,.94);border:1px solid var(--edge2);font:600 14px/1.35 var(--font-body)}
+.toast.gold{border-color:var(--gold)}.toast.ok{border-color:var(--ok)}.toast.red{border-color:var(--red)}
+.modal{background:rgba(2,4,9,.78)}
+.modal>.win{border-radius:24px;background:rgba(10,15,30,.97);border-color:var(--edge2);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.modal .win .m-actions{background:linear-gradient(180deg,rgba(10,15,30,.94),rgba(10,15,30,.99) 30%);border-top-color:var(--faint)}
+.modal .win .sticky-q{background:rgba(10,15,30,.97)}
+.m-rw{display:block;width:132px;height:132px;margin:2px auto 14px;border-radius:18px;object-fit:cover;border:1px solid color-mix(in srgb,var(--tc,#ffcf5c) 55%,transparent);box-shadow:0 0 26px color-mix(in srgb,var(--tc,#ffcf5c) 35%,transparent)}
+.ring-fg{stroke:var(--cyan);filter:drop-shadow(0 0 5px rgba(111,227,255,.6))}
+.ring.ok .ring-fg{stroke:var(--ok)}
+.pday{border-radius:12px;border-color:var(--edge);background:rgba(10,16,32,.6)}
+.slot-row .btn{border-radius:12px}
+/* section heads */
+.sec{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 2px -6px}
+.sec h3{margin:0;font:700 13px var(--font-display);letter-spacing:.24em;text-transform:uppercase;color:#cfe6ff}
+.sec-a{background:none;border:0;padding:6px 0;font:600 13px var(--font-body);color:var(--cyan);cursor:pointer}
+.sec-n{font:700 13px var(--font-display);letter-spacing:.06em;color:var(--cyan)}
+/* status hero = character sheet */
+.hero,.phero,.shophero{position:relative;overflow:hidden;margin:-12px calc(-1*var(--gy)) -4px calc(-1*var(--gx))}
+.hero{height:clamp(390px,112vw,480px)}
+.hero-bg{position:absolute;inset:0;overflow:hidden}
+.hero-bg::before{content:"";position:absolute;inset:-6%;background:var(--img) center 28%/cover no-repeat;animation:kenburns 26s ease-in-out infinite alternate}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(5,7,13,.5) 0,rgba(5,7,13,0) 22%,rgba(5,7,13,.45) 58%,var(--bg) 99%)}
+.hero .top,.phero .top,.shophero .top{position:absolute;z-index:3;top:0;left:0;right:0;padding:calc(12px + env(safe-area-inset-top,0px)) var(--gy) 0 var(--gx)}
+.hero-in{position:absolute;z-index:2;left:var(--gx);right:var(--gy);bottom:14px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.hero-id{min-width:0}
+.pname{font:700 clamp(34px,11vw,48px)/.9 var(--font-display);letter-spacing:.04em;text-transform:uppercase;color:#fff;text-shadow:0 0 24px rgba(111,227,255,.45);overflow-wrap:anywhere}
+.ptitle{margin-top:6px;font:500 13px var(--font-body);color:#b7c4dc}.ptitle b{color:#fff;font-weight:600}
+.rankrow{display:flex;align-items:center;gap:10px;margin-top:12px}
+.hex{position:relative;flex:none;width:40px;height:44px;display:grid;place-items:center}
+.hex svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.hex path{fill:color-mix(in srgb,var(--rc) 16%,rgba(5,7,13,.75));stroke:var(--rc);stroke-width:2;filter:drop-shadow(0 0 6px var(--rc))}
+.hex b{position:relative;font:700 20px var(--font-display);color:var(--rc);text-shadow:0 0 10px var(--rc)}
+.hex.sm{width:32px;height:36px}.hex.sm b{font-size:15px}
+.ranklbl{font:700 12px var(--font-display);letter-spacing:.16em;text-transform:uppercase;color:var(--rc)}
+.ranklbl small{display:block;font:500 11px var(--font-body);letter-spacing:0;text-transform:none;color:#a9b6cf}
+.lvl{position:relative;width:104px;height:104px;flex:none}
+.lvl svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.lv-bg{fill:rgba(5,7,13,.5);stroke:rgba(140,200,255,.16);stroke-width:6}
+.lv-fg{fill:none;stroke:var(--cyan);stroke-width:6;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(111,227,255,.8))}
+.lvl .t{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.lvl .t small{font:700 9px var(--font-display);letter-spacing:.3em;color:#a9b6cf}
+.lvl .t b{font:700 44px/.9 var(--font-display);color:#fff;text-shadow:0 0 18px rgba(111,227,255,.8);font-variant-numeric:tabular-nums}
+.lvl .t i{font:600 10px var(--font-body);font-style:normal;color:var(--cyan)}
+.chips2{display:flex;gap:8px;flex-wrap:wrap;margin-top:-4px}
+.chip2{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:var(--glass);border:1px solid var(--edge);font:600 13px var(--font-display);letter-spacing:.04em;color:#dbe6fb}
+.chip2.gold b{color:var(--gold);font-size:15px}
+.chip2 .fire{color:var(--orange);font-size:10px}
+.stats3{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:-4px}
+.stats3 .st{position:relative;overflow:hidden;padding:10px 4px 9px;border-radius:14px;background:var(--glass);border:1px solid var(--edge);text-align:center}
+.stats3 .st small{display:block;font:700 10px var(--font-display);letter-spacing:.2em;color:var(--cyan)}
+.stats3 .st b{display:block;font:700 24px/1.05 var(--font-display);font-variant-numeric:tabular-nums}
+.stats3 .st i{position:absolute;left:0;bottom:0;height:3px;width:var(--w);background:linear-gradient(90deg,var(--blue),var(--cyan));box-shadow:0 0 8px var(--cyan)}
+.st-how{margin-top:-8px;border-top:0;padding-top:0}
+.st-how summary{font-size:12px;color:var(--muted)}
+/* dungeon of the day */
+.today-gate{display:flex;flex-direction:column;gap:14px}
+.dgate{position:relative;min-height:240px;border-radius:var(--rad);overflow:hidden;display:flex;align-items:flex-end;border:1px solid color-mix(in srgb,var(--rc,#6fe3ff) 40%,rgba(140,200,255,.2));box-shadow:0 18px 40px rgba(0,0,0,.45),0 0 30px color-mix(in srgb,var(--rc,#3d8bff) 18%,transparent)}
+.dgate .art,.runhead .art,.phero .art,.shophero .art,.brief-top .art{position:absolute;inset:0;height:auto;margin:0;border:0;box-shadow:none}
+.dgate .art::after{background:linear-gradient(180deg,rgba(5,7,13,0) 18%,rgba(5,7,13,.8) 68%,rgba(5,7,13,.96))}
+.dgate-in{position:relative;z-index:2;width:100%;padding:96px 16px 12px}
+.tagrank{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;font:700 11px var(--font-display);letter-spacing:.16em;text-transform:uppercase;color:var(--rc,var(--cyan));background:color-mix(in srgb,var(--rc,#6fe3ff) 16%,rgba(5,7,13,.65));border:1px solid color-mix(in srgb,var(--rc,#6fe3ff) 60%,transparent)}
+.dgate h2,.rh-in h2,.brief-h h2{margin:8px 0 0;font:700 28px/1 var(--font-display);letter-spacing:.05em;text-transform:uppercase;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.6)}
+.dgate p{margin-top:4px;font:500 13px var(--font-body);color:#b9c7e2}
+.dgate .sub{color:#dbe6fb}
+.dgate .gap-warn{margin-top:8px}
+.gate-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+.dgate .rewards{display:flex;flex-wrap:wrap;gap:2px 10px;font:700 14px var(--font-display);letter-spacing:.03em}
+.dgate .rewards .rx{color:var(--cyan)}.dgate .rewards .rg{color:var(--gold)}
+.cta{flex:none;position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border:0;border-radius:14px;font:700 15px var(--font-display);letter-spacing:.22em;text-transform:uppercase;color:#04101f;background:linear-gradient(180deg,#a8f1ff,#4fc6ff);box-shadow:0 0 0 1px rgba(255,255,255,.5) inset,0 8px 26px rgba(79,198,255,.55);cursor:pointer}
+.cta::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 32%,rgba(255,255,255,.45) 50%,transparent 68%);transform:translateX(-130%);animation:btnSheen 3.4s ease-in-out infinite}
+.cta:active{transform:scale(.96)}
+.g-link{margin-top:6px;background:none;border:0;padding:6px 0;font:600 13px var(--font-body);color:#cfe6ff;cursor:pointer}
+.dgate.rest{min-height:200px}
+.dgate.rest .art{filter:saturate(.55) brightness(.62)}
+.portal-mini{border-radius:16px;border-color:color-mix(in srgb,var(--rc) 50%,transparent);background:var(--glass)}
+/* quest */
+.qhead{display:flex;align-items:center;gap:12px}
+.qring{position:relative;width:52px;height:52px;flex:none}
+.qring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.qring .rg-bg{fill:none;stroke:rgba(140,200,255,.15);stroke-width:5}
+.qring .rg-fg{fill:none;stroke:var(--ok);stroke-width:5;stroke-linecap:round;filter:drop-shadow(0 0 4px var(--ok))}
+.qring b{position:absolute;inset:0;display:grid;place-items:center;font:700 15px var(--font-display)}
+.qhead>div:last-child{min-width:0}
+.qhead>div:last-child b{display:block;font:700 15px var(--font-display);letter-spacing:.03em}
+.qhead>div:last-child small{display:block;color:var(--muted);font-size:12px;line-height:1.35}
+.qhead>div:last-child small b{display:inline;font-size:12px;color:var(--cyan);letter-spacing:.04em}
+.quest.is-done{border-color:rgba(79,240,176,.45)}
+.qlist{gap:0}
+.q{grid-template-columns:32px minmax(0,1fr) auto 26px;gap:12px;padding:10px 2px;background:none;border:0;border-top:1px solid rgba(140,200,255,.08);border-radius:0;min-height:52px}
+.qlist>li:first-child .q{border-top:0}
+.qic{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:rgba(111,227,255,.08);border:1px solid var(--edge);color:var(--cyan)}
+.qic svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.q .box{width:24px;height:24px;border-radius:8px;border:1.5px solid var(--edge2)}
+.q.on .box{background:var(--ok);border-color:var(--ok);box-shadow:0 0 12px rgba(79,240,176,.6)}
+.q.on .box::after{border-color:#052117}
+.q-l{font:500 15px var(--font-body)}
+.q-t{font:600 13px var(--font-display);color:var(--muted)}
+.q.on .q-t{color:var(--ok)}
+.q.on .qic{color:var(--ok);border-color:rgba(79,240,176,.4);background:rgba(79,240,176,.08)}
+.dg-intro .q,.win .q:not(.qlist .q){border:1px solid var(--edge);border-radius:14px;padding:10px 12px;background:rgba(10,16,32,.5)}
+/* week pills */
+.plan-seg{margin:0}
+.wpills{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.wday{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 2px 9px;border-radius:12px;background:var(--glass);border:1px solid var(--edge);color:var(--text);font:inherit;cursor:pointer;min-width:0}
+.wday small{font:600 10px var(--font-display);letter-spacing:.1em;color:var(--muted)}
+.wday b{font:700 17px/1.1 var(--font-display)}
+.wday em{font:700 10px var(--font-display);font-style:normal;letter-spacing:.06em;color:#bcd0ee;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wday i{width:6px;height:6px;border-radius:50%;background:var(--dim);margin-top:3px}
+.wday.rest{opacity:.42;cursor:default}.wday.rest em{color:var(--dim)}.wday.rest i{visibility:hidden}
+.wday.st-done{border-color:rgba(79,240,176,.45)}.wday.st-done i{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.wday.st-missed{border-color:rgba(255,77,106,.4)}.wday.st-missed i{background:var(--red)}
+.wday.st-partial i,.wday.st-late i{background:var(--orange)}
+.wday.today{opacity:1;border-color:var(--cyan);background:rgba(111,227,255,.08);box-shadow:inset 0 0 0 1px var(--cyan),0 0 18px rgba(111,227,255,.3)}
+.wday.today i{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+/* group */
+.grp-ch li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;border-radius:12px;border:1px solid var(--edge);background:rgba(10,16,32,.5)}
+.grp-ch li.ok{border-color:rgba(79,240,176,.45)}
+.gbar{grid-column:1/-1;display:block;height:6px;border-radius:9px;background:rgba(140,200,255,.1);overflow:hidden}
+.gbar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--blue),var(--cyan));box-shadow:0 0 8px rgba(111,227,255,.5)}
+.grp-ch li.ok .gbar i{background:var(--ok)}
+/* dock */
+.nav{left:50%;right:auto;bottom:calc(10px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(536px,calc(100% - 24px));padding:0 6px;border:1px solid var(--edge);border-radius:24px;background:rgba(8,12,24,.84);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 14px 40px rgba(0,0,0,.6)}
+.nav-in{max-width:none;height:64px;align-items:center}
+.nav button{min-height:56px;padding:6px 2px;font:600 10px var(--font-display);letter-spacing:.08em;color:var(--dim);gap:3px}
+.nav button.on{color:#fff;text-shadow:none}
+.nav button.on svg{color:var(--cyan);filter:drop-shadow(0 0 6px var(--cyan))}
+.nav button.on::before{display:none}
+.nav button.on::after{content:"";position:absolute;bottom:3px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.nav button.portal-btn{overflow:visible;position:relative;top:-15px;width:62px;height:62px;min-height:0;margin:0 auto;padding:0;border-radius:50%;justify-content:center;color:#fff;background:radial-gradient(circle,#0b1a3a 35%,#0a1128 62%);box-shadow:0 0 0 2px var(--cyan),0 0 26px rgba(111,227,255,.6),inset 0 0 18px rgba(111,227,255,.45)}
+.nav button.portal-btn::before{display:block;content:"";position:absolute;inset:6px;height:auto;border-radius:50%;background:conic-gradient(from 0deg,transparent,rgba(111,227,255,.75),transparent 40%,rgba(155,123,255,.75),transparent 75%);filter:blur(1px);box-shadow:none;animation:spin 5s linear infinite}
+.nav button.portal-btn svg{position:relative;width:26px;height:26px;color:#fff;filter:drop-shadow(0 0 6px var(--cyan))}
+.nav button.portal-btn span{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);color:var(--dim);white-space:nowrap}
+.nav button.portal-btn.on{box-shadow:0 0 0 2px #fff,0 0 34px rgba(111,227,255,.9),inset 0 0 22px rgba(111,227,255,.6)}
+.nav button.portal-btn.on span{color:#fff}
+.nav button.portal-btn.on::after{display:none}
+/* dungeon run */
+.dg-top{background:rgba(5,8,16,.6);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--edge);margin-bottom:-74px;padding-top:calc(10px + env(safe-area-inset-top,0px));top:0}
+.dg-top .pause{min-height:38px;padding:8px 12px;border-radius:12px;background:rgba(10,16,30,.6);border:1px solid var(--edge2);font:700 11px var(--font-display);letter-spacing:.2em;text-transform:uppercase;color:#fff;cursor:pointer}
+.dg-name{font:700 13px var(--font-display);letter-spacing:.08em;color:#cfe6ff}
+.dg-clock{font:700 18px var(--font-display);color:var(--cyan);text-shadow:0 0 10px rgba(111,227,255,.6)}
+.runhead{position:relative;height:clamp(250px,70vw,300px);margin:0 calc(-1*var(--gy)) -4px calc(-1*var(--gx));overflow:hidden}
+.runhead .art::after{background:linear-gradient(180deg,rgba(5,7,13,.45),rgba(5,7,13,.18) 40%,rgba(5,7,13,.7) 78%,var(--bg))}
+.rh-in{position:absolute;z-index:2;left:var(--gx);right:var(--gy);bottom:8px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.rh-in>div:first-child{min-width:0}
+.rh-in p{font:500 13px var(--font-body);color:#b9c7e2;margin-top:4px}
+.prog{position:relative;width:68px;height:68px;flex:none}
+.prog svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.pg-bg{fill:rgba(5,7,13,.55);stroke:rgba(140,200,255,.16);stroke-width:5}
+.pg-fg{fill:none;stroke:var(--cyan);stroke-width:5;stroke-linecap:round;filter:drop-shadow(0 0 5px var(--cyan));transition:stroke-dashoffset .6s}
+.prog b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 17px/1 var(--font-display)}
+.prog b small{font:600 8px var(--font-display);letter-spacing:.14em;color:#a9b6cf;margin-top:3px}
+.dg-intro{gap:10px}
+.ex{border-radius:var(--rad);background:linear-gradient(180deg,rgba(20,34,66,.6),rgba(10,16,32,.74));border:1px solid var(--edge);padding:16px 14px;gap:11px;scroll-margin-top:76px}
+.ex.boss{border-color:rgba(255,77,106,.35);box-shadow:none}
+.ex.now{border-color:var(--edge2);box-shadow:inset 0 0 0 1px rgba(111,227,255,.08),0 0 28px rgba(61,139,255,.18)}
+.ex.now::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(180deg,var(--cyan),var(--violet));box-shadow:0 0 12px var(--cyan)}
+.ex.cleared{border-color:rgba(79,240,176,.45);box-shadow:0 0 18px rgba(79,240,176,.1)}
+.ex-n{font:700 34px/.85 var(--font-display);color:transparent;-webkit-text-stroke:1.3px var(--cyan);text-shadow:0 0 14px rgba(111,227,255,.3)}
+.ex.cleared .ex-n{color:transparent;-webkit-text-stroke-color:var(--ok)}
+.ex h3{font:700 19px/1.15 var(--font-display);letter-spacing:.02em}
+.target{font:600 15px var(--font-display)}.target b{font-size:22px}
+.hist{font-size:13px;color:#c5d2ea}
+.chal{border:1px solid rgba(255,207,92,.45);border-radius:14px;background:linear-gradient(90deg,rgba(255,207,92,.15),rgba(255,207,92,.03));padding:10px 12px}
+.chal .btn{border-radius:12px;color:#1d1204;background:linear-gradient(180deg,#ffe7a3,#f5b93a);border-color:transparent;box-shadow:0 6px 20px rgba(245,185,58,.3)}
+.rec{border:1px solid rgba(255,207,92,.4);border-radius:12px;background:linear-gradient(90deg,rgba(255,207,92,.14),rgba(255,207,92,.03));padding:9px 12px;font-size:13px}
+.rec b{color:var(--gold)}
+.warmup{border-radius:12px;border-color:var(--edge2)}
+.set-row{grid-template-columns:28px minmax(0,1fr) minmax(0,1fr) 56px}
+.set-row input{min-height:54px;border-radius:14px;font:700 22px var(--font-display);background:rgba(5,9,18,.6);border:1px solid var(--edge)}
+.chk{height:54px;border-radius:14px;border:1.5px solid var(--edge2);color:var(--cyan);background:rgba(5,9,18,.4)}
+.set-row.now input{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan) inset,0 0 16px rgba(111,227,255,.22)}
+.set-row.now .sn{color:var(--cyan)}
+.set-row.done input{border-color:rgba(79,240,176,.45);color:var(--ok)}
+.set-row.done .chk{background:var(--ok);border-color:var(--ok);color:#052117;box-shadow:0 0 16px rgba(79,240,176,.55)}
+.exmini{display:flex;width:100%;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:var(--glass);border:1px solid var(--edge);color:var(--text);text-align:left;font:inherit;cursor:pointer;scroll-margin-top:76px}
+.exmini .exn{flex:none;width:34px;font:700 25px/.9 var(--font-display);color:transparent;-webkit-text-stroke:1.2px var(--dim)}
+.exmini .em{flex:1;min-width:0}
+.exmini b{display:block;font:700 15px/1.2 var(--font-display);letter-spacing:.02em}
+.exmini small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exmini em{flex:none;font:700 12px var(--font-display);font-style:normal;color:var(--muted);letter-spacing:.06em}
+.exmini.done{border-color:rgba(79,240,176,.3);background:rgba(79,240,176,.04)}
+.exmini.done .exn{-webkit-text-stroke-color:var(--ok)}.exmini.done em{color:var(--ok);font-size:17px}
+.exmini.part{border-color:rgba(255,157,74,.35)}.exmini.part em{color:var(--orange)}
+.exmini.skip{opacity:.5}
+.exmini:active{transform:scale(.98)}
+/* rest bar = floating ring */
+.restbar{left:50%;right:auto;bottom:calc(12px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(536px,calc(100% - 24px));padding:10px 12px;border:1px solid var(--edge2);border-radius:22px;background:rgba(8,12,24,.9);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 14px 40px rgba(0,0,0,.6),0 0 24px rgba(61,139,255,.18)}
+.restbar-in{max-width:none;grid-template-columns:58px minmax(0,1fr) auto auto;gap:10px}
+.rb-ring{position:relative;width:58px;height:58px}
+.rb-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg) scaleY(-1)}
+.rb-bg{fill:none;stroke:rgba(140,200,255,.15);stroke-width:5}
+.rb-fg{fill:none;stroke:var(--cyan);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .25s linear;filter:drop-shadow(0 0 5px var(--cyan))}
+.rb-t{position:absolute;inset:0;display:grid;place-items:center;font:700 16px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.rb-txt{min-width:0}
+.rb-l{font:700 14px var(--font-display);letter-spacing:.16em;text-transform:uppercase;color:#fff}
+.rb-txt small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rb-fill{display:none}
+.restbar.done{border-color:var(--ok)}.restbar.done .rb-fg{stroke:var(--ok)}.restbar.done .rb-t{color:var(--ok)}
+@keyframes restPulse{50%{box-shadow:0 0 34px rgba(79,240,176,.5);background:rgba(10,40,34,.95)}}
+/* results */
+.res-win{padding-top:0}
+.res-win .art{margin:0 -14px;height:clamp(170px,48vw,220px);border:0}
+.res-win .art::after{background:linear-gradient(180deg,rgba(13,20,38,0) 30%,rgba(13,20,38,.95))}
+.res-eyebrow{position:relative;z-index:2;margin:-34px 0 2px;text-align:center;font:700 12px var(--font-display);letter-spacing:.42em;color:var(--cyan)}
+.res-title{position:relative;z-index:2;font:700 clamp(36px,11vw,52px)/1 var(--font-display)}
+.res-cell{border-radius:14px;background:rgba(5,9,18,.45);border-color:var(--edge)}
+.pr-list li{border:1px solid rgba(255,207,92,.35);border-radius:12px;background:rgba(255,207,92,.06)}
+/* page heroes */
+.phero{height:clamp(230px,62vw,280px)}
+.phero .art::after,.shophero .art::after{background:linear-gradient(180deg,rgba(5,7,13,.5) 0,rgba(5,7,13,.1) 30%,rgba(5,7,13,.55) 66%,var(--bg) 99%)}
+.ph-in{position:absolute;z-index:2;left:var(--gx);right:var(--gy);bottom:10px}
+.ph-eye{font:700 11px var(--font-display);letter-spacing:.32em;color:var(--cyan)}
+.phero h1{margin:2px 0 0;font:700 clamp(34px,10vw,42px)/.95 var(--font-display);letter-spacing:.05em;text-transform:uppercase;color:#fff;text-shadow:0 0 22px rgba(111,227,255,.4)}
+.phero p{margin-top:4px;font:600 14px var(--font-body);color:#c4d1e8}
+/* map */
+.wk{border:1px solid var(--edge);border-radius:16px;padding:12px;margin-top:10px;background:rgba(10,16,32,.55)}
+.wk.cur{margin-inline:0;padding-inline:12px;border-color:var(--cyan);background:rgba(111,227,255,.06);box-shadow:0 0 20px rgba(111,227,255,.14)}
+.chip{border-radius:12px;background:rgba(10,16,32,.6);border-color:var(--edge)}
+.chip.today,.chip.st-today{border-color:var(--cyan);box-shadow:0 0 14px rgba(111,227,255,.4)}
+/* briefing (session preview) */
+.brief{padding-top:0}
+.brief-top{position:relative;height:190px;margin:0 -14px 4px;overflow:hidden}
+.brief-top .art::after{background:linear-gradient(180deg,rgba(10,15,30,.1) 20%,rgba(10,15,30,.97))}
+.brief-h{position:absolute;z-index:2;left:16px;right:16px;bottom:8px}
+.brief-h h2{font-size:26px}
+.brief-h p{color:#b9c7e2;font-size:13px;margin-top:3px}
+.pv-list{gap:8px}
+.pv{padding:10px 12px;border-radius:14px;background:rgba(10,16,32,.6);border:1px solid var(--edge);grid-template-columns:34px minmax(0,1fr);align-items:center}
+.pv-n{font:700 23px/.9 var(--font-display);color:transparent;-webkit-text-stroke:1.2px var(--cyan)}
+.pv b{font-family:var(--font-display);font-size:15px}
+/* shop */
+.shophero{height:clamp(270px,76vw,320px)}
+.wallet{position:absolute;z-index:2;left:var(--gx);right:var(--gy);bottom:12px}
+.wallet h2{margin:0;font:700 13px var(--font-display);letter-spacing:.3em;color:#cfe6ff;text-transform:uppercase}
+.amt{display:flex;align-items:center;gap:10px;margin-top:4px;font:700 50px/1 var(--font-display);color:var(--gold);text-shadow:0 0 22px rgba(255,207,92,.55);font-variant-numeric:tabular-nums}
+.amt .coin{width:30px;height:30px}
+.wallet small{font:500 12px var(--font-body);color:#a9b6cf}
+.wallet.locked small{color:var(--red-soft);font-weight:600}
+.tabs3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:14px;background:var(--glass);border:1px solid var(--edge)}
+.tabs3 button{padding:11px 0;border:0;border-radius:10px;background:none;font:700 12px var(--font-display);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+.tabs3 button.on{background:rgba(111,227,255,.12);color:#fff;box-shadow:inset 0 0 0 1px var(--edge2)}
+.tabs3 em{font-style:normal;color:var(--gold)}
+.rgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.rc{position:relative;display:flex;flex-direction:column;width:100%;min-width:0;padding:0;border-radius:16px;overflow:hidden;text-align:left;font:inherit;color:var(--text);cursor:pointer;background:linear-gradient(180deg,rgba(16,24,46,.92),rgba(8,12,24,.95));border:1px solid color-mix(in srgb,var(--tc) 50%,transparent);box-shadow:0 0 18px color-mix(in srgb,var(--tc) 16%,transparent);transition:transform .12s}
+.rc:active{transform:scale(.97)}
+.rc-img{position:relative;display:block;aspect-ratio:1/1;overflow:hidden;background:radial-gradient(circle at 50% 55%,color-mix(in srgb,var(--tc) 26%,transparent),transparent 70%)}
+.rc-img img{width:100%;height:100%;object-fit:cover;display:block}
+.rc-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 52%,rgba(8,12,24,.96))}
+.rc-img .ico,.tk-img .ico,.rk-img .ico{display:grid;place-items:center;width:100%;height:100%;color:var(--tc,var(--cyan))}
+.rc-img .ico svg{width:42%;height:42%;filter:drop-shadow(0 0 10px var(--tc))}
+.rc-b{position:relative;z-index:1;display:flex;flex-direction:column;gap:3px;padding:0 12px 12px;margin-top:-20px}
+.rar{font:700 9px var(--font-display);letter-spacing:.22em;text-transform:uppercase;color:var(--tc)}
+.rc-b b{font:600 14px/1.22 var(--font-body)}
+.rc .pr{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:6px}
+.rc .pr>span{display:inline-flex;align-items:center;gap:6px;font:700 17px var(--font-display);color:var(--gold)}
+.rc .buy{padding:6px 10px;border-radius:9px;font:700 10px var(--font-display);font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:#04101f;background:var(--tc);box-shadow:0 0 12px color-mix(in srgb,var(--tc) 45%,transparent)}
+.rc .lockd{font:700 10px var(--font-display);font-style:normal;letter-spacing:.12em;color:var(--red-soft)}
+.rc .miss{display:block;height:5px;margin-top:7px;border-radius:9px;background:rgba(140,200,255,.1);overflow:hidden}
+.rc .miss i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--gold),#fff1b8)}
+.rc small{font-size:11px;color:var(--muted)}
+.rc.no .rc-img img{filter:saturate(.7) brightness(.72)}
+.rc.wide{grid-column:1/-1;flex-direction:row;align-items:stretch}
+.rc.wide .rc-img{width:44%;aspect-ratio:1/1;flex:none}
+.rc.wide .rc-img::after{background:linear-gradient(90deg,transparent 52%,rgba(12,9,6,.96))}
+.rc.wide .rc-b{margin:0;padding:14px 14px 14px 6px;justify-content:center}
+.rc.leg{border-color:rgba(255,179,71,.6);background:linear-gradient(180deg,rgba(32,23,12,.94),rgba(12,9,6,.96))}
+.rc.leg::before{content:"";position:absolute;inset:-60%;z-index:0;background:conic-gradient(from 0deg,transparent,rgba(255,207,92,.14),transparent 30%);animation:spin 7s linear infinite;pointer-events:none}
+.rc.leg>*{position:relative;z-index:1}
+.lock{text-align:center}
+.tickets{display:grid;gap:10px}
+.ticket2{position:relative;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:16px;background:linear-gradient(90deg,color-mix(in srgb,var(--tc) 16%,rgba(12,18,34,.92)) 0 76px,rgba(12,18,34,.9) 76px);border:1px solid color-mix(in srgb,var(--tc) 50%,transparent)}
+.ticket2::before{content:"";position:absolute;left:76px;top:8px;bottom:8px;border-left:2px dashed color-mix(in srgb,var(--tc) 45%,transparent)}
+.ticket2::after{content:"";position:absolute;left:69px;top:-8px;width:14px;height:14px;border-radius:50%;background:#0a101c;box-shadow:0 74px 0 #0a101c}
+.tk-img{width:56px;height:56px;flex:none;border-radius:12px;overflow:hidden}
+.tk-img img{width:100%;height:100%;object-fit:cover;display:block}
+.tk-img .ico svg{width:28px;height:28px}
+.tk-b{flex:1;min-width:0;padding-left:14px}
+.tk-b b{display:block;font:600 14px/1.25 var(--font-body)}
+.tk-b small{display:block;margin-top:2px;color:var(--muted);font-size:11px;line-height:1.35}
+.ticket2 .use,.rkrow .use{flex:none;padding:9px 12px;border:0;border-radius:10px;font:700 11px var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:#04101f;background:var(--tc,var(--rc));cursor:pointer;box-shadow:0 0 14px color-mix(in srgb,var(--tc,var(--rc)) 45%,transparent)}
+.rklist{display:grid;gap:10px}
+.rkrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(10,16,32,.6);border:1px solid var(--edge)}
+.rkrow.got{border-color:color-mix(in srgb,var(--rc) 55%,transparent);box-shadow:0 0 16px color-mix(in srgb,var(--rc) 14%,transparent)}
+.rkrow.lock{opacity:.55}
+.rk-img{width:46px;height:46px;flex:none;border-radius:10px;overflow:hidden;--tc:var(--rc)}
+.rk-img img{width:100%;height:100%;object-fit:cover;display:block}
+.rk-img .ico svg{width:24px;height:24px}
+.rk-b{flex:1;min-width:0}.rk-b b{display:block;font:600 14px/1.25 var(--font-body)}.rk-b small{color:var(--muted);font-size:12px}
+.ideas summary{font-size:13px}
+.stamp{white-space:normal;width:max-content;max-width:94vw}
+.stamp small{max-width:86vw;margin-inline:auto;letter-spacing:.16em;line-height:1.3}
+.gain .x{width:auto;height:auto;border:0;border-radius:0;background:none;color:var(--cyan)}
+.gain .g{color:var(--gold)}
+/* reward reveal */
+.fx.item .fx-card{gap:12px}
+.fx-item{position:relative;width:min(60vw,240px);aspect-ratio:1;border-radius:22px;overflow:hidden;border:1px solid color-mix(in srgb,var(--tc) 65%,transparent);box-shadow:0 0 50px color-mix(in srgb,var(--tc) 50%,transparent),0 0 0 1px rgba(255,255,255,.08) inset;animation:itemIn 1.1s cubic-bezier(.2,1.25,.4,1) both}
+.fx-item img{width:100%;height:100%;object-fit:cover;display:block}
+.fx-item::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.4) 50%,transparent 65%);transform:translateX(-130%);animation:itemSheen 1.3s .8s ease-out both}
+@keyframes itemIn{0%{opacity:0;transform:translateY(60px) rotateX(70deg) scale(.5);filter:brightness(3) blur(6px)}55%{opacity:1;filter:brightness(1.5)}100%{transform:none;filter:none}}
+@keyframes itemSheen{to{transform:translateX(130%)}}
+.fx.item .fx-eyebrow{animation:fxIn .6s .45s both}.fx.item .fx-mid{animation:fxIn .6s .6s both}.fx.item .fx-sub{animation:fxIn .6s .75s both}
+/* page entrances: one per page */
+.pg-in>*{animation:pgRise .62s calc(var(--i,0)*55ms) cubic-bezier(.2,.9,.25,1) both}
+@keyframes pgRise{from{opacity:0;transform:translate3d(0,18px,0)}}
+.pg-in.pg-status>.hero{animation:none}
+.pg-in.pg-status .hero-bg{animation:heroFocus 1.5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes heroFocus{from{transform:scale(1.22);filter:brightness(2.2) blur(8px)}to{transform:none;filter:none}}
+.pg-in.pg-status .hero-id>*{animation:heroTxt .7s cubic-bezier(.2,.9,.25,1) both}
+.pg-in.pg-status .hero-id>:nth-child(2){animation-delay:.12s}.pg-in.pg-status .hero-id>:nth-child(3){animation-delay:.24s}
+@keyframes heroTxt{from{opacity:0;transform:translate3d(-24px,0,0);letter-spacing:.3em}}
+.pg-in.pg-status .lvl{animation:lvlIn .9s .2s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes lvlIn{from{opacity:0;transform:scale(.5) rotate(-90deg)}}
+.pg-in .lv-fg,.pg-in .rg-fg,.pg-in .pg-fg{animation:ringFill 1.4s .45s cubic-bezier(.2,.9,.25,1) both}
+@keyframes ringFill{from{stroke-dashoffset:100}}
+.pg-in .stats3 .st i{animation:barGrow 1.1s .5s cubic-bezier(.2,.9,.25,1) both}
+@keyframes barGrow{from{width:0}}
+.pg-in.pg-meals>*{animation-name:pgSlide}
+@keyframes pgSlide{from{opacity:0;transform:translate3d(42px,0,0)}}
+.pg-in.pg-body>*{animation-name:pgScan;animation-duration:.8s}
+@keyframes pgScan{from{opacity:0;clip-path:inset(0 0 100% 0)}to{opacity:1;clip-path:inset(0 0 0 0)}}
+.pg-in.pg-body::before{content:"";position:fixed;left:0;right:0;top:0;height:2px;z-index:7;pointer-events:none;background:var(--cyan);box-shadow:0 0 18px var(--cyan),0 0 40px var(--cyan);animation:scanOnce 1.1s ease-in-out both}
+@keyframes scanOnce{from{transform:translateY(0);opacity:1}to{transform:translateY(100vh);opacity:0}}
+.pg-in.pg-shop>*{animation-name:pgFade}
+@keyframes pgFade{from{opacity:0}}
+.pg-in.pg-shop .rc{animation:dealIn .6s calc(.2s + var(--k,0)*50ms) cubic-bezier(.2,1.2,.4,1) both}
+@keyframes dealIn{from{opacity:0;transform:perspective(700px) rotateY(-75deg) translate3d(0,18px,0)}}
+.pg-in.pg-shop .amt{animation:amtIn .8s .15s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes amtIn{from{opacity:0;transform:scale(1.6);filter:blur(6px)}}
+.pg-in.pg-dungeons>*{animation-name:pgDepth;animation-duration:.75s}
+@keyframes pgDepth{from{opacity:0;transform:scale(.9);filter:blur(6px)}}
+.pg-in.pg-dungeon .runhead .art{animation:heroFocus 1.3s cubic-bezier(.2,.8,.2,1) both}
+.pg-in.pg-dungeon>.dg-top{animation:none}
+.pg-in.pg-journal>*,.pg-in.pg-settings>*{animation-name:pgFade;animation-duration:.45s}
+.pg-in.pg-results>*{animation-name:pgDepth}
+.fx-low .pg-in>*,.fx-low .pg-in *{animation:none!important}
+.fx-low .cta::after,.fx-low .nav button.portal-btn::before,.fx-low .rc.leg::before,.fx-low .hero-bg::before{animation:none}
+@media (prefers-reduced-motion:reduce){.pg-in>*,.pg-in *{animation:none!important}.hero-bg::before,.cta::after{animation:none}}
 </style>
 
 <div id="app" class="wrap"></div>
 <nav class="nav" id="nav" hidden></nav>
-<div class="restbar" id="restbar" hidden><div class="rb-fill" id="rbFill"></div><div class="restbar-in"><div><div class="rb-l" id="rbLabel">Repos</div><div class="rb-t" id="rbTime">0:00</div></div><button class="btn sm" data-act="restAdd">+15 s</button><button class="btn sm ghost" data-act="restSkip">Passer</button></div></div>
+<div class="restbar" id="restbar" hidden><div class="restbar-in"><div class="rb-ring"><svg viewBox="0 0 60 60" aria-hidden="true"><circle class="rb-bg" cx="30" cy="30" r="25"/><circle class="rb-fg" id="rbRing" cx="30" cy="30" r="25" pathLength="100" stroke-dasharray="100" stroke-dashoffset="0"/></svg><b class="rb-t" id="rbTime">0:00</b></div><div class="rb-txt"><div class="rb-l" id="rbLabel">Repos</div><small id="rbSub">Souffle, la série suivante arrive</small></div><button class="btn sm" data-act="restAdd">+15 s</button><button class="btn sm ghost" data-act="restSkip">Passer</button></div><div class="rb-fill" id="rbFill"></div></div>
 <div id="modal" class="modal" hidden></div>
 <div id="fx" class="fx" hidden></div>
 <div id="toasts" aria-live="polite"></div>
@@ -1937,11 +2336,12 @@ function fxAfterRender() {
   fxInit(); document.body.classList.toggle("fx-low", !fxActive());
   const changed = fxState.lastView !== state.view; fxState.lastView = state.view; if (changed) fxStampClear(); if (!changed || !fxActive()) return;
   const app = document.getElementById("app");
-  [...app.children].forEach((el, i) => { el.classList.add("fx-in"); el.style.animationDelay = (i * 75) + "ms" + (el.classList.contains("win") ? ", " + (i * 75 + 220) + "ms" : "");
-    setTimeout(() => { el.classList.remove("fx-in"); el.style.animationDelay = ""; }, 1500 + i * 75); });   // safety net: a paused animation never hides the screen
-  [...app.querySelectorAll(".sys-line")].slice(0, 4).forEach((el, i) => fxType(el, 160 + i * 200));
-  [...app.querySelectorAll(".win-title")].slice(0, 6).forEach((el, i) => fxDecode(el, 40 + i * 75));
-  app.querySelectorAll(".st-level b").forEach(fxCount); app.querySelectorAll("[data-count]").forEach(fxCountIn);
+  // 14 Nov (Hunter OS): each page has its own entrance: Statut = the hero comes into focus, Repas = slides in, Corps = scanned,
+  // Boutique = cards dealt, Donjons = from the depth, donjon = header zoom. Never on a simple re-render.
+  app.className = app.className.replace(/\bpg-\S+/g, " ").replace(/\s+/g, " ").trim(); [...app.children].forEach((el, i) => el.style.setProperty("--i", Math.min(i, 12)));
+  void app.offsetWidth; app.classList.add("pg-in", "pg-" + state.view); clearTimeout(fxState.pgT); fxState.pgT = setTimeout(() => app.classList.remove("pg-in"), 1900);   // safety net: never stuck hidden
+  if (state.view === "dungeon") [...app.querySelectorAll(".sys-line")].slice(0, 1).forEach(el => fxType(el, 420));
+  app.querySelectorAll(".lvl b, .amt b").forEach(fxCount); app.querySelectorAll("[data-count]").forEach(fxCountIn);
   if (state.view === "results" && state.results) { const r = state.results; if (r.doc.full) { setTimeout(() => fxBurst(205, 90), 450); buzz([30, 40, 30, 40, 120]); }
     if (r.wb && r.wb.perfect) fxStamp(r.wb.big ? "Grosse semaine" : "Semaine complète", "[Bonus du Système]", "blue"); }
 }
@@ -2047,8 +2447,8 @@ function pushFx(f) { fxQ.push(f); if (!fxOn) nextFx(); }
 function nextFx() {
   const el = document.getElementById("fx"); const f = fxQ.shift();
   if (!f) { el.hidden = true; fxOn = false; return; }
-  fxOn = true; el.className = "fx " + (f.kind || "");
-  el.innerHTML = `<div class="fx-card"><div class="fx-eyebrow">${f.eyebrow}</div>${f.big ? `<div class="fx-big">${f.big}</div>` : ""}${f.mid ? `<div class="fx-mid">${f.mid}</div>` : ""}${f.sub ? `<div class="fx-sub">${f.sub}</div>` : ""}<button class="btn primary" data-act="fxNext">Continuer</button></div>`;
+  fxOn = true; el.className = "fx " + (f.kind || "") + (f.img ? " item" : "");
+  el.innerHTML = `<div class="fx-card">${f.img ? `<div class="fx-item" style="--tc:${f.tc || "var(--gold)"}"><img src="img/${f.img}.webp?v=${IMG_V}" alt=""></div>` : ""}<div class="fx-eyebrow">${f.eyebrow}</div>${f.big ? `<div class="fx-big">${f.big}</div>` : ""}${f.mid ? `<div class="fx-mid">${f.mid}</div>` : ""}${f.sub ? `<div class="fx-sub">${f.sub}</div>` : ""}<button class="btn primary" data-act="fxNext">Continuer</button></div>`;
   el.hidden = false; chime("level"); if (f.kind === "level" || f.kind === "rank") { fxFlash(); document.getElementById("toasts").innerHTML = ""; } fxBurst(f.kind === "rank" || f.kind === "gold" ? 45 : 205, f.kind === "level" || f.kind === "rank" ? 110 : 55);
 }
 function rankFx(rank) {
@@ -2101,7 +2501,7 @@ function render() {
   const tabs = ["status", "dungeons", "meals", "body", "shop", "journal"];
   nav.hidden = !tabs.includes(state.view) && state.view !== "settings";
   const tab = state.view === "settings" ? "" : state.view;
-  nav.innerHTML = `<div class="nav-in">${[["status", "Statut", ICON.status], ["dungeons", "Donjons", ICON.gate], ["meals", "Repas", ICON.food], ["body", "Corps", ICON.body], ["shop", "Boutique", ICON.shop]].map(([v, l, i]) => `<button class="${tab === v ? "on" : ""}" data-act="go" data-v="${v}" ${tab === v ? 'aria-current="page"' : ""}>${i}<span>${l}</span></button>`).join("")}</div>`;
+  nav.innerHTML = `<div class="nav-in">${[["status", "Statut", ICON.status], ["meals", "Repas", ICON.food], ["dungeons", "Donjons", ICON.gate], ["body", "Corps", ICON.body], ["shop", "Boutique", ICON.shop]].map(([v, l, i]) => `<button class="${tab === v ? "on" : ""} ${v === "dungeons" ? "portal-btn" : ""}" data-act="go" data-v="${v}" ${tab === v ? 'aria-current="page"' : ""}>${i}<span>${l}</span></button>`).join("")}</div>`;   // 14 Nov: floating dock, portal in the middle
   restoreFocus(focus);
   renderModal(); tick(); hydratePhotos(); fxAfterRender();
 }
@@ -2125,6 +2525,8 @@ function topbar() {
   return `<header class="top"><div class="brand"><span class="brand-mark">SYSTÈME</span>${saveBadge()}</div><div class="top-btns"><button class="icon-btn ${unreadReplies().length ? "dot" : ""}" data-act="msgOpen" aria-label="Écrire au Système">${ICON.mail}</button><button class="icon-btn ${state.view === "journal" ? "on" : ""}" data-act="go" data-v="journal" aria-label="Journal">${ICON.book}</button><button class="icon-btn" data-act="go" data-v="settings" aria-label="Réglages">${ICON.gear}</button></div></header>`;
 }
 const rankBadge = r => `<span class="rank-badge" style="--rc:var(--r-${r})"><span>${r}</span></span>`;
+const hexBadge = (r, cls) => `<span class="hex ${cls || ""}" style="--rc:var(--r-${r})"><svg viewBox="0 0 40 44" aria-hidden="true"><path d="M20 2 37.5 12v20L20 42 2.5 32V12z"/></svg><b>${r}</b></span>`;
+const pageHero = (bg, title, sub) => `<section class="phero">${bg}${topbar()}<div class="ph-in"><span class="ph-eye">[Système]</span><h1>${title}</h1>${sub ? `<p>${sub}</p>` : ""}</div></section>`;   // 14 Nov: illustrated page header
 function currentTitle(P) { const t = S.profile?.title; const a = ACH.find(x => x.id === t); return a && P.achIds.has(a.id) ? a.name : baseTitle(); }
 function nextRankInfo(P) {
   if (P.rank === "S") return "Rang maximal";
@@ -2405,7 +2807,7 @@ function groupWin() {
   return `<section class="win"><h2 class="win-title">Le groupe</h2>
     <p class="lbl">Défi de la semaine${g.ok ? " · réussi !" : ""}</p>
     <p class="small muted">${g.ok ? `Tout le monde a fait ses donjons : +${GROUP_GOLD} or chacun.` : `Si tout le monde fait ses donjons, chacun gagne ${GROUP_GOLD} or.`}</p>
-    <ul class="grp-ch">${g.list.map(r => `<li class="${r.req && r.done >= r.req ? "ok" : ""}"><b>${esc(r.name)}${r.me ? " (toi)" : ""}</b><span>${r.req ? `${r.done} / ${r.req}${r.done >= r.req ? " ✓" : ""}` : "pas encore de donjon"}</span></li>`).join("")}</ul>
+    <ul class="grp-ch">${g.list.map(r => `<li class="${r.req && r.done >= r.req ? "ok" : ""}"><b>${esc(r.name)}${r.me ? " (toi)" : ""}</b><span>${r.req ? `${r.done} / ${r.req}${r.done >= r.req ? " ✓" : ""}` : "pas encore de donjon"}</span><i class="gbar"><i style="width:${r.req ? Math.min(100, Math.round(r.done / r.req * 100)) : 0}%"></i></i></li>`).join("")}</ul>
     ${evs.length ? `<ul class="feed">${evs.map(e => `<li><p>${txt(e)}</p><div class="feed-f"><small class="muted">${feedWhen(e.at)}</small>${cheerBtn(e)}</div></li>`).join("")}</ul>` : `<p class="muted small">Rien pour l'instant : le premier donjon terminé apparaîtra ici.</p>`}
     ${f.filter(e => e.kind === "dungeon" || e.kind === "rank").length > evs.length ? `<button class="link" data-act="feedMore">Voir plus</button>` : ""}</section>`;
 }
@@ -2424,20 +2826,19 @@ function questionWin() {
     <button class="btn primary wide" data-act="answerQ" data-id="${q.id}">Envoyer</button>
     <button class="link" data-act="answerQ" data-id="${q.id}" data-skip="1">Passer cette question</button></section>`;
 }
-function viewStatus(P) { return topbar() + replyWin() + questionWin() + reportWin() + pushWin() + programPickWin() + penaltyWin(P) + draftWin() + statusWin(P) + alertsWin() + groupWin() + sleepWin() + portalWin() + questWin() + bodyNudge() + weekWin(); }
-function statusWin(P) {
-  const pct = Math.min(100, Math.round(P.into / P.need * 100)); const s = P.stats;
-  const stat = (k, l, v) => `<div class="stat2"><span class="stat-k">${k}</span><b class="stat-v">${v}</b><span class="stat-l">${l}</span></div>`;
-  return `<section class="win" aria-label="Statut du Joueur">${art("hero_status")}<h2 class="win-title">Statut</h2>
-    <div class="st-head"><div class="st-id"><div class="st-name">${esc(S.profile?.name || "Joueur")}</div><div class="st-title">Titre : <b>${esc(currentTitle(P))}</b></div>
-      <div class="st-rank">${rankBadge(P.rank)}<span>Chasseur de rang ${P.rank}</span></div></div>
-      <div class="st-level"><span>Niveau</span><b>${P.level}</b></div></div>
-    <div class="xpbar" role="progressbar" aria-label="Expérience" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
-    <div class="xp-line"><span>XP ${fmt(P.into, 0)} / ${fmt(P.need, 0)}</span><span>${nextRankInfo(P)}</span></div>
-    <div class="money"><i class="coin"></i><b>${fmt(P.gold, 0)}</b> or <span class="muted">· série de quêtes : ${plural(P.streak, "jour")}</span></div>
-    <div class="stats2">${stat("FOR", "Force", s.FOR)}${stat("VIT", "Vitalité", s.VIT)}${stat("AGI", "Agilité", s.AGI)}${stat("INT", "Intell.", s.INT)}${stat("PER", "Percep.", s.PER)}</div>
-    <details class="fold st-how"><summary>Comment montent les stats</summary><div><ul class="rules small"><li>Chaque donjon terminé : +1 en Force, Vitalité et Agilité. Chaque record battu : +1 Force en plus.</li><li>Vitalité : +1 par nuit assez longue. Agilité : +1 par jour d'objectif de pas.</li><li>Intelligence : +1 par jour de révisions. Perception : +1 par jour de repas notés.</li></ul></div></details>
-  </section>`;
+function viewStatus(P) { return statusWin(P) + penaltyWin(P) + draftWin() + replyWin() + questionWin() + reportWin() + pushWin() + programPickWin() + alertsWin() + portalWin() + sleepWin() + questWin() + weekWin() + groupWin() + bodyNudge(); }
+function statusWin(P) {   // 14 Nov (Hunter OS): the status is a character sheet over a full-width illustration
+  const pct = Math.min(100, Math.round(P.into / P.need * 100)), s = P.stats, mx = Math.max(10, ...["FOR", "VIT", "AGI", "INT", "PER"].map(k => Number(s[k]) || 0));
+  const info = weekInfo(weekOfStr(today()));
+  const stat = (k, l) => `<div class="st" title="${l}"><small>${k}</small><b>${s[k]}</b><i style="--w:${Math.round((Number(s[k]) || 0) / mx * 100)}%"></i></div>`;
+  return `<section class="hero" aria-label="Statut du Joueur" style="--rc:var(--r-${P.rank})"><div class="hero-bg" style="--img:url('img/hero_status.webp?v=${IMG_V}')"></div>${topbar()}
+    <div class="hero-in"><div class="hero-id"><div class="pname">${esc(S.profile?.name || "Joueur")}</div><div class="ptitle">Titre : <b>${esc(currentTitle(P))}</b></div>
+      <div class="rankrow">${hexBadge(P.rank)}<div class="ranklbl">Chasseur de rang ${P.rank}<small>${nextRankInfo(P)}</small></div></div></div>
+      <div class="lvl" role="img" aria-label="Niveau ${P.level} : ${fmt(P.into, 0)} XP sur ${fmt(P.need, 0)}"><svg viewBox="0 0 104 104" aria-hidden="true"><circle class="lv-bg" cx="52" cy="52" r="46"/><circle class="lv-fg" cx="52" cy="52" r="46" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100 - pct}"/></svg>
+        <div class="t"><small>NIVEAU</small><b>${P.level}</b><i>${fmt(P.into, 0)} / ${fmt(P.need, 0)} XP</i></div></div></div></section>
+  <div class="chips2"><span class="chip2 gold"><i class="coin"></i><b>${fmt(P.gold, 0)}</b> or</span><span class="chip2" title="Série de quêtes quotidiennes"><span class="fire" aria-hidden="true">▲</span>Série : ${plural(P.streak, "jour")}</span>${info ? `<span class="chip2">${info.deload ? "Semaine allégée" : "Semaine S" + info.p}</span>` : ""}</div>
+  <div class="stats3" aria-label="Statistiques">${stat("FOR", "Force")}${stat("VIT", "Vitalité")}${stat("AGI", "Agilité")}${stat("INT", "Intelligence")}${stat("PER", "Perception")}</div>
+  <details class="fold st-how"><summary>Comment montent les stats</summary><div><ul class="rules small"><li>Chaque donjon terminé : +1 en Force, Vitalité et Agilité. Chaque record battu : +1 Force en plus.</li><li>Vitalité : +1 par nuit assez longue. Agilité : +1 par jour d'objectif de pas.</li><li>Intelligence : +1 par jour de révisions. Perception : +1 par jour de repas notés.</li></ul></div></details>`;
 }
 function penaltyWin(P) {
   if (!P.penalty) return "";
@@ -2474,35 +2875,38 @@ function portalCard(p, label, sub, compact) {
   const info = weekInfo(p.cw), plan = planFor(p.cw, p.ty), rank = info.W.rank;
   if (compact) return `<div class="portal-mini" style="--rc:var(--r-${rank})"><span class="eyebrow">${label}</span><p><b>${esc(TYPES[p.ty].gate)}</b> · ${TYPES[p.ty].name}, environ ${estMinutes(plan)} min.</p>${sub ? `<p class="muted small">${sub}</p>` : ""}
     <div class="row"><button class="btn sm" data-act="enter" data-cw="${p.cw}" data-ty="${p.ty}">Entrer</button><button class="btn sm ghost" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}">Voir les exercices</button></div></div>`;
-  return gateArt(p.ty, "card") + `<div class="portal" style="--rc:var(--r-${rank})"><div class="gate" aria-hidden="true"><div class="gate-ring"></div><div class="gate-core"></div></div>
-    <div><span class="eyebrow">${label} · <span class="nw">rang ${rank}</span></span><h3>${esc(TYPES[p.ty].gate)}</h3><p>${tyLabel(p.ty)}. ${plan.length} exercices, environ ${estMinutes(plan)} min.</p>${sub ? `<p class="muted small">${sub}</p>` : ""}${gapWarn(p.cw, p.ty, p.done)}</div>
-    <div class="portal-actions"><button class="btn primary" data-act="enter" data-cw="${p.cw}" data-ty="${p.ty}">Entrer dans le donjon</button><button class="btn ghost" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}">Voir les exercices</button></div></div>`;
+  const sets = plan.reduce((n, it) => n + (Number(it.sets) || 0), 0), day = p.date ? fmtDay(fromStr(p.date), {weekday: "long"}) : "";
+  return `<div class="dgate" style="--rc:var(--r-${rank})">${gateArt(p.ty, "g-bg")}<div class="dgate-in"><span class="tagrank">${label} · rang ${rank}${day ? " · " + day : ""}</span>
+    <h2>${esc(TYPES[p.ty].gate)}</h2><p>${esc(tyLabel(p.ty))} · ${plural(plan.length, "exercice")} · environ ${estMinutes(plan)} min</p>${sub ? `<p class="sub">${sub}</p>` : ""}${gapWarn(p.cw, p.ty, p.done)}
+    <div class="gate-row"><div class="rewards"><span class="rx">+${sets * 10 + 60} XP</span><span class="rg">+50 or · coffre</span></div><button class="cta" data-act="enter" data-cw="${p.cw}" data-ty="${p.ty}">Entrer</button></div>
+    <button class="g-link" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}">Voir les exercices ›</button></div></div>`;
 }
 const CHIP_LABEL = {done: "Nettoyé", partial: "Partiel", missed: "Raté", today: "Ouvert", late: "Retard", open: "À venir", future: "Fermé", bonus: "Option", skipped: "Pas fait"};
 function chip(p) {
   if (p.bonus) return `<button class="chip chip-bonus st-${p.st}" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}"><b>+${p.ty}</b><span>Bonus grosse semaine : ${TYPES[p.ty].name}</span><i>${CHIP_LABEL[p.st]}</i></button>`;
   return `<button class="chip st-${p.st} ${p.date === today() ? "today" : ""}" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}"><b>${TYPES[p.ty].chip || p.ty}</b><span>${fmtDay(fromStr(p.date), {weekday: "short", day: "numeric"})}</span><i>${CHIP_LABEL[p.st]}</i></button>`;
 }
+const restBanner = (title, txt, nx) => `<div class="dgate rest" ${nx ? `style="--rc:var(--r-${weekInfo(nx.cw).W.rank})"` : ""}>${nx ? gateArt(nx.ty, "g-bg") : art("hero_status", "g-bg")}<div class="dgate-in"><span class="tagrank">Repos</span><h2>${title}</h2><p>${txt}</p>${nx ? `<button class="g-link" data-act="preview" data-cw="${nx.cw}" data-ty="${nx.ty}">Voir le prochain donjon ›</button>` : ""}</div></div>`;
 function portalWin() {
   if (S.draft && S.draft.active) return "";
   const t = today(), cw = weekOfStr(t), info = weekInfo(cw), dow = (fromStr(t).getDay() + 6) % 7;
-  const wrap = body => `<section class="win"><h2 class="win-title">Donjons de la semaine</h2>${body}</section>`;
+  const wrap = body => `<section class="today-gate"><div class="sec"><h3>Donjon du jour</h3><button class="sec-a" data-act="go" data-v="dungeons">Carte des donjons ›</button></div>${body}</section>`;
   if (!info) return wrap(`<p>Ton programme commence le <b>${fmtDay(startDate(), {weekday: "long", day: "numeric", month: "long"})}</b>. D'ici là : quête quotidienne, repas, pesée.</p>`);
   if (!info.types.length) return blockDoneWin(cw);
   const plan = weekPlan(cw), open = plan.filter(p => !p.bonus && !p.done), bonus = plan.find(p => p.bonus), legs = plan.find(p => p.ty === "J");
   const todayIt = open.find(p => p.date === t);
   let body;
   if (todayIt) body = portalCard(todayIt, "Portail du jour");
-  else if (dow >= 5) body = `<div class="rest-day"><b>Week-end : repos.</b> Deux jours de récupération d'affilée : c'est là que le muscle se reconstruit.${open.length ? `<br><span class="muted">${plural(open.length, "donjon")} pas fait${open.length > 1 ? "s" : ""} cette semaine. Rien ne t'oblige à venir : 3 donjons suffisent pour éviter la pénalité.</span>` : ""}<br>Prochain portail : <b>lundi</b>.</div>`;
+  else if (dow >= 5) body = restBanner("Week-end", `Deux jours de récupération d'affilée : c'est là que le muscle se reconstruit.${open.length ? ` ${plural(open.length, "donjon")} pas fait${open.length > 1 ? "s" : ""} cette semaine${strictWeek(cw) ? " : chaque donjon compte, change son jour pour le faire ce week-end." : " : 3 donjons suffisent pour éviter la pénalité."}` : ""} Prochain portail : lundi.`, strictWeek(cw) && open.length ? open[0] : null);
   else {
     const late = open.filter(p => p.date < t).sort((a, b) => (bigGap(a.ty) ? 1 : 0) - (bigGap(b.ty) ? 1 : 0));
     if (late.length) body = portalCard(late[0], "Portail encore ouvert", `Prévu ${fmtDay(fromStr(late[0].date), {weekday: "long"})}. Tu peux le faire aujourd'hui.`);
     else if (dow === 4 && bonus && !bonus.done && legs && legs.done && legs.done.date < t) body = portalCard(bonus, "Bonus grosse semaine", "Jambes déjà faites cette semaine : Haut aujourd'hui pour finir la grosse semaine.");
-    else if (open.length) { const nx = open[0]; body = `<div class="rest-day"><b>Jour de repos.</b> Le Système recommande : bien manger, bien dormir.<br>Prochain portail : <b>${fmtDay(fromStr(nx.date), {weekday: "long", day: "numeric", month: "long"})}</b>, ${TYPES[nx.ty].name}.</div>`; }
-    else body = `<div class="rest-day"><b>Semaine nettoyée.</b> Tous les donjons prévus sont faits. Récupère.</div>`;
+    else if (open.length) { const nx = open[0]; body = restBanner("Jour de repos", `Bien manger, bien dormir. Prochain portail : ${fmtDay(fromStr(nx.date), {weekday: "long", day: "numeric", month: "long"})}, ${esc(TYPES[nx.ty].name)}.`, nx); }
+    else body = restBanner("Semaine nettoyée", "Tous les donjons prévus sont faits. Récupère.", null);
     if (dow === 2 && legs && !legs.done && !info.deload && info.bonus) body += portalCard(legs, "Option grosse semaine", "Mercredi, c'est repos. Si tu veux une grosse semaine de 5 séances : Jambes aujourd'hui, Haut vendredi.", true);
   }
-  return wrap(body + weekPlanning(cw));
+  return wrap(body);   // the week planning moved to "Ta semaine" (pills)
 }
 const PLAN_ST = {done: "Nettoyé", partial: "Partiel", missed: "Raté", today: "Aujourd'hui", late: "En retard", open: "À venir", future: "À venir", skipped: "Pas fait"};
 function weekPlanning(cw0) {
@@ -2520,6 +2924,18 @@ function weekPlanning(cw0) {
     ${bonus ? `<button class="pday bonus st-${bonus.st}" data-act="preview" data-cw="${bonus.cw}" data-ty="${bonus.ty}"><span class="d">Bonus</span><span class="s"><b>${esc(TYPES[bonus.ty].name)}</b><small>Grosse semaine, si tu veux : un 5e donjon, le jour qui t'arrange</small></span><span class="st">${bonus.done ? "Nettoyé" : "Option"}</span></button>` : ""}
     <p class="muted small">Touche une séance pour voir ses exercices.</p>`;
 }
+function weekPills(cw0) {                    // 14 Nov (Hunter OS): the week as 7 day pills, a tap opens the session
+  const off = state.planOffset || 0, cw = cw0 + off, info = weekInfo(cw), t = today();
+  const seg = `<div class="seg plan-seg" role="group" aria-label="Semaine"><button class="${off ? "" : "on"}" data-act="planWeek" data-o="0">Cette semaine</button><button class="${off ? "on" : ""}" data-act="planWeek" data-o="1">Semaine prochaine</button></div>`;
+  if (!info || !info.types.length) return `${seg}<p class="muted small">Pas de séance prévue cette semaine-là.</p>`;
+  const plan = weekPlan(cw), main = plan.filter(p => !p.bonus), bonus = plan.find(p => p.bonus);
+  const pills = [...Array(7)].map((_, i) => { const day = addDays(weekStart(cw), i), key = toStr(day), ses = main.filter(p => p.date === key), p = ses[0], isT = key === t;
+    const wd = fmtDay(day, {weekday: "short"}).replace(".", "").slice(0, 3).toUpperCase();
+    if (!p) return `<div class="wday rest ${isT ? "today" : ""}"><small>${wd}</small><b>${day.getDate()}</b><em>Repos</em><i></i></div>`;
+    return `<button class="wday st-${p.st} ${isT ? "today" : ""}" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}" aria-label="${esc(fmtDay(day, {weekday: "long"}))} : ${esc(tyLabel(p.ty))}, ${PLAN_ST[p.st] || ""}"><small>${wd}</small><b>${day.getDate()}</b><em>${esc(TYPES[p.ty].chip || p.ty)}${ses.length > 1 ? "+" : ""}</em><i></i></button>`; }).join("");
+  return `${seg}<div class="wpills">${pills}</div>
+    ${bonus ? `<button class="pday bonus st-${bonus.st}" data-act="preview" data-cw="${bonus.cw}" data-ty="${bonus.ty}"><span class="d">Bonus</span><span class="s"><b>${esc(TYPES[bonus.ty].name)}</b><small>Grosse semaine, si tu veux : un 5e donjon, le jour qui t'arrange</small></span><span class="st">${bonus.done ? "Nettoyé" : "Option"}</span></button>` : ""}`;
+}
 function blockDoneWin(cw) {
   const js = jokerState(cw);
   return `<section class="win"><h2 class="win-title">Bloc terminé</h2><p class="sys-line">[Les 8 semaines du programme sont terminées.]</p>
@@ -2533,22 +2949,33 @@ function sleepWin() {
   if (Number(d.sleepH) > 0 || d.sleep === true || d.sick) return "";
   return `<section class="win sleep-win"><h2 class="win-title">Réveil</h2><p class="sys-line">[Combien d'heures as-tu dormi cette nuit ?]</p>${sleepPicker(t, null)}<p class="muted small">Un toucher suffit. Objectif : ${fmt(Number(S.profile?.targets?.sleep) || 7, 1)} h.</p></section>`;
 }
+const QI = {                                  // 14 Nov (Hunter OS): one icon per quest line
+  food: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M5 3v5a2 2 0 004 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10"/></svg>',
+  protein: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9h12l-1 11H7z"/><path d="M9 9V5h6v4M9 13h6"/></svg>',
+  sleep: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14A8 8 0 1110 4a6 6 0 0010 10z"/></svg>',
+  steps: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3c2 0 3 3 3 6s-1 4-3 4-3-1-3-4 1-6 3-6zM16 9c2 0 3 3 3 6s-1 4-3 4-3-1-3-4 1-6 3-6z"/></svg>',
+  water: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4 5 6 8 6 11a6 6 0 01-12 0c0-3 2-6 6-11z"/></svg>',
+  study: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3z"/><path d="M5 17a3 3 0 013-3h11"/></svg>',
+  fast: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7"/><path d="M12 9v4l3 2M10 3h4"/></svg>',
+};
 function questWin() {
   const off = state.dayOffset; const key = toStr(addDays(fromStr(today()), off)); const d = S.days[key] || {}; const e = dayEval(key), I = e.items;
-  const box = '<span class="box" aria-hidden="true"></span>';
-  const auto = (k, label) => `<li><button class="q ${I[k].done ? "on" : ""} ${I[k].req || I[k].done ? "" : "na"}" data-act="go" data-v="meals">${box}<span class="q-l">${label}</span><span class="q-t">[ ${I[k].txt} ]</span></button></li>`;
-  const check = (k, label) => I[k].off ? "" : `<li><button class="q ${I[k].done ? "on" : ""} ${I[k].req || I[k].done ? "" : "na"}" data-act="q" data-k="${k}" role="checkbox" aria-checked="${I[k].done}">${box}<span class="q-l">${label}</span><span class="q-t">${I[k].done ? "[Complété]" : "[ " + I[k].txt + " ]"}</span></button></li>`;
-  const sv = state.sleepDraft[key] ?? (Number(d.sleepH) > 0 ? fmtIn(Number(d.sleepH)) : "");
+  const box = '<span class="box" aria-hidden="true"></span>', ic = k => `<span class="qic" aria-hidden="true">${QI[k]}</span>`;
+  const auto = (k, label) => `<li><button class="q ${I[k].done ? "on" : ""} ${I[k].req || I[k].done ? "" : "na"}" data-act="go" data-v="meals">${ic(k)}<span class="q-l">${label}</span><span class="q-t">${I[k].txt}</span>${box}</button></li>`;
+  const check = (k, label) => I[k].off ? "" : `<li><button class="q ${I[k].done ? "on" : ""} ${I[k].req || I[k].done ? "" : "na"}" data-act="q" data-k="${k}" role="checkbox" aria-checked="${I[k].done}">${ic(k)}<span class="q-l">${label}</span><span class="q-t">${I[k].done ? "Complété" : I[k].txt}</span>${box}</button></li>`;
   const sl = Number(d.sleepH) || 0, tgt = Number(S.profile?.targets?.sleep) || 7;
-  const sleepRow = `<li><button class="q ${I.sleep.done ? "on" : ""}" data-act="sleepOpen" data-d="${key}">${box}<span class="q-l">Sommeil <small class="muted">(nuit d'avant)</small></span><span class="q-t">${sl ? `[ ${fmt(sl, 1)} / ${fmt(tgt, 1)} h ]` : "[ Toucher pour noter ]"}</span></button>${state.sleepOpen === key ? sleepPicker(key, sl) : ""}</li>`;
+  const sleepRow = `<li><button class="q ${I.sleep.done ? "on" : ""}" data-act="sleepOpen" data-d="${key}">${ic("sleep")}<span class="q-l">Sommeil <small class="muted">(nuit d'avant)</small></span><span class="q-t">${sl ? `${fmt(sl, 1)} / ${fmt(tgt, 1)} h` : "Toucher pour noter"}</span>${box}</button>${state.sleepOpen === key ? sleepPicker(key, sl) : ""}</li>`;
   const wv = state.weighDraft[key] ?? (Number(d.weight) > 0 ? fmtIn(Number(d.weight)) : "");
+  const ks = ["food", "protein", "sleep", ...["steps", "water", "study", "fast"].filter(k => I[k] && !I[k].off)], nd = ks.filter(k => I[k].done).length;
+  const head = e.sick ? "En pause : tu es malade" : e.full ? `Accomplie : +${e.xp} XP · +${e.gold} or` : `Tout faire : +${e.maxXp} XP${off === 0 ? ` · reste <b id="qTimer">--:--:--</b>` : ""}`;
   return `<section class="win quest ${e.full ? "is-done" : ""}"><h2 class="win-title">Quête quotidienne</h2>
-    <p class="sys-line">[Préparation du corps du Joueur]${e.free ? " · Jour libre" : ""}</p>
+    <div class="qhead"><div class="qring"><svg viewBox="0 0 50 50" aria-hidden="true"><circle class="rg-bg" cx="25" cy="25" r="21"/>${nd ? `<circle class="rg-fg" cx="25" cy="25" r="21" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100 - Math.round(nd / ks.length * 100)}"/>` : ""}</svg><b>${nd}/${ks.length}</b></div>
+      <div><b>Préparation du corps du Joueur${e.free ? " · jour libre" : ""}</b><small>${head}</small></div></div>
     <div class="seg" role="group" aria-label="Jour de la quête"><button class="${off === -1 ? "on" : ""}" data-act="day" data-o="-1">Hier</button><button class="${off === 0 ? "on" : ""}" data-act="day" data-o="0">Aujourd'hui</button></div>
     <ul class="qlist">${auto("food", "Repas notés")}${auto("protein", "Protéines")}${sleepRow}${check("steps", "Pas")}${check("water", "Eau")}${check("study", "Révisions")}${I.fast.off ? "" : check("fast", "Jeûne " + fastPlan(S.profile).label + " respecté")}</ul>
     ${e.malus.map(m => `<p class="malus">[Malus] ${m.txt} : −${Math.abs(m.xp)} XP</p>`).join("")}
     <div class="weigh"><label for="weighIn">Pesée du matin, à jeun, chaque jour (seule la moyenne compte)</label><div class="weigh-in"><input id="weighIn" data-bind="weigh" data-key="${key}" inputmode="decimal" autocomplete="off" placeholder="—" value="${esc(wv)}"><span>kg</span></div></div>
-    ${e.sick ? `<p class="reading">[Malade] Quête en pause aujourd'hui : pas de malus et ta série est gardée. Repose-toi, et décale tes donjons si besoin (touche une séance du planning).</p>` : e.full ? `<p class="done-line">[Quête accomplie] +${e.xp} XP · +${e.gold} or</p>` : `<p class="warn">Tout faire : +${e.maxXp} XP${off === 0 ? ` · temps restant <b id="qTimer">--:--:--</b>` : ""}</p>`}
+    ${e.sick ? `<p class="reading">[Malade] Quête en pause aujourd'hui : pas de malus et ta série est gardée. Repose-toi, et décale tes donjons si besoin (touche une séance du planning).</p>` : ""}
     <button class="link" data-act="sickDay" data-d="${key}" data-v="${e.sick ? 0 : 1}">${e.sick ? "Je ne suis plus malade" : off === 0 ? "Je suis malade aujourd'hui" : "J'étais malade ce jour-là"}</button>
     <details class="fold"><summary>Règles de la quête</summary><div><p class="small">Une quête incomplète remet ta série à zéro. Moins de ${fmt((Number(S.profile?.targets?.sleep) || 7) - 1, 1)} h de sommeil : −40 XP. Une journée sans repas notés : −40 XP ; notée à moins de 60 % de ta cible : −25 XP (une journée à moitié notée fausse tous les calculs). 3 jours sans pesée : −15 XP.</p></div></details>
   </section>`;
@@ -2557,7 +2984,7 @@ function weekWin() {
   const cw = weekOfStr(today()), info = weekInfo(cw); if (!info || !info.types.length) return "";
   const c = weekCounts(cw), reqd = Math.max(0, requiredSessions(info) - skipsInWeek(cw)), W = info.W;
   const sched = planSched(info);
-  return `<section class="win"><h2 class="win-title">${weekTitle(info)}</h2>
+  return `<div class="sec"><h3>Ta semaine</h3><span class="sec-n">${c.main} / ${c.planned} donjons</span></div>${weekPills(cw)}<section class="win"><h2 class="win-title">${weekTitle(info)}</h2>
     <div class="wk-head"><b>${W.phase}</b><span>${c.main} / ${c.planned} donjons${c.bonusDone ? " + bonus" : ""}</span></div>
     <div class="xpbar thin" aria-hidden="true"><i style="width:${Math.round(c.main / c.planned * 100)}%"></i></div>
     <ul class="rules"><li>${sched}</li>
@@ -2589,7 +3016,7 @@ function viewDungeons() {
       ${(ps => `<div class="chips ${ps.length >= 5 ? "n5" : ""}">${ps.map(chip).join("")}</div>`)([...weekPlan(cw)].sort((a, b) => String(a.date || "9").localeCompare(String(b.date || "9"))))}</div>`);
   }
   const jl = jokersUsed() >= JOKERS ? "utilisé" : "disponible (onglet Statut, avant le premier donjon de la semaine)";
-  return topbar() + `<section class="win"><h2 class="win-title">Carte des donjons</h2><p class="lead">8 semaines de programme à partir du ${fmtDay(startDate(), {day: "numeric", month: "long"})}. ${curPlan().lead} Touche un donjon pour voir ses exercices.</p>${curPlan().noJoker ? "" : `<p class="small">Joker semaine allégée : ${jl}.</p>`}${weeks.join("")}</section>` + (curPlan().id === "base" ? grimoire() : planGrimoire());
+  return pageHero(gateArt("DB", "ph-bg"), "Donjons", "La carte de tes 8 semaines") + `<section class="win"><h2 class="win-title">Carte des donjons</h2><p class="lead">8 semaines de programme à partir du ${fmtDay(startDate(), {day: "numeric", month: "long"})}. ${curPlan().lead} Touche un donjon pour voir ses exercices.</p>${curPlan().noJoker ? "" : `<p class="small">Joker semaine allégée : ${jl}.</p>`}${weeks.join("")}</section>` + (curPlan().id === "base" ? grimoire() : planGrimoire());
 }
 function planGrimoire() {
   const id = curPlan().id;
@@ -2653,10 +3080,11 @@ function viewDungeon() {
   const d = S.draft, plan = draftPlan(d), W = d.deload ? DELOAD : curPlan().weeks[d.week];
   const cnt = setCount(d, plan, (it, n) => (d.sets[it.ex] || []).slice(0, n).filter(setDone).length), planned = cnt.planned, doneReq = cnt.counted;
   const pct = planned ? Math.round(doneReq / planned * 100) : 0;
-  return `<div class="dg-top"><button class="btn ghost sm" data-act="dgMenu">Pause</button><div class="dg-name">${sessLabel(d)} · ${tyLabel(d.type)}</div><div class="dg-clock" id="dgClock">00:00</div></div>
-    <div class="xpbar" role="progressbar" aria-label="Séries faites" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
-    <section class="win">${gateArt(d.type)}<h2 class="win-title">${esc(TYPES[d.type].gate)}</h2>
-      <p class="sys-line">[Vous êtes entré dans un donjon de rang ${W.rank}.] ${doneReq} / ${planned} séries</p>
+  return `<div class="dg-top"><button class="pause" data-act="dgMenu">Pause</button><div class="dg-name">${sessLabel(d)} · ${tyLabel(d.type)}</div><div class="dg-clock" id="dgClock">00:00</div></div>
+    <section class="runhead" style="--rc:var(--r-${W.rank})">${gateArt(d.type, "rh-bg")}<div class="rh-in"><div><span class="tagrank">Rang ${W.rank} · ${esc(sessLabel(d))}</span><h2>${esc(TYPES[d.type].gate)}</h2><p>${esc(tyLabel(d.type))}</p></div>
+      <div class="prog" role="progressbar" aria-label="Séries faites" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><svg viewBox="0 0 66 66" aria-hidden="true"><circle class="pg-bg" cx="33" cy="33" r="28"/><circle class="pg-fg" cx="33" cy="33" r="28" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100 - pct}"/></svg><b>${doneReq}/${planned}<small>SÉRIES</small></b></div></div></section>
+    <section class="win dg-intro">
+      <p class="sys-line">[Vous êtes entré dans un donjon de rang ${W.rank}.]</p>
       ${d.hype ? `<p class="sugg up">[Message du Système] ${esc(d.hype)}</p>` : ""}
       <button class="q ${d.warm ? "on" : ""}" data-act="warm" role="checkbox" aria-checked="${!!d.warm}"><span class="box" aria-hidden="true"></span><span class="q-l">Échauffement</span><span class="q-t">${d.warm ? "[Fait]" : "[À faire]"}</span></button>
       <p class="muted small">5 min de cardio léger, 2 séries de montée progressive sur le premier exercice, puis 1 série légère avant chaque nouveau mouvement.</p>
@@ -2665,7 +3093,8 @@ function viewDungeon() {
       ${d.week === 8 && !d.deload && planTest()[d.type] ? `<p class="sugg test">Semaine du bilan : les exercices marqués « Épreuve » mesurent ta progression depuis S4.</p>` : ""}
       ${d.week === 1 && !d.deload ? `<p class="sugg">${curPlan().s1}</p>` : curPlan().id === "felix" && d.week <= 3 && !d.deload ? `<p class="sugg">${curPlan().s1}</p>` : ""}
     </section>
-    ${(chalEx => plan.map((it, i) => exCard(it, i, d, chalEx)).join(""))((plan.find(it => setsTarget(it, d) > 0 && EX[it.ex] && EX[it.ex].eq !== "bw" && !it.maint && !it.test) || {}).ex)}
+    ${(chalEx => { const cur = (plan.find(it => { const n = setsTarget(it, d); return n > 0 && (d.sets[it.ex] || []).slice(0, n).filter(r => r.done).length < n; }) || {}).ex;   // the exercise in progress
+      return plan.map((it, i) => exCard(it, i, d, chalEx, cur, plan)).join(""); })((plan.find(it => setsTarget(it, d) > 0 && EX[it.ex] && EX[it.ex].eq !== "bw" && !it.maint && !it.test) || {}).ex)}
     <button class="btn ghost wide" data-act="addExOpen">＋ Ajouter un exercice</button>
     ${curPlan().finisher ? `<section class="win"><h2 class="win-title">Finisher</h2><button class="q ${d.fin ? "on" : ""}" data-act="fin" role="checkbox" aria-checked="${!!d.fin}"><span class="box" aria-hidden="true"></span><span class="q-l">10 à 15 min de cardio</span><span class="q-t">${d.fin ? "[Fait]" : "+20 XP · +10 or"}</span></button><p class="muted small">Marche inclinée (pente 8 à 12 %) ou rameur, à un rythme où tu peux encore parler. Ça brûle sans te fatiguer pour la séance suivante.</p></section>` : ""}
     <button class="btn primary wide big" data-act="finishAsk">Terminer le donjon</button>`;
@@ -2683,8 +3112,17 @@ function warmupFor(it, i, d, kg) {
   for (const [p, r] of plan) { const w = rnd(kg * p); if (w > 0 && w < kg && (!out.length || w > out[out.length - 1][0])) out.push([w, r]); }
   return out.length ? out : null;
 }
-function exCard(it, i, d, chalEx) {
+function exMini(it, i, n, rows, cleared) {    // 14 Nov (Hunter OS): a folded exercise (done, coming next or skipped); a tap opens it
+  const ex = EX[it.ex], dn = rows.slice(0, n).filter(r => r.done), kgT = r => { const k = parseNum(r.kg); return ex.eq === "bw" ? (k > 0 ? "PDC+" + fmt(k) : "PDC") : fmt(k); };
+  const st = n === 0 ? "skip" : cleared ? "done" : dn.length ? "part" : "next";
+  const info = n === 0 ? "Exercice passé" : dn.length ? dn.map(r => kgT(r) + "×" + r.reps).join(" · ") : `${n} × ${repsTxt(it)}${parseNum(rows[0]?.kg) > 0 ? " · " + kgT(rows[0]) + (ex.eq === "bw" ? "" : " kg") : ""}`;
+  return `<button class="exmini ${st}" id="ex-${it.ex}" data-act="exOpen" data-ex="${it.ex}"><span class="exn">${pad(i + 1)}</span><span class="em"><b>${esc(ex.n)}</b><small>${info}</small></span><em>${st === "done" ? "✓" : st === "skip" ? "Passé" : st === "part" ? dn.length + "/" + n : "À venir"}</em></button>`;
+}
+function exCard(it, i, d, chalEx, cur, plan) {
   const ex = EX[it.ex], n = setsTarget(it, d), rows = d.sets[it.ex] || [];
+  const done0 = rows.slice(0, n).filter(r => r.done).length, ci = plan ? plan.findIndex(x => x.ex === cur) : -1;
+  const pair = it.superset && ci >= 0 && plan[ci].superset && Math.abs(i - ci) === 1 && done0 < n;   // a superset partner stays open with the current one
+  if (plan && it.ex !== cur && it.ex !== state.dgHold && !pair && !(state.dgOpen || {})[it.ex]) return exMini(it, i, n, rows, done0 >= n);
   const grip = (d.grip || {})[it.ex], sg = suggest(it, {p: d.week, deload: !!d.deload}, grip);
   const done = rows.slice(0, n).filter(r => r.done).length, cleared = done >= n;
   const tags = [i === 0 ? `<span class="tag boss">Boss</span>` : "", it.test ? `<span class="tag test">Épreuve</span>` : "", `<span class="tag">${ex.kind === "poly" ? "Gros mouvement" : "Isolation"}</span>`, `<span class="tag">Repos ${RESTTXT[it.rest]}</span>`, it.opt ? `<span class="tag">Option</span>` : "", it.maint ? `<span class="tag">Entretien</span>` : "", it.superset ? `<span class="tag">Superset</span>` : ""].join("");
@@ -2699,7 +3137,7 @@ function exCard(it, i, d, chalEx) {
   let recN = 0; if (recKg > 0 && pbE > 0 && ex.eq !== "bw") for (let k = 1; k <= it.reps[1] + 5; k++) if (e1rm(it.ex, recKg, k) > pbE + 0.05) { recN = k; break; }
   const rec = recN && rows.slice(0, n).some(r => !r.done) ? `<div class="rec"><b>[Record à battre]</b> ${fmt(recKg)} kg × <b>${recN}</b> reps${recN <= it.reps[1] ? "" : " (ou monte de charge)"} = nouveau record.</div>` : "";
   const ph = k => (it.test && k === 0) ? "max" : chalKg != null && parseNum(rows[k]?.kg) >= chalKg ? (k === 0 ? "max" : it.reps[0] + "-" + it.reps[1]) : (sg.reps[k] != null ? sg.reps[k] : (it.reps[0] === it.reps[1] ? it.reps[0] : it.reps[0] + "-" + it.reps[1]));
-  const setRows = rows.slice(0, n).map((r, k) => `<div class="set-row ${r.done ? "done" : ""}"><span class="sn">${k + 1}</span>
+  const fu = rows.slice(0, n).findIndex(r => !r.done), setRows = rows.slice(0, n).map((r, k) => `<div class="set-row ${r.done ? "done" : ""} ${k === fu ? "now" : ""}"><span class="sn">${k + 1}</span>
       <input id="kg-${it.ex}-${k}" data-bind="dg" data-f="kg" data-ex="${it.ex}" data-i="${k}" inputmode="decimal" autocomplete="off" value="${esc(r.kg)}" placeholder="kg" aria-label="Charge en kg, série ${k + 1}">
       <input id="rp-${it.ex}-${k}" data-bind="dg" data-f="reps" data-ex="${it.ex}" data-i="${k}" inputmode="numeric" autocomplete="off" value="${esc(r.reps)}" placeholder="${ph(k)}" aria-label="Reps, série ${k + 1}">
       <button class="chk" data-act="set" data-ex="${it.ex}" data-i="${k}" aria-label="Valider la série ${k + 1}" aria-pressed="${!!r.done}">${ICON.check}</button></div>`).join("");
@@ -2713,13 +3151,13 @@ function exCard(it, i, d, chalEx) {
   const wu = !anyDone && n > 0 ? warmupFor(it, i, d, parseNum(rows[0]?.kg) || sugKg) : null;
   const warmLine = wu ? `<div class="warmup"><span class="lbl">Échauffement</span>${wu.map(([w, r]) => `<b>${fmt(w)} kg × ${r}</b>`).join('<span aria-hidden="true">›</span>')}<small class="muted">${wu.length > 1 ? "Repos court entre ces séries, sans forcer. Elles ne comptent pas dans le donjon." : "Une série légère pour régler le geste."}</small></div>` : "";
   const gr = GRIP_OF[it.ex], gripRow = gr ? `<div class="grip"><span class="lbl">Prise</span><div class="grip-b">${gr.map(g => `<button class="${grip === g ? "on" : ""}" data-act="grip" data-ex="${it.ex}" data-g="${g}">${g}</button>`).join("")}</div></div>` : "";
-  return `<article class="ex ${i === 0 ? "boss" : ""} ${cleared ? "cleared" : ""}" id="ex-${it.ex}">
+  return `<article class="ex ${i === 0 ? "boss" : ""} ${cleared ? "cleared" : ""} ${it.ex === cur ? "now" : ""}" id="ex-${it.ex}">
     <div class="ex-h"><span class="ex-n">${pad(i + 1)}</span><div><h3>${esc(ex.n)}</h3><div class="tags">${tags}</div></div></div>
     <div class="target"><b>${n} × ${repsTxt(it)}</b> · ${it.rir.txt}</div>
     ${it.rir.fail ? `<div class="fail">Dernière série : jusqu'à l'échec</div>` : ""}
     <p class="cue">${esc(it.cue)}</p>${gripRow}${last}${sugg}${chal}${rec}${warmLine}${n === 0 ? `<p class="muted small">Exercice passé (machine prise ou en panne).</p>` : ""}
     <div class="sets" ${n === 0 ? "hidden" : ""}><div class="set-row head" aria-hidden="true"><span></span><span>${ex.eq === "bw" ? "Lest kg" : "kg"}</span><span>Reps</span><span></span></div>${setRows}</div>
-    <div class="set-links">${plus}${n > 0 ? minus + unminus : ""}${altBtn}${skip}</div></article>`;
+    <div class="set-links">${plus}${n > 0 ? minus + unminus : ""}${altBtn}${skip}${plan && it.ex !== cur && it.ex !== state.dgHold ? `<button class="link" data-act="exOpen" data-ex="${it.ex}">Replier</button>` : ""}</div></article>`;
 }
 
 /* ----- results ----- */
@@ -2732,7 +3170,7 @@ function viewResults() {
   const chest = d.loot ? `<div class="chest"><button class="chest-btn ${r.opened ? "open" : ""}" data-act="${r.opened ? "openChest" : "chestShake"}" style="--tc:${TC[d.loot.tier]}" aria-label="Ouvrir le coffre">${(window.GL_IMGS || []).includes("chest_closed") ? `<img class="chest-img" src="img/${r.opened ? "chest_open" : "chest_closed"}.webp?v=${IMG_V}" alt="">` : CHEST_SVG}</button>
       ${r.opened ? `<p class="loot" style="--tc:${TC[d.loot.tier]}">Coffre ${d.loot.tier} : +${d.loot.gold} or</p>` : `<button class="btn gold" data-act="chestShake">Ouvrir le coffre</button>`}</div>` : "";
   const newAch = r.after.ach.filter(a => !r.before.achIds.has(a.id));
-  return `<section class="win"><h2 class="win-title">[Système]</h2><h1 class="res-title ${cls}">${title}</h1>
+  return `<section class="win res-win">${gateArt(d.type, "res-art")}<p class="res-eyebrow">[Système]</p><h1 class="res-title ${cls}">${title}</h1>
       <p class="sys-line" style="text-align:center">${sessLabel(d)} · ${sessName(d)}</p>
       <div class="res-grid"><div class="res-cell"><b>${d.doneReq}/${d.planned}</b><span>Séries</span></div><div class="res-cell"><b>${d.minutes}</b><span>Minutes</span></div><div class="res-cell"><b>${(d.prs || []).length}</b><span>Records</span></div></div>
       <div class="gain"><span class="x" data-count>+${d.xp} XP</span><span class="g">+${d.gold - (d.loot && !r.opened ? d.loot.gold : 0)} or${d.loot && !r.opened ? " + coffre" : ""}</span></div>
@@ -2753,23 +3191,67 @@ function resultsFx() {
 }
 
 /* ----- shop ----- */
-function viewShop(P) {
-  const items = (S.rewards?.items || []);
-  const locked = !!P.penalty;
-  const row = it => { const can = !locked && P.gold >= it.cost; return `<li class="rw"><span class="rw-n">${esc(it.name)}${it.food ? ' <span class="tag">Repas</span>' : ""}${it.effect === "skip" ? ' <span class="tag test">Laissez-passer</span>' : ""}</span><span class="rw-c"><i class="coin"></i>${fmt(it.cost, 0)}</span><button class="btn sm ${can ? "gold" : "ghost"}" data-act="buy" data-id="${esc(it.id)}" ${can ? "" : "disabled"}>${locked ? "Verrouillé" : can ? "Échanger" : `Encore ${fmt(it.cost - P.gold, 0)}`}</button></li>`; };
-  const tiers = TIERS.map(t => { const list = items.filter(i => i.tier === t.k).sort((a, b) => a.cost - b.cost); return list.length ? `<section class="win"><h2 class="win-title">${t.name}</h2><ul class="shop">${list.map(row).join("")}</ul></section>` : ""; }).join("");
-  const claimed = r => S.purchases.find(p => p.kind === "rank" && p.rank === r);
-  const rankRows = ["D", "C", "B", "A", "S"].map(r => { const got = RANKS.indexOf(P.rank) >= RANKS.indexOf(r); const c = claimed(r); const name = S.rewards?.rank?.[r] || RANK_DEFAULT[r];
-    return `<li class="rw ${c ? "claimed" : ""}"><span class="rw-n">${rankBadgeInline(r)} ${esc(name)}</span><span class="rw-c muted" style="color:var(--muted)">${c ? "Réclamée le " + fmtDay(fromStr(c.date), {day: "numeric", month: "short"}) : got ? "Débloquée" : "Au niveau " + RANK_LEVEL[r] + (r === "S" ? " + épreuves de S8" : "")}</span><button class="btn sm ${got && !c ? "gold" : "ghost"}" data-act="claimRank" data-r="${r}" ${got && !c ? "" : "disabled"}>${c ? "Prise" : got ? "Réclamer" : "Verrouillée"}</button></li>`; }).join("");
-  const hist = [...S.purchases].sort((a, b) => String(b.ts || "").localeCompare(String(a.ts || ""))).slice(0, 12);
-  return topbar() + `<section class="win">${art("shop")}<h2 class="win-title">Boutique du Système</h2><div class="money big"><i class="coin"></i><b>${fmt(P.gold, 0)}</b> or</div>
-      ${locked ? `<p class="lock">[Boutique verrouillée] Termine d'abord la quête de pénalité (onglet Statut).</p>` : `<p class="muted small">L'or se gagne dans les donjons, la quête quotidienne et les titres. Une semaine complète rapporte environ 700 à 900 or. Tu échanges, tu vas en profiter dans la vraie vie.</p>`}</section>
-    ${tiers || `<section class="win"><p class="empty">Aucune récompense dans la boutique. Ajoute les tiennes avec le bouton ci-dessous.</p></section>`}
-    <section class="win"><h2 class="win-title">Récompenses de rang</h2><p class="muted small">Gratuites : chaque nouveau rang débloque la sienne.</p><ul class="shop">${rankRows}</ul></section>
-    <section class="win"><h2 class="win-title">Historique</h2>${hist.length ? `<ul class="hist-list">${hist.map(p => `<li><span>${fmtDay(fromStr(p.date), {day: "numeric", month: "short"})} · ${esc(p.name)}${p.usedOn ? ' <small class="muted">(mangé le ' + fmtDay(fromStr(p.usedOn), {day: "numeric", month: "short"}) + ")</small>" : ""}</span><span>${p.kind === "rank" ? "Rang " + p.rank : "−" + fmt(p.cost, 0) + " or"}</span></li>`).join("")}</ul>` : `<p class="empty">Rien d'échangé pour l'instant. Ta première récompense t'attend après quelques donjons.</p>`}</section>
-    ${(() => { const ideas = rewardIdeas(); state.ideas = ideas; return ideas.length ? `<section class="win"><h2 class="win-title">Idées de récompenses</h2><p class="muted small">Touche « + » pour l'ajouter à ta boutique. Tu peux ensuite changer son nom ou son prix avec « Modifier mes récompenses ».</p>
-      ${TIERS.map(t => { const l = ideas.map((r, i) => ({r, i})).filter(x => x.r.tier === t.k); return l.length ? `<span class="lbl">${t.name}</span><ul class="shop">${l.map(({r, i}) => `<li class="rw idea"><span class="rw-n">${esc(r.name)}${r.food ? ' <span class="tag">Repas</span>' : ""}</span><span class="rw-c"><i class="coin"></i>${fmt(r.cost, 0)}</span><button class="btn sm" data-act="rwIdea" data-i="${i}" aria-label="Ajouter ${esc(r.name)}">+</button></li>`).join("")}</ul>` : ""; }).join("")}</section>` : ""; })()}
-    <button class="btn ghost wide" data-act="editShop">Modifier mes récompenses</button>`;
+const RARITY = {petite: ["Commun", "var(--cyan)"], moyenne: ["Rare", "var(--violet)"], grosse: ["Épique", "var(--gold)"], legendaire: ["Légendaire", "#ffb347"]};
+const RW_IMG = [                              // 14 Nov: a Gemini picture per reward, picked from its name (accents ignored); unknown ones get rw_default
+  [/sauter une seance|laissez/, "rw_skip"], [/monster|energy|boisson energ/, "rw_monster"], [/cafe/, "rw_cafe"], [/milkshake/, "rw_milkshake"],
+  [/crepe|gaufre/, "rw_crepe"], [/sushi/, "rw_sushi"], [/kebab|tacos/, "rw_kebab"], [/entrecote|steak/, "rw_entrecote"],
+  [/lolo|zaza|pizzeria/, "rw_pizzeria"], [/pizza/, "rw_pizza"], [/burger maison/, "rw_burger_maison"], [/burger/, "rw_burger"],
+  [/pates|saumon/, "rw_pates"], [/raclette|tartiflette|fondue/, "rw_raclette"], [/repas plaisir|sans limite/, "rw_festin"],
+  [/dessert|patisserie|gateau/, "rw_dessert"], [/\bbar\b|apero|biere/, "rw_bar"], [/resto/, "rw_resto"],
+  [/whey|proteine/, "rw_whey"], [/creatine/, "rw_creatine"], [/shaker/, "rw_shaker"], [/sangle/, "rw_sangles"],
+  [/ceinture/, "rw_ceinture"], [/chaussure|basket/, "rw_chaussures"], [/tenue|survetement/, "rw_tenue"], [/maillot/, "rw_maillot"],
+  [/t-shirt|tee-shirt|short|debardeur/, "rw_tshirt"], [/equipement|sac de sport/, "rw_sac"], [/soiree jeux|soiree jeu/, "rw_soiree_jeux"],
+  [/deluxe|collector/, "rw_jeu_deluxe"], [/jeu video|jeux video|console/, "rw_jeu"], [/week-end|weekend|voyage/, "rw_weekend"],
+  [/sortie|karting|laser|escape|bowling|cinema/, "rw_sortie"], [/fin d'aventure|grosse recompense|a toi de la choisir|objet de ton choix/, "rw_ultime"],
+];
+const rwNorm = t => String(t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+function rwImg(name) {
+  const n = rwNorm(name), have = window.GL_IMGS || [];
+  const fb = MEAL_RE.test(n) && have.includes("rw_repas") ? "rw_repas" : have.includes("rw_default") ? "rw_default" : null;   // unknown meal / unknown reward
+  for (const [re, k] of RW_IMG) if (re.test(n)) return have.includes(k) ? k : fb;
+  return fb;
+}
+const MEAL_RE = /pizza|resto|burger|kebab|tacos|sushi|repas|entrecote|dessert|patisserie|crepe|gaufre|raclette|tartiflette|pates|milkshake|cafe|monster/;
+const isMeal = p => !!p.food || (p.kind === "rank" && MEAL_RE.test(rwNorm(p.name)));   // a rank reward that is a meal is validated in Repas
+const RW_GEM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 18 3-18"/></svg>';
+const rwVisual = p => { const k = rwImg(p.name); return k ? `<img src="img/${k}.webp?v=${IMG_V}" alt="" loading="lazy">` : `<span class="ico">${isMeal(p) ? ICON.food : RW_GEM}</span>`; };
+const rwPic = (name, tc) => { const k = rwImg(name); return k ? `<img class="m-rw" src="img/${k}.webp?v=${IMG_V}" alt="" style="--tc:${tc || "var(--gold)"}">` : ""; };
+const invItems = () => S.purchases.filter(p => !p.usedOn && p.effect !== "skip").sort((a, b) => String(b.ts || b.date || "").localeCompare(String(a.ts || a.date || "")));
+function ticketRow(p, act, d, label) {         // one ticket of the inventory (Boutique) or of Repas
+  const it = (S.rewards?.items || []).find(i => i.id === p.rewardId), r = p.kind === "rank" ? ["Rang " + p.rank, `var(--r-${p.rank})`] : RARITY[it?.tier] || RARITY.petite;
+  return `<div class="ticket2" style="--tc:${r[1]}"><span class="tk-img">${rwVisual(p)}</span><span class="tk-b"><b>${esc(p.name)}</b><small>${r[0]} · obtenu le ${fmtDay(fromStr(p.date), {day: "numeric", month: "short"})}${isMeal(p) ? " · ticket repas" : ""}</small></span><button class="use" data-act="${act}" data-pid="${esc(p.id)}" data-d="${d}">${label}</button></div>`;
+}
+function viewShop(P) {                        // 14 Nov (Hunter OS): wallet over the illustration, tabs Boutique / Inventaire / Rangs
+  const items = (S.rewards?.items || []), locked = !!P.penalty, tab = state.shopTab || "shop", inv = invItems(), WEEK = 800;
+  const head = `<section class="shophero">${art("shop", "sh-bg")}${topbar()}<div class="wallet ${locked ? "locked" : ""}"><h2>Boutique du Système</h2><div class="amt"><i class="coin"></i><b>${fmt(P.gold, 0)}</b></div><small>${locked ? "Verrouillée : termine d'abord la quête de pénalité (onglet Statut)." : "Une semaine complète rapporte environ 700 à 900 or."}</small></div></section>
+    <div class="tabs3" role="tablist" aria-label="Boutique"><button role="tab" class="${tab === "shop" ? "on" : ""}" aria-selected="${tab === "shop"}" data-act="shopTab" data-t="shop">Boutique</button><button role="tab" class="${tab === "inv" ? "on" : ""}" aria-selected="${tab === "inv"}" data-act="shopTab" data-t="inv">Inventaire${inv.length ? ` <em>${inv.length}</em>` : ""}</button><button role="tab" class="${tab === "rank" ? "on" : ""}" aria-selected="${tab === "rank"}" data-act="shopTab" data-t="rank">Rangs</button></div>`;
+  if (tab === "inv") {
+    const t = today(), hist = [...S.purchases].filter(p => p.usedOn || p.effect === "skip").sort((a, b) => String(b.usedOn || b.date || "").localeCompare(String(a.usedOn || a.date || ""))).slice(0, 15);
+    return head + `<section class="win"><h2 class="win-title">Inventaire</h2><p class="muted small">Tes récompenses gagnées. Utilise-les le jour où tu en profites. Un ticket repas compte comme un repas noté, sans compter ses calories.</p>
+      ${inv.length ? `<div class="tickets">${inv.map(p => ticketRow(p, isMeal(p) ? "ticketUse" : "invUse", t, "Utiliser")).join("")}</div>` : `<p class="empty">Inventaire vide. Échange ton or dans la Boutique : tes récompenses arrivent ici.</p>`}</section>
+      <section class="win"><h2 class="win-title">Déjà utilisées</h2>${hist.length ? `<ul class="hist-list">${hist.map(p => `<li><span>${esc(p.name)}<small class="muted"> · ${p.effect === "skip" ? "laissez-passer du " + fmtDay(fromStr(p.date), {day: "numeric", month: "short"}) : "le " + fmtDay(fromStr(p.usedOn), {day: "numeric", month: "short"})}</small></span><span>${p.kind === "rank" ? "Rang " + p.rank : "−" + fmt(p.cost, 0) + " or"}</span></li>`).join("")}</ul>` : `<p class="empty">Rien d'utilisé pour l'instant.</p>`}</section>`;
+  }
+  if (tab === "rank") {
+    const claimed = r => S.purchases.find(p => p.kind === "rank" && p.rank === r);
+    const rows = ["D", "C", "B", "A", "S"].map(r => { const got = RANKS.indexOf(P.rank) >= RANKS.indexOf(r), c = claimed(r), name = S.rewards?.rank?.[r] || RANK_DEFAULT[r];
+      return `<div class="rkrow ${got ? "got" : "lock"}" style="--rc:var(--r-${r})">${hexBadge(r, "sm")}<span class="rk-img">${rwVisual({name})}</span><span class="rk-b"><b>${esc(name)}</b><small>${c ? (c.usedOn ? "Utilisée le " + fmtDay(fromStr(c.usedOn), {day: "numeric", month: "short"}) : "Dans ton inventaire") : got ? "Débloquée : réclame-la" : "Au niveau " + RANK_LEVEL[r] + (r === "S" ? " + épreuves de S8" : "")}</small></span>${got && !c ? `<button class="use" data-act="claimRank" data-r="${r}">Réclamer</button>` : ""}</div>`; }).join("");
+    return head + `<section class="win"><h2 class="win-title">Récompenses de rang</h2><p class="muted small">Gratuites : chaque nouveau rang débloque la sienne. Une fois réclamée, elle attend dans ton inventaire.</p><div class="rklist">${rows}</div></section>`;
+  }
+  const order = TIERS.map(t => t.k), sorted = [...items].sort((a, b) => order.indexOf(a.tier) - order.indexOf(b.tier) || a.cost - b.cost);
+  const card = (it, k) => {
+    const [rar, tc] = RARITY[it.tier] || RARITY.petite, can = !locked && P.gold >= it.cost, miss = it.cost - P.gold;
+    const eta = miss <= 0 ? "" : miss < WEEK ? `environ ${plural(Math.max(1, Math.ceil(miss / WEEK * 7)), "jour")}` : `environ ${plural(Math.round(miss / WEEK), "semaine")}`;
+    const tag = it.effect === "skip" ? "Laissez-passer" : it.food ? "Repas" : "";
+    return `<button class="rc ${it.tier === "legendaire" ? "wide leg" : ""} ${can ? "" : "no"}" style="--tc:${tc};--k:${Math.min(k, 14)}" data-act="buy" data-id="${esc(it.id)}" ${can ? "" : 'aria-disabled="true"'}>
+      <span class="rc-img">${rwVisual(it)}</span><span class="rc-b"><span class="rar">${rar}${tag ? " · " + tag : ""}</span><b>${esc(it.name)}</b>
+      <span class="pr"><span><i class="coin"></i>${fmt(it.cost, 0)}</span>${can ? `<em class="buy">Échanger</em>` : locked ? `<em class="lockd">Verrouillé</em>` : ""}</span>
+      ${!can && !locked ? `<span class="miss"><i style="width:${Math.max(3, Math.min(100, Math.round(P.gold / it.cost * 100)))}%"></i></span><small>Encore ${fmt(miss, 0)} or · ${eta}</small>` : ""}</span></button>`;
+  };
+  const ideas = rewardIdeas(); state.ideas = ideas;
+  const ideasWin = ideas.length ? `<section class="win"><details class="fold ideas"><summary>Idées de récompenses (${ideas.length})</summary><div><p class="muted small">Touche « + » pour l'ajouter à ta boutique. Tu peux ensuite changer son nom ou son prix avec « Modifier mes récompenses ».</p>
+      ${TIERS.map(t => { const l = ideas.map((r, i) => ({r, i})).filter(x => x.r.tier === t.k); return l.length ? `<span class="lbl">${t.name}</span><ul class="shop">${l.map(({r, i}) => `<li class="rw idea"><span class="rw-n">${esc(r.name)}${r.food ? ' <span class="tag">Repas</span>' : ""}</span><span class="rw-c"><i class="coin"></i>${fmt(r.cost, 0)}</span><button class="btn sm" data-act="rwIdea" data-i="${i}" aria-label="Ajouter ${esc(r.name)}">+</button></li>`).join("")}</ul>` : ""; }).join("")}</div></details></section>` : "";
+  return head + (sorted.length ? `<div class="rgrid">${sorted.map(card).join("")}</div>` : `<section class="win"><p class="empty">Aucune récompense dans la boutique. Ajoute les tiennes avec le bouton ci-dessous.</p></section>`)
+    + ideasWin + `<button class="btn ghost wide" data-act="editShop">Modifier mes récompenses</button>`;
 }
 function rewardEditor() {
   const m = state.rw;
@@ -2942,7 +3424,7 @@ function viewBody(P) {
   const reading = R.ok
     ? `<p class="reading ${R.tone}">${esc(R.verdict)}</p><p class="muted small">Du ${fmtDay(fromStr(R.from), {day: "numeric", month: "short"})} au ${fmtDay(fromStr(R.to), {day: "numeric", month: "short"})} : poids ${sign(R.dw)}, ${R.scale ? `gras ${sign(R.df)}, muscle et reste ${sign(R.dl)}` : `tour de taille ${(R.dt > 0 ? "+" : "") + fmt(R.dt, 1)} cm`}${R.prs ? `, et ${plural(R.prs, "record battu", "records battus")} à la salle` : ""}. C'est un repère : les photos et tes perfs le confirment ou non.</p>`
     : `<p class="muted small">${R.text}</p>`;
-  return topbar() + `<section class="win">${art("body")}<h2 class="win-title">Poids de corps</h2>
+  return pageHero(art("body", "ph-bg"), "Corps", now != null ? `Moyenne sur 7 jours : ${fmt(now, 1)} kg` : "Poids, masse grasse, photos, force") + `<section class="win"><h2 class="win-title">Poids de corps</h2>
       <div class="weigh"><label for="bodyWeighIn">Pesée de ce matin, à jeun</label><div class="weigh-in"><input id="bodyWeighIn" data-bind="weigh" data-key="${t}" inputmode="decimal" autocomplete="off" placeholder="—" value="${esc(wv)}"><span>kg</span></div></div>
       <div class="weigh"><label for="bodyBfIn">Masse grasse de ta balance${scale ? "" : " (si elle la donne)"}</label><div class="weigh-in"><input id="bodyBfIn" data-bind="bf" data-key="${t}" inputmode="decimal" autocomplete="off" placeholder="—" value="${esc(bv)}"><span>%</span></div></div>
       <div class="res-grid"><div class="res-cell"><b>${now == null ? "—" : fmt(now, 1)}</b><span>Moyenne 7 j</span></div><div class="res-cell"><b>${now == null || prev == null ? "—" : sign(now - prev)}</b><span>Sur 7 jours</span></div><div class="res-cell"><b>${now == null || start == null ? "—" : sign(now - start)}</b><span>Depuis le début</span></div></div>
@@ -3411,10 +3893,10 @@ function viewMeals(P) {
   const detail = slots.filter(sl => inSlot(sl.k).length).map(sl => { const list = inSlot(sl.k);
     return `<div class="slot-det"><span class="lbl">${sl.label} · ${fmt(slotKcal(sl.k), 0)} kcal</span><ul class="meal-list">${list.map(it => `<li class="meal-it ${it.reward ? "rw" : ""}"><span class="n">${!it.reward && it.k100 != null ? `<button class="link meal-edit" data-act="mealEdit" data-d="${key}" data-id="${esc(it.id)}">${esc(it.name)}</button>` : esc(it.name)}<small>${it.reward ? "Récompense · hors compteur" : (it.u ? fmt(it.u, 2) + " × " + esc(it.unit || "") : fmt(it.g, 0) + " g") + " · " + fmt(it.prot, 1) + " g de protéines"}</small></span><span class="k">${it.reward ? "Validé" : fmt(it.kcal, 0) + " kcal"}</span><button class="x" data-act="mealDel" data-d="${key}" data-id="${esc(it.id)}" aria-label="Retirer ${esc(it.name)}">✕</button></li>`).join("")}</ul>
       ${list.filter(x => !x.reward).length >= 2 ? `<button class="link" data-act="tplSaveAsk" data-d="${key}" data-slot="${sl.k}">Garder comme repas type</button>` : ""}</div>`; }).join("");
-  const tickets = S.purchases.filter(p => (p.food || p.kind === "rank") && !p.usedOn);
+  const tickets = S.purchases.filter(p => isMeal(p) && !p.usedOn);
   const ticketsWin = tickets.length ? `<section class="win"><h2 class="win-title">Tickets repas</h2><p class="muted small">Tes récompenses gagnées à la Boutique. Valide-la le jour où tu la manges : le repas compte comme noté et ses calories ne comptent pas.</p>
-      ${tickets.map(t => `<div class="ticket"><span>${esc(t.name)}</span><button class="btn sm gold" data-act="ticketUse" data-pid="${esc(t.id)}" data-d="${key}">Valider</button></div>`).join("")}</section>` : "";
-  return topbar() + `<section class="win">${art("meals")}<h2 class="win-title">Repas</h2>
+      <div class="tickets">${tickets.map(t => ticketRow(t, "ticketUse", key, "Valider")).join("")}</div></section>` : "";
+  return pageHero(art("meals", "ph-bg"), "Repas", free ? "Jour libre" : off === 1 ? "Demain : prépare ta journée" : `${fmt(m.kcal, 0)} / ${fmt(plan.kcal, 0)} kcal${off === -1 ? " hier" : ""}`) + `<section class="win"><h2 class="win-title">Compteur</h2>
       <div class="seg" role="group" aria-label="Jour"><button class="${off === -1 ? "on" : ""}" data-act="mealDay" data-o="-1">Hier</button><button class="${off === 0 ? "on" : ""}" data-act="mealDay" data-o="0">Aujourd'hui</button><button class="${off === 1 ? "on" : ""}" data-act="mealDay" data-o="1">Demain</button></div>
       ${off === 1 && !free ? `<p class="sys-line">[Demain · ${fmtDay(fromStr(key), {weekday: "long", day: "numeric", month: "long"})}]</p><p class="muted small">Note maintenant ce que tu as préparé : demain, tout sera déjà là. Ça ne compte qu'à partir de demain.</p>` : ""}
       ${free ? `<p class="sys-line">[Jour libre]</p><p>Cheat day : rien à noter ${off === 1 ? "demain" : "aujourd'hui"}, profite. Le Système a déjà compté ces calories dans ta semaine.</p>` : `
@@ -3560,7 +4042,7 @@ function useTicket(pid, date, slot) {
   addEntries(date, slot, [{id: uid(), name: p.name, reward: true, ticket: pid, kcal: 0, prot: 0, carbs: 0, fat: 0}]);
   const doc = {...p, usedOn: date}; delete doc.id;
   S.purchases = S.purchases.map(x => x.id === pid ? {id: pid, ...doc} : x); queueSet("purchases/" + pid, doc);
-  pushFx({kind: "gold", eyebrow: "[Repas récompense validé]", mid: esc(p.name), sub: "Hors compteur. Savoure."});
+  pushFx({kind: "gold", eyebrow: "[Repas récompense validé]", img: rwImg(p.name), mid: esc(p.name), sub: "Hors compteur. Savoure."});
 }
 
 /* ----- settings ----- */
@@ -3902,7 +4384,7 @@ function renderModal() {
   else if (m.kind === "msg") h = modalMsg(m);
   else if (m.kind === "family") h = modalFamily(m);
   else if (m.kind === "tplSave") h = `<div class="win"><h2 class="win-title">Repas type</h2><div class="field"><label for="fm-tplName">Nom du repas</label><input id="fm-tplName" data-bind="food" data-f="tplName" autocomplete="off" placeholder="Ex. Poulet riz du midi" value="${esc(m.tplName || "")}"></div><div class="row"><button class="btn ghost" data-act="closeModal">Annuler</button><button class="btn primary" data-act="tplSave">Enregistrer</button></div></div>`;
-  else if (m.kind === "ticket") { const p = S.purchases.find(x => x.id === m.pid); h = `<div class="win"><h2 class="win-title">Ticket repas</h2><p>Valider « ${esc(p ? p.name : "")} » ${m.date === today() ? "aujourd'hui" : "le " + fmtDay(fromStr(m.date), {day: "numeric", month: "long"})} ? Le repas compte comme noté, ses calories ne comptent pas.</p><div class="row">${mealSlots([]).map(sl => `<button class="btn gold" data-act="ticketSlot" data-slot="${sl.k}">${sl.label}</button>`).join("")}</div><button class="btn ghost" data-act="closeModal">Annuler</button></div>`; }
+  else if (m.kind === "ticket") { const p = S.purchases.find(x => x.id === m.pid); h = `<div class="win"><h2 class="win-title">Ticket repas</h2>${p ? rwPic(p.name) : ""}<p>Valider « ${esc(p ? p.name : "")} » ${m.date === today() ? "aujourd'hui" : "le " + fmtDay(fromStr(m.date), {day: "numeric", month: "long"})} ? Le repas compte comme noté, ses calories ne comptent pas.</p><div class="row">${mealSlots([]).map(sl => `<button class="btn gold" data-act="ticketSlot" data-slot="${sl.k}">${sl.label}</button>`).join("")}</div><button class="btn ghost" data-act="closeModal">Annuler</button></div>`; }
   el.classList.toggle("top", m.kind === "food");   // the food window opens from the top: the field typed in stays above the keyboard
   el.innerHTML = h; el.hidden = false; restoreFocus(focus);
 }
@@ -3925,7 +4407,7 @@ function modalPreview(m) {
   else if (cw < weekOfStr(today())) action = `<p class="muted small">Ce portail s'est refermé.</p>`;
   else action = `<p class="muted small">Ce portail s'ouvrira le ${fmtDay(fromStr(plannedDate(cw, ty)), {weekday: "long", day: "numeric", month: "long"})}. Pour le faire un autre jour, change son jour ci-dessus.</p>`;
   const when = p.bonus ? "Bonus de grosse semaine (Jambes le mercredi, Haut le vendredi)" : p.date ? "Prévu " + fmtDay(fromStr(p.date), {weekday: "long", day: "numeric", month: "long"}) : "";
-  return gateArt(ty) + `<div class="win"><h2 class="win-title">${esc(TYPES[ty].gate)}</h2><p class="sys-line">${info.deload ? "Semaine allégée" : "S" + info.p} · ${tyLabel(ty)} · rang ${info.W.rank}</p>
+  return `<div class="win brief" style="--rc:var(--r-${info.W.rank})"><div class="brief-top">${gateArt(ty, "brief-art")}<div class="brief-h"><span class="tagrank">${info.deload ? "Semaine allégée" : "S" + info.p} · rang ${info.W.rank}</span><h2>${esc(TYPES[ty].gate)}</h2><p>${esc(tyLabel(ty))}</p></div></div>
     <p class="muted small">${when} · environ ${estMinutes(plan)} min · échauffement d'abord</p>
     <ol class="pv-list">${rows}</ol>${can ? gapWarn(cw, ty, false) : ""}${moveRow(cw, ty, p)}<div class="m-actions">${action}<button class="btn ghost" data-act="closeModal">Fermer</button></div></div>`;
 }
@@ -4003,7 +4485,7 @@ function enterDungeon(cw, ty) {
     });
   }
   S.draft = {active: true, key: `W${cw}-${ty}`, cw, week: info.p, deload: !!info.deload, bonus: info.bonus === ty, type: ty, startedAt: new Date().toISOString(), warm: false, minus: {}, sets, grip, alt: {}};
-  state.toastedPr = {}; state.chalWon = {}; state.toldUp = {}; state.modal = null; state.rest = null;
+  state.toastedPr = {}; state.chalWon = {}; state.toldUp = {}; state.dgOpen = {}; state.dgHold = null; state.modal = null; state.rest = null;
   S.draft.hype = hypeFor(ty);
   saveDraft(true); chime("sys");
   fxPortal(info.W && info.W.rank); state.view = "dungeon"; requestWakeLock(); window.scrollTo(0, 0); render();
@@ -4062,9 +4544,11 @@ function toggleSet(ex, i) {
   const n = it ? setsTarget(it, d) : rows.length;
   const pairedSuperset = it && it.superset && ex === "triHigh";
   if (!pairedSuperset) startRest(it ? it.rest : 90);
+  if (it && rows.slice(0, n).filter(x => x.done).length >= n) state.dgHold = ex;
   render();
   fxSetDone(ex, i, it, parseNum(r.kg), Math.round(reps), n, rows.slice(0, n).filter(x => x.done).length);
-  if (i + 1 >= n) { const card = document.getElementById("ex-" + ex)?.nextElementSibling; if (card && card.classList.contains("ex")) setTimeout(() => card.scrollIntoView({behavior: "smooth", block: "start"}), fxActive() ? 1300 : 250); }
+  if (state.dgHold === ex) setTimeout(() => { if (state.dgHold !== ex || state.view !== "dungeon") return; state.dgHold = null; render();
+    const nx = document.querySelector(".ex.now"); if (nx) nx.scrollIntoView({behavior: "smooth", block: "start"}); }, fxActive() ? 1300 : 250);
 }
 function startRest(sec) { state.rest = {end: Date.now() + sec * 1000, total: sec * 1000, rang: false}; tick(); }
 function rollLoot() {
@@ -4114,11 +4598,20 @@ async function finishDungeon() {
 function confirmModal(opts) { state.modal = {kind: "confirm", ...opts}; renderModal(); }
 function buy(id) {
   const P = compute(); const it = (S.rewards?.items || []).find(x => x.id === id); if (!it || P.penalty || P.gold < it.cost) return;
-  confirmModal({title: "Échange", body: `Échanger <b>${fmt(it.cost, 0)} or</b> contre « ${esc(it.name)} » ?`, yes: "Oui, je la prends", run: async () => {
+  const rar = RARITY[it.tier] || RARITY.petite;
+  confirmModal({title: "Échange", body: `${rwPic(it.name, rar[1])}Échanger <b>${fmt(it.cost, 0)} or</b> contre « ${esc(it.name)} » ?`, yes: "Oui, je la prends", run: async () => {
     const doc = {ts: new Date().toISOString(), date: today(), name: it.name, cost: it.cost, kind: "shop", rewardId: it.id, food: !!it.food, effect: it.effect || null};
     const pid = uid(); S.purchases = [...S.purchases, {id: pid, ...doc}];
     queueSet("purchases/" + pid, doc);
-    pushFx({kind: "gold", eyebrow: "[Récompense débloquée]", mid: esc(it.name), sub: it.effect === "skip" ? "Laissez-passer : cette semaine, il te faut une séance de moins pour éviter la pénalité." : it.food ? "Ticket repas : dans l'onglet Repas, valide-le le jour où tu le manges. Il ne compte pas dans tes calories." : "Tu l'as gagnée. Va en profiter."});
+    pushFx({kind: "gold", eyebrow: "[" + rar[0] + " · récompense obtenue]", img: rwImg(it.name), tc: rar[1], mid: esc(it.name), sub: it.effect === "skip" ? "Laissez-passer : cette semaine, il te faut une séance de moins pour éviter la pénalité." : it.food ? "Ticket repas rangé dans ton inventaire. Valide-le le jour où tu le manges (Boutique › Inventaire, ou onglet Repas) : ses calories ne comptent pas." : "Rangée dans ton inventaire (Boutique › Inventaire). Utilise-la le jour où tu en profites."});
+  }});
+}
+function invUse(pid) {                        // 14 Nov: a ticket of the inventory (not a meal) is used
+  const p = S.purchases.find(x => x.id === pid); if (!p || p.usedOn) return;
+  confirmModal({title: "Utiliser la récompense", body: `${rwPic(p.name)}Tu profites de « ${esc(p.name)} » aujourd'hui ? Le ticket quitte ton inventaire.`, yes: "J'en profite", run: async () => {
+    const doc = {...p, usedOn: today()}; delete doc.id;
+    S.purchases = S.purchases.map(x => x.id === pid ? {id: pid, ...doc} : x); queueSet("purchases/" + pid, doc);
+    pushFx({kind: "gold", eyebrow: "[Récompense utilisée]", img: rwImg(p.name), mid: esc(p.name), sub: "Gagnée à la sueur. Profite."});
   }});
 }
 function claimRank(r) {
@@ -4127,7 +4620,7 @@ function claimRank(r) {
     const doc = {ts: new Date().toISOString(), date: today(), name, cost: 0, kind: "rank", rank: r};
     const pid = "rank-" + r; S.purchases = [...S.purchases.filter(p => p.id !== pid), {id: pid, ...doc}];
     queueSet("purchases/" + pid, doc);
-    pushFx({kind: "rank", eyebrow: "[Récompense de rang " + r + "]", mid: esc(name), sub: "Tu l'as gagnée. Va en profiter."});
+    pushFx({kind: "rank", eyebrow: "[Récompense de rang " + r + "]", img: rwImg(name), tc: "var(--r-" + r + ")", mid: esc(name), sub: "Rangée dans ton inventaire. Utilise-la le jour où tu en profites."});
   }});
 }
 function setPenalty(cw, excused) {
@@ -4414,7 +4907,7 @@ const ACTIONS = {
     d.extra = [...(d.extra || []), {ex, before: next ? next.ex : null, sets: 3, reps: poly ? [6, 10] : [10, 15], rest: poly ? 120 : 75, cue: "Exercice ajouté par toi : amplitude complète, contrôle la descente."}];
     const it = draftPlan(d).find(x => x.ex === ex);
     if (it && !(d.sets[ex] || []).length) { const sg = suggest(it, {p: d.week, deload: !!d.deload}, (d.grip || {})[ex]); d.sets[ex] = Array.from({length: it.sets}, () => ({kg: sg.kg != null ? fmtIn(sg.kg) : "", reps: "", done: false})); }
-    state.modal = null; saveDraft(); render(); renderModal(); toast(`[Ajouté] ${esc(EX[ex].n)}`, "ok");
+    state.dgOpen = {...(state.dgOpen || {}), [ex]: true}; state.modal = null; saveDraft(); render(); renderModal(); toast(`[Ajouté] ${esc(EX[ex].n)}`, "ok");
     setTimeout(() => document.getElementById("ex-" + ex)?.scrollIntoView({behavior: "smooth", block: "start"}), 200); },
   removeExtra: a => { const d = S.draft; if (!d) return; d.extra = (d.extra || []).filter(x => x.ex !== a.dataset.ex); saveDraft(); render(); },
   addExCreate: a => { const m = state.modal, name = String(m?.q || "").trim().slice(0, 60); if (name.length < 3) return;   // an exercise the app does not know: kept in his profile
@@ -4442,6 +4935,10 @@ const ACTIONS = {
   leaveResults: () => { state.results = null; state.view = "status"; window.scrollTo(0, 0); render(); },
   fxNext: () => nextFx(),
   buy: a => buy(a.dataset.id),
+  shopTab: a => { state.shopTab = a.dataset.t; render(); },
+  invUse: a => invUse(a.dataset.pid),
+  exOpen: a => { const ex = a.dataset.ex, o = {...(state.dgOpen || {})}; o[ex] = !o[ex]; state.dgOpen = o; render();
+    if (o[ex]) setTimeout(() => document.getElementById("ex-" + ex)?.scrollIntoView({behavior: "smooth", block: "start"}), 60); },
   claimRank: a => claimRank(a.dataset.r),
   confirmYes: async () => { const m = state.modal; state.modal = null; renderModal(); if (m && m.run) await m.run(); render(); },
   penDone: a => setPenalty(Number(a.dataset.cw), false),
@@ -4539,12 +5036,13 @@ function tick() {
     const left = state.rest.end - now; rb.hidden = false;
     if (left <= 0) {
       if (!state.rest.rang) { state.rest.rang = true; chime("rest"); }
-      rb.classList.add("done"); document.getElementById("rbTime").textContent = "C'est reparti"; document.getElementById("rbLabel").textContent = "Repos terminé"; document.getElementById("rbFill").style.width = "100%";
+      rb.classList.add("done"); document.getElementById("rbTime").textContent = "GO"; document.getElementById("rbLabel").textContent = "Repos terminé"; document.getElementById("rbSub").textContent = "C'est reparti"; document.getElementById("rbFill").style.width = "100%"; document.getElementById("rbRing").setAttribute("stroke-dashoffset", "0");
       if (left < -10000) { state.rest = null; rb.hidden = true; }
     } else {
       const s = Math.ceil(left / 1000); rb.classList.remove("done");
       document.getElementById("rbTime").textContent = `${Math.floor(s / 60)}:${pad(s % 60)}`; document.getElementById("rbLabel").textContent = "Repos";
-      document.getElementById("rbFill").style.width = Math.min(100, (1 - left / state.rest.total) * 100) + "%";
+      document.getElementById("rbFill").style.width = Math.min(100, (1 - left / state.rest.total) * 100) + "%"; document.getElementById("rbSub").textContent = "Souffle, la série suivante arrive";
+      document.getElementById("rbRing").setAttribute("stroke-dashoffset", String(Math.max(0, Math.min(100, (1 - left / state.rest.total) * 100)).toFixed(1)));   // the ring empties
     }
   } else rb.hidden = true;
   const t = today();
