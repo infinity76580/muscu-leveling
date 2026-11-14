@@ -9,7 +9,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}[hidden]{display:none!important}</style>
-<script>window.GL_FILES = {"aliments": "aliments-1476f37b0d.json", "marques": "marques-74ed9c5319.json"}; window.GL_IMGS = ["body", "gate_DB", "gate_DB_2", "gate_DB_3", "gate_DB_4", "gate_DP", "gate_DP_2", "gate_DP_3", "gate_DP_4", "gate_EB", "gate_EB_2", "gate_EB_3", "gate_EB_4", "gate_EP", "gate_EP_2", "gate_EP_3", "gate_EP_4", "gate_J", "gate_J_2", "gate_J_3", "gate_J_4", "gate_PT", "gate_PT_2", "gate_PT_3", "gate_PT_4", "hero_status", "levelup", "meals", "penalty", "shop"];</script>
+<script>window.GL_FILES = {"aliments": "aliments-1476f37b0d.json", "marques": "marques-74ed9c5319.json"}; window.GL_IMGS = ["body", "chest_closed", "chest_open", "gate_DB", "gate_DB_2", "gate_DB_3", "gate_DB_4", "gate_DP", "gate_DP_2", "gate_DP_3", "gate_DP_4", "gate_EB", "gate_EB_2", "gate_EB_3", "gate_EB_4", "gate_EP", "gate_EP_2", "gate_EP_3", "gate_EP_4", "gate_J", "gate_J_2", "gate_J_3", "gate_J_4", "gate_PT", "gate_PT_2", "gate_PT_3", "gate_PT_4", "hero_status", "levelup", "meals", "penalty", "rw_bar", "rw_burger", "rw_burger_maison", "rw_cafe", "rw_ceinture", "rw_chaussures", "rw_creatine", "rw_crepe", "rw_default", "rw_dessert", "rw_entrecote", "rw_festin", "rw_jeu", "rw_jeu_deluxe", "rw_kebab", "rw_maillot", "rw_massage", "rw_milkshake", "rw_monster", "rw_pates", "rw_pizza", "rw_pizzeria", "rw_raclette", "rw_repas", "rw_resto", "rw_sac", "rw_sangles", "rw_shaker", "rw_skip", "rw_soiree_jeux", "rw_sortie", "rw_sushi", "rw_tenue", "rw_tshirt", "rw_ultime", "rw_weekend", "rw_whey", "shop"];</script>
 <script>window.GL_CLOUD = {"url": "https://dggtdutqcxakvbakezgq.supabase.co", "key": "sb_publishable_sE26taI8YshVMQxx97ui8Q_uZgirnY4"};</script>
 </head><body><title>Muscu Leveling</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -3202,7 +3202,7 @@ const RW_IMG = [                              // 14 Nov: a Gemini picture per re
   [/ceinture/, "rw_ceinture"], [/chaussure|basket/, "rw_chaussures"], [/tenue|survetement/, "rw_tenue"], [/maillot/, "rw_maillot"],
   [/t-shirt|tee-shirt|short|debardeur/, "rw_tshirt"], [/equipement|sac de sport/, "rw_sac"], [/soiree jeux|soiree jeu/, "rw_soiree_jeux"],
   [/deluxe|collector/, "rw_jeu_deluxe"], [/jeu video|jeux video|console/, "rw_jeu"], [/week-end|weekend|voyage/, "rw_weekend"],
-  [/sortie|karting|laser|escape|bowling|cinema/, "rw_sortie"], [/fin d'aventure|grosse recompense|a toi de la choisir|objet de ton choix/, "rw_ultime"],
+  [/sortie|karting|laser|escape|bowling|cinema/, "rw_sortie"], [/fin d'aventure|grosse recompense|a toi de la choisir|objet de ton choix/, "rw_ultime"], [/massage|\bspa\b/, "rw_massage"],
 ];
 const rwNorm = t => String(t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 function rwImg(name) {
