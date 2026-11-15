@@ -9,7 +9,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}[hidden]{display:none!important}</style>
-<script>window.GL_FILES = {"aliments": "aliments-1476f37b0d.json", "marques": "marques-74ed9c5319.json"}; window.GL_IMGS = ["body", "chest_closed", "chest_open", "gate_DB", "gate_DB_2", "gate_DB_3", "gate_DB_4", "gate_DP", "gate_DP_2", "gate_DP_3", "gate_DP_4", "gate_EB", "gate_EB_2", "gate_EB_3", "gate_EB_4", "gate_EP", "gate_EP_2", "gate_EP_3", "gate_EP_4", "gate_J", "gate_J_2", "gate_J_3", "gate_J_4", "gate_PT", "gate_PT_2", "gate_PT_3", "gate_PT_4", "hero_status", "levelup", "meals", "penalty", "rw_bar", "rw_burger", "rw_burger_maison", "rw_cafe", "rw_ceinture", "rw_chaussures", "rw_creatine", "rw_crepe", "rw_default", "rw_dessert", "rw_entrecote", "rw_festin", "rw_jeu", "rw_jeu_deluxe", "rw_kebab", "rw_maillot", "rw_massage", "rw_milkshake", "rw_monster", "rw_pates", "rw_pizza", "rw_pizzeria", "rw_raclette", "rw_repas", "rw_resto", "rw_sac", "rw_sangles", "rw_shaker", "rw_skip", "rw_soiree_jeux", "rw_sortie", "rw_sushi", "rw_tenue", "rw_tshirt", "rw_ultime", "rw_weekend", "rw_whey", "shop"];</script>
+<script>window.GL_FILES = {"aliments": "aliments-1476f37b0d.json", "marques": "marques-74ed9c5319.json"}; window.GL_IMGS = ["body", "chest_closed", "chest_open", "gate_DB", "gate_DB_2", "gate_DB_3", "gate_DB_4", "gate_DP", "gate_DP_2", "gate_DP_3", "gate_DP_4", "gate_EB", "gate_EB_2", "gate_EB_3", "gate_EB_4", "gate_EP", "gate_EP_2", "gate_EP_3", "gate_EP_4", "gate_J", "gate_J_2", "gate_J_3", "gate_J_4", "gate_PT", "gate_PT_2", "gate_PT_3", "gate_PT_4", "hero_status", "levelup", "meals", "penalty", "rw_accessoire", "rw_bain", "rw_bar", "rw_bbq", "rw_bonbons", "rw_bowling", "rw_brunch", "rw_bubbletea", "rw_burger", "rw_burger_maison", "rw_cafe", "rw_cappuccino", "rw_ceinture", "rw_chaussures", "rw_cinema", "rw_concert", "rw_creatine", "rw_crepe", "rw_default", "rw_dessert", "rw_donut", "rw_ecouteurs", "rw_entrecote", "rw_fastfood", "rw_festin", "rw_film", "rw_glace", "rw_grasse_mat", "rw_jeu", "rw_jeu_deluxe", "rw_jeu_heure", "rw_kebab", "rw_maillot", "rw_massage", "rw_milkshake", "rw_monster", "rw_montre", "rw_parc", "rw_pates", "rw_pizza", "rw_pizzeria", "rw_raclette", "rw_repas", "rw_resto", "rw_sac", "rw_sangles", "rw_shaker", "rw_skip", "rw_soiree_jeux", "rw_sortie", "rw_sushi", "rw_tenue", "rw_tshirt", "rw_ultime", "rw_weekend", "rw_whey", "rw_wings", "shop"];</script>
 <script>window.GL_CLOUD = {"url": "https://dggtdutqcxakvbakezgq.supabase.co", "key": "sb_publishable_sE26taI8YshVMQxx97ui8Q_uZgirnY4"};</script>
 </head><body><title>Muscu Leveling</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -1075,6 +1075,16 @@ details.fold summary::after{color:var(--cyan)}
 .stamp small{max-width:86vw;margin-inline:auto;letter-spacing:.16em;line-height:1.3}
 .gain .x{width:auto;height:auto;border:0;border-radius:0;background:none;color:var(--cyan)}
 .gain .g{color:var(--gold)}
+.ticket2.free{box-shadow:0 0 16px color-mix(in srgb,var(--tc) 22%,transparent)}
+.ticket2.free .tk-b small{color:#c9d6ee}
+.lootban{display:flex;flex-direction:column;gap:2px;width:100%;padding:11px 14px;border-radius:14px;text-align:left;font:inherit;color:var(--text);cursor:pointer;background:linear-gradient(90deg,rgba(255,207,92,.14),rgba(155,123,255,.1));border:1px solid rgba(255,207,92,.4)}
+.lootban b{font:700 12px var(--font-display);letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+.lootban span{font-size:13px;color:#d6e2f6}
+.lootstrip{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:none}
+.lootstrip::-webkit-scrollbar{display:none}
+.lsi{flex:none;width:76px;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
+.lsi .tk-img{width:64px;height:64px;border:1px solid color-mix(in srgb,var(--tc) 55%,transparent);box-shadow:0 0 12px color-mix(in srgb,var(--tc) 25%,transparent)}
+.lsi small{font-size:10px;line-height:1.2;color:var(--muted)}
 /* reward reveal */
 .fx.item .fx-card{gap:12px}
 .fx-item{position:relative;width:min(60vw,240px);aspect-ratio:1;border-radius:22px;overflow:hidden;border:1px solid color-mix(in srgb,var(--tc) 65%,transparent);box-shadow:0 0 50px color-mix(in srgb,var(--tc) 50%,transparent),0 0 0 1px rgba(255,255,255,.08) inset;animation:itemIn 1.1s cubic-bezier(.2,1.25,.4,1) both}
@@ -1714,6 +1724,40 @@ const GAUTHIER_SHOP = [                     // his tastes (food, bar, whey, gear
   R("legendaire", "Une tenue de salle complète neuve", 5000), R("legendaire", "Un gros jeu vidéo en édition deluxe à sa sortie", 6000),
   R("legendaire", "Un week-end entre potes", 9000), R("legendaire", "La récompense de fin d'aventure : à toi de la choisir", 12000),
 ];
+const SHOP_1115 = [                         // 15 Nov: more choice in every shop (Félix: non-food ones only)
+  R("petite", "Une boisson chaude gourmande : cappuccino ou chocolat chaud", 200, 1), R("petite", "Une glace ou un sundae", 300, 1), R("petite", "Une barre chocolatée ou un paquet de bonbons", 250, 1),
+  R("petite", "Une grasse matinée sans réveil", 200), R("petite", "Une soirée film ou série", 200), R("petite", "Une heure de jeu vidéo sans culpabilité", 150), R("petite", "Un long bain ou une soirée détente", 250),
+  R("moyenne", "Un cookie géant ou un donut", 400, 1), R("moyenne", "Un bubble tea", 450, 1), R("moyenne", "Une place de cinéma avec popcorn", 600), R("moyenne", "Un accessoire de salle : magnésie, genouillères, corde à sauter…", 500),
+  R("moyenne", "Des wings ou des nuggets", 700, 1), R("moyenne", "Une partie de bowling ou de billard avec les potes", 800),
+  R("grosse", "Un brunch à volonté", 1200, 1), R("grosse", "Un menu XL au fast-food", 1300, 1), R("grosse", "Un barbecue entre potes", 1500, 1), R("grosse", "Un massage", 2000), R("grosse", "Des écouteurs sans fil pour la salle", 3000),
+  R("legendaire", "Une place de concert ou de match au stade", 7000), R("legendaire", "Une journée au parc d'attractions", 8000), R("legendaire", "Une montre connectée de sport", 10000),
+];
+const FREE_LOOT = [                         // 15 Nov: rewards nobody buys, they only drop (with the player's own shop rewards)
+  {tier: "petite", name: "Une grasse matinée sans réveil"}, {tier: "petite", name: "Une soirée film ou série"}, {tier: "petite", name: "Une heure de jeu vidéo sans culpabilité"},
+  {tier: "petite", name: "Un long bain ou une soirée détente"}, {tier: "petite", name: "Une boisson chaude gourmande : cappuccino ou chocolat chaud", food: true},
+  {tier: "petite", name: "Une glace ou un sundae", food: true}, {tier: "petite", name: "Une barre chocolatée ou un paquet de bonbons", food: true},
+  {tier: "moyenne", name: "Une place de cinéma avec popcorn"}, {tier: "moyenne", name: "Un dessert de ton choix", food: true}, {tier: "moyenne", name: "Un bubble tea", food: true},
+  {tier: "moyenne", name: "Une soirée jeux vidéo avec les potes"},
+  {tier: "grosse", name: "Un repas plaisir de ton choix", food: true}, {tier: "grosse", name: "Une sortie au choix : bowling, billard, laser game…"},
+];
+const LOOT_FROM = "2026-11-16";
+const LOOT_SRC = {chest: "Butin de coffre", epreuve: "Butin d'épreuve", week: "Semaine parfaite", streak: "Série de quêtes"};
+function lootPool(tier) {                     // what can drop at that tier: the player's own rewards + the System's free ones
+  const own = (S.rewards?.items || []).filter(i => i.tier === tier && !i.effect && Number(i.cost) <= 1800).map(i => ({name: i.name, food: !!i.food, rewardId: i.id}));
+  const seen = new Set(), out = [];
+  for (const x of [...own, ...FREE_LOOT.filter(i => i.tier === tier).map(i => ({name: i.name, food: !!i.food}))]) { const k = normPseudo(x.name); if (!seen.has(k)) { seen.add(k); out.push(x); } }
+  return out;
+}
+function grantLoot(src, tier, id) {          // a free reward lands in the inventory (fixed id: never twice)
+  if (S.purchases.some(p => p.id === id)) return null;
+  const pool = lootPool(tier); if (!pool.length) return null;
+  const it = pool[Math.floor(Math.random() * pool.length)];
+  const doc = {ts: new Date().toISOString(), date: today(), name: it.name, cost: 0, kind: "loot", src, tier, food: it.food, ...(it.rewardId ? {rewardId: it.rewardId} : {})};
+  S.purchases = [...S.purchases, {id, ...doc}]; queueSet("purchases/" + id, doc);
+  return {id, ...doc};
+}
+const lootFx = x => ({kind: "gold", eyebrow: `[Butin gratuit · ${LOOT_SRC[x.src] || "Système"}]`, img: rwImg(x.name), tc: (RARITY[x.tier] || RARITY.petite)[1], mid: esc(x.name),
+  sub: x.food ? "Ticket repas gratuit, rangé dans ton inventaire : valide-le le jour où tu le manges, ses calories ne comptent pas." : "Gratuite, rangée dans ton inventaire. Profites-en quand tu veux."});
 const IDEAS_EXTRA = [R("petite", "Une crêpe ou une gaufre au Nutella", 250, 1), R("petite", "Un milkshake", 300, 1), R("petite", "Un nouveau shaker", 400),
   R("moyenne", "Un burger au resto", 650, 1), R("moyenne", "Des sushis à volonté", 800, 1),
   R("grosse", "Des sangles de tirage", 1000), R("grosse", "Un pot de créatine", 1200), R("grosse", "Un resto avec les potes, tu choisis l'endroit", 1500, 1),
@@ -1722,7 +1766,7 @@ const IDEAS_EXTRA = [R("petite", "Une crêpe ou une gaufre au Nutella", 250, 1),
   R("legendaire", "Un week-end entre potes", 9000), R("legendaire", "La récompense de fin d'aventure : à toi de la choisir", 12000)];
 function rewardIdeas() {                      // everything the player could add in one tap, minus what his shop already has
   const have = new Set((S.rewards?.items || []).map(i => normPseudo(i.name))), seen = new Set(), out = [];
-  for (const r of [...(curPlan().id === "base" ? GAUTHIER_SHOP : []), ...(curPlan().id === "felix" ? FELIX_REWARDS : []), ...SUGGESTED, ...IDEAS_EXTRA]) {
+  for (const r of [...(curPlan().id === "base" ? GAUTHIER_SHOP : []), ...(curPlan().id === "felix" ? FELIX_REWARDS : []), ...SUGGESTED, ...IDEAS_EXTRA, ...SHOP_1115]) {
     const k = normPseudo(r.name); if (have.has(k) || seen.has(k)) continue; seen.add(k); out.push(r); }
   return out;
 }
@@ -2462,7 +2506,9 @@ function scheduleRender() { if (renderQueued) return; renderQueued = true; setTi
 function captureFocus() { const a = document.activeElement; if (!a || !a.id || !/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return null; let s = null, e = null; try { s = a.selectionStart; e = a.selectionEnd; } catch (x) {} return {id: a.id, s, e}; }
 function restoreFocus(f) { if (!f) return; const el = document.getElementById(f.id); if (!el) return; el.focus({preventScroll: true}); try { if (f.s != null) el.setSelectionRange(f.s, f.e); } catch (x) {} }
 function afterCompute(P) {
-  if (state.lastLevel == null) { state.lastLevel = P.level; state.lastRank = P.rank; state.lastAch = new Set(P.achIds); return; }
+  if (state.lastLevel == null) { state.lastLevel = P.level; state.lastRank = P.rank; state.lastAch = new Set(P.achIds); state.lastStreak = P.streak; return; }
+  if (state.lastStreak != null && P.streak > state.lastStreak && P.streak % 7 === 0 && today() >= LOOT_FROM) { const x = grantLoot("streak", "petite", "loot-streak-" + today()); if (x) pushFx(lootFx(x)); }   // 15 Nov
+  state.lastStreak = P.streak;
   if (state.view !== "results") {
     if (P.level > state.lastLevel) pushFx({kind: "level", eyebrow: "[Level up]", big: "Niveau " + P.level, sub: "Le Système a enregistré ta progression."});
     if (RANKS.indexOf(P.rank) > RANKS.indexOf(state.lastRank)) pushFx(rankFx(P.rank));
@@ -3168,7 +3214,7 @@ function viewResults() {
   const TC = {"Commun": "var(--glow)", "Rare": "var(--blue)", "Épique": "var(--violet)", "Légendaire": "var(--gold)"};
   const prs = (d.prs || []).map(p => `<li><b>${esc(EX[p.ex]?.n || p.ex)}</b><br>1RM estimé ${fmt(p.e1, 1)} kg <span class="muted">(avant ${fmt(p.prev, 1)})</span></li>`).join("");
   const chest = d.loot ? `<div class="chest"><button class="chest-btn ${r.opened ? "open" : ""}" data-act="${r.opened ? "openChest" : "chestShake"}" style="--tc:${TC[d.loot.tier]}" aria-label="Ouvrir le coffre">${(window.GL_IMGS || []).includes("chest_closed") ? `<img class="chest-img" src="img/${r.opened ? "chest_open" : "chest_closed"}.webp?v=${IMG_V}" alt="">` : CHEST_SVG}</button>
-      ${r.opened ? `<p class="loot" style="--tc:${TC[d.loot.tier]}">Coffre ${d.loot.tier} : +${d.loot.gold} or</p>` : `<button class="btn gold" data-act="chestShake">Ouvrir le coffre</button>`}</div>` : "";
+      ${r.opened ? `<p class="loot" style="--tc:${TC[d.loot.tier]}">Coffre ${d.loot.tier} : +${d.loot.gold} or${(r.drops || []).some(x => x.src === "chest") ? " + une récompense" : ""}</p>` : `<button class="btn gold" data-act="chestShake">Ouvrir le coffre</button>`}</div>` : "";
   const newAch = r.after.ach.filter(a => !r.before.achIds.has(a.id));
   return `<section class="win res-win">${gateArt(d.type, "res-art")}<p class="res-eyebrow">[Système]</p><h1 class="res-title ${cls}">${title}</h1>
       <p class="sys-line" style="text-align:center">${sessLabel(d)} · ${sessName(d)}</p>
@@ -3179,6 +3225,7 @@ function viewResults() {
       ${d.valid ? "" : `<p class="muted small" style="text-align:center">Moins de la moitié des séries : ce donjon ne compte pas pour la semaine.</p>`}
     </section>
     ${chest ? `<section class="win"><h2 class="win-title">Butin</h2>${chest}</section>` : ""}
+    ${(dr => dr.length ? `<section class="win"><h2 class="win-title">Butin gratuit</h2><div class="tickets">${dr.map(x => `<div class="ticket2 free" style="--tc:${(RARITY[x.tier] || RARITY.petite)[1]}"><span class="tk-img">${rwVisual(x)}</span><span class="tk-b"><b>${esc(x.name)}</b><small>${LOOT_SRC[x.src] || "Butin"} · dans ton inventaire</small></span></div>`).join("")}</div></section>` : "")((r.drops || []).filter(x => x.src !== "chest" || r.opened))}
     ${prs ? `<section class="win"><h2 class="win-title">Records battus</h2><ul class="pr-list">${prs}</ul></section>` : ""}
     ${newAch.length ? `<section class="win"><h2 class="win-title">Titres obtenus</h2><ul class="pr-list">${newAch.map(a => `<li><b>${esc(a.name)}</b><br>${esc(a.desc)} +${a.xp} XP, +${a.gold} or</li>`).join("")}</ul></section>` : ""}
     <section class="win"><h2 class="win-title">Progression</h2><p class="sys-line">Niveau ${r.before.level} → ${r.after.level} · rang ${r.after.rank}</p><div class="xpbar"><i style="width:${Math.min(100, Math.round(r.after.into / r.after.need * 100))}%"></i></div></section>
@@ -3188,11 +3235,17 @@ function resultsFx() {
   const r = state.results; if (!r || r.fxDone) return; r.fxDone = true;
   if (r.after.level > r.before.level) pushFx({kind: "level", eyebrow: "[Level up]", big: "Niveau " + r.after.level, sub: `+${plural(r.after.level - r.before.level, "niveau", "niveaux")}. Le Système a enregistré ta progression.`});
   if (RANKS.indexOf(r.after.rank) > RANKS.indexOf(r.before.rank)) pushFx(rankFx(r.after.rank));
+  for (const x of (r.drops || []).filter(x => x.src !== "chest")) pushFx(lootFx(x));
 }
 
 /* ----- shop ----- */
 const RARITY = {petite: ["Commun", "var(--cyan)"], moyenne: ["Rare", "var(--violet)"], grosse: ["Épique", "var(--gold)"], legendaire: ["Légendaire", "#ffb347"]};
 const RW_IMG = [                              // 14 Nov: a Gemini picture per reward, picked from its name (accents ignored); unknown ones get rw_default
+  [/grasse matinee/, "rw_grasse_mat"], [/film|serie/, "rw_film"], [/heure de jeu/, "rw_jeu_heure"], [/bain|detente/, "rw_bain"],
+  [/cappuccino|chocolat chaud|boisson chaude/, "rw_cappuccino"], [/glace|sundae/, "rw_glace"], [/bonbon|barre chocolatee|douceur/, "rw_bonbons"],
+  [/donut|cookie/, "rw_donut"], [/bubble tea/, "rw_bubbletea"], [/cinema/, "rw_cinema"], [/accessoire|magnesie|genouillere/, "rw_accessoire"],
+  [/wings|nuggets/, "rw_wings"], [/bowling|billard/, "rw_bowling"], [/brunch/, "rw_brunch"], [/fast-food|fast food|menu xl/, "rw_fastfood"],
+  [/barbecue|bbq/, "rw_bbq"], [/ecouteur|casque/, "rw_ecouteurs"], [/concert|stade/, "rw_concert"], [/parc d'attraction/, "rw_parc"], [/montre/, "rw_montre"],
   [/sauter une seance|laissez/, "rw_skip"], [/monster|energy|boisson energ/, "rw_monster"], [/cafe/, "rw_cafe"], [/milkshake/, "rw_milkshake"],
   [/crepe|gaufre/, "rw_crepe"], [/sushi/, "rw_sushi"], [/kebab|tacos/, "rw_kebab"], [/entrecote|steak/, "rw_entrecote"],
   [/lolo|zaza|pizzeria/, "rw_pizzeria"], [/pizza/, "rw_pizza"], [/burger maison/, "rw_burger_maison"], [/burger/, "rw_burger"],
@@ -3211,15 +3264,15 @@ function rwImg(name) {
   for (const [re, k] of RW_IMG) if (re.test(n)) return have.includes(k) ? k : fb;
   return fb;
 }
-const MEAL_RE = /pizza|resto|burger|kebab|tacos|sushi|repas|entrecote|dessert|patisserie|crepe|gaufre|raclette|tartiflette|pates|milkshake|cafe|monster/;
+const MEAL_RE = /pizza|resto|burger|kebab|tacos|sushi|repas|entrecote|dessert|patisserie|crepe|gaufre|raclette|tartiflette|pates|milkshake|cafe|monster|glace|bonbon|chocolat|cappuccino|donut|cookie|bubble|wings|nuggets|brunch|fast-food|barbecue/;
 const isMeal = p => !!p.food || (p.kind === "rank" && MEAL_RE.test(rwNorm(p.name)));   // a rank reward that is a meal is validated in Repas
 const RW_GEM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 18 3-18"/></svg>';
 const rwVisual = p => { const k = rwImg(p.name); return k ? `<img src="img/${k}.webp?v=${IMG_V}" alt="" loading="lazy">` : `<span class="ico">${isMeal(p) ? ICON.food : RW_GEM}</span>`; };
 const rwPic = (name, tc) => { const k = rwImg(name); return k ? `<img class="m-rw" src="img/${k}.webp?v=${IMG_V}" alt="" style="--tc:${tc || "var(--gold)"}">` : ""; };
 const invItems = () => S.purchases.filter(p => !p.usedOn && p.effect !== "skip").sort((a, b) => String(b.ts || b.date || "").localeCompare(String(a.ts || a.date || "")));
 function ticketRow(p, act, d, label) {         // one ticket of the inventory (Boutique) or of Repas
-  const it = (S.rewards?.items || []).find(i => i.id === p.rewardId), r = p.kind === "rank" ? ["Rang " + p.rank, `var(--r-${p.rank})`] : RARITY[it?.tier] || RARITY.petite;
-  return `<div class="ticket2" style="--tc:${r[1]}"><span class="tk-img">${rwVisual(p)}</span><span class="tk-b"><b>${esc(p.name)}</b><small>${r[0]} · obtenu le ${fmtDay(fromStr(p.date), {day: "numeric", month: "short"})}${isMeal(p) ? " · ticket repas" : ""}</small></span><button class="use" data-act="${act}" data-pid="${esc(p.id)}" data-d="${d}">${label}</button></div>`;
+  const it = (S.rewards?.items || []).find(i => i.id === p.rewardId), r = p.kind === "rank" ? ["Rang " + p.rank, `var(--r-${p.rank})`] : RARITY[p.tier || it?.tier] || RARITY.petite;
+  return `<div class="ticket2 ${p.kind === "loot" ? "free" : ""}" style="--tc:${r[1]}"><span class="tk-img">${rwVisual(p)}</span><span class="tk-b"><b>${esc(p.name)}</b><small>${r[0]}${p.kind === "loot" ? " · " + (LOOT_SRC[p.src] || "butin").toLowerCase() + ", gratuit" : ""} · obtenu le ${fmtDay(fromStr(p.date), {day: "numeric", month: "short"})}${isMeal(p) ? " · ticket repas" : ""}</small></span><button class="use" data-act="${act}" data-pid="${esc(p.id)}" data-d="${d}">${label}</button></div>`;
 }
 function viewShop(P) {                        // 14 Nov (Hunter OS): wallet over the illustration, tabs Boutique / Inventaire / Rangs
   const items = (S.rewards?.items || []), locked = !!P.penalty, tab = state.shopTab || "shop", inv = invItems(), WEEK = 800;
@@ -3229,7 +3282,10 @@ function viewShop(P) {                        // 14 Nov (Hunter OS): wallet over
     const t = today(), hist = [...S.purchases].filter(p => p.usedOn || p.effect === "skip").sort((a, b) => String(b.usedOn || b.date || "").localeCompare(String(a.usedOn || a.date || ""))).slice(0, 15);
     return head + `<section class="win"><h2 class="win-title">Inventaire</h2><p class="muted small">Tes récompenses gagnées. Utilise-les le jour où tu en profites. Un ticket repas compte comme un repas noté, sans compter ses calories.</p>
       ${inv.length ? `<div class="tickets">${inv.map(p => ticketRow(p, isMeal(p) ? "ticketUse" : "invUse", t, "Utiliser")).join("")}</div>` : `<p class="empty">Inventaire vide. Échange ton or dans la Boutique : tes récompenses arrivent ici.</p>`}</section>
-      <section class="win"><h2 class="win-title">Déjà utilisées</h2>${hist.length ? `<ul class="hist-list">${hist.map(p => `<li><span>${esc(p.name)}<small class="muted"> · ${p.effect === "skip" ? "laissez-passer du " + fmtDay(fromStr(p.date), {day: "numeric", month: "short"}) : "le " + fmtDay(fromStr(p.usedOn), {day: "numeric", month: "short"})}</small></span><span>${p.kind === "rank" ? "Rang " + p.rank : "−" + fmt(p.cost, 0) + " or"}</span></li>`).join("")}</ul>` : `<p class="empty">Rien d'utilisé pour l'instant.</p>`}</section>`;
+      <section class="win"><h2 class="win-title">Déjà utilisées</h2>${hist.length ? `<ul class="hist-list">${hist.map(p => `<li><span>${esc(p.name)}<small class="muted"> · ${p.effect === "skip" ? "laissez-passer du " + fmtDay(fromStr(p.date), {day: "numeric", month: "short"}) : "le " + fmtDay(fromStr(p.usedOn), {day: "numeric", month: "short"})}</small></span><span>${p.kind === "rank" ? "Rang " + p.rank : p.kind === "loot" ? "Butin" : "−" + fmt(p.cost, 0) + " or"}</span></li>`).join("")}</ul>` : `<p class="empty">Rien d'utilisé pour l'instant.</p>`}</section>
+      <section class="win"><h2 class="win-title">Butin gratuit</h2><p class="muted small">Ces récompenses tombent sans dépenser d'or, tirées de ta boutique ou du butin du Système (à partir du 16 novembre) :</p>
+      <ul class="rules small"><li>Coffre de fin de donjon : Rare, 1 chance sur 4 ; Épique, 3 sur 5 ; Légendaire, à chaque fois.</li><li>Épreuve réussie : 1 chance sur 3.</li><li>Semaine parfaite (tous les donjons) : une récompense moyenne.</li><li>Tous les 7 jours de série de quêtes : une petite récompense.</li></ul>
+      <div class="lootstrip">${FREE_LOOT.map(x => `<span class="lsi" style="--tc:${RARITY[x.tier][1]}"><span class="tk-img">${rwVisual(x)}</span><small>${esc(x.name.split(" : ")[0])}</small></span>`).join("")}</div></section>`;
   }
   if (tab === "rank") {
     const claimed = r => S.purchases.find(p => p.kind === "rank" && p.rank === r);
@@ -3250,7 +3306,8 @@ function viewShop(P) {                        // 14 Nov (Hunter OS): wallet over
   const ideas = rewardIdeas(); state.ideas = ideas;
   const ideasWin = ideas.length ? `<section class="win"><details class="fold ideas"><summary>Idées de récompenses (${ideas.length})</summary><div><p class="muted small">Touche « + » pour l'ajouter à ta boutique. Tu peux ensuite changer son nom ou son prix avec « Modifier mes récompenses ».</p>
       ${TIERS.map(t => { const l = ideas.map((r, i) => ({r, i})).filter(x => x.r.tier === t.k); return l.length ? `<span class="lbl">${t.name}</span><ul class="shop">${l.map(({r, i}) => `<li class="rw idea"><span class="rw-n">${esc(r.name)}${r.food ? ' <span class="tag">Repas</span>' : ""}</span><span class="rw-c"><i class="coin"></i>${fmt(r.cost, 0)}</span><button class="btn sm" data-act="rwIdea" data-i="${i}" aria-label="Ajouter ${esc(r.name)}">+</button></li>`).join("")}</ul>` : ""; }).join("")}</div></details></section>` : "";
-  return head + (sorted.length ? `<div class="rgrid">${sorted.map(card).join("")}</div>` : `<section class="win"><p class="empty">Aucune récompense dans la boutique. Ajoute les tiennes avec le bouton ci-dessous.</p></section>`)
+  return head + `<button class="lootban" data-act="shopTab" data-t="inv"><b>Butin gratuit</b><span>Des récompenses tombent aussi en jouant : coffres, épreuves, semaine parfaite, séries de quêtes ›</span></button>`
+    + (sorted.length ? `<div class="rgrid">${sorted.map(card).join("")}</div>` : `<section class="win"><p class="empty">Aucune récompense dans la boutique. Ajoute les tiennes avec le bouton ci-dessous.</p></section>`)
     + ideasWin + `<button class="btn ghost wide" data-act="editShop">Modifier mes récompenses</button>`;
 }
 function rewardEditor() {
@@ -4135,6 +4192,10 @@ function seedPlan(force) {                    // once per load: remember the pro
     const items = (S.rewards?.items || []).slice(), have = new Set(items.map(i => normPseudo(i.name)));
     saveRewards([...items, ...GAUTHIER_SHOP.filter(r => !have.has(normPseudo(r.name))).map((r, i) => ({...r, id: "g" + i}))]); mark("shop2");
   }
+  if (!done("shop1115")) {                   // 15 Nov: more choice in every shop (Félix: no food, he is losing fat)
+    const items = (S.rewards?.items || []).slice(), have = new Set(items.map(i => normPseudo(i.name)));
+    saveRewards([...items, ...SHOP_1115.filter(r => !have.has(normPseudo(r.name)) && !(pid === "felix" && r.food)).map((r, i) => ({...r, id: "s1115-" + i}))]); mark("shop1115");
+  }
   if (pid === "base" && !done("sick1026")) {  // sick on Mon 26 Oct: that day paused, week moved to Tue A / Wed B / Fri C / Sat Haut (his usual rhythm, one day later)
     const cw = weekOfStr("2026-10-26"), t = today();
     const wi = weekInfo(cw);
@@ -4587,10 +4648,17 @@ async function finishDungeon() {
   if (!S.sessions.some(s => s.id === id)) S.sessions = [...S.sessions, {id, ...doc}];
   S.draft = null; clearTimeout(draftTimer); draftTimer = null; queueSet("game/draft", {active: false});
   const after = compute(); const wbAfter = weekBonus(d.cw);
+  const drops = [];                             // 15 Nov: free real rewards that drop while playing
+  if (valid && today() >= LOOT_FROM) {
+    const pc = {Rare: 0.25, "Épique": 0.6, "Légendaire": 1}[loot?.tier] || 0, rnd = Math.random;
+    if (loot && rnd() < pc) drops.push(grantLoot("chest", loot.tier === "Légendaire" ? (rnd() < 0.3 ? "grosse" : "moyenne") : loot.tier === "Épique" && rnd() < 0.35 ? "moyenne" : "petite", "loot-" + id + "-c"));
+    if (chalWon.length && rnd() < 1 / 3) drops.push(grantLoot("epreuve", "petite", "loot-" + id + "-e"));
+    if (wbAfter.perfect && !wbBefore.perfect) drops.push(grantLoot("week", "moyenne", "loot-week-" + d.cw));
+  }
   if (valid) feedPost("dungeon", {ty: tyLabel(d.type), full, wk: mondayKey(today()), done: weekCounts(d.cw).all, req: requiredSessions(weekInfo(d.cw)),
     prs: prs.map(x => { const b = bestSet(x.ex, setsOut[x.ex]) || {}; return {n: EX[x.ex].n.split(" (")[0], kg: Number(b.kg) || 0, reps: Number(b.reps) || 0}; })});
   if (after.rank !== before.rank) feedPost("rank", {rank: after.rank});
-  state.results = {doc, before, after, wb: {xp: wbAfter.xp - wbBefore.xp, gold: wbAfter.gold - wbBefore.gold, perfect: wbAfter.perfect, big: wbAfter.big && !wbBefore.big}, opened: false, fxDone: false};
+  state.results = {doc, before, after, wb: {xp: wbAfter.xp - wbBefore.xp, gold: wbAfter.gold - wbBefore.gold, perfect: wbAfter.perfect, big: wbAfter.big && !wbBefore.big}, opened: false, fxDone: false, drops: drops.filter(Boolean)};
   state.lastLevel = after.level; state.lastRank = after.rank; state.lastAch = new Set(after.achIds);
   state.modal = null; state.rest = null; state.view = "results"; releaseWakeLock(); window.scrollTo(0, 0); render(); chime("level");
   if (!loot) setTimeout(resultsFx, 500);
@@ -4931,7 +4999,8 @@ const ACTIONS = {
   chestShake: () => {                 // the chest trembles, then opens
     const b = document.querySelector(".chest-btn"); if (!b || b.classList.contains("shake") || state.results?.opened) return;
     if (!fxActive()) return ACTIONS.openChest(); b.classList.add("shake"); buzz([15, 30, 15, 30, 15]); setTimeout(() => ACTIONS.openChest(), 650); },
-  openChest: () => { const r = state.results; if (!r || r.opened) return; const cb = document.querySelector(".chest-btn")?.getBoundingClientRect(); r.opened = true; render(); chime("level"); if (cb) fxBurst(45, 70, cb.left + cb.width / 2, cb.top + cb.height / 3); buzz([40, 30, 40, 30, 120]); setTimeout(resultsFx, 900); },
+  openChest: () => { const r = state.results; if (!r || r.opened) return; const cb = document.querySelector(".chest-btn")?.getBoundingClientRect(); r.opened = true; render(); chime("level"); if (cb) fxBurst(45, 70, cb.left + cb.width / 2, cb.top + cb.height / 3); buzz([40, 30, 40, 30, 120]);
+    const cd = (r.drops || []).find(x => x.src === "chest"); setTimeout(() => { if (cd) pushFx(lootFx(cd)); resultsFx(); }, 900); },
   leaveResults: () => { state.results = null; state.view = "status"; window.scrollTo(0, 0); render(); },
   fxNext: () => nextFx(),
   buy: a => buy(a.dataset.id),
