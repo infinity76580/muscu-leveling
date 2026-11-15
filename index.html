@@ -3971,7 +3971,7 @@ function viewMeals(P) {
   const rows = slots.map(sl => { const n = inSlot(sl.k).length;
     return `<li class="slot-row"><span class="slot-n">${sl.label}<small>${n ? plural(n, "aliment") : "Rien pour l'instant"}</small></span><b class="slot-k">${fmt(slotKcal(sl.k), 0)} kcal</b><button class="btn sm" data-act="foodOpen" data-d="${key}" data-slot="${sl.k}" aria-label="Ajouter : ${sl.label}">+</button></li>`; }).join("");
   const detail = slots.filter(sl => inSlot(sl.k).length).map(sl => { const list = inSlot(sl.k);
-    return `<div class="slot-det"><span class="lbl">${sl.label} · ${fmt(slotKcal(sl.k), 0)} kcal</span><ul class="meal-list">${list.map(it => `<li class="meal-it ${it.reward ? "rw" : ""}"><span class="n">${!it.reward && it.k100 != null ? `<button class="link meal-edit" data-act="mealEdit" data-d="${key}" data-id="${esc(it.id)}">${esc(it.name)}</button>` : esc(it.name)}<small>${it.reward ? "Récompense · hors compteur" : (it.u ? fmt(it.u, 2) + " × " + esc(it.unit || "") : fmt(it.g, 0) + " g") + " · " + fmt(it.prot, 1) + " g de protéines"}</small></span><span class="k">${it.reward ? "Validé" : fmt(it.kcal, 0) + " kcal"}</span><button class="x" data-act="mealDel" data-d="${key}" data-id="${esc(it.id)}" aria-label="Retirer ${esc(it.name)}">✕</button></li>`).join("")}</ul>
+    return `<div class="slot-det"><span class="lbl">${sl.label} · ${fmt(slotKcal(sl.k), 0)} kcal</span><ul class="meal-list">${list.map(it => `<li class="meal-it ${it.reward ? "rw" : ""}"><span class="n">${!it.reward && it.k100 != null ? `<button class="link meal-edit" data-act="mealEdit" data-d="${key}" data-id="${esc(it.id)}">${esc(it.name)}</button>` : esc(it.name)}<small>${it.reward ? "Récompense · hors compteur" : (it.u ? fmt(it.u, 2) + " × " + esc(it.unit || "") + " · " : Number(it.g) > 0 ? fmt(it.g, 0) + " g · " : "") + fmt(it.prot, 1) + " g de protéines"}</small></span><span class="k">${it.reward ? "Validé" : fmt(it.kcal, 0) + " kcal"}</span><button class="x" data-act="mealDel" data-d="${key}" data-id="${esc(it.id)}" aria-label="Retirer ${esc(it.name)}">✕</button></li>`).join("")}</ul>
       ${list.filter(x => !x.reward).length >= 2 ? `<button class="link" data-act="tplSaveAsk" data-d="${key}" data-slot="${sl.k}">Garder comme repas type</button>` : ""}</div>`; }).join("");
   const tickets = S.purchases.filter(p => isMeal(p) && !p.usedOn);
   const ticketsWin = tickets.length ? `<section class="win"><h2 class="win-title">Tickets repas</h2><p class="muted small">Tes récompenses gagnées à la Boutique. Valide-la le jour où tu la manges : le repas compte comme noté et ses calories ne comptent pas.</p>
@@ -4318,6 +4318,15 @@ function seedPlan(force) {                    // once per load: remember the pro
     const W = {name: "Week-end entier, estimation (7 000 kcal sur samedi et dimanche)", g: null, u: null, kcal: 3500, prot: 130, carbs: 390, fat: 150, src: "weekend"};
     for (const d of ["2026-11-07", "2026-11-08"]) if (!(S.meals[d]?.items || []).some(x => x.src === "weekend")) saveMeals(d, [...(S.meals[d]?.items || []).map(x => ({...x})), {...W, id: "we" + d.slice(-2), slot: "soir"}]);
     mark("weekend1107");
+  }
+  if (pid === "base" && !done("meal1115")) {   // 15 Nov, his words: "un Pepe Chicken pour repas et un carré de chocolat" (he didn't know the kcal)
+    const d = "2026-11-15", cur = (S.meals[d]?.items || []).map(x => ({...x}));
+    const add = [
+      {id: "pc1115", name: "Menu Pepe Chicken (burger poulet frit + frites + sauce, estimation)", g: null, u: null, kcal: 1100, prot: 40, carbs: 110, fat: 55, src: "quick", slot: "midi"},
+      {id: "ch1115", name: "Chocolat 74% fin carré", g: 20, u: 1, ug: 20, unit: "Carré", k100: 571, p100: 9.9, c100: 32, f100: 42, kcal: 114, prot: 2, carbs: 6.4, fat: 8.4, src: "perso", slot: "snack"}
+    ].filter(a => !cur.some(x => x.id === a.id || (a.id === "ch1115" && /^Chocolat 74/.test(x.name || ""))));
+    if (add.length) saveMeals(d, [...cur, ...add]);
+    mark("meal1115");
   }
   if (pid === "base" && !done("upright1113")) {   // 13 Nov note: "le Y est compliqué ... j'ai fait 40x9 et 40x8" (bar pulled vertically for the traps)
     for (const ses of S.sessions.filter(x => x.date === "2026-11-13" && Array.isArray(x.sets?.yRaise) && x.sets.yRaise.every(r => Number(r.reps) <= 1) && !x.sets.uprightRow)) {
