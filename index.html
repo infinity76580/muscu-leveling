@@ -1085,6 +1085,26 @@ details.fold summary::after{color:var(--cyan)}
 .lsi{flex:none;width:76px;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
 .lsi .tk-img{width:64px;height:64px;border:1px solid color-mix(in srgb,var(--tc) 55%,transparent);box-shadow:0 0 12px color-mix(in srgb,var(--tc) 25%,transparent)}
 .lsi small{font-size:10px;line-height:1.2;color:var(--muted)}
+.chest{--tc:#b8c6dc}
+.chest-tier{margin:0 0 -6px;font:700 15px var(--font-display);letter-spacing:.3em;text-transform:uppercase;color:var(--tc);text-shadow:0 0 14px var(--tc);transition:color .2s}
+.chest-tier.pop{animation:tierPop .42s cubic-bezier(.2,1.5,.4,1)}
+@keyframes tierPop{0%{transform:scale(1.7);opacity:.2;filter:blur(3px)}100%{transform:none;opacity:1;filter:none}}
+.chest .chest-img,.chest .chest-svg{filter:drop-shadow(0 0 14px color-mix(in srgb,var(--tc) 70%,transparent)) drop-shadow(0 0 34px color-mix(in srgb,var(--tc) 35%,transparent));transition:filter .25s}
+.chest.rolling .chest-btn{animation:tierBump .38s cubic-bezier(.2,1.5,.4,1)}
+@keyframes tierBump{0%{transform:scale(1.08)}100%{transform:none}}
+.chest.t4 .chest-img,.chest.t5 .chest-img,.chest.t6 .chest-img{filter:drop-shadow(0 0 20px var(--tc)) drop-shadow(0 0 54px color-mix(in srgb,var(--tc) 70%,transparent))}
+.chest.t5 .chest-tier,.chest.t6 .chest-tier{font-size:18px}
+.chest.t6 .chest-tier{color:#fff;text-shadow:0 0 12px #c084fc,0 0 30px #7c3aed,0 0 60px #000}
+.chest.t6 .chest-btn::before{background:repeating-conic-gradient(from 0deg,rgba(192,132,252,.55) 0 5deg,rgba(0,0,0,.55) 5deg 16deg)}
+.chest.t6.rolling,.chest.t6{border-radius:18px;background:radial-gradient(circle at 50% 50%,rgba(124,58,237,.18),transparent 65%)}
+.loot{color:var(--tc)}
+.ctiers{display:grid;gap:4px;margin-top:10px;font-size:12px}
+.ct{display:grid;grid-template-columns:86px 46px 52px minmax(0,1fr);gap:6px;align-items:center;padding:6px 8px;border-radius:10px;background:rgba(10,16,32,.55);border:1px solid color-mix(in srgb,var(--tc,#8d9bb8) 40%,transparent)}
+.ct b{font:700 12px var(--font-display);letter-spacing:.06em;color:var(--tc)}
+.ct span{font:700 12px var(--font-display);color:#dbe6fb;text-align:right}
+.ct em{font-style:normal;color:var(--muted);font-size:11px;line-height:1.25}
+.ct.hd{background:none;border:0;padding:0 8px}
+.ct.hd span{font:600 10px var(--font-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left}
 /* reward reveal */
 .fx.item .fx-card{gap:12px}
 .fx-item{position:relative;width:min(60vw,240px);aspect-ratio:1;border-radius:22px;overflow:hidden;border:1px solid color-mix(in srgb,var(--tc) 65%,transparent);box-shadow:0 0 50px color-mix(in srgb,var(--tc) 50%,transparent),0 0 0 1px rgba(255,255,255,.08) inset;animation:itemIn 1.1s cubic-bezier(.2,1.25,.4,1) both}
@@ -3211,10 +3231,10 @@ function viewResults() {
   const r = state.results, d = r.doc;
   const cls = d.full ? "" : d.valid ? "partial" : "fail";
   const title = d.full ? "Donjon nettoyé" : d.valid ? "Donjon validé" : "Retraite";
-  const TC = {"Commun": "var(--glow)", "Rare": "var(--blue)", "Épique": "var(--violet)", "Légendaire": "var(--gold)"};
+  const ct = d.loot ? chestTier(d.loot.tier) : null, nC = (r.drops || []).filter(x => x.src === "chest").length;
   const prs = (d.prs || []).map(p => `<li><b>${esc(EX[p.ex]?.n || p.ex)}</b><br>1RM estimé ${fmt(p.e1, 1)} kg <span class="muted">(avant ${fmt(p.prev, 1)})</span></li>`).join("");
-  const chest = d.loot ? `<div class="chest"><button class="chest-btn ${r.opened ? "open" : ""}" data-act="${r.opened ? "openChest" : "chestShake"}" style="--tc:${TC[d.loot.tier]}" aria-label="Ouvrir le coffre">${(window.GL_IMGS || []).includes("chest_closed") ? `<img class="chest-img" src="img/${r.opened ? "chest_open" : "chest_closed"}.webp?v=${IMG_V}" alt="">` : CHEST_SVG}</button>
-      ${r.opened ? `<p class="loot" style="--tc:${TC[d.loot.tier]}">Coffre ${d.loot.tier} : +${d.loot.gold} or${(r.drops || []).some(x => x.src === "chest") ? " + une récompense" : ""}</p>` : `<button class="btn gold" data-act="chestShake">Ouvrir le coffre</button>`}</div>` : "";
+  const chest = d.loot ? `<div class="chest ${r.opened ? "t" + CHEST_TIERS.indexOf(ct) : ""}" style="--tc:${r.opened ? ct.c : CHEST_TIERS[0].c}"><p class="chest-tier" id="chestTier">${r.opened ? "Coffre " + esc(ct.k) : "Coffre mystère"}</p><button class="chest-btn ${r.opened ? "open" : ""}" data-act="${r.opened ? "openChest" : "chestShake"}" aria-label="Ouvrir le coffre">${(window.GL_IMGS || []).includes("chest_closed") ? `<img class="chest-img" src="img/${r.opened ? "chest_open" : "chest_closed"}.webp?v=${IMG_V}" alt="">` : CHEST_SVG}</button>
+      ${r.opened ? `<p class="loot">+${d.loot.gold} or${nC ? " + " + (nC > 1 ? nC + " récompenses" : "une récompense") : ""}</p>` : `<button class="btn gold" data-act="chestShake">Ouvrir le coffre</button>`}</div>` : "";
   const newAch = r.after.ach.filter(a => !r.before.achIds.has(a.id));
   return `<section class="win res-win">${gateArt(d.type, "res-art")}<p class="res-eyebrow">[Système]</p><h1 class="res-title ${cls}">${title}</h1>
       <p class="sys-line" style="text-align:center">${sessLabel(d)} · ${sessName(d)}</p>
@@ -3284,7 +3304,8 @@ function viewShop(P) {                        // 14 Nov (Hunter OS): wallet over
       ${inv.length ? `<div class="tickets">${inv.map(p => ticketRow(p, isMeal(p) ? "ticketUse" : "invUse", t, "Utiliser")).join("")}</div>` : `<p class="empty">Inventaire vide. Échange ton or dans la Boutique : tes récompenses arrivent ici.</p>`}</section>
       <section class="win"><h2 class="win-title">Déjà utilisées</h2>${hist.length ? `<ul class="hist-list">${hist.map(p => `<li><span>${esc(p.name)}<small class="muted"> · ${p.effect === "skip" ? "laissez-passer du " + fmtDay(fromStr(p.date), {day: "numeric", month: "short"}) : "le " + fmtDay(fromStr(p.usedOn), {day: "numeric", month: "short"})}</small></span><span>${p.kind === "rank" ? "Rang " + p.rank : p.kind === "loot" ? "Butin" : "−" + fmt(p.cost, 0) + " or"}</span></li>`).join("")}</ul>` : `<p class="empty">Rien d'utilisé pour l'instant.</p>`}</section>
       <section class="win"><h2 class="win-title">Butin gratuit</h2><p class="muted small">Ces récompenses tombent sans dépenser d'or, tirées de ta boutique ou du butin du Système (à partir du 16 novembre) :</p>
-      <ul class="rules small"><li>Coffre de fin de donjon : Rare, 1 chance sur 4 ; Épique, 3 sur 5 ; Légendaire, à chaque fois.</li><li>Épreuve réussie : 1 chance sur 3.</li><li>Semaine parfaite (tous les donjons) : une récompense moyenne.</li><li>Tous les 7 jours de série de quêtes : une petite récompense.</li></ul>
+      <ul class="rules small"><li>Coffre de fin de donjon : selon sa rareté (tableau ci-dessous).</li><li>Épreuve réussie : 1 chance sur 3.</li><li>Semaine parfaite (tous les donjons) : une récompense moyenne.</li><li>Tous les 7 jours de série de quêtes : une petite récompense.</li></ul>
+      <div class="ctiers"><div class="ct hd"><span>Coffre</span><span>Chance</span><span>Or</span><span>Récompense gratuite</span></div>${CHEST_TIERS.map(t => `<div class="ct" style="--tc:${t.c}"><b>${t.k}</b><span>${String(Math.round(t.p * 1000) / 10).replace(".", ",")} %</span><span>${t.g[0] === t.g[1] ? t.g[0] : t.g[0] + "-" + t.g[1]}</span><em>${CHEST_LOOT_TXT[t.k]}</em></div>`).join("")}</div>
       <div class="lootstrip">${FREE_LOOT.map(x => `<span class="lsi" style="--tc:${RARITY[x.tier][1]}"><span class="tk-img">${rwVisual(x)}</span><small>${esc(x.name.split(" : ")[0])}</small></span>`).join("")}</div></section>`;
   }
   if (tab === "rank") {
@@ -4612,12 +4633,27 @@ function toggleSet(ex, i) {
     const nx = document.querySelector(".ex.now"); if (nx) nx.scrollIntoView({behavior: "smooth", block: "start"}); }, fxActive() ? 1300 : 250);
 }
 function startRest(sec) { state.rest = {end: Date.now() + sec * 1000, total: sec * 1000, rang: false}; tick(); }
+const CHEST_TIERS = [                         // 15 Nov: 7 chest rarities (chance, gold, colour, spark hue)
+  {k: "Commun", c: "#b8c6dc", h: 210, p: 0.42, g: [10, 20]}, {k: "Peu commun", c: "#4ff0b0", h: 155, p: 0.26, g: [20, 35]},
+  {k: "Rare", c: "#3d8bff", h: 215, p: 0.17, g: [40, 60]}, {k: "Épique", c: "#9b7bff", h: 265, p: 0.095, g: [80, 120]},
+  {k: "Légendaire", c: "#ffcf5c", h: 45, p: 0.04, g: [200, 200]}, {k: "Mythique", c: "#ff4d6a", h: 350, p: 0.012, g: [350, 350]},
+  {k: "Monarque", c: "#c084fc", h: 280, p: 0.003, g: [700, 700]},
+];
+const CHEST_DROPS = {"Peu commun": [[0.1, "petite"]], Rare: [[0.25, "petite"]], "Épique": [[0.6, "mix"]], "Légendaire": [[1, "leg"]], Mythique: [[1, "grosse"]], Monarque: [[1, "grosse"], [1, "moyenne"]]};
+const CHEST_LOOT_TXT = {Commun: "or seulement", "Peu commun": "1 chance sur 10 : une petite", Rare: "1 chance sur 4 : une petite", "Épique": "3 chances sur 5 : petite ou moyenne",
+  "Légendaire": "toujours : une moyenne, parfois une grosse", Mythique: "toujours : une grosse", Monarque: "une grosse + une moyenne"};
+const chestTier = k => CHEST_TIERS.find(t => t.k === k) || CHEST_TIERS[0];
 function rollLoot() {
-  const r = Math.random(), g = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
-  if (r < 0.55) return {tier: "Commun", gold: g(15, 30)};
-  if (r < 0.85) return {tier: "Rare", gold: g(40, 70)};
-  if (r < 0.97) return {tier: "Épique", gold: g(90, 140)};
-  return {tier: "Légendaire", gold: 250};
+  let r = Math.random(); const g = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  for (const t of CHEST_TIERS) { if (r < t.p) return {tier: t.k, gold: g(t.g[0], t.g[1])}; r -= t.p; }
+  return {tier: "Commun", gold: g(10, 20)};
+}
+function tierTone(k) {                         // the rising note of the rarity climb
+  if (S.profile && S.profile.sound === false) return;
+  try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); const t0 = actx.currentTime + 0.01, o = actx.createOscillator(), gn = actx.createGain();
+    o.type = k >= 5 ? "sawtooth" : "triangle"; o.frequency.value = 392 * Math.pow(2, k * 3 / 12);
+    gn.gain.setValueAtTime(0, t0); gn.gain.linearRampToValueAtTime(k >= 5 ? 0.05 : 0.07, t0 + 0.02); gn.gain.exponentialRampToValueAtTime(0.0001, t0 + (k >= 4 ? 0.6 : 0.3));
+    o.connect(gn); gn.connect(actx.destination); o.start(t0); o.stop(t0 + 0.65); } catch (e) {}
 }
 async function finishDungeon() {
   if (state.finishing) return; state.finishing = true;   // a double tap saved the 31 Oct session twice
@@ -4650,8 +4686,8 @@ async function finishDungeon() {
   const after = compute(); const wbAfter = weekBonus(d.cw);
   const drops = [];                             // 15 Nov: free real rewards that drop while playing
   if (valid && today() >= LOOT_FROM) {
-    const pc = {Rare: 0.25, "Épique": 0.6, "Légendaire": 1}[loot?.tier] || 0, rnd = Math.random;
-    if (loot && rnd() < pc) drops.push(grantLoot("chest", loot.tier === "Légendaire" ? (rnd() < 0.3 ? "grosse" : "moyenne") : loot.tier === "Épique" && rnd() < 0.35 ? "moyenne" : "petite", "loot-" + id + "-c"));
+    const rnd = Math.random;
+    (CHEST_DROPS[loot?.tier] || []).forEach(([p, kind], k) => { if (rnd() < p) drops.push(grantLoot("chest", kind === "mix" ? (rnd() < 0.35 ? "moyenne" : "petite") : kind === "leg" ? (rnd() < 0.2 ? "grosse" : "moyenne") : kind, "loot-" + id + "-c" + (k || ""))); });
     if (chalWon.length && rnd() < 1 / 3) drops.push(grantLoot("epreuve", "petite", "loot-" + id + "-e"));
     if (wbAfter.perfect && !wbBefore.perfect) drops.push(grantLoot("week", "moyenne", "loot-week-" + d.cw));
   }
@@ -4996,11 +5032,24 @@ const ACTIONS = {
   finishAsk: () => { state.modal = {kind: "finish", feeling: null, note: ""}; renderModal(); },
   feel: a => { state.modal.feeling = state.modal.feeling === a.dataset.f ? null : a.dataset.f; renderModal(); },
   finish: () => finishDungeon(),
-  chestShake: () => {                 // the chest trembles, then opens
-    const b = document.querySelector(".chest-btn"); if (!b || b.classList.contains("shake") || state.results?.opened) return;
-    if (!fxActive()) return ACTIONS.openChest(); b.classList.add("shake"); buzz([15, 30, 15, 30, 15]); setTimeout(() => ACTIONS.openChest(), 650); },
-  openChest: () => { const r = state.results; if (!r || r.opened) return; const cb = document.querySelector(".chest-btn")?.getBoundingClientRect(); r.opened = true; render(); chime("level"); if (cb) fxBurst(45, 70, cb.left + cb.width / 2, cb.top + cb.height / 3); buzz([40, 30, 40, 30, 120]);
-    const cd = (r.drops || []).find(x => x.src === "chest"); setTimeout(() => { if (cd) pushFx(lootFx(cd)); resultsFx(); }, 900); },
+  chestShake: () => {                 // 15 Nov: the rarity climbs tier by tier (colour, name, rising note, sparks), then the chest trembles and opens
+    const b = document.querySelector(".chest-btn"), r = state.results; if (!b || b.dataset.rolling || !r || r.opened || !r.doc.loot) return;
+    if (!fxActive()) return ACTIONS.openChest();
+    const idx = CHEST_TIERS.indexOf(chestTier(r.doc.loot.tier)), box = b.closest(".chest"), lab = document.getElementById("chestTier");
+    b.dataset.rolling = "1"; box.querySelector(".btn.gold")?.setAttribute("disabled", "");
+    let t = 250;
+    for (let k = 0; k <= idx; k++) { const tk = CHEST_TIERS[k];
+      setTimeout(() => { if (!box.isConnected) return; box.style.setProperty("--tc", tk.c); box.className = "chest rolling t" + k;
+        if (lab) { lab.textContent = "Coffre " + tk.k; lab.classList.remove("pop"); void lab.offsetWidth; lab.classList.add("pop"); }
+        tierTone(k); buzz(k >= 5 ? [40, 30, 70] : 14 + k * 6); const rc = b.getBoundingClientRect(); fxBurst(tk.h, 8 + k * 9, rc.left + rc.width / 2, rc.top + rc.height / 2); if (k >= 5) fxFlash(); }, t);
+      t += k >= 3 ? 760 : 430; }   // from Épique on, each step makes you wait a bit longer
+    setTimeout(() => { if (box.isConnected) { b.classList.add("shake"); buzz([15, 30, 15, 30, 15]); } }, t - 150);
+    setTimeout(() => ACTIONS.openChest(), t + 500); },
+  openChest: () => { const r = state.results; if (!r || r.opened) return; const cb = document.querySelector(".chest-btn")?.getBoundingClientRect(); r.opened = true; render(); chime("level");
+    const ct = chestTier(r.doc.loot?.tier), ci = CHEST_TIERS.indexOf(ct);
+    if (cb) fxBurst(ct.h, 50 + ci * 22, cb.left + cb.width / 2, cb.top + cb.height / 3); buzz(ci >= 4 ? [60, 40, 60, 40, 200] : [40, 30, 40, 30, 120]);
+    if (ci >= 4) fxStamp(ct.k, "Coffre · +" + r.doc.loot.gold + " or");
+    const cds = (r.drops || []).filter(x => x.src === "chest"); setTimeout(() => { cds.forEach(x => pushFx(lootFx(x))); resultsFx(); }, ci >= 4 ? 1500 : 900); },
   leaveResults: () => { state.results = null; state.view = "status"; window.scrollTo(0, 0); render(); },
   fxNext: () => nextFx(),
   buy: a => buy(a.dataset.id),
