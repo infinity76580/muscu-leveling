@@ -1152,22 +1152,46 @@ details.fold summary::after{color:var(--cyan)}
 .tabs3.tabs2{grid-template-columns:repeat(2,1fr);margin:0 0 14px}
 .dgate.cleared .tagrank{color:#4ff0b0}
 .dgate.cleared h2{color:#eafff6}
-.pweek .pw-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}
-.pweek .pw-h h3{margin:2px 0 0;font:700 20px var(--font-display);letter-spacing:.02em;color:#fff}
-.pweek .pw-st{font:700 11px var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap;padding-top:2px}
-.pweek.st-done .pw-st,.pweek.st-partial .pw-st{color:#4ff0b0}
-.pweek.today{box-shadow:inset 0 0 0 1px var(--edge2)}
-.pw-list{list-style:none;margin:0 0 6px;padding:0}
-.pw-list li{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--edge)}
-.pw-list .pn{font:700 12px var(--font-display);color:var(--muted)}
-.pw-list .pe b{display:block;font-weight:600;line-height:1.25}
-.pw-list .pe small{color:var(--muted);font-size:12px}
-.pw-list .ps{font:700 14px var(--font-display);white-space:nowrap;color:#fff}
-.pmus{list-style:none;margin:4px 0 0;padding:0}
-.pmus li{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 0;border-top:1px solid var(--edge)}
-.pmus li span{grid-column:1;color:var(--muted);font-size:13px;text-transform:capitalize}
-.pmus li i{grid-row:1/3;grid-column:2;align-self:center;font:700 13px var(--font-display);font-style:normal;color:#fff}
-.pmus em.warn{font-style:normal;text-transform:none;color:#ffb347;margin-left:6px}
+.musw .plan-seg{margin-bottom:12px}
+.fqmap{max-width:340px;margin:10px auto 0}
+.bm-m.fq0{opacity:.9}
+.bm-m.fq1{filter:drop-shadow(0 0 3px rgba(47,111,224,.6))}
+.bm-m.fq2{filter:drop-shadow(0 0 6px rgba(79,209,255,.7))}
+.bm-m.fq3{filter:drop-shadow(0 0 10px rgba(192,132,252,.9))}
+.fq-leg{display:flex;justify-content:center;gap:16px;margin:8px 0 4px;font:700 11px var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.fq-leg span{display:inline-flex;align-items:center;gap:6px}
+.fq-leg i{width:10px;height:10px;border-radius:3px;box-shadow:0 0 8px currentColor}
+.mgrid{display:grid;gap:6px;margin-top:14px}
+.mg-r{position:relative;display:grid;grid-template-columns:minmax(0,1fr) repeat(var(--cols),28px) 42px;gap:5px;align-items:center;padding:6px 6px 6px 12px;border-radius:12px;background:linear-gradient(90deg,color-mix(in srgb,var(--mc,#6fe3ff) 10%,rgba(10,16,32,.7)),rgba(10,16,32,.35));border:1px solid rgba(140,200,255,.08)}
+.mg-r::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:3px;background:var(--mc);box-shadow:0 0 8px var(--mc)}
+.mg-h{background:none;border:0;padding:0 6px 0 12px}
+.mg-h::before{display:none}
+.mg-h span{text-align:center;font:700 11px var(--font-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.mg-h span.now{color:var(--cyan);text-shadow:0 0 8px var(--cyan)}
+.mg-n{min-width:0}
+.mg-n b{display:block;font:700 14px/1.1 var(--font-display);letter-spacing:.04em;text-transform:uppercase;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mg-n small{font:600 11px var(--font-display);letter-spacing:.1em;text-transform:uppercase;color:var(--mc)}
+.mg-r>i{height:28px;border-radius:8px;display:grid;place-items:center;font:700 13px var(--font-display);font-style:normal;color:#fff;background:rgba(140,200,255,.04);border:1px solid rgba(140,200,255,.08)}
+.mg-r>i.on{background:color-mix(in srgb,var(--mc) 26%,rgba(5,7,13,.6));border-color:var(--mc);box-shadow:0 0 10px color-mix(in srgb,var(--mc) 50%,transparent),inset 0 0 8px color-mix(in srgb,var(--mc) 30%,transparent)}
+.mg-r>i.glued{border-color:var(--orange);box-shadow:0 0 12px rgba(255,157,74,.7)}
+.mg-t{text-align:right}
+.mg-t b{display:block;font:700 17px/1 var(--font-display);color:var(--mc);text-shadow:0 0 10px color-mix(in srgb,var(--mc) 60%,transparent)}
+.mg-t small{font:600 9px var(--font-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.mg-warn{margin-top:8px;font-size:12px;color:var(--orange)}
+.pday2 .brief-top{height:150px}
+.pday2.is-today{border-color:color-mix(in srgb,var(--cyan) 60%,transparent);box-shadow:0 0 0 1px rgba(111,227,255,.25),0 0 28px rgba(111,227,255,.22)}
+.pday2.is-done .brief-top .art{filter:saturate(.7) brightness(.8)}
+.pd-st{position:absolute;z-index:3;top:12px;right:12px;padding:5px 10px;border-radius:8px;font:700 10px var(--font-display);letter-spacing:.16em;text-transform:uppercase;color:#cfe6ff;background:rgba(5,7,13,.6);border:1px solid rgba(140,200,255,.25);backdrop-filter:blur(6px)}
+.pday2.is-done .pd-st{color:#4ff0b0;border-color:rgba(79,240,176,.55);box-shadow:0 0 12px rgba(79,240,176,.35)}
+.pday2.is-today .pd-st{color:#04101f;background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 14px rgba(111,227,255,.6)}
+.pd-list{list-style:none;margin:6px 0 4px;padding:0;display:grid;gap:6px}
+.pd-list li{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 10px;border-radius:12px;background:linear-gradient(90deg,color-mix(in srgb,var(--mc) 9%,rgba(10,16,32,.75)),rgba(10,16,32,.4));border:1px solid rgba(140,200,255,.08)}
+.pd-n{width:28px;height:28px;display:grid;place-items:center;font:700 12px var(--font-display);color:var(--mc);border:1px solid var(--mc);border-radius:8px;background:color-mix(in srgb,var(--mc) 14%,rgba(5,7,13,.7));box-shadow:0 0 8px color-mix(in srgb,var(--mc) 45%,transparent)}
+.pd-e b{display:block;font-weight:600;font-size:14px;line-height:1.25;color:#fff}
+.pd-e em{font:700 10px var(--font-display);font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:var(--mc)}
+.pd-s{text-align:right;white-space:nowrap}
+.pd-s b{font:700 20px/1 var(--font-display);color:#fff}
+.pd-s small{margin-left:3px;font:700 13px var(--font-display);color:#b9c7e2}
 </style>
 
 <div id="app" class="wrap"></div>
@@ -3106,22 +3130,50 @@ const MUSCLE_OF = {latRaise: "Épaules (côtés)", latRaiseMach: "Épaules (côt
   facePull: "Épaules (arrière)", revFly: "Épaules (arrière)", revPecDeck: "Épaules (arrière)", uprightRow: "Trapèzes", pecDeck: "Pectoraux", flySeated: "Pectoraux", lowHighFly: "Pectoraux", pullover: "Dos", isoPd: "Dos"};
 const MUSCLE_ORDER = ["Pectoraux", "Dos", "Épaules (avant)", "Épaules (côtés)", "Épaules (arrière)", "Trapèzes", "Biceps", "Triceps", "Quadriceps", "Ischios", "Fessiers", "Mollets", "Autres"];
 const muscleOf = ex => MUSCLE_OF[ex] || (STRENGTH.find(g => g.ex[ex] != null) || {name: "Autres"}).name;
+const MUSCLE_COL = {"Pectoraux": "#ff6b8a", "Dos": "#3d8bff", "Épaules (avant)": "#ffb347", "Épaules (côtés)": "#ffcf5c", "Épaules (arrière)": "#ff9d4a", "Trapèzes": "#9b7bff",
+  "Biceps": "#4ff0b0", "Triceps": "#6fe3ff", "Quadriceps": "#ff4d6a", "Ischios": "#ff8a9d", "Fessiers": "#e879f9", "Mollets": "#a3aec2", "Autres": "#a3aec2"};
+const MUSCLE_KEY = {"Pectoraux": "pecs", "Dos": "dos", "Épaules (avant)": "epaules", "Épaules (côtés)": "epaules", "Épaules (arrière)": "epaules", "Trapèzes": "trapezes", "Biceps": "biceps", "Triceps": "triceps", "Quadriceps": "quads", "Ischios": "ischios", "Fessiers": "fessiers", "Mollets": "mollets"};
+const FREQ_COL = ["rgba(140,180,255,.13)", "#2f6fe0", "#4fd1ff", "#c084fc"];   // 0, 1, 2, 3+ sessions in the week
+function bodyFreqSvg(side, freq) {              // the strength-map drawing, each muscle lit by how many days it works this week
+  const art = BODY_ART[side];
+  const shapes = art.parts.map(([slug, d]) => {
+    const k = BODY_MUSCLE[slug], n = k ? Math.min(3, freq[k] || 0) : 0;
+    const cls = slug === "hair" ? "bm-hair" : BODY_SKIN.has(slug) ? "bm-skin" : k ? "bm-m fq" + n : "bm-off";
+    return `<path d="${d}" class="${cls}"${k ? ` fill="${FREQ_COL[n]}"` : ""}></path>`;
+  }).join("");
+  return `<figure class="bm-fig"><svg viewBox="${art.vb}" role="img" aria-label="Corps vu de ${side === "front" ? "face" : "dos"}"><path d="${art.outline}" class="bm-outline"/>${shapes}</svg><figcaption>${side === "front" ? "Face" : "Dos"}</figcaption></figure>`;
+}
 function weekProgram(cw0) {                    // 16 Nov, his note: "un onglet planning pour voir absolument tous les exercices de la semaine"
   const off = state.planOffset || 0, cw = cw0 + off, info = weekInfo(cw), t = today();
   const seg = `<div class="seg plan-seg" role="group" aria-label="Semaine"><button class="${off ? "" : "on"}" data-act="planWeek" data-o="0">Cette semaine</button><button class="${off ? "on" : ""}" data-act="planWeek" data-o="1">Semaine prochaine</button></div>`;
   if (!info || !info.types.length) return `<section class="win">${seg}<p class="muted small">Pas de séance prévue cette semaine-là.</p></section>`;
-  const days = weekPlan(cw).filter(p => !p.bonus && p.date).sort((a, b) => a.date.localeCompare(b.date)), mus = {};
+  const days = weekPlan(cw).filter(p => !p.bonus && p.date).sort((a, b) => a.date.localeCompare(b.date)), mus = {}, rank = info.W.rank;
   const cards = days.map(p => {
-    const plan = planFor(cw, p.ty);
-    for (const it of plan) { const m = muscleOf(it.ex), r = mus[m] = mus[m] || {days: new Set(), sets: 0}; r.days.add(p.date); r.sets += Number(it.sets) || 0; }
-    const rows = plan.map((it, i) => `<li><span class="pn">${pad(i + 1)}</span><span class="pe"><b>${esc(EX[it.ex].n)}</b><small>${muscleOf(it.ex)}${it.tech ? " · technique" : ""}${it.maint ? " · entretien" : ""}</small></span><span class="ps">${it.sets} × ${repsTxt(it)}</span></li>`).join("");
-    return `<section class="win pweek st-${p.st} ${p.date === t ? "today" : ""}"><div class="pw-h"><div><span class="eyebrow">${fmtDay(fromStr(p.date), {weekday: "long", day: "numeric", month: "long"})}</span><h3>${esc(tyLabel(p.ty))}</h3></div><span class="pw-st">${PLAN_ST[p.st] || ""}</span></div>
-      <ol class="pw-list">${rows}</ol><button class="g-link" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}">Repos, reps en réserve et changer de jour ›</button></section>`;
+    const plan = planFor(cw, p.ty), isT = p.date === t;
+    for (const it of plan) { const m = muscleOf(it.ex), r = mus[m] = mus[m] || {days: {}, sets: 0}; r.days[p.date] = (r.days[p.date] || 0) + (Number(it.sets) || 0); r.sets += Number(it.sets) || 0; }
+    const st = p.done ? (p.done.full ? "Nettoyé" : "Validé") : isT ? "Aujourd'hui" : PLAN_ST[p.st] || "";
+    const rows = plan.map((it, i) => { const m = muscleOf(it.ex);
+      return `<li style="--mc:${MUSCLE_COL[m] || "#a3aec2"}"><span class="pd-n">${pad(i + 1)}</span><span class="pd-e"><b>${esc(EX[it.ex].n)}</b><em>${m}${it.tech ? " · technique" : ""}${it.maint ? " · entretien" : ""}</em></span><span class="pd-s"><b>${it.sets}</b><small>× ${repsTxt(it)}</small></span></li>`; }).join("");
+    return `<section class="win brief pday2 ${p.done ? "is-done" : ""} ${isT ? "is-today" : ""}" style="--rc:var(--r-${rank})"><div class="brief-top">${gateArt(p.ty, "brief-art")}<span class="pd-st">${st}</span>
+      <div class="brief-h"><span class="tagrank">${fmtDay(fromStr(p.date), {weekday: "long", day: "numeric", month: "short"})}</span><h2>${esc(TYPES[p.ty].gate)}</h2><p>${esc(tyLabel(p.ty))} · ${plural(plan.length, "exercice")} · environ ${estMinutes(plan)} min</p></div></div>
+      <ol class="pd-list">${rows}</ol><button class="g-link" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}">Repos, reps en réserve, changer de jour ›</button></section>`;
   }).join("");
-  const wd = k => fmtDay(fromStr(k), {weekday: "short"}).replace(".", "");
-  const sum = MUSCLE_ORDER.filter(m => mus[m]).map(m => { const ks = [...mus[m].days].sort(), glued = ks.some((k, i) => i && dayDiff(fromStr(ks[i - 1]), fromStr(k)) === 1);
-    return `<li><b>${m}</b><span>${ks.map(wd).join(" · ")}${glued ? ` <em class="warn">jours d'affilée</em>` : ""}</span><i>${plural(mus[m].sets, "série")}</i></li>`; }).join("");
-  return `<section class="win"><h2 class="win-title">Planning</h2>${seg}<p class="muted small">${esc(planSched(info))}</p><span class="lbl">Par muscle</span><ul class="pmus">${sum}</ul></section>${cards}`;
+  const cols = [...Array(7)].map((_, i) => toStr(addDays(weekStart(cw), i))).filter((k, i) => i < 5 || days.some(p => p.date === k));
+  const freq = {}; for (const [m, r] of Object.entries(mus)) { const k = MUSCLE_KEY[m]; if (k) freq[k] = new Set([...(freq[k] || []), ...Object.keys(r.days)]); }
+  for (const k in freq) freq[k] = freq[k].size;
+  let anyGlued = false;
+  const grid = MUSCLE_ORDER.filter(m => mus[m]).map(m => {
+    const r = mus[m], ks = Object.keys(r.days).sort(), glued = new Set();
+    ks.forEach((k, i) => { if (i && dayDiff(fromStr(ks[i - 1]), fromStr(k)) === 1) { glued.add(k); glued.add(ks[i - 1]); } });
+    if (glued.size) anyGlued = true;
+    const cells = cols.map(k => r.days[k] ? `<i class="on ${glued.has(k) ? "glued" : ""}">${r.days[k]}</i>` : `<i></i>`).join("");
+    return `<div class="mg-r" style="--mc:${MUSCLE_COL[m]}"><span class="mg-n"><b>${m.replace(/ \(.*\)$/, "")}</b><small>${(m.match(/\((.*)\)$/) || [])[1] ? m.match(/\((.*)\)$/)[1] + " · " : ""}${ks.length} fois</small></span>${cells}<span class="mg-t"><b>${r.sets}</b><small>séries</small></span></div>`;
+  }).join("");
+  const head = `<div class="mg-r mg-h"><span></span>${cols.map(k => `<span class="${k === t ? "now" : ""}">${fmtDay(fromStr(k), {weekday: "short"}).replace(".", "").slice(0, 3)}</span>`).join("")}<span></span></div>`;
+  return `<section class="win musw" style="--cols:${cols.length}">${seg}<h2 class="win-title">Muscles de la semaine</h2><p class="muted small">${esc(planSched(info))}</p>
+    <div class="body-map fqmap">${bodyFreqSvg("front", freq)}${bodyFreqSvg("back", freq)}</div>
+    <div class="fq-leg"><span><i style="background:${FREQ_COL[1]}"></i>1 fois</span><span><i style="background:${FREQ_COL[2]}"></i>2 fois</span><span><i style="background:${FREQ_COL[3]}"></i>3 fois</span></div>
+    <div class="mgrid">${head}${grid}</div>${anyGlued ? `<p class="mg-warn">Cases orange : ce muscle travaille deux jours d'affilée.</p>` : ""}</section>${cards}`;
 }
 function viewDungeons() {
   if ((state.dgTab || "plan") === "plan") return dgHead("plan") + weekProgram(weekOfStr(today()));
