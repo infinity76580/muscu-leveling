@@ -4432,6 +4432,14 @@ function seedPlan(force) {                    // once per load: remember the pro
     if (add.length) saveMeals(d, [...cur, ...add]);
     mark("meal1115");
   }
+  if (pid === "base" && !done("incl1116")) {   // 16 Nov: "ce matin j'ai fait du couché haltères incliné, pas à plat" (dbBench picked in the add list)
+    for (const ses of S.sessions.filter(x => x.date === "2026-11-16" && Array.isArray(x.sets?.dbBench) && !x.sets.inclDb)) {
+      const sets = {...ses.sets, inclDb: ses.sets.dbBench}; delete sets.dbBench;
+      const doc = {...ses, sets}; delete doc.id;
+      S.sessions = S.sessions.map(x => x.id === ses.id ? {id: ses.id, ...doc} : x); queueSet("sessions/" + ses.id, doc);
+    }
+    mark("incl1116");
+  }
   if (pid === "base" && !done("upright1113")) {   // 13 Nov note: "le Y est compliqué ... j'ai fait 40x9 et 40x8" (bar pulled vertically for the traps)
     for (const ses of S.sessions.filter(x => x.date === "2026-11-13" && Array.isArray(x.sets?.yRaise) && x.sets.yRaise.every(r => Number(r.reps) <= 1) && !x.sets.uprightRow)) {
       const sets = {...ses.sets, uprightRow: [{kg: 40, reps: 9}, {kg: 40, reps: 8}]}; delete sets.yRaise;
