@@ -1149,6 +1149,25 @@ details.fold summary::after{color:var(--cyan)}
 .fx-low .pg-in>*,.fx-low .pg-in *{animation:none!important}
 .fx-low .cta::after,.fx-low .nav button.portal-btn::before,.fx-low .rc.leg::before,.fx-low .hero-bg::before{animation:none}
 @media (prefers-reduced-motion:reduce){.pg-in>*,.pg-in *{animation:none!important}.hero-bg::before,.cta::after{animation:none}}
+.tabs3.tabs2{grid-template-columns:repeat(2,1fr);margin:0 0 14px}
+.dgate.cleared .tagrank{color:#4ff0b0}
+.dgate.cleared h2{color:#eafff6}
+.pweek .pw-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}
+.pweek .pw-h h3{margin:2px 0 0;font:700 20px var(--font-display);letter-spacing:.02em;color:#fff}
+.pweek .pw-st{font:700 11px var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap;padding-top:2px}
+.pweek.st-done .pw-st,.pweek.st-partial .pw-st{color:#4ff0b0}
+.pweek.today{box-shadow:inset 0 0 0 1px var(--edge2)}
+.pw-list{list-style:none;margin:0 0 6px;padding:0}
+.pw-list li{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--edge)}
+.pw-list .pn{font:700 12px var(--font-display);color:var(--muted)}
+.pw-list .pe b{display:block;font-weight:600;line-height:1.25}
+.pw-list .pe small{color:var(--muted);font-size:12px}
+.pw-list .ps{font:700 14px var(--font-display);white-space:nowrap;color:#fff}
+.pmus{list-style:none;margin:4px 0 0;padding:0}
+.pmus li{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 0;border-top:1px solid var(--edge)}
+.pmus li span{grid-column:1;color:var(--muted);font-size:13px;text-transform:capitalize}
+.pmus li i{grid-row:1/3;grid-column:2;align-self:center;font:700 13px var(--font-display);font-style:normal;color:#fff}
+.pmus em.warn{font-style:normal;text-transform:none;color:#ffb347;margin-left:6px}
 </style>
 
 <div id="app" class="wrap"></div>
@@ -1472,7 +1491,7 @@ const TYPES = {
   C:  {name: "Pec / Dos étirement", day: 3, gate: "Caverne de l'étirement"},
   J:  {get name() { return curPlan().id !== "felix" ? "Jambes + complément" : "Jambes"; }, get solo() { return curPlan().id !== "felix"; }, day: 5, gate: "Gouffre des jambes"},
   DP: {get name() { return curPlan().id !== "felix" ? "Pecs / Dos · force" : "Pecs / Dos"; }, day: 0, gate: "Donjon de fer", solo: true},
-  EP: {name: "Épaules / Trapèzes", day: 1, gate: "Tour des épaules", solo: true},
+  EP: {get name() { return curPlan().id === "base" ? "Épaules" : "Épaules / Trapèzes"; }, day: 1, gate: "Tour des épaules", solo: true},
   EB: {get name() { return curPlan().id === "felix" ? "Épaules / Dos / Bras" : "Épaules / Bras"; }, day: 1, gate: "Tour des poulies", solo: true},
   DB: {get name() { return curPlan().id !== "felix" ? "Dos / Biceps · technique" : "Dos / Biceps"; }, day: 3, gate: "Puits du dos", solo: true},
   PT: {name: "Pecs / Triceps · technique", day: 4, gate: "Forge des pecs", solo: true},
@@ -1503,13 +1522,15 @@ const WEEKS = [null,
 ];
 const DELOAD = {phase: "Semaine allégée", rank: "D", rirTxt: "3 partout, mêmes charges, jamais à l'échec", setsTxt: "Moitié des séries"};
 const TEST_EX = {DP: ["bench", "csRow"], PT: ["inclBar"]};
-const GAUTHIER_ADD = {                      // 5 Nov, his photos: small traps, width from the side delts -> each trained twice a week
+const SHRUG_G = n => ({ex: "shrug", sets: 3, reps: [10, 15], rest: 90, cue: `Trapèzes, ${["", "1re", "2e", "3e"][n]} séance de la semaine (lundi, mercredi, vendredi : toujours un jour de repos entre deux). Prends lourd, monte les épaules droit vers les oreilles, pause 1 s en haut, descente lente ; bras tendus, sans rouler.`});
+const GAUTHIER_ADD = {                      // 16 Nov, his rule: a muscle done 3x a week needs a rest day between -> traps Mon/Wed/Fri, side delts Tue/Thu
   // 10 Nov (Nippard tier lists): Tuesday triceps moved to Wednesday's legs + complement (skullcrusher, S tier)
+  DP: [SHRUG_G(1)],
   DB: [{ex: "latRaise", sets: 3, reps: [12, 15], rest: 60, cue: "2e séance d'épaules latérales, à la poulie (le n° 1 de Jeff Nippard pour les épaules) : poulie basse, un bras, coude légèrement fléchi, monte jusqu'à l'horizontale, descente lente. C'est ce qui élargit la carrure."}],
-  PT: [{ex: "shrug", sets: 3, reps: [10, 15], rest: 90, cue: "2e séance de trapèzes, 3 jours après mardi : prends lourd, monte les épaules droit vers les oreilles, pause 1 s en haut, descente lente ; bras tendus, sans rouler. Au-dessus de 15 reps, le Système monte la charge."},   // 11 Nov: traps were the lowest of his weak points (6 sets/week)
-       {ex: "uprightRow", sets: 3, reps: [10, 15], rest: 75, cue: "Haut des trapèzes et épaules, tes deux points à travailler : barre droite, mains un peu plus larges que les épaules, monte la barre le long du corps jusqu'au bas de la poitrine, coudes plus hauts que les poignets, pause 1 s, descente lente. Poulies libres ? « Autre version » : Y-raise."}],   // 13 Nov: "le Y est compliqué à la salle", he did the bar version   // replaces Friday's shrugs (Nippard: overhead raises > standing shrugs for upper traps)
+  PT: [SHRUG_G(3)],   // 16 Nov: upright row dropped (side delts Thursday then Friday = no rest day; traps already 3x a week)
   J: [{ex: "skull", sets: 3, reps: [8, 12], rest: 90, cue: "Complément après les jambes. Barre EZ, allongé : descends la barre derrière le haut de la tête (pas sur le front) pour étirer la longue portion, coudes qui restent serrés."},
-      {ex: "lowHighFly", sets: 2, reps: [12, 15], rest: 75, cue: "Complément haut des pecs, à mi-chemin entre lundi et vendredi : poulies basses, mains qui montent vers le menton, serre 1 s en haut."}],
+      {ex: "lowHighFly", sets: 2, reps: [12, 15], rest: 75, cue: "Complément haut des pecs, à mi-chemin entre lundi et vendredi : poulies basses, mains qui montent vers le menton, serre 1 s en haut."},
+      SHRUG_G(2)],
 };
 const GAUTHIER_J = [                        // 11 Nov: hack + pendulum + press was the same movement twice, he was "finito" at the hip thrust
   {ex: "hack", sets: 4, reps: [8, 10], rest: 150, cue: "Ta seule machine de squat du jour, donc 4 séries : dos collé au dossier, descends profond, genoux dans l'axe des pieds. Pendule pris ou envie de changer : « Autre version »."},
@@ -1577,9 +1598,9 @@ const PLANS = {
   base: {id: "base", sess: {J: GAUTHIER_J}, swap: GAUTHIER_SWAP, add: GAUTHIER_ADD, cueAdd: {
       flySeated: " C'est l'écarté AUX CÂBLES (poulies), pas la machine pec deck : les câbles gardent la tension bras ouverts, en étirement.",
       ohTri: " Prends la barre droite plutôt que la corde : c'est le n° 1 de Jeff Nippard pour les triceps.",
-      latRaise: " Dernière série : une fois à l'échec, enchaîne 3 à 5 demi-reps côté étirement (en bas du mouvement).", latRaiseMach: " Dernière série : une fois à l'échec, enchaîne 3 à 5 demi-reps côté étirement (en bas du mouvement).", pecDeck: " Dernière série : une fois à l'échec, enchaîne 3 à 5 demi-reps côté étirement (en bas du mouvement).", machCurl: " Dernière série : une fois à l'échec, enchaîne 3 à 5 demi-reps côté étirement (en bas du mouvement)."}, minRest: 90, drop: ["calves"], keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
+      latRaise: " Dernière série : une fois à l'échec, enchaîne 3 à 5 demi-reps côté étirement (en bas du mouvement).", latRaiseMach: " Dernière série : une fois à l'échec, enchaîne 3 à 5 demi-reps côté étirement (en bas du mouvement).", pecDeck: " Dernière série : une fois à l'échec, enchaîne 3 à 5 demi-reps côté étirement (en bas du mouvement).", machCurl: " Dernière série : une fois à l'échec, enchaîne 3 à 5 demi-reps côté étirement (en bas du mouvement)."}, minRest: 90, drop: ["calves"], dropIn: {EP: ["shrug"]}, keyLifts: KEY_LIFTS.map(r => r[0] === "shPress" ? ["dbShPress", "Épaules / Trapèzes", "Militaire haltères"] : r), label: "Reprise (programme de Gauthier)", goal: "recomp", title: "Ancien chasseur", fbFirst: true, big: [], weeks: WEEKS, test: TEST_EX,
     intro: "Le Système a détecté un ancien chasseur, inactif depuis longtemps. Il te propose un contrat",
-    lead: "Lundi pecs/dos, mardi épaules/trapèzes, mercredi jambes + complément (triceps, haut des pecs), jeudi dos/biceps, vendredi pecs/triceps. Week-end : repos.",
+    lead: "Lundi pecs/dos, mardi épaules, mercredi jambes + complément (triceps, haut des pecs), jeudi dos/biceps, vendredi pecs/triceps. Trapèzes lundi, mercredi et vendredi. Week-end : repos.",
     s1: "Première séance : tu réapprends les mouvements, rien de lourd. Que des gros mouvements : 2 pour les pecs, 2 pour le dos, 2 pour les jambes."},
   felix: {id: "felix", drop: ["calves"], label: "Perte de poids (programme de Félix)", goal: "fat", title: "Potentiel de malade", fbFirst: true, big: [], weeks: WEEKS_FELIX, test: {DP: ["machPress", "csRow"], EB: ["shPress", "rowCableClose"]}, sess: SESS_FELIX,
     keyLifts: [["machPress", "Pecs / Dos", "Chest press"], ["inclMach", "Pecs / Dos", "Incliné machine"], ["csRow", "Pecs / Dos", "Rowing appuyé"], ["latpd", "Pecs / Dos", "Tirage vertical"], ["shPress", "Épaules / Dos / Bras", "Épaules machine"], ["rowCableClose", "Épaules / Dos / Bras", "Tirage horizontal"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]], finisher: true,
@@ -1605,9 +1626,9 @@ const planOf = p => (p && PLANS[p.program]) ? p.program : (detectPlan(p?.name, c
 const curPlan = () => PLANS[planOf(typeof S !== "undefined" ? S.profile : null)];
 const sessFor = ty => {
   const PL0 = curPlan(), m5 = PL0.id === "mathis" && MATHIS5_TYPES.includes(ty);   // Mathis from 16 Nov: Gauthier's sessions, his own extras
-  const PL = m5 ? {...PLANS.base, swap: {...GAUTHIER_SWAP, ...MATHIS5_CUE}, add: MATHIS5_ADD, cueAdd: {...PLANS.base.cueAdd, ...MATHIS_NECK}} : PL0;
+  const PL = m5 ? {...PLANS.base, swap: {...GAUTHIER_SWAP, ...MATHIS5_CUE}, add: MATHIS5_ADD, dropIn: null, cueAdd: {...PLANS.base.cueAdd, ...MATHIS_NECK}} : PL0;
   const list = (PL.sess || {})[ty] || SESS[ty]; if (!list) return list;
-  const sw = PL.swap || {}, drop = PL.drop || [], ca = PL.cueAdd || {}, mr = PL.minRest || 0;
+  const sw = PL.swap || {}, drop = [...(PL.drop || []), ...((PL.dropIn || {})[ty] || [])], ca = PL.cueAdd || {}, mr = PL.minRest || 0;
   return [...list.filter(it => !drop.includes(it.ex)).map(it => sw[it.ex] ? {...it, ...sw[it.ex]} : it), ...((PL.add || {})[ty] || [])]
     .map(it => ca[it.ex] ? {...it, cue: it.cue + ca[it.ex]} : it)   // a note added to some exercises (Mathis's neck)
     .map(it => mr && !it.superset && it.rest < mr ? {...it, rest: mr} : it);   // Gauthier, 11 Nov: 90 s minimum between sets
@@ -1626,7 +1647,7 @@ function planSched(info) {
   if (id === "felix") return "Lundi dos/pecs, mardi épaules/bras, jeudi dos/biceps, samedi jambes : les mêmes jours que Gauthier. Mercredi, vendredi et dimanche : repos.";
   const x = info.types[4] === "J" ? (info.cw >= 4 ? "jambes + complément (triceps, haut des pecs)" : "jambes") : "complément bras et épaules + petit rappel jambes (grosse séance jambes la semaine prochaine)";
   if (info.cw < 4) return `Lundi pecs/dos, mardi épaules/trapèzes, jeudi dos/biceps, vendredi pecs/triceps, samedi ${x}. Mercredi et dimanche : repos.`;
-  return `Lundi pecs/dos, mardi épaules/trapèzes, mercredi ${x}, jeudi dos/biceps, vendredi pecs/triceps. Week-end : repos.`;
+  return `Lundi pecs/dos, mardi ${info.cw >= 5 ? "épaules" : "épaules/trapèzes"}, mercredi ${x}, jeudi dos/biceps, vendredi pecs/triceps.${info.cw >= 5 ? " Shrugs lundi, mercredi et vendredi." : ""} Week-end : repos.`;
 }
 
 /* Calendar weeks (cw 1 = 19-25 oct.) are not program weeks: the deload joker pauses the program for one week. */
@@ -2808,6 +2829,7 @@ function reportsFold() {
 }
 // Écrire au Système: messages in msgs/<id>; Claude answers by adding the message id here
 const SYSTEM_REPLIES = {
+  mmwizhs75: {txt: "C'est fait : une fois ton donjon du jour terminé, le Statut affiche « Donjon nettoyé » (ou « Donjon validé » s'il manque des séries) avec le prochain portail, au lieu de « Jour de repos ». Tes autres demandes de ce matin aussi : shrugs lundi, mercredi et vendredi, et un onglet Planning dans Donjons avec tous les exercices de la semaine."},
   mmw4oc9gh: {txt: "Tu avais raison, c'était injuste. Les séries faites en plus (un exercice ajouté, une série ajoutée) compensent maintenant celles que tu retires. Ta séance de ce matin compte donc comme Donjon nettoyé : +40 XP et +30 or. Et un donjon pas tout à fait fini s'appelle désormais « Donjon validé », plus « partiel »."},
 };
 const unreadReplies = () => Object.keys(SYSTEM_REPLIES).filter(id => S.msgs?.[id] && !(S.profile?.repliesSeen || []).includes(id));
@@ -2955,6 +2977,10 @@ function chip(p) {
   return `<button class="chip st-${p.st} ${p.date === today() ? "today" : ""}" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}"><b>${TYPES[p.ty].chip || p.ty}</b><span>${fmtDay(fromStr(p.date), {weekday: "short", day: "numeric"})}</span><i>${CHIP_LABEL[p.st]}</i></button>`;
 }
 const restBanner = (title, txt, nx) => `<div class="dgate rest" ${nx ? `style="--rc:var(--r-${weekInfo(nx.cw).W.rank})"` : ""}>${nx ? gateArt(nx.ty, "g-bg") : art("hero_status", "g-bg")}<div class="dgate-in"><span class="tagrank">Repos</span><h2>${title}</h2><p>${txt}</p>${nx ? `<button class="g-link" data-act="preview" data-cw="${nx.cw}" data-ty="${nx.ty}">Voir le prochain donjon ›</button>` : ""}</div></div>`;
+const clearedBanner = (p, open) => {           // 16 Nov, his message: after the dungeon, "Donjon nettoyé", not "Jour de repos"
+  const nx = open.filter(x => x.date && x.date > today()).sort((a, b) => a.date.localeCompare(b.date))[0];
+  return `<div class="dgate rest cleared" style="--rc:var(--r-${weekInfo(p.cw).W.rank})">${gateArt(p.ty, "g-bg")}<div class="dgate-in"><span class="tagrank">${p.done.full ? "Nettoyé" : "Validé"} · aujourd'hui</span><h2>${p.done.full ? "Donjon nettoyé" : "Donjon validé"}</h2><p>${esc(TYPES[p.ty].gate)} · ${esc(tyLabel(p.ty))}. ${nx ? `Prochain portail : ${fmtDay(fromStr(nx.date), {weekday: "long"})}, ${esc(TYPES[nx.ty].name)}.` : open.length ? "" : "Tous les donjons de la semaine sont faits."}</p><button class="g-link" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}">Revoir le donjon ›</button></div></div>`;
+};
 function portalWin() {
   if (S.draft && S.draft.active) return "";
   const t = today(), cw = weekOfStr(t), info = weekInfo(cw), dow = (fromStr(t).getDay() + 6) % 7;
@@ -2962,9 +2988,10 @@ function portalWin() {
   if (!info) return wrap(`<p>Ton programme commence le <b>${fmtDay(startDate(), {weekday: "long", day: "numeric", month: "long"})}</b>. D'ici là : quête quotidienne, repas, pesée.</p>`);
   if (!info.types.length) return blockDoneWin(cw);
   const plan = weekPlan(cw), open = plan.filter(p => !p.bonus && !p.done), bonus = plan.find(p => p.bonus), legs = plan.find(p => p.ty === "J");
-  const todayIt = open.find(p => p.date === t);
+  const todayIt = open.find(p => p.date === t), doneToday = plan.find(p => p.done && p.done.date === t);
   let body;
   if (todayIt) body = portalCard(todayIt, "Portail du jour");
+  else if (doneToday) body = clearedBanner(doneToday, open);
   else if (dow >= 5) body = restBanner("Week-end", `Deux jours de récupération d'affilée : c'est là que le muscle se reconstruit.${open.length ? ` ${plural(open.length, "donjon")} pas fait${open.length > 1 ? "s" : ""} cette semaine${strictWeek(cw) ? " : chaque donjon compte, change son jour pour le faire ce week-end." : " : 3 donjons suffisent pour éviter la pénalité."}` : ""} Prochain portail : lundi.`, strictWeek(cw) && open.length ? open[0] : null);
   else {
     const late = open.filter(p => p.date < t).sort((a, b) => (bigGap(a.ty) ? 1 : 0) - (bigGap(b.ty) ? 1 : 0));
@@ -3052,7 +3079,7 @@ function weekWin() {
   const cw = weekOfStr(today()), info = weekInfo(cw); if (!info || !info.types.length) return "";
   const c = weekCounts(cw), reqd = Math.max(0, requiredSessions(info) - skipsInWeek(cw)), W = info.W;
   const sched = planSched(info);
-  return `<div class="sec"><h3>Ta semaine</h3><span class="sec-n">${c.main} / ${c.planned} donjons</span></div>${weekPills(cw)}<section class="win"><h2 class="win-title">${weekTitle(info)}</h2>
+  return `<div class="sec"><h3>Ta semaine</h3><button class="sec-a" data-act="dgTab" data-t="plan">Tous les exercices ›</button></div>${weekPills(cw)}<section class="win"><h2 class="win-title">${weekTitle(info)}</h2>
     <div class="wk-head"><b>${W.phase}</b><span>${c.main} / ${c.planned} donjons${c.bonusDone ? " + bonus" : ""}</span></div>
     <div class="xpbar thin" aria-hidden="true"><i style="width:${Math.round(c.main / c.planned * 100)}%"></i></div>
     <ul class="rules"><li>${sched}</li>
@@ -3073,7 +3100,31 @@ function jokerBlock(js, cw) {
 }
 
 /* ----- dungeon map & rules ----- */
+const dgHead = tab => pageHero(gateArt("DB", "ph-bg"), "Donjons", tab === "plan" ? "Tous tes exercices de la semaine" : "La carte de tes 8 semaines")
+  + `<div class="tabs3 tabs2" role="tablist"><button class="${tab === "plan" ? "on" : ""}" data-act="dgTab" data-t="plan">Planning</button><button class="${tab === "map" ? "on" : ""}" data-act="dgTab" data-t="map">Carte</button></div>`;
+const MUSCLE_OF = {latRaise: "Épaules (côtés)", latRaiseMach: "Épaules (côtés)", leanLatRaise: "Épaules (côtés)", yRaise: "Épaules (côtés)", shPress: "Épaules (avant)", dbShPress: "Épaules (avant)", frontRaise: "Épaules (avant)",
+  facePull: "Épaules (arrière)", revFly: "Épaules (arrière)", revPecDeck: "Épaules (arrière)", uprightRow: "Trapèzes", pecDeck: "Pectoraux", flySeated: "Pectoraux", lowHighFly: "Pectoraux", pullover: "Dos", isoPd: "Dos"};
+const MUSCLE_ORDER = ["Pectoraux", "Dos", "Épaules (avant)", "Épaules (côtés)", "Épaules (arrière)", "Trapèzes", "Biceps", "Triceps", "Quadriceps", "Ischios", "Fessiers", "Mollets", "Autres"];
+const muscleOf = ex => MUSCLE_OF[ex] || (STRENGTH.find(g => g.ex[ex] != null) || {name: "Autres"}).name;
+function weekProgram(cw0) {                    // 16 Nov, his note: "un onglet planning pour voir absolument tous les exercices de la semaine"
+  const off = state.planOffset || 0, cw = cw0 + off, info = weekInfo(cw), t = today();
+  const seg = `<div class="seg plan-seg" role="group" aria-label="Semaine"><button class="${off ? "" : "on"}" data-act="planWeek" data-o="0">Cette semaine</button><button class="${off ? "on" : ""}" data-act="planWeek" data-o="1">Semaine prochaine</button></div>`;
+  if (!info || !info.types.length) return `<section class="win">${seg}<p class="muted small">Pas de séance prévue cette semaine-là.</p></section>`;
+  const days = weekPlan(cw).filter(p => !p.bonus && p.date).sort((a, b) => a.date.localeCompare(b.date)), mus = {};
+  const cards = days.map(p => {
+    const plan = planFor(cw, p.ty);
+    for (const it of plan) { const m = muscleOf(it.ex), r = mus[m] = mus[m] || {days: new Set(), sets: 0}; r.days.add(p.date); r.sets += Number(it.sets) || 0; }
+    const rows = plan.map((it, i) => `<li><span class="pn">${pad(i + 1)}</span><span class="pe"><b>${esc(EX[it.ex].n)}</b><small>${muscleOf(it.ex)}${it.tech ? " · technique" : ""}${it.maint ? " · entretien" : ""}</small></span><span class="ps">${it.sets} × ${repsTxt(it)}</span></li>`).join("");
+    return `<section class="win pweek st-${p.st} ${p.date === t ? "today" : ""}"><div class="pw-h"><div><span class="eyebrow">${fmtDay(fromStr(p.date), {weekday: "long", day: "numeric", month: "long"})}</span><h3>${esc(tyLabel(p.ty))}</h3></div><span class="pw-st">${PLAN_ST[p.st] || ""}</span></div>
+      <ol class="pw-list">${rows}</ol><button class="g-link" data-act="preview" data-cw="${p.cw}" data-ty="${p.ty}">Repos, reps en réserve et changer de jour ›</button></section>`;
+  }).join("");
+  const wd = k => fmtDay(fromStr(k), {weekday: "short"}).replace(".", "");
+  const sum = MUSCLE_ORDER.filter(m => mus[m]).map(m => { const ks = [...mus[m].days].sort(), glued = ks.some((k, i) => i && dayDiff(fromStr(ks[i - 1]), fromStr(k)) === 1);
+    return `<li><b>${m}</b><span>${ks.map(wd).join(" · ")}${glued ? ` <em class="warn">jours d'affilée</em>` : ""}</span><i>${plural(mus[m].sets, "série")}</i></li>`; }).join("");
+  return `<section class="win"><h2 class="win-title">Planning</h2>${seg}<p class="muted small">${esc(planSched(info))}</p><span class="lbl">Par muscle</span><ul class="pmus">${sum}</ul></section>${cards}`;
+}
 function viewDungeons() {
+  if ((state.dgTab || "plan") === "plan") return dgHead("plan") + weekProgram(weekOfStr(today()));
   const curW = weekOfStr(today()), endCw = Math.max(lastBlockWeek(), ...deloadWeeks());
   const weeks = [];
   for (let cw = 1; cw <= endCw; cw++) {
@@ -3084,7 +3135,7 @@ function viewDungeons() {
       ${(ps => `<div class="chips ${ps.length >= 5 ? "n5" : ""}">${ps.map(chip).join("")}</div>`)([...weekPlan(cw)].sort((a, b) => String(a.date || "9").localeCompare(String(b.date || "9"))))}</div>`);
   }
   const jl = jokersUsed() >= JOKERS ? "utilisé" : "disponible (onglet Statut, avant le premier donjon de la semaine)";
-  return pageHero(gateArt("DB", "ph-bg"), "Donjons", "La carte de tes 8 semaines") + `<section class="win"><h2 class="win-title">Carte des donjons</h2><p class="lead">8 semaines de programme à partir du ${fmtDay(startDate(), {day: "numeric", month: "long"})}. ${curPlan().lead} Touche un donjon pour voir ses exercices.</p>${curPlan().noJoker ? "" : `<p class="small">Joker semaine allégée : ${jl}.</p>`}${weeks.join("")}</section>` + (curPlan().id === "base" ? grimoire() : planGrimoire());
+  return dgHead("map") + `<section class="win"><h2 class="win-title">Carte des donjons</h2><p class="lead">8 semaines de programme à partir du ${fmtDay(startDate(), {day: "numeric", month: "long"})}. ${curPlan().lead} Touche un donjon pour voir ses exercices.</p>${curPlan().noJoker ? "" : `<p class="small">Joker semaine allégée : ${jl}.</p>`}${weeks.join("")}</section>` + (curPlan().id === "base" ? grimoire() : planGrimoire());
 }
 function planGrimoire() {
   const id = curPlan().id;
@@ -3119,11 +3170,12 @@ const rankBadgeInline = r => `<span class="tag" style="color:var(--r-${r});borde
 function grimoire() {
   return `<section class="win"><h2 class="win-title">Règles du Système</h2>
     <details class="fold" open><summary>Ta semaine</summary><div><ul class="rules">
-      <li><b>Lundi : pecs / dos en FORCE.</b> Les pecs d'abord : c'est ton point faible, et le couché lourd demande d'être frais. Puis le dos. Lourd : 4-8 reps sur les gros exos, 2-3 min de repos, à l'échec.</li>
-      <li><b>Mardi : épaules / trapèzes</b>, avec un peu d'avant d'épaule.</li>
-      <li><b>Mercredi : jambes + complément.</b> Une seule machine de squat (hack ou pendule), leg curl, hip thrust, leg extension, à fond comme tu aimes. Puis le complément : skullcrusher pour les triceps et écarté de bas en haut pour le haut des pecs. Au milieu de la semaine, les jambes ne gênent aucune séance du haut.</li>
-      <li><b>Jeudi : dos / biceps en TECHNIQUE.</b> Le dos une 2e fois, plus léger : 10-15 reps, descente en 3 s, pause en étirement, 1-2 reps en réserve. Les biceps, eux, vont à l'échec. Puis 3 séries d'élévations latérales : la largeur d'épaules, ton meilleur levier pour paraître plus imposant.</li>
-      <li><b>Vendredi : pecs / triceps en TECHNIQUE.</b> Les pecs une 2e fois, même logique : couché technique puis incliné barre. Les triceps vont à l'échec. Puis 3 séries de shrugs lourds et 3 de Y-raise : tes trapèzes travaillent 2 fois par semaine.</li>
+      <li><b>Lundi : pecs / dos en FORCE.</b> Les pecs d'abord : c'est ton point faible, et le couché lourd demande d'être frais. Puis le dos. Lourd : 4-8 reps sur les gros exos, 2-3 min de repos, à l'échec. Puis 3 séries de shrugs.</li>
+      <li><b>Mardi : épaules.</b> Développé militaire aux haltères, élévations latérales (machine puis poulie), face pull. Pas de shrugs : tu en as fait la veille.</li>
+      <li><b>Mercredi : jambes + complément.</b> Une seule machine de squat (hack ou pendule), leg curl, hip thrust, leg extension, à fond comme tu aimes. Puis le complément : skullcrusher pour les triceps, écarté de bas en haut pour le haut des pecs, et tes shrugs. Au milieu de la semaine, les jambes ne gênent aucune séance du haut.</li>
+      <li><b>Jeudi : dos / biceps en TECHNIQUE.</b> Le dos une 2e fois, plus léger : 10-15 reps, descente en 3 s, pause en étirement, 1-2 reps en réserve. Les biceps, eux, vont à l'échec. Puis 3 séries d'élévations latérales, 2 jours après mardi : la largeur d'épaules, ton meilleur levier pour paraître plus imposant.</li>
+      <li><b>Vendredi : pecs / triceps en TECHNIQUE.</b> Les pecs une 2e fois, même logique : couché technique puis incliné barre. Les triceps vont à l'échec. Puis 3 séries de shrugs lourds.</li>
+      <li><b>Un jour de repos entre deux séances d'un même muscle.</b> Trapèzes lundi, mercredi et vendredi. Épaules latérales mardi et jeudi : une 3e séance tomberait forcément le lendemain d'une autre, du lundi au vendredi. Pecs lundi, mercredi (complément) et vendredi. Dos lundi et jeudi. Tout est dans Donjons, onglet Planning.</li>
       <li>Force puis technique : la séance lourde fait progresser les charges, la séance légère ajoute du volume sans t'écraser, et tu récupères pour le lundi suivant. C'est la logique des programmes de Nippard (une séance lourde, une séance plus volumineuse par muscle) et celle qui t'a fait progresser l'an dernier.</li>
       <li>Repos : 2-3 min sur les gros exercices, <b>90 s minimum sur tous les autres</b>. Sous 90 s, le muscle n'a pas récupéré et tu perds des reps.</li>
       <li>Samedi et dimanche : repos, tout se fait du lundi au vendredi. Un donjon peut se faire un autre jour (bouton « Changer de jour »). ${today() >= STRICT_FROM ? "Chaque donjon compte : un seul donjon manqué dans la semaine, c'est la zone de pénalité." : "Une séance peut sauter sans pénalité : 4 sur 5 suffisent."}</li></ul></div></details>
@@ -4981,6 +5033,7 @@ const ACTIONS = {
   warm: () => { S.draft.warm = !S.draft.warm; saveDraft(); render(); },
   fin: () => { S.draft.fin = !S.draft.fin; saveDraft(); render(); },
   planWeek: a => { state.planOffset = Number(a.dataset.o) || 0; render(); },
+  dgTab: a => { state.dgTab = a.dataset.t; if (state.view !== "dungeons") { state.view = "dungeons"; state.modal = null; try { localStorage.setItem("gl-tab", "dungeons"); } catch (e) {} } window.scrollTo(0, 0); render(); },
   moveSes: a => { const cw = Number(a.dataset.cw), ty = a.dataset.ty, d = a.dataset.d, p = clone(S.profile), usual = toStr(addDays(weekStart(cw), typeDay(cw, ty)));
     p.moves = {...(p.moves || {})}; p.moves[cw] = {...(p.moves[cw] || {}), [ty]: d}; if (d === usual) delete p.moves[cw][ty];
     S.profile = p; queueSet("game/profile", p); render(); toast(`[Planning] ${esc(tyLabel(ty))} : ${fmtDay(fromStr(d), {weekday: "long", day: "numeric"})}`, "ok"); },
