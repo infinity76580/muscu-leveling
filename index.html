@@ -1594,14 +1594,17 @@ const TYPES = {
 Object.assign(TYPES, {NV: {name: "Maintien voyage", day: 0, gate: "Donjon nomade", solo: true}});   // 17 Nov: his trip
 const PROGRAM_WEEKS = 16, BLOCK_WEEKS = 8;   // 17 Nov: arc 2 (S9-S16), same weekly structure (the app was empty from 14 Dec)
 const TRIPS = {                                // 17 Nov: no gym at all. Marrakech 16-19 Dec for the three, then Mexico for Gauthier
-  base: [{from: "2026-12-16", to: "2027-01-03", label: "Marrakech + Mexique"}],
-  felix: [{from: "2026-12-16", to: "2026-12-19", label: "Marrakech", uid: "4a0d65b2"}],
-  mathis: [{from: "2026-12-16", to: "2026-12-19", label: "Marrakech", uid: "d10b2a7c"}],   // uid: not the other accounts on Mathis's plan
+  base: [{from: "2026-12-16", to: "2027-01-03", nomadFrom: "2026-12-14", label: "Marrakech + Mexique"}],
+  felix: [{from: "2026-12-16", to: "2026-12-19", nomadFrom: "2026-12-14", freeFrom: "2026-12-14", label: "Marrakech", uid: "4a0d65b2"}],   // Mon/Tue before: probably no gym for him
+  mathis: [{from: "2026-12-16", to: "2026-12-19", nomadFrom: "2026-12-14", label: "Marrakech", uid: "d10b2a7c"}],   // uid: not the other accounts on Mathis's plan
 };
-const tripOf = key => (TRIPS[curPlan().id] || []).find(t => key >= t.from && key <= t.to && (!t.uid || String((Cloud && Cloud.userId && Cloud.userId()) || "").startsWith(t.uid))) || null;
+const tripEntry = key => (TRIPS[curPlan().id] || []).find(t => key >= (t.nomadFrom || t.from) && key <= t.to && (!t.uid || String((Cloud && Cloud.userId && Cloud.userId()) || "").startsWith(t.uid))) || null;
+const tripOf = key => { const t = tripEntry(key); return t && key >= t.from ? t : null; };   // away: no gym, no malus
+const nomadOn = key => !!tripEntry(key);                                                       // the nomad dungeon can be done that day
+const noReq = key => { const t = tripEntry(key); return !!(t && t.freeFrom && key >= t.freeFrom && key < t.from); };   // gym dungeons stay open but are not required
 const tripWeek = cw => cw >= 1 && [0, 1, 2, 3, 4].every(i => tripOf(toStr(addDays(weekStart(cw), i))));   // Monday to Friday away = a paused week
 const tripWeeks = () => { const out = []; for (const t of TRIPS[curPlan().id] || []) for (let cw = weekOfStr(t.from); cw <= weekOfStr(t.to); cw++) if (tripWeek(cw)) out.push(cw); return out; };
-const nomadDate = cw => { const t = today(); if (weekOfStr(t) === cw && tripOf(t)) return t; for (let i = 0; i < 7; i++) { const k = toStr(addDays(weekStart(cw), i)); if (tripOf(k)) return k; } return toStr(weekStart(cw)); };
+const nomadDate = cw => { const t = today(); if (weekOfStr(t) === cw && nomadOn(t)) return t; for (let i = 0; i < 7; i++) { const k = toStr(addDays(weekStart(cw), i)); if (nomadOn(k)) return k; } return toStr(weekStart(cw)); };
 const TRIP_W = {phase: "Maintien voyage", rank: "D", rirTxt: "À l'échec, au poids du corps", setsTxt: "Donjon nomade, quand tu peux (rien d'obligatoire)"};
 const MAX_FROM = "2026-12-07";   // 17 Nov, his ask: a real bench max once a month, on the Monday (force day)
 function maxTestWeek(cw) {        // the 1st Monday of the month; the first week back from a trip is skipped (one week later)
@@ -1724,7 +1727,7 @@ Object.assign(EX, {                            // 17 Nov: no gym during his trip
   bagShrug:    {n: "Shrugs avec un sac ou la valise", kind: "iso", eq: "db"},
   bwSquat:     {n: "Squats au poids du corps", kind: "poly", eq: "bw"},
 });
-const SESS_NV = [                             // to failure like always; ~30 min in a hotel room
+const SESS_NV = [                             // to failure like always; ~45 min in a hotel room
   {ex: "pushup", sets: 3, reps: [10, 40], rest: 90, cue: "À l'échec, comme à la salle. Corps gainé de la tête aux talons, poitrine jusqu'au sol, mains un peu plus larges que les épaules. Trop facile : marque 1 s en bas."},
   {ex: "declPush", sets: 3, reps: [8, 30], rest: 90, cue: "Haut des pecs : pieds sur le lit ou une chaise, mains au sol. Plus les pieds sont hauts, plus c'est dur."},
   {ex: "pikePush", sets: 2, reps: [6, 20], rest: 90, cue: "Épaules : fesses en l'air, corps en V renversé, descends la tête entre les mains, puis pousse."},
@@ -1816,7 +1819,7 @@ function weekInfo(cw) {
   if (p > PROGRAM_WEEKS) return {cw, p, deload, W: null, types: [], bonus: null, after: true};
   if (p === 1 && PL.fbFirst) return {cw, p, deload, W: PL.weeks[1], types: ["FB"], bonus: null};
   const home = (TRIPS[PL.id] || []).length ? main.filter(ty => !tripOf(plannedDate(cw, ty))) : main;   // the days before he leaves
-  if (home.length < main.length) return {cw, p, deload, W: PL.weeks[p], types: [...home, "NV"], bonus: null, partTrip: true};
+  if (home.length < main.length || (TRIPS[PL.id] || []).length && [0, 1, 2, 3, 4, 5, 6].some(i => nomadOn(toStr(addDays(weekStart(cw), i))))) return {cw, p, deload, W: PL.weeks[p], types: [...home, "NV"], bonus: null, partTrip: true};
   return {cw, p, deload, W: PL.weeks[p], types: main, bonus: null};
 }
 const weekTitle = info => info.trip ? "Maintien voyage" : info.deload ? "Semaine allégée" : "Semaine S" + info.p;
@@ -2294,7 +2297,7 @@ function weekValid(cw) {
 }
 function weekCounts(cw) {
   const info = weekInfo(cw), v = weekValid(cw), types = info ? info.types : [];
-  const real = types.filter(t => t !== "NV");
+  const real = types.filter(t => t !== "NV" && !noReq(plannedDate(cw, t)));
   return {info, v, planned: real.length, main: real.filter(t => v[t]).length, all: Object.keys(v).length, bonusDone: !!(info && info.bonus && v[info.bonus])};
 }
 function weekBonus(cw) {
@@ -2315,7 +2318,7 @@ function weekPlan(cw) {
   const info = weekInfo(cw); if (!info || !info.types.length) return [];
   const v = weekValid(cw), t = today(), curW = weekOfStr(t);
   const mk = (ty, bonus) => {
-    const date = bonus ? null : plannedDate(cw, ty); const done = v[ty]; let st;
+    const date = bonus ? null : plannedDate(cw, ty); const done = ty === "NV" ? S.sessions.find(x => x.type === "NV" && x.valid && x.date === date) : v[ty]; let st;
     if (done) st = done.full ? "done" : "partial";
     else if (bonus) st = cw < curW ? "skipped" : cw > curW ? "future" : "bonus";
     else if (cw < curW) st = "missed"; else if (cw > curW) st = "future"; else if (date === t) st = "today"; else if (date < t) st = "late"; else st = "open";
@@ -2328,7 +2331,7 @@ const sickDays = cw => [...Array(7)].filter((_, i) => S.days[toStr(addDays(weekS
 const STRICT_FROM = "2026-11-16", strictWeek = cw => cw >= 1 && toStr(weekStart(cw)) >= STRICT_FROM;
 function requiredSessions(info) {
   if (!info || !info.types.length || info.trip) return 0;
-  const tys = info.types.filter(t => t !== "NV"), created = S.profile?.createdDay;   // 17 Nov: the trip's bodyweight dungeon is never an obligation
+  const tys = info.types.filter(t => t !== "NV" && !noReq(plannedDate(info.cw, t))), created = S.profile?.createdDay;   // 17 Nov: the trip's bodyweight dungeon is never an obligation
   if (!tys.length) return 0;
   let want = strictWeek(info.cw) ? tys.length   // 14 Nov: "une séance loupée est considérée comme pénalité"
     : info.deload ? 2 : tys.length === 1 ? 1 : info.custom ? Math.max(1, tys.length - 1) : Math.max(3, tys.length - 1);   // before: one session could always be missed
@@ -3214,7 +3217,10 @@ function portalWin() {
   const plan = weekPlan(cw), open = plan.filter(p => !p.bonus && !p.done), bonus = plan.find(p => p.bonus), legs = plan.find(p => p.ty === "J");
   const todayIt = open.find(p => p.date === t), doneToday = plan.find(p => p.done && p.done.date === t);
   let body;
-  if (todayIt) body = todayIt.ty === "NV" ? portalCard(todayIt, "Maintien voyage", `${esc((tripOf(t) || {}).label || "Voyage")} : aucune séance obligatoire, pas de malus. Une trentaine de minutes sans matériel, à l'échec, pour garder ton muscle.`) : portalCard(todayIt, "Portail du jour");
+  const nvToday = open.find(p => p.ty === "NV" && p.date === t);
+  if (todayIt && todayIt.ty === "NV" && doneToday) body = clearedBanner(doneToday, open);
+  else if (todayIt) body = todayIt.ty === "NV" ? portalCard(todayIt, "Maintien voyage", tripOf(t) ? `${esc(tripOf(t).label)} : aucune séance obligatoire, pas de malus. Sans matériel, à l'échec, pour garder ton muscle.` : "Pas de salle aujourd'hui ? Sans matériel, à l'échec.") : portalCard(todayIt, "Portail du jour", noReq(t) ? "Pas obligatoire cette semaine : la salle si tu peux, sinon le donjon nomade." : undefined);
+
   else if (doneToday) body = clearedBanner(doneToday, open);
   else if (dow >= 5) body = restBanner("Week-end", `Deux jours de récupération d'affilée : c'est là que le muscle se reconstruit.${open.length ? ` ${plural(open.length, "donjon")} pas fait${open.length > 1 ? "s" : ""} cette semaine${strictWeek(cw) ? " : chaque donjon compte, change son jour pour le faire ce week-end." : " : 3 donjons suffisent pour éviter la pénalité."}` : ""} Prochain portail : lundi.`, strictWeek(cw) && open.length ? open[0] : null);
   else {
@@ -3225,6 +3231,7 @@ function portalWin() {
     else body = restBanner("Semaine nettoyée", "Tous les donjons prévus sont faits. Récupère.", null);
     if (dow === 2 && legs && !legs.done && !info.deload && info.bonus) body += portalCard(legs, "Option grosse semaine", "Mercredi, c'est repos. Si tu veux une grosse semaine de 5 séances : Jambes aujourd'hui, Haut vendredi.", true);
   }
+  if (todayIt && todayIt.ty !== "NV" && nvToday) body += portalCard(nvToday, "Pas de salle aujourd'hui ?", "Le donjon nomade : sans matériel, à l'échec.", true);   // 17 Nov: "au cas où"
   return wrap(body);   // the week planning moved to "Ta semaine" (pills)
 }
 const PLAN_ST = {done: "Nettoyé", partial: "Partiel", missed: "Raté", today: "Aujourd'hui", late: "En retard", open: "À venir", future: "À venir", skipped: "Pas fait"};
@@ -3294,7 +3301,7 @@ function questWin() {
     <ul class="qlist">${auto("food", "Repas notés")}${auto("protein", "Protéines")}${sleepRow}${check("steps", "Pas")}${check("water", "Eau")}${check("study", "Révisions")}${I.fast.off ? "" : check("fast", "Jeûne " + fastPlan(S.profile).label + " respecté")}</ul>
     ${e.malus.map(m => `<p class="malus">[Malus] ${m.txt} : −${Math.abs(m.xp)} XP</p>`).join("")}
     <div class="weigh"><label for="weighIn">Pesée du matin, à jeun, chaque jour (seule la moyenne compte)</label><div class="weigh-in"><input id="weighIn" data-bind="weigh" data-key="${key}" inputmode="decimal" autocomplete="off" placeholder="—" value="${esc(wv)}"><span>kg</span></div></div>
-    ${e.trip ? `<p class="reading">[Voyage] Quête en pause : pas de malus sur les repas, les pesées ni le sommeil, et ta série est gardée. Le donjon nomade t'attend quand tu as 30 min.</p>` : ""}${e.sick ? `<p class="reading">[Malade] Quête en pause aujourd'hui : pas de malus et ta série est gardée. Repose-toi, et décale tes donjons si besoin (touche une séance du planning).</p>` : ""}
+    ${e.trip ? `<p class="reading">[Voyage] Quête en pause : pas de malus sur les repas, les pesées ni le sommeil, et ta série est gardée. Le donjon nomade t'attend quand tu as 45 min.</p>` : ""}${e.sick ? `<p class="reading">[Malade] Quête en pause aujourd'hui : pas de malus et ta série est gardée. Repose-toi, et décale tes donjons si besoin (touche une séance du planning).</p>` : ""}
     <button class="link" data-act="sickDay" data-d="${key}" data-v="${e.sick ? 0 : 1}" ${e.trip ? "hidden" : ""}>${e.sick ? "Je ne suis plus malade" : off === 0 ? "Je suis malade aujourd'hui" : "J'étais malade ce jour-là"}</button>
     <details class="fold"><summary>Règles de la quête</summary><div><p class="small">Une quête incomplète remet ta série à zéro. Moins de ${fmt((Number(S.profile?.targets?.sleep) || 7) - 1, 1)} h de sommeil : −40 XP. Une journée sans repas notés : −40 XP ; notée à moins de 60 % de ta cible : −25 XP (une journée à moitié notée fausse tous les calculs). 3 jours sans pesée : −15 XP.</p></div></details>
   </section>`;
@@ -4901,7 +4908,7 @@ function modalFinish(m) {
     <div class="field"><label for="fin-note">Note (facultatif)</label><textarea id="fin-note" data-bind="finNote" placeholder="Douleur, machine prise, sensation…">${esc(m.note || "")}</textarea></div>
     <div class="m-actions"><button class="btn ghost" data-act="closeModal">Continuer le donjon</button><button class="btn primary" data-act="finish">Sortir du donjon</button></div></div>`;
 }
-function canEnter(cw, ty) { const info = weekInfo(cw); return !!info && cw === weekOfStr(today()) && (info.types.includes(ty) || info.bonus === ty) && (info.bonus === ty || plannedDate(cw, ty) <= today()) && !weekValid(cw)[ty] && !(S.draft && S.draft.active); }
+function canEnter(cw, ty) { const info = weekInfo(cw); return !!info && cw === weekOfStr(today()) && (info.types.includes(ty) || info.bonus === ty) && (info.bonus === ty || plannedDate(cw, ty) <= today()) && !(ty === "NV" ? S.sessions.some(x => x.type === "NV" && x.valid && x.date === today()) : weekValid(cw)[ty]) && !(S.draft && S.draft.active); }
 
 /* ================= actions ================= */
 let draftTimer = null;
