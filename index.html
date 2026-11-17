@@ -1593,8 +1593,12 @@ const TYPES = {
 };
 Object.assign(TYPES, {NV: {name: "Maintien voyage", day: 0, gate: "Donjon nomade", solo: true}});   // 17 Nov: his trip
 const PROGRAM_WEEKS = 16, BLOCK_WEEKS = 8;   // 17 Nov: arc 2 (S9-S16), same weekly structure (the app was empty from 14 Dec)
-const TRIPS = {base: [{from: "2026-12-16", to: "2027-01-03", label: "Marrakech + Mexique"}]};   // 17 Nov, his trip: no gym at all
-const tripOf = key => (TRIPS[curPlan().id] || []).find(t => key >= t.from && key <= t.to) || null;
+const TRIPS = {                                // 17 Nov: no gym at all. Marrakech 16-19 Dec for the three, then Mexico for Gauthier
+  base: [{from: "2026-12-16", to: "2027-01-03", label: "Marrakech + Mexique"}],
+  felix: [{from: "2026-12-16", to: "2026-12-19", label: "Marrakech", uid: "4a0d65b2"}],
+  mathis: [{from: "2026-12-16", to: "2026-12-19", label: "Marrakech", uid: "d10b2a7c"}],   // uid: not the other accounts on Mathis's plan
+};
+const tripOf = key => (TRIPS[curPlan().id] || []).find(t => key >= t.from && key <= t.to && (!t.uid || String((Cloud && Cloud.userId && Cloud.userId()) || "").startsWith(t.uid))) || null;
 const tripWeek = cw => cw >= 1 && [0, 1, 2, 3, 4].every(i => tripOf(toStr(addDays(weekStart(cw), i))));   // Monday to Friday away = a paused week
 const tripWeeks = () => { const out = []; for (const t of TRIPS[curPlan().id] || []) for (let cw = weekOfStr(t.from); cw <= weekOfStr(t.to); cw++) if (tripWeek(cw)) out.push(cw); return out; };
 const nomadDate = cw => { const t = today(); if (weekOfStr(t) === cw && tripOf(t)) return t; for (let i = 0; i < 7; i++) { const k = toStr(addDays(weekStart(cw), i)); if (tripOf(k)) return k; } return toStr(weekStart(cw)); };
@@ -1772,7 +1776,8 @@ const sessFor = ty => {
   const list = ty === "NV" ? SESS_NV : (PL.sess || {})[ty] || SESS[ty]; if (!list) return list;
   const sw = PL.swap || {}, drop = [...(PL.drop || []), ...((PL.dropIn || {})[ty] || [])], ca = PL.cueAdd || {}, mr = PL.minRest || 0;
   const no3s = PL0.id === "base" ? c => String(c).replace(/Descente en 3 s, /g, "").replace(/descente en 3 s/g, "descente contrôlée").replace(/retour en 3 s/g, "retour contrôlé") : c => c;   // 17 Nov: he never really did the 3-s descent
-  return [...list.filter(it => !drop.includes(it.ex)).map(it => sw[it.ex] ? {...it, ...sw[it.ex]} : it), ...((PL.add || {})[ty] || [])].map(it => it.cue ? {...it, cue: no3s(it.cue)} : it)
+  const wr = it => PL0.id === "felix" && ["pushup", "declPush", "pikePush"].includes(it.ex) ? {...it, cue: it.cue + " Tes poignets : fais-les sur les poings fermés, poignets bien droits."} : it;   // 17 Nov: Félix's weak wrists
+  return [...list.filter(it => !drop.includes(it.ex)).map(it => sw[it.ex] ? {...it, ...sw[it.ex]} : it), ...((PL.add || {})[ty] || [])].map(it => it.cue ? wr({...it, cue: no3s(it.cue)}) : it)
     .map(it => ca[it.ex] ? {...it, cue: it.cue + ca[it.ex]} : it)   // a note added to some exercises (Mathis's neck)
     .map(it => mr && !it.superset && it.rest < mr ? {...it, rest: mr} : it);   // Gauthier, 11 Nov: 90 s minimum between sets
 };
