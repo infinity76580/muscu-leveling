@@ -3098,7 +3098,9 @@ function benchGoalWin() {                      // 17 Nov, his pick: "l'objectif 
   const t = today(), s21 = toStr(addDays(fromStr(t), -21)), rec = pts.filter(p => p.d >= s21), cur = rec.length ? Math.max(...rec.map(p => p.e)) : pts[pts.length - 1].e;
   const maxes = S.sessions.filter(x => Number(x.maxKg) > 0).sort((a, b) => String(a.date).localeCompare(String(b.date))), lastMax = maxes[maxes.length - 1];
   const hit = !!S.profile?.bench100 || maxes.some(x => x.maxKg >= 100), shown = hit ? Math.max(100, cur) : cur;
-  const s42 = toStr(addDays(fromStr(t), -42)), byW = {}; for (const p of pts) if (p.d >= s42) byW[weekOfStr(p.d)] = Math.max(byW[weekOfStr(p.d)] || 0, p.e);
+  const s42 = toStr(addDays(fromStr(t), -42)), byW = {};   // the pace from heavy days only (6 reps or less) and real maxes: 10-12 rep sets overestimate the max
+  const heavy = perfHistory("bench").map(x => { const b = bestSet("bench", x.sets) || {}; return {d: x.date, e: bestE1("bench", x.sets), r: Number(b.reps) || 0}; }).filter(p => p.r > 0 && p.r <= 6).concat(maxes.map(x => ({d: x.date, e: Number(x.maxKg)})));
+  for (const p of heavy) if (p.d >= s42) byW[weekOfStr(p.d)] = Math.max(byW[weekOfStr(p.d)] || 0, p.e);
   const wks = Object.keys(byW).map(Number).sort((a, b) => a - b); let eta = null, perWk = 0;
   if (wks.length >= 3 && !hit) {   // weekly bests, least squares
     const xs = wks, ys = wks.map(k => byW[k]), mx = avgOf(xs), my = avgOf(ys), den = xs.reduce((n, x) => n + (x - mx) ** 2, 0);
@@ -3114,7 +3116,7 @@ function benchGoalWin() {                      // 17 Nov, his pick: "l'objectif 
   return `<section class="win goal100 ${hit ? "won" : ""}"><h2 class="win-title">Objectif 100 kg</h2>
     <div class="g100-top"><div class="g100-num"><b>${fmt(shown, 0)}</b><span>kg</span></div><div class="g100-txt"><span class="eyebrow">${hit ? "Objectif atteint" : "Ton max estimé au couché"}</span><p>${hit ? "Le chasseur a retrouvé sa force d'avant." : `Encore <b>${fmt(Math.max(0, 100 - cur), 0)} kg</b> avant les 100.`}</p></div></div>
     <div class="g100-bar"><i style="width:${pos(shown).toFixed(1)}%"></i>${marks}</div>${spark}
-    <ul class="g100-info">${hit ? "" : `<li>${eta ? `Ton rythme : <b>+${fmt(perWk, 1)} kg par semaine</b>. À ce rythme, 100 kg vers ${fmtDay(eta, {month: "long", year: "numeric"})}${fast ? ". C'est le rythme de la reprise : il ralentira en approchant de ton ancien niveau. Estimation réaliste : <b>mars à mai 2027</b>." : "."}` : "Estimation d'après la recherche : <b>mars à mai 2027</b>. Ton rythme s'affiche dès 3 semaines de couché."}</li>`}
+    <ul class="g100-info">${hit ? "" : `<li>${eta ? `Ton rythme sur tes séances lourdes : <b>+${fmt(perWk, 1)} kg par semaine</b>. À ce rythme, 100 kg vers ${fmtDay(eta, {month: "long", year: "numeric"})}${fast ? ". C'est le rythme de la reprise : il ralentira en approchant de ton ancien niveau. Estimation réaliste : <b>mars à mai 2027</b>." : "."}` : "Estimation d'après la recherche : <b>mars à mai 2027</b>. Ton rythme s'affiche après 3 semaines de couché lourd (le lundi)."}</li>`}
       ${lastMax ? `<li>Dernier test de max : <b>${fmt(lastMax.maxKg)} kg</b> (${fmtDay(fromStr(lastMax.date), {day: "numeric", month: "long"})}).</li>` : ""}
       ${nextMax ? `<li>Prochain test de max : <b>${fmtDay(fromStr(nextMax), {weekday: "long", day: "numeric", month: "long"})}</b>.</li>` : ""}
       <li>Ancien record : ${fmt(Number(S.profile?.oldBench) || 105)} kg.</li></ul></section>`;
