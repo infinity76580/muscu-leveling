@@ -1192,6 +1192,74 @@ details.fold summary::after{color:var(--cyan)}
 .pd-s{text-align:right;white-space:nowrap}
 .pd-s b{font:700 20px/1 var(--font-display);color:#fff}
 .pd-s small{margin-left:3px;font:700 13px var(--font-display);color:#b9c7e2}
+
+/* 17 Nov: objectif 100 kg, mur des records, sommeil 7 nuits, stagnation, arc 2, test de max, cinématique des 100 kg */
+.goal100{border-color:rgba(255,207,92,.35)}
+.goal100 .win-title{color:var(--gold)}
+.g100-top{display:flex;align-items:center;gap:14px;margin:4px 0 12px}
+.g100-num{display:flex;align-items:baseline;gap:4px;font-family:Rajdhani,sans-serif;font-weight:700;line-height:1}
+.g100-num b{font-size:58px;color:#fff3cf;text-shadow:0 0 18px rgba(255,207,92,.55)}
+.g100-num span{font-size:18px;color:var(--gold)}
+.g100-txt .eyebrow{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.g100-txt p{margin:4px 0 0}
+.g100-bar{position:relative;height:12px;border-radius:99px;background:rgba(140,200,255,.10);border:1px solid rgba(255,207,92,.25);margin:10px 0 44px}
+.g100-bar>i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:linear-gradient(90deg,#9b7bff,#ffcf5c);box-shadow:0 0 14px rgba(255,207,92,.6)}
+.g100-bar em{position:absolute;top:-4px;width:2px;height:20px;background:rgba(233,241,255,.35);font-style:normal;transform:translateX(-1px)}
+.g100-bar em b{position:absolute;top:22px;left:50%;transform:translateX(-50%);font-family:Rajdhani,sans-serif;font-size:13px;color:var(--text)}
+.g100-bar em small{position:absolute;top:37px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;color:var(--muted)}
+.g100-bar em.ok{background:var(--gold)}
+.g100-bar em.ok b{color:var(--gold)}
+.g100-info{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:6px;font-size:14px}
+.g100-info li{padding-left:14px;position:relative}
+.g100-info li::before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;transform:rotate(45deg);background:var(--gold)}
+.goal100.won .g100-bar>i{background:linear-gradient(90deg,#ffcf5c,#fff3cf)}
+.recwall .rgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.rcard{position:relative;padding:10px 10px 9px;border-radius:12px;background:rgba(13,20,38,.6);border:1px solid var(--edge);display:flex;flex-direction:column;gap:2px;min-width:0}
+.rcard .rn{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rcard .rv{font-family:Rajdhani,sans-serif;font-size:22px;line-height:1.1;color:var(--text)}
+.rcard small{font-size:11px;color:var(--muted)}
+.rcard em{font-style:normal;font-size:11px;color:var(--gold);margin-top:2px}
+.rcard.big{grid-column:1/-1;border-color:rgba(255,207,92,.4);background:linear-gradient(135deg,rgba(255,207,92,.10),rgba(13,20,38,.6))}
+.rcard.big .rv{font-size:30px;color:#fff3cf}
+.rcard.fresh{border-color:rgba(79,240,176,.45);box-shadow:0 0 12px rgba(79,240,176,.15)}
+.rnew2{color:var(--ok);font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:.08em}
+.rnew{position:absolute;top:8px;right:8px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#05070d;background:var(--ok);border-radius:99px;padding:1px 7px;font-weight:700}
+.stag{margin:8px 0;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,157,74,.45);background:rgba(255,157,74,.08);font-size:13px}
+.stag b{color:var(--orange)}
+ol.stag-l{margin:6px 0 0;padding-left:20px}
+ol.stag-l li{margin:3px 0}
+.arc-sep{display:flex;align-items:baseline;gap:10px;margin:18px 0 8px;padding-top:12px;border-top:1px solid rgba(255,207,92,.35)}
+.arc-sep span{font-family:Rajdhani,sans-serif;font-weight:700;font-size:20px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+.arc-sep small{color:var(--muted);font-size:12px}
+.sugg.max{border-color:rgba(255,207,92,.45);background:rgba(255,207,92,.07)}
+.maxres{margin:10px auto;text-align:center;padding:12px;border-radius:14px;border:1px solid rgba(255,207,92,.45);background:rgba(255,207,92,.08);max-width:320px}
+.maxres .eyebrow{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.maxres b{display:block;font-family:Rajdhani,sans-serif;font-size:44px;line-height:1.05;color:#fff3cf}
+.maxres small{color:var(--muted)}
+.c100{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(60% 50% at 50% 45%,#2b1e02,#000 72%);animation:c100In .5s ease both}
+.c100-rays{position:absolute;inset:-60%;background:repeating-conic-gradient(from 0deg,rgba(255,207,92,.10) 0 5deg,transparent 5deg 18deg);opacity:0;transition:opacity 1.2s;animation:c100Spin 22s linear infinite}
+.c100.s2 .c100-rays{opacity:1}
+.c100-in{position:relative;text-align:center;padding:24px 16px;max-width:440px}
+.c100-alert{margin:0 0 10px;font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:.32em;color:#ff6b7f;animation:c100Blink .45s steps(1) 4}
+.c100-l1,.c100-big,.c100-l2,.c100-l3,.c100-title,.c100 .btn{opacity:0;transform:translateY(14px);transition:opacity .7s,transform .7s}
+.c100-l1{font-family:Rajdhani,sans-serif;font-size:15px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin:0}
+.c100-big{font-family:Rajdhani,sans-serif;font-weight:700;font-size:clamp(88px,28vw,150px);line-height:.92;color:#fff3cf;text-shadow:0 0 26px rgba(255,207,92,.95),0 0 70px rgba(255,160,30,.75)}
+.c100-big small{font-size:.3em;margin-left:6px;color:var(--gold);letter-spacing:.1em}
+.c100-l2{font-size:15px;color:var(--text);margin:6px 0 0}
+.c100-l3{font-size:18px;color:#fff3cf;margin:16px 0 0;font-weight:600}
+.c100-title{margin:14px 0 18px;color:var(--muted)}
+.c100-title b{color:var(--gold);font-family:Rajdhani,sans-serif;font-size:20px;letter-spacing:.08em}
+.c100.s2 .c100-l1{opacity:1;transform:none}
+.c100.s2 .c100-big{opacity:1;transform:none;animation:c100Slam .75s cubic-bezier(.2,1.5,.3,1) both}
+.c100.s2 .c100-in{animation:c100Shake .5s .1s}
+.c100.s3 .c100-l2,.c100.s3 .c100-l3{opacity:1;transform:none}
+.c100.s4 .c100-title,.c100.s4 .btn{opacity:1;transform:none}
+.c100.still *{opacity:1!important;transform:none!important;animation:none!important}
+@keyframes c100In{from{opacity:0}to{opacity:1}}
+@keyframes c100Spin{to{transform:rotate(360deg)}}
+@keyframes c100Slam{0%{transform:scale(2.6);opacity:0;filter:blur(10px)}60%{transform:scale(.9);opacity:1;filter:none}100%{transform:scale(1)}}
+@keyframes c100Blink{50%{opacity:.15}}
+@keyframes c100Shake{0%,100%{transform:none}20%{transform:translate(-6px,3px)}40%{transform:translate(5px,-4px)}60%{transform:translate(-4px,2px)}80%{transform:translate(3px,-2px)}}
 </style>
 
 <div id="app" class="wrap"></div>
@@ -1298,7 +1366,8 @@ const EX = {
   yRaise:      {n: "Y-raise à la poulie", kind: "iso", eq: "cable"},
   uprightRow:  {n: "Rowing menton barre droite", kind: "iso", eq: "bar"},
 };
-const RESTTXT = {180: "3 min", 150: "2-3 min", 120: "2 min", 90: "90 s", 75: "60-90 s", 60: "60 s"};
+const RESTTXT = {240: "4 min", 180: "3 min", 150: "2-3 min", 120: "2 min", 90: "90 s", 75: "60-90 s", 60: "60 s"};
+const BASE_ALTS = {inclBar: "inclDb", inclDb: "inclBar"};   // 17 Nov: no incline machine at his gym
 const ALTS = {bench: "smithBench", smithBench: "bench", legExt: "legExtFree", legExtFree: "legExt", dbShPress: "shPress", shPress: "dbShPress", revPecDeck: "revFly", revFly: "revPecDeck", facePull: "revFly", pecDeck: "flySeated", flySeated: "pecDeck", legCurl: "legCurlFree", legCurlFree: "legCurl", hack: "pendulum", pendulum: "hack", uniPd: "isoPd", isoPd: "uniPd", uprightRow: "yRaise", yRaise: "uprightRow", inclBar: "inclMach", inclMach: "inclBar", preacher: "machCurl", machCurl: "preacher"};   // same muscle, other machine: kept apart in the stats (2 Nov)
 const ALT_CUE = {uprightRow: "Barre droite, mains un peu plus larges que les épaules : monte la barre le long du corps jusqu'au bas de la poitrine, coudes plus hauts que les poignets, pause 1 s, descente lente.", yRaise: "Poulies basses croisées (ou une poulie, un bras) : monte les bras en Y au-dessus de la tête, pouces vers le haut, pause 1 s, descente lente.", isoPd: "Machine à disques, un bras à la fois : bras tendu en haut pour étirer le dos, tire le coude vers la hanche, retour lent. Note les disques du côté que tu tires.", uniPd: "Poulie haute, à genoux, une poignée : coude vers la hanche, en haut laisse l'épaule monter pour étirer.", smithBench: "Smith : barre guidée sur rails, banc placé pour que la barre descende au bas des pecs ; touche sans rebond.", legExtFree: "Version à disques : pause 1 s en haut, descente contrôlée.",
   bench: "Omoplates serrées et basses, pieds ancrés ; barre au bas des pecs, touche sans rebond. Barres de sécurité.", legExt: "Pause 1 s en haut, descente contrôlée.", pendulum: "Pendule : descends le plus bas possible, dos collé, genoux qui avancent ; c'est l'étirement en bas qui fait le travail.", hack: "Dos collé au dossier, descends profond, genoux dans l'axe des pieds.", legCurlFree: "Version à disques : buste penché en avant pour étirer les ischios, pause 1 s en bas, retour lent.", legCurl: "Buste penché en avant pour étirer les ischios.",
@@ -1522,8 +1591,23 @@ const TYPES = {
   CO: {name: "Complément + rappel jambes", day: 5, gate: "Salle des compléments", solo: true},
   H:  {name: "Haut, pecs prioritaires", day: 4, gate: "Citadelle haute"},
 };
-const PROGRAM_WEEKS = 8;
-const IMG_V = 1, GATE_IMG = {DP: "gate_DP", EP: "gate_EP", J: "gate_J", DB: "gate_DB", PT: "gate_PT", EB: "gate_EB", P: "gate_PT", T: "gate_DB", HC: "gate_DP", JX: "gate_J", L: "gate_J", BE: "gate_EP", FB: "gate_DP", CO: "gate_PT", H: "gate_PT", A: "gate_DP", B: "gate_EB", C: "gate_DB"};
+Object.assign(TYPES, {NV: {name: "Maintien voyage", day: 0, gate: "Donjon nomade", solo: true}});   // 17 Nov: his trip
+const PROGRAM_WEEKS = 16, BLOCK_WEEKS = 8;   // 17 Nov: arc 2 (S9-S16), same weekly structure (the app was empty from 14 Dec)
+const TRIPS = {base: [{from: "2026-12-16", to: "2027-01-03", label: "Marrakech + Mexique"}]};   // 17 Nov, his trip: no gym at all
+const tripOf = key => (TRIPS[curPlan().id] || []).find(t => key >= t.from && key <= t.to) || null;
+const tripWeek = cw => cw >= 1 && [0, 1, 2, 3, 4].every(i => tripOf(toStr(addDays(weekStart(cw), i))));   // Monday to Friday away = a paused week
+const tripWeeks = () => { const out = []; for (const t of TRIPS[curPlan().id] || []) for (let cw = weekOfStr(t.from); cw <= weekOfStr(t.to); cw++) if (tripWeek(cw)) out.push(cw); return out; };
+const nomadDate = cw => { const t = today(); if (weekOfStr(t) === cw && tripOf(t)) return t; for (let i = 0; i < 7; i++) { const k = toStr(addDays(weekStart(cw), i)); if (tripOf(k)) return k; } return toStr(weekStart(cw)); };
+const TRIP_W = {phase: "Maintien voyage", rank: "D", rirTxt: "À l'échec, au poids du corps", setsTxt: "Donjon nomade, quand tu peux (rien d'obligatoire)"};
+const MAX_FROM = "2026-12-07";   // 17 Nov, his ask: a real bench max once a month, on the Monday (force day)
+function maxTestWeek(cw) {        // the 1st Monday of the month; the first week back from a trip is skipped (one week later)
+  if (curPlan().id !== "base" || !(cw >= 1) || isDeload(cw)) return false;
+  const d = weekStart(cw), mon = toStr(d); if (mon < MAX_FROM || tripOf(mon)) return false;
+  const backIn = k => (TRIPS.base || []).some(t => k > t.to && dayDiff(fromStr(t.to), fromStr(k)) <= 7);
+  if (d.getDate() <= 7) return !backIn(mon);
+  const prev = addDays(d, -7); return prev.getDate() <= 7 && backIn(toStr(prev));
+}
+const IMG_V = 1, GATE_IMG = {NV: "gate_EP", DP: "gate_DP", EP: "gate_EP", J: "gate_J", DB: "gate_DB", PT: "gate_PT", EB: "gate_EB", P: "gate_PT", T: "gate_DB", HC: "gate_DP", JX: "gate_J", L: "gate_J", BE: "gate_EP", FB: "gate_DP", CO: "gate_PT", H: "gate_PT", A: "gate_DP", B: "gate_EB", C: "gate_DB"};
 const artPhase = () => { const t = Date.now() / 1000; return {kb: `-${(t % 40).toFixed(2)}s`, sl: `-${(t % 24).toFixed(2)}s`}; };   // follows the clock: a re-render never restarts the motion
 const imgUrl = n => `img/${n}.webp?v=${(window.GL_IMGV || {})[n] || IMG_V}`;   // 16 Nov: per-picture hash, kept across updates
 const art = (name, cls) => `<div class="art ${cls || ""}" style="--img:url('${imgUrl(name)}');--kb:${artPhase().kb}" aria-hidden="true"><i></i></div>`;   // 14 Nov: illustrations made in Gemini
@@ -1544,8 +1628,12 @@ const WEEKS = [null,
   {n: 6, phase: "Construction", rank: "C", rirTxt: "À l'échec sur chaque série (0-1 rep en réserve)", setsTxt: "Comme écrit"},
   {n: 7, phase: "Construction", rank: "C", rirTxt: "À l'échec sur chaque série (0-1 rep en réserve)", setsTxt: "Comme écrit"},
   {n: 8, phase: "Bilan", rank: "C", rirTxt: "À l'échec sur chaque série, plus les épreuves de rang", setsTxt: "Comme écrit"},
+  {n: 9, phase: "Arc 2 · Retour au combat", rank: "C", rirTxt: "À l'échec sur chaque série (0-1 rep en réserve)", setsTxt: "Comme écrit"},
+  ...[10, 11, 12, 13, 14, 15].map(n => ({n, phase: "Arc 2 · Construction", rank: n <= 11 ? "C" : "B", rirTxt: "À l'échec sur chaque série (0-1 rep en réserve)", setsTxt: "Comme écrit"})),
+  {n: 16, phase: "Arc 2 · Bilan", rank: "B", rirTxt: "À l'échec sur chaque série, plus les épreuves de rang", setsTxt: "Comme écrit"},
 ];
 const DELOAD = {phase: "Semaine allégée", rank: "D", rirTxt: "3 partout, mêmes charges, jamais à l'échec", setsTxt: "Moitié des séries"};
+const DELOAD_FAIL = {phase: "Semaine allégée", rank: "D", rirTxt: "Toujours à l'échec, mêmes charges", setsTxt: "Moitié des séries"};   // 16 Nov proposal P1 (his rule: every set to failure)
 const TEST_EX = {DP: ["bench", "csRow"], PT: ["inclBar"]};
 const SHRUG_G = n => ({ex: "shrug", sets: 3, reps: [10, 15], rest: 90, cue: `Trapèzes, ${["", "1re", "2e", "3e"][n]} séance de la semaine (lundi, mercredi, vendredi : toujours un jour de repos entre deux). Prends lourd, monte les épaules droit vers les oreilles, pause 1 s en haut, descente lente ; bras tendus, sans rouler.`});
 const GAUTHIER_ADD = {                      // 16 Nov, his rule: a muscle done 3x a week needs a rest day between -> traps Mon/Wed/Fri, side delts Tue/Thu
@@ -1576,7 +1664,7 @@ const GAUTHIER_SWAP = {                       // his own picks (30 Oct): close-g
   cableRowUni: {ex: "uniPd", cue: "Technique : à genoux à côté de la poulie haute, une poignée : bras tendu en haut pour étirer le dos, tire le coude vers la hanche, retour en 3 s."},   // Thursday had two horizontal cable rows in a row
   revPecDeck: {ex: "facePull", cue: "Assis face à la poulie (hauteur du visage) : tire vers le front en écartant les mains, coudes hauts, pause 1 s, retour lent."},   // no reverse pec deck at his gym
   bayCurl: {ex: "machCurl", cue: "Machine qui place les bras en arrière (accent sur le chef long) : descente complète jusqu'à l'étirement, coude fixe."},
-  inclMach: {ex: "inclBar", cue: "Force. À la Smith, banc incliné ~30°, juste après le couché : barre au haut des pecs, descente contrôlée, pousse fort. Smith prise ? « Autre version » : la machine."},   // 14 Nov: "je ne fais que de l'incliné Smith"
+  inclMach: {ex: "inclBar", cue: "Force. À la Smith, banc incliné ~30°, juste après le couché : barre au haut des pecs, descente contrôlée, pousse fort. Smith prise ? « Autre version » : incliné haltères."},   // 14 Nov: "je ne fais que de l'incliné Smith"
 };
 const KEY_LIFTS = [["bench", "Pecs / Dos", "Couché barre"], ["inclBar", "Pecs / Dos", "Incliné Smith"], ["csRow", "Pecs / Dos", "Rowing appuyé"], ["latpd", "Pecs / Dos", "Tirage vertical"], ["inclBar", "Pecs / Triceps", "Incliné barre"], ["latpdNeutral", "Dos / Biceps", "Tirage prise neutre"], ["shPress", "Épaules / Trapèzes", "Épaules machine"], ["hack", "Jambes", "Hack squat"], ["pendulum", "Jambes", "Pendule"]];
 const INC = {bar: 5, machine: 5, cable: 5, db: 2, bw: 5};   // 10 Nov: 5 kg steps for everyone (most machines can't do 2.5); dumbbells 2 kg
@@ -1589,6 +1677,8 @@ const WEEKS_FELIX = [null,
   {n: 3, phase: "Apprentissage", rank: "D", rirTxt: "3 partout", setsTxt: "2 par exo"},
   ...BUILD.map((b, i) => ({n: 4 + i, phase: "Construction", rank: b.rank, rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"})),
   {n: 8, phase: "Bilan", rank: "C", rirTxt: "1-2, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
+  ...[9, 10, 11, 12, 13, 14, 15].map(n => ({n, phase: "Arc 2 · Construction", rank: n <= 11 ? "C" : "B", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"})),
+  {n: 16, phase: "Arc 2 · Bilan", rank: "B", rirTxt: "1-2, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
 ];
 const WEEKS_MATHIS = [null,
   {n: 1, phase: "Calibrage", rank: "E", rirTxt: "2 sur les gros exos, 1-2 sur l'isolation", setsTxt: "Jeudi full body commun : 2 par exo ; Jambes : une série de moins"},
@@ -1596,6 +1686,8 @@ const WEEKS_MATHIS = [null,
   {n: 3, phase: "Progression", rank: "D", rirTxt: "1-2, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"},
   ...BUILD.map((b, i) => ({n: 4 + i, phase: "Intensification", rank: b.rank, rirTxt: "1, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"})),
   {n: 8, phase: "Bilan", rank: "C", rirTxt: "1, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
+  ...[9, 10, 11, 12, 13, 14, 15].map(n => ({n, phase: "Arc 2 · Intensification", rank: n <= 11 ? "C" : "B", rirTxt: "1, dernière série d'isolation à l'échec", setsTxt: "Comme écrit"})),
+  {n: 16, phase: "Arc 2 · Bilan", rank: "B", rirTxt: "1, dernière série d'isolation à l'échec, plus les épreuves de rang", setsTxt: "Comme écrit"},
 ];
 const MATHIS_SWAP = {                        // his answers (5 Nov): Smith for the chest, no cable pulls, more pec fly
   bench: {ex: "smithBench", cue: "Smith : banc placé pour que la barre descende au bas des pecs, omoplates serrées et basses, pieds ancrés ; touche sans rebond."},
@@ -1620,6 +1712,23 @@ const MATHIS_ADD = {
 };
 const NECK_ROW = " Cou (il te gêne sur le rowing) : tête dans le prolongement du dos, regard vers le sol un peu devant toi, menton rentré ; ne relève pas la tête et ne hausse pas les épaules en tirant. Si ça tire encore, baisse la charge.";
 const MATHIS_NECK = {latRaiseMach: NECK, leanLatRaise: NECK, pullupPro: NECK, pullup: NECK, csRow: NECK_ROW, dbRow: NECK_ROW, smithBench: NECK, inclBar: NECK};
+Object.assign(EX, {                            // 17 Nov: no gym during his trip (Marrakech + Mexico)
+  pushup:      {n: "Pompes", kind: "poly", eq: "bw"},
+  declPush:    {n: "Pompes pieds surélevés", kind: "poly", eq: "bw"},
+  pikePush:    {n: "Pompes piquées (épaules)", kind: "poly", eq: "bw"},
+  bottleRaise: {n: "Élévations latérales (bouteilles ou sac)", kind: "iso", eq: "db"},
+  bagShrug:    {n: "Shrugs avec un sac ou la valise", kind: "iso", eq: "db"},
+  bwSquat:     {n: "Squats au poids du corps", kind: "poly", eq: "bw"},
+});
+const SESS_NV = [                             // to failure like always; ~30 min in a hotel room
+  {ex: "pushup", sets: 3, reps: [10, 40], rest: 90, cue: "À l'échec, comme à la salle. Corps gainé de la tête aux talons, poitrine jusqu'au sol, mains un peu plus larges que les épaules. Trop facile : marque 1 s en bas."},
+  {ex: "declPush", sets: 3, reps: [8, 30], rest: 90, cue: "Haut des pecs : pieds sur le lit ou une chaise, mains au sol. Plus les pieds sont hauts, plus c'est dur."},
+  {ex: "pikePush", sets: 2, reps: [6, 20], rest: 90, cue: "Épaules : fesses en l'air, corps en V renversé, descends la tête entre les mains, puis pousse."},
+  {ex: "bottleRaise", sets: 3, reps: [15, 40], rest: 90, cue: "Ton point faible n° 1 : deux bouteilles d'eau pleines, deux sacs ou ta valise. Coudes légèrement fléchis, monte jusqu'à l'horizontale, descente lente, jusqu'à l'échec. Note le poids d'une main (bouteille de 1,5 L = 1,5 kg)."},
+  {ex: "bagShrug", sets: 2, reps: [15, 40], rest: 90, cue: "Trapèzes : la valise ou un sac lourd, monte les épaules droit vers les oreilles, pause 1 s en haut. Note le poids d'une main."},
+  {ex: "bwSquat", sets: 2, reps: [20, 50], rest: 90, cue: "Entretien des jambes : descends sous la parallèle, remonte fort."},
+];
+const MAXTEST_CUE = "Test de max du mois. Sécurité obligatoire : barres de sécurité du rack à hauteur de poitrine, ou un pareur. Fais l'échauffement ci-dessous, puis 3 essais à 1 rep, 4 min de repos entre deux. Essai réussi : la barre remonte seule, fesses sur le banc. Essai raté : ne valide pas la série et arrête-toi là, ton dernier essai réussi est ton max du mois.";
 const GAUTHIER_EP = [                         // 16 Nov, his picks from the Nippard check: weak point first and +1 set, biceps twice a week (no shrugs: Monday)
   {ex: "latRaiseMach", sets: 4, reps: [12, 15], rest: 75, cue: "En premier : ton point faible n° 1, travaillé frais. Coudes légèrement fléchis, monte jusqu'à l'horizontale sans hausser les épaules, descente lente."},
   {ex: "latRaise", sets: 3, reps: [12, 15], rest: 75, cue: "Poulie basse, un bras, coude légèrement fléchi, monte jusqu'à l'horizontale, descente lente : la poulie garde la tension en bas du mouvement, là où la machine lâche."},
@@ -1660,9 +1769,10 @@ const curPlan = () => PLANS[planOf(typeof S !== "undefined" ? S.profile : null)]
 const sessFor = ty => {
   const PL0 = curPlan(), m5 = PL0.id === "mathis" && MATHIS5_TYPES.includes(ty);   // Mathis from 16 Nov: Gauthier's sessions, his own extras
   const PL = m5 ? {...PLANS.base, swap: {...GAUTHIER_SWAP, ...MATHIS5_CUE}, sess: {J: GAUTHIER_J}, add: MATHIS5_ADD, dropIn: null, cueAdd: {...PLANS.base.cueAdd, ...MATHIS_NECK}} : PL0;
-  const list = (PL.sess || {})[ty] || SESS[ty]; if (!list) return list;
+  const list = ty === "NV" ? SESS_NV : (PL.sess || {})[ty] || SESS[ty]; if (!list) return list;
   const sw = PL.swap || {}, drop = [...(PL.drop || []), ...((PL.dropIn || {})[ty] || [])], ca = PL.cueAdd || {}, mr = PL.minRest || 0;
-  return [...list.filter(it => !drop.includes(it.ex)).map(it => sw[it.ex] ? {...it, ...sw[it.ex]} : it), ...((PL.add || {})[ty] || [])]
+  const no3s = PL0.id === "base" ? c => String(c).replace(/Descente en 3 s, /g, "").replace(/descente en 3 s/g, "descente contrôlée").replace(/retour en 3 s/g, "retour contrôlé") : c => c;   // 17 Nov: he never really did the 3-s descent
+  return [...list.filter(it => !drop.includes(it.ex)).map(it => sw[it.ex] ? {...it, ...sw[it.ex]} : it), ...((PL.add || {})[ty] || [])].map(it => it.cue ? {...it, cue: no3s(it.cue)} : it)
     .map(it => ca[it.ex] ? {...it, cue: it.cue + ca[it.ex]} : it)   // a note added to some exercises (Mathis's neck)
     .map(it => mr && !it.superset && it.rest < mr ? {...it, rest: mr} : it);   // Gauthier, 11 Nov: 90 s minimum between sets
 };
@@ -1684,7 +1794,7 @@ function planSched(info) {
 }
 
 /* Calendar weeks (cw 1 = 19-25 oct.) are not program weeks: the deload joker pauses the program for one week. */
-const deloadWeeks = () => (Array.isArray(S.profile?.deloads) ? S.profile.deloads : []).map(Number).filter(n => n > 0);
+const deloadWeeks = () => [...new Set([...(Array.isArray(S.profile?.deloads) ? S.profile.deloads : []).map(Number).filter(n => n > 0), ...tripWeeks()])].sort((a, b) => a - b);   // 17 Nov: a trip week pauses the program too
 const isDeload = cw => deloadWeeks().includes(cw);
 const progWeek = cw => cw - deloadWeeks().filter(d => d < cw).length;
 const sideType = p => p % 2 === 0 ? "H" : "J";     // the Friday session: Haut on even program weeks, Jambes on odd ones
@@ -1696,23 +1806,27 @@ function weekInfo(cw) {
   const main = PL.id === "mathis" && mathis5(cw) ? ["DP", "EP", "DB", "PT", "J"] : PL.id === "mathis" ? ["P", "T", p === 1 && !deload ? "FB" : "HC", x] : PL.id === "felix" ? (cw >= 4 ? ["DP", "J", "EB"] : ["DP", "EB", "DB", x]) : ["DP", "EP", "DB", "PT", x];   // week 1 Thursday: full body with the others
   const own = S.profile?.weekTypes?.[cw];
   if (own && !deload && p <= PROGRAM_WEEKS) return {cw, p, deload, W: PL.weeks[p], types: own, bonus: null, custom: true};
-  if (deload) return {cw, p, deload, W: DELOAD, types: main, bonus: null, after: p > PROGRAM_WEEKS};
+  if (deload && tripWeek(cw)) return {cw, p, deload, trip: true, W: TRIP_W, types: ["NV"], bonus: null};   // 17 Nov: away all week, only the bodyweight dungeon
+  if (deload) return {cw, p, deload, W: PL.id === "base" ? DELOAD_FAIL : DELOAD, types: main, bonus: null, after: p > PROGRAM_WEEKS};
   if (p > PROGRAM_WEEKS) return {cw, p, deload, W: null, types: [], bonus: null, after: true};
   if (p === 1 && PL.fbFirst) return {cw, p, deload, W: PL.weeks[1], types: ["FB"], bonus: null};
+  const home = (TRIPS[PL.id] || []).length ? main.filter(ty => !tripOf(plannedDate(cw, ty))) : main;   // the days before he leaves
+  if (home.length < main.length) return {cw, p, deload, W: PL.weeks[p], types: [...home, "NV"], bonus: null, partTrip: true};
   return {cw, p, deload, W: PL.weeks[p], types: main, bonus: null};
 }
-const weekTitle = info => info.deload ? "Semaine allégée" : "Semaine S" + info.p;
+const weekTitle = info => info.trip ? "Maintien voyage" : info.deload ? "Semaine allégée" : "Semaine S" + info.p;
 const sessLabel = s => (s.deload ? "Allégée" : "S" + s.week) + (s.bonus ? " · bonus" : "");
 const sessName = s => tyLabel(s.type);
 const lastBlockWeek = () => PROGRAM_WEEKS + deloadWeeks().filter(d => progWeek(d) <= PROGRAM_WEEKS).length;
-const jokersUsed = () => deloadWeeks().filter(d => { const p = progWeek(d); return p >= 2 && p <= PROGRAM_WEEKS; }).length;
+const arcOf = p => p <= BLOCK_WEEKS ? 1 : 2;
+const jokersUsed = cw => { const a = arcOf(progWeek(cw ?? weekOfStr(today()))); return deloadWeeks().filter(d => { if (tripWeek(d)) return false; const p = progWeek(d); return p >= 2 && p <= PROGRAM_WEEKS && arcOf(p) === a; }).length; };   // one joker per arc
 function jokerState(cw) {
-  const info = weekInfo(cw); if (!info || (curPlan().noJoker && !info.deload)) return null;
+  const info = weekInfo(cw); if (!info || info.trip || info.partTrip || (curPlan().noJoker && !info.deload)) return null;
   const started = S.sessions.some(s => sessionCw(s) === cw) || !!(S.draft && S.draft.active && S.draft.cw === cw);
   if (info.deload) return {active: true, canCancel: !started};
   if (info.after) return {active: false, free: true, canUse: !started && !deloadWeeks().some(d => progWeek(d) > PROGRAM_WEEKS)};
   if (info.p < 2) return {active: false, canUse: false, reason: "S1"};
-  if (jokersUsed() >= JOKERS) return {active: false, canUse: false, reason: "used"};
+  if (jokersUsed(cw) >= JOKERS) return {active: false, canUse: false, reason: "used"};
   return {active: false, canUse: !started, reason: started ? "started" : ""};
 }
 
@@ -1729,10 +1843,11 @@ function setsFor(p, it, idx, deload, ty) {
   return it.sets;
 }
 function rirFor(p, it, idx, ty, deload) {
+  if (deload && curPlan().id === "base" && !it.maint) return {txt: "à l'échec, moitié des séries", fail: false};   // 17 Nov: his semaine allégée stays at failure
   if (deload || it.maint) return {txt: "3 reps en réserve", fail: false};
   if (ty === "FB") return {txt: "3 reps en réserve", fail: false};
   const PL = curPlan().id, isPoly = EX[it.ex].kind === "poly";
-  if (PL === "base" || (PL === "mathis" && MATHIS5_TYPES.includes(ty))) return it.tech ? {txt: "technique : 1-2 reps en réserve, descente en 3 s", fail: !isPoly}   // Mathis from 16 Nov: Gauthier's week, same effort   // 2nd day of a muscle: lighter, controlled (2 Nov)
+  if (PL === "base" || (PL === "mathis" && MATHIS5_TYPES.includes(ty))) return it.tech ? {txt: PL === "base" ? "technique : plus léger, 1-2 reps en réserve" : "technique : 1-2 reps en réserve, descente en 3 s", fail: !isPoly}   // Mathis from 16 Nov: Gauthier's week, same effort   // 2nd day of a muscle: lighter, controlled (2 Nov)
     : {txt: "à l'échec (0-1 rep en réserve)", fail: false};   // his choice (29 Oct): every set to failure, at worst half a rep short
   if (PL === "felix" && p <= 3) return {txt: "3 reps en réserve", fail: false};
   if (PL === "mathis") {
@@ -1755,8 +1870,8 @@ function planFor(cw, ty) {
   const legMaint = S.profile?.legMaint !== false && !info.deload && !legsDone;
   return (sessFor(ty) || []).map((it, idx) => ({...it, idx})).filter(it => !it.maint || legMaint).map(it => ({
     ...it, sets: setsFor(info.p, it, it.idx, info.deload, ty), rir: rirFor(info.p, it, it.idx, ty, info.deload),
-    test: !info.deload && info.p === 8 && (planTest()[ty] || []).includes(it.ex),
-  }));
+    test: !info.deload && (info.p === 8 || info.p === 16) && (planTest()[ty] || []).includes(it.ex),
+  })).map(it => ty === "DP" && it.ex === "bench" && maxTestWeek(cw) ? {...it, sets: 3, reps: [1, 1], rest: 240, maxTest: true, test: false, rir: {txt: "1 rep : ton max du mois", fail: false}, cue: MAXTEST_CUE} : it);
 }
 const repsTxt = it => (it.reps[0] === it.reps[1] ? it.reps[0] : it.reps[0] + "-" + it.reps[1]) + (it.perArm ? " par bras" : it.perLeg ? " par jambe" : "");
 const estMinutes = plan => Math.max(25, roundTo(12 + plan.reduce((n, it) => n + it.sets * (it.rest + 50) / 60, 0), 5));
@@ -1853,6 +1968,7 @@ const ACH = [
   {id: "premierSang", name: "Premier sang", desc: "Battre un premier record.", xp: 60, gold: 30, test: c => c.prCount >= 1},
   {id: "briseur", name: "Briseur de records", desc: "Battre 10 records.", xp: 200, gold: 100, test: c => c.prCount >= 10},
   {id: "colosse", name: "Colosse", desc: "Battre 25 records.", xp: 300, gold: 150, test: c => c.prCount >= 25},
+  {id: "centurion", name: "Centurion", desc: "Retrouver les 100 kg au développé couché.", xp: 1000, gold: 500, test: c => c.bench100},   // 17 Nov
   {id: "discipline", name: "Discipline de fer", desc: "7 quêtes quotidiennes d'affilée.", xp: 150, gold: 75, test: c => c.bestStreak >= 7},
   {id: "monarque", name: "Monarque de la routine", desc: "21 quêtes quotidiennes d'affilée.", xp: 300, gold: 150, test: c => c.bestStreak >= 21},
   {id: "parfaite", name: "Semaine parfaite", desc: "Tous les donjons d'une semaine (à partir de S2).", xp: 150, gold: 75, test: c => c.perfectWeeks >= 1},
@@ -2124,7 +2240,7 @@ function dayEval(key) {
   I.study = questOn(p, "study") ? {req: dow <= 4, done: !!d.study, txt: dow <= 4 ? (studyMin % 60 ? studyMin + " min" : studyMin / 60 + " h") : "Week-end, en bonus"} : OFF;
   const fp = fastPlan(p);
   I.fast = fp ? {req: !free, done: !!d.fast, txt: free ? "Jour libre, en bonus" : fp.label} : {req: false, done: false, txt: "", off: true};
-  if (d.sick) { for (const k in I) I[k].req = false; return {items: I, free, full: true, sick: true, done: 0, malus: [], malusXp: 0, logged: m.count > 0, xp: 0, gold: 0, maxXp: 0}; }
+  if (d.sick || tripOf(key)) { for (const k in I) I[k].req = false; return {items: I, free, full: true, sick: !!d.sick, trip: !d.sick && !!tripOf(key), done: 0, malus: [], malusXp: 0, logged: m.count > 0, xp: 0, gold: 0, maxXp: 0}; }   // 17 Nov: away = like a sick day
   const malus = [];
   if (sl > 0 && sl < sleepT - 1) malus.push({txt: "Nuit trop courte (" + fmt(sl, 1) + " h)", xp: -40});
   const foodStart = p.foodStart || p.createdDay || t;
@@ -2173,7 +2289,8 @@ function weekValid(cw) {
 }
 function weekCounts(cw) {
   const info = weekInfo(cw), v = weekValid(cw), types = info ? info.types : [];
-  return {info, v, planned: types.length, main: types.filter(t => v[t]).length, all: Object.keys(v).length, bonusDone: !!(info && info.bonus && v[info.bonus])};
+  const real = types.filter(t => t !== "NV");
+  return {info, v, planned: real.length, main: real.filter(t => v[t]).length, all: Object.keys(v).length, bonusDone: !!(info && info.bonus && v[info.bonus])};
 }
 function weekBonus(cw) {
   const c = weekCounts(cw), out = {xp: 0, gold: 0, perfect: false, big: false};
@@ -2188,7 +2305,7 @@ const typeDay = (cw, ty) => { const id = curPlan().id;
   if ((id === "base" && cw >= 4 || mathis5(cw)) && (ty === "J" || ty === "CO")) return 2;   // Gauthier from 9 Nov: Monday to Friday, weekends free
   if (id === "felix" && cw >= 4 && FELIX_DAYS[ty] != null) return FELIX_DAYS[ty];
   return TYPES[ty].day; };   // Gauthier from 9 Nov: Monday to Friday, weekends free
-const plannedDate = (cw, ty) => S.profile?.moves?.[cw]?.[ty] || toStr(addDays(weekStart(cw), typeDay(cw, ty)));   // moved by the player, or the usual day
+const plannedDate = (cw, ty) => ty === "NV" ? nomadDate(cw) : S.profile?.moves?.[cw]?.[ty] || toStr(addDays(weekStart(cw), typeDay(cw, ty)));   // moved by the player, or the usual day
 function weekPlan(cw) {
   const info = weekInfo(cw); if (!info || !info.types.length) return [];
   const v = weekValid(cw), t = today(), curW = weekOfStr(t);
@@ -2197,6 +2314,7 @@ function weekPlan(cw) {
     if (done) st = done.full ? "done" : "partial";
     else if (bonus) st = cw < curW ? "skipped" : cw > curW ? "future" : "bonus";
     else if (cw < curW) st = "missed"; else if (cw > curW) st = "future"; else if (date === t) st = "today"; else if (date < t) st = "late"; else st = "open";
+    if (ty === "NV" && (st === "missed" || st === "late")) st = "skipped";   // 17 Nov: optional on a trip
     return {cw, ty, date, done, st, bonus};
   };
   return info.types.map(ty => mk(ty, false)).concat(info.bonus ? [mk(info.bonus, true)] : []);
@@ -2204,11 +2322,12 @@ function weekPlan(cw) {
 const sickDays = cw => [...Array(7)].filter((_, i) => S.days[toStr(addDays(weekStart(cw), i))]?.sick).length;
 const STRICT_FROM = "2026-11-16", strictWeek = cw => cw >= 1 && toStr(weekStart(cw)) >= STRICT_FROM;
 function requiredSessions(info) {
-  if (!info || !info.types.length) return 0;
-  const created = S.profile?.createdDay;
-  let want = strictWeek(info.cw) ? info.types.length   // 14 Nov: "une séance loupée est considérée comme pénalité"
-    : info.deload ? 2 : info.types.length === 1 ? 1 : info.custom ? Math.max(1, info.types.length - 1) : Math.max(3, info.types.length - 1);   // before: one session could always be missed
-  if (created && !info.deload) want = Math.min(want, info.types.filter(ty => plannedDate(info.cw, ty) >= created).length);   // joined mid-week
+  if (!info || !info.types.length || info.trip) return 0;
+  const tys = info.types.filter(t => t !== "NV"), created = S.profile?.createdDay;   // 17 Nov: the trip's bodyweight dungeon is never an obligation
+  if (!tys.length) return 0;
+  let want = strictWeek(info.cw) ? tys.length   // 14 Nov: "une séance loupée est considérée comme pénalité"
+    : info.deload ? 2 : tys.length === 1 ? 1 : info.custom ? Math.max(1, tys.length - 1) : Math.max(3, tys.length - 1);   // before: one session could always be missed
+  if (created && !info.deload) want = Math.min(want, tys.filter(ty => plannedDate(info.cw, ty) >= created).length);   // joined mid-week
   return want > 0 ? Math.max(1, want - sickDays(info.cw)) : 0;   // each sick day: one session less required
 }
 const skipsInWeek = cw => S.purchases.filter(p => p.effect === "skip" && p.date && weekOfStr(p.date) === cw).length;
@@ -2247,12 +2366,13 @@ function compute() {
   const benchSess = sess.filter(s => s.week >= 2 && !s.deload && s.sets?.bench?.length);
   let benchGain = 0;
   if (benchSess.length >= 2) { const first = bestE1("bench", benchSess[0].sets.bench); const best = Math.max(...benchSess.map(s => bestE1("bench", s.sets.bench))); if (first > 0) benchGain = best / first - 1; }
-  const bilanDone = Object.keys(planTest()).every(ty => sess.some(s => s.week === 8 && !s.deload && s.type === ty && s.valid));
+  const bilanDone = [8, 16].some(w => Object.keys(planTest()).every(ty => sess.some(s => s.week === w && !s.deload && s.type === ty && s.valid)));
   const waistWeeks = new Set(dayKeys.filter(k => Number(S.days[k]?.waist) > 0).map(weekOfStr));
   xp += 10 * waistWeeks.size; gold += 5 * waistWeeks.size;
   const photoSessions = photoSessionDates().length;
   xp += 40 * photoSessions; gold += 20 * photoSessions;
-  const c = {validSessions, prCount, bestStreak, perfectWeeks, benchGain, penaltiesCleared, weighIns, bilanDone, photoSessions, foodDays: st.food, studyDays: st.study};
+  const bench100 = !!S.profile?.bench100 || sess.some(x => (x.sets?.bench || []).some(r => Number(r.kg) >= 100 && Number(r.reps) >= 1));
+  const c = {validSessions, prCount, bestStreak, perfectWeeks, benchGain, penaltiesCleared, weighIns, bilanDone, photoSessions, foodDays: st.food, studyDays: st.study, bench100};
   const ach = ACH.filter(a => a.test(c));
   for (const a of ach) { xp += a.xp; gold += a.gold; }
   gold += GROUP_GOLD * Object.keys(S.profile?.groupWins || {}).length;   // weeks where the whole group did its dungeons
@@ -2308,7 +2428,7 @@ function estimateLoad(it, grip, all) {          // never-done grip or exercise: 
   if (!(e1 > 0)) return null;
   const step = stepOf(ex.eq), reps = it.reps[1] + reserve;
   const kg = Math.max(step, Math.floor(e1 / (1 + reps / 30) * 0.92 / step) * step);   // 8 % margin: it is an estimate
-  return {kg, text: `Estimation ${from} : commence à ${fmt(kg)} kg pour ${it.reps[1]} reps${it.tech ? " avec la descente en 3 s" : ""}, puis ajuste dès la 1re série.`};
+  return {kg, text: `Estimation ${from} : commence à ${fmt(kg)} kg pour ${it.reps[1]} reps${it.tech && curPlan().id !== "base" ? " avec la descente en 3 s" : ""}, puis ajuste dès la 1re série.`};
 }
 const LEG_GROUPS = ["quads", "ischios", "fessiers", "mollets"], isLegEx = ex => LEG_GROUPS.some(k => (STRENGTH.find(g => g.k === k) || {ex: {}}).ex[ex] != null) || ["legExt", "legExtFree", "legPress", "pendulum"].includes(ex);
 const felixPush = (it, info) => curPlan().id === "felix" && info && !info.deload && (info.p || 0) >= 4 && it && !it.maint && !isLegEx(it.ex);   // upper body from week 4
@@ -2322,10 +2442,17 @@ function suggest(it, info, grip) {
     else out.text = "Prends une charge que tu pourrais pousser 10-12 fois, et arrête-toi à 6.";
     return out;
   }
+  if (it.maxTest) {                            // 17 Nov: monthly bench max, 3 singles
+    const since = toStr(addDays(fromStr(today()), -42)), rec = allAny.filter(h => h.date >= since), e = Math.max(0, ...(rec.length ? rec : allAny).map(h => bestE1(it.ex, h.sets)));
+    const st = 5, a1 = e > 0 ? Math.max(20, Math.floor(e * 0.95 / st) * st) : null;
+    out.kind = "max"; out.kg = a1; out.reps = [1, 1, 1];
+    out.text = a1 ? `Ton max estimé : ${fmt(e, 1)} kg. Essai 1 : ${fmt(a1)} kg, il doit passer proprement. Réussi : essai 2 à ${fmt(a1 + st)} kg. Réussi encore : essai 3 à ${fmt(a1 + 2 * st)} kg.` : "Monte par paliers jusqu'à une charge que tu ne peux faire qu'une fois.";
+    return out;
+  }
   const est = last ? null : estimateLoad(it, grip, allAny);   // first technique bench: estimated from the heavy Monday one
   if (est) { out.kg = est.kg; out.kind = "est"; out.text = est.text; }
   else if (!last && all.length && !it.tech) out.text = `Première fois avec la prise ${String(grip).toLowerCase()} : la force change avec la prise, pars un peu plus léger que d'habitude.`;
-  else if (!last && it.tech) out.text = `Première fois : une charge que tu maîtrises sur ${hi} reps avec la descente en 3 s, en gardant 1-2 reps sous le pied.`;
+  else if (!last && it.tech) out.text = `Première fois : une charge que tu maîtrises sur ${hi} reps${curPlan().id === "base" ? "" : " avec la descente en 3 s"}, en gardant 1-2 reps sous le pied.`;
   else if (!last && it.maint) out.text = `Première fois : une charge qui te laisse 3 reps en réserve à ${hi} reps. Pas à l'échec.`;
   else if (!last) out.text = it.rir.txt.startsWith("à l'échec") ? `Première fois : choisis une charge avec laquelle tu arrives à l'échec vers ${hi} reps.` : `Première fois : choisis une charge qui laisse ${it.rir.txt.replace(", jamais à l'échec", "")} à ${hi} reps.`;
   else {
@@ -2345,7 +2472,7 @@ function suggest(it, info, grip) {
       out.kg = n; out.kind = "up"; out.reps = [];
       out.text = `Avancement : la dernière fois ${fmt(base)} kg × ${r}, le haut de la fourchette. Tu passes à ${fmt(n)} kg, vise au moins ${lo} reps.`;
     };
-    if (info.deload) { out.kg = base; out.text = "Semaine allégée : même charge, moitié des séries, sans forcer."; }
+    if (info.deload) { out.kg = base; out.text = curPlan().id === "base" ? "Semaine allégée : même charge, moitié des séries, toujours à l'échec." : "Semaine allégée : même charge, moitié des séries, sans forcer."; }
     else if (it.maint) { out.kg = roundTo(base * 0.8, stepB); out.text = `Rappel : environ 80 % de ta charge du gros jour (${fmt(base)} kg), 3 reps en réserve. Ça entretient, ça ne doit pas fatiguer.`; }
     else if (allTop && ex.eq === "cable" && base > 0 && INC.cable / base > 0.2 && !last.sets.every(s => Number(s.reps) >= hi + 5)) {   // +5 kg on a light cable = a huge jump: more reps first
       out.kg = base; out.reps = last.sets.map(s => Math.min(hi + 5, (Number(s.reps) || 0) + 1));
@@ -2371,10 +2498,10 @@ function suggest(it, info, grip) {
   }
   if (["base", "felix", "mathis"].includes(curPlan().id) && last && out.kg != null && out.kind !== "est" && !info.deload && !it.maint && !it.test && ex.eq !== "bw") out.chal = stepUp(out.kg, stepOf(ex.eq));   // 13 Nov: the épreuve = a heavy 1st set one step above, on the dungeon's big lift only (exCard)
   if (it.test) {
-    const s4 = hist.filter(h => h.week === 4).pop();
+    const ref = (info.p || 8) - 4, s4 = hist.filter(h => h.week === ref).pop();
     out.testKg = s4 ? Number(s4.sets[0].kg) || 0 : null;
     out.kind = "test";
-    out.text = `Épreuve de rang : 1re série avec ta charge de S4${s4 ? ` (${fmt(out.testKg)} kg)` : ""}, un maximum de reps propres.${out.kg != null ? ` Séries suivantes : ${fmt(out.kg)} kg, comme d'habitude.` : " Séries suivantes : comme d'habitude."}`;
+    out.text = `Épreuve de rang : 1re série avec ta charge de S${ref}${s4 ? ` (${fmt(out.testKg)} kg)` : ""}, un maximum de reps propres.${out.kg != null ? ` Séries suivantes : ${fmt(out.kg)} kg, comme d'habitude.` : " Séries suivantes : comme d'habitude."}`;
   }
   return out;
 }
@@ -2722,7 +2849,7 @@ function schedSave() {                         // game/sched: the next 8 days, r
   const plan = [cw0, cw0 + 1].flatMap(cw => weekPlan(cw)).filter(x => x.date && !x.done && !x.bonus);
   for (let i = 0; i < 8; i++) {
     const k = toStr(addDays(fromStr(t), i)), ses = plan.filter(x => x.date === k).map(x => TYPES[x.ty]?.name || x.ty);
-    const off = isFreeDay(k) || !!S.days[k]?.sick;
+    const off = isFreeDay(k) || !!S.days[k]?.sick || !!tripOf(k);
     if (ses.length || off) days[k] = {...(ses.length ? {session: ses.join(" + ")} : {}), ...(off ? {off: true} : {})};
   }
   const sig = JSON.stringify(days);
@@ -2786,14 +2913,25 @@ function stagnations() {                       // a lift with no record over its
   }
   return out;
 }
+let stagCache = null;
+const stagSet = () => { const k = S.sessions.length + "|" + today(); if (!stagCache || stagCache.k !== k) stagCache = {k, s: new Set(stagnations())}; return stagCache.s; };
+const avgSleep7 = () => { const v = [...Array(7)].map((_, i) => Number(S.days[toStr(addDays(fromStr(today()), -i))]?.sleepH) || 0).filter(x => x > 0); return v.length >= 3 ? avgOf(v) : null; };
+function stagTips(ex) {                         // 17 Nov, his pick: when a lift is stuck, the Système gives 3 ways out
+  const e = EX[ex], h = perfHistory(ex), last = h[h.length - 1], top = last ? Math.max(...last.sets.map(x => Number(x.kg) || 0)) : 0;
+  const st = stepOf(e.eq), jump = top > 0 ? st / top : 0, alt = (curPlan().id === "base" && BASE_ALTS[ex]) || ALTS[ex], slp = avgSleep7(), out = [];
+  if (e.kind === "poly") out.push("Enlève environ 10 % de la charge à la prochaine séance, fais des reps propres jusqu'à l'échec, puis remonte en 2 séances.");
+  else if (jump > 0.1 && top > 0) out.push(`Le cran suivant (+${fmt(st)} kg, soit +${Math.round(jump * 100)} %) est trop gros pour ce muscle : reste à ${fmt(top)} kg et monte jusqu'à 20 reps sur toutes les séries avant de passer au-dessus.`);
+  else out.push(`Reste à ${fmt(top)} kg et vise une rep de plus sur chaque série avant de monter.`);
+  out.push(alt && EX[alt] ? `Change de version pendant 2 ou 3 semaines (« Autre version » dans le donjon : ${EX[alt].n}), puis reviens-y.` : "Change de version pendant 2 ou 3 semaines (＋ Ajouter un exercice dans le donjon), puis reviens-y.");
+  out.push(slp != null && slp < 7 ? `Ton sommeil : ${fmt(slp, 1)} h en moyenne sur 7 nuits. Sous 7 h, les reps à l'échec baissent : c'est souvent la vraie cause.` : "Fais-le plus tôt dans la séance quand tu peux : un muscle frais fait plus de reps.");
+  return out;
+}
 function foodDays(keys) {                      // logged, non-free days with their targets
   return keys.filter(k => !isFreeDay(k) && mealTotals(k).count > 0 && !(S.meals[k]?.items || []).some(isFamily)).map(k => ({k, m: mealTotals(k), p: nutritionPlan(k)}));
 }
 function alertsList() {
   const p = S.profile || {}, goal = curPlan().goal, t = today(), out = [];
-  for (const ex of stagnations()) out.push({id: "stag-" + ex, txt: `<b>${esc(EX[ex].n)}</b> : pas de record sur tes 3 dernières séances. ` + (EX[ex].kind === "poly"
-    ? "Conseil : la prochaine fois, enlève environ 10 % de la charge, fais des reps propres, puis remonte en 2 séances. Vérifie aussi ton sommeil et tes protéines."
-    : "Conseil : change de version pendant 2 ou 3 semaines (lien « Autre version » dans le donjon, ou ＋ Ajouter un exercice), puis reviens-y.")});
+  for (const ex of stagnations()) out.push({id: "stag-" + ex, txt: `<b>${esc(EX[ex].n)}</b> : pas de record sur tes 3 dernières séances. 3 solutions :<ol class="stag-l">${stagTips(ex).map(x => `<li>${esc(x)}</li>`).join("")}</ol>`});   // 17 Nov: 3 solutions
   const from = p.foodStart || p.createdDay || t;
   const fd = foodDays([...Array(7)].map((_, i) => toStr(addDays(fromStr(t), -1 - i))).filter(k => k >= from)).slice(0, 4);
   if (fd.length >= 3) {
@@ -2953,7 +3091,49 @@ function questionWin() {
     <button class="btn primary wide" data-act="answerQ" data-id="${q.id}">Envoyer</button>
     <button class="link" data-act="answerQ" data-id="${q.id}" data-skip="1">Passer cette question</button></section>`;
 }
-function viewStatus(P) { return statusWin(P) + penaltyWin(P) + draftWin() + replyWin() + questionWin() + reportWin() + pushWin() + programPickWin() + alertsWin() + portalWin() + sleepWin() + questWin() + weekWin() + groupWin() + bodyNudge(); }
+function viewStatus(P) { return statusWin(P) + penaltyWin(P) + draftWin() + replyWin() + questionWin() + reportWin() + pushWin() + programPickWin() + alertsWin() + portalWin() + benchGoalWin() + sleepWin() + questWin() + weekWin() + groupWin() + bodyNudge(); }
+function benchGoalWin() {                      // 17 Nov, his pick: "l'objectif 100, c'est parfait, j'en veux absolument"
+  if (curPlan().id !== "base") return "";
+  const pts = perfHistory("bench").map(x => ({d: x.date, e: bestE1("bench", x.sets)})).filter(p => p.e > 0); if (!pts.length) return "";
+  const t = today(), s21 = toStr(addDays(fromStr(t), -21)), rec = pts.filter(p => p.d >= s21), cur = rec.length ? Math.max(...rec.map(p => p.e)) : pts[pts.length - 1].e;
+  const maxes = S.sessions.filter(x => Number(x.maxKg) > 0).sort((a, b) => String(a.date).localeCompare(String(b.date))), lastMax = maxes[maxes.length - 1];
+  const hit = !!S.profile?.bench100 || maxes.some(x => x.maxKg >= 100), shown = hit ? Math.max(100, cur) : cur;
+  const s42 = toStr(addDays(fromStr(t), -42)), byW = {}; for (const p of pts) if (p.d >= s42) byW[weekOfStr(p.d)] = Math.max(byW[weekOfStr(p.d)] || 0, p.e);
+  const wks = Object.keys(byW).map(Number).sort((a, b) => a - b); let eta = null, perWk = 0;
+  if (wks.length >= 3 && !hit) {   // weekly bests, least squares
+    const xs = wks, ys = wks.map(k => byW[k]), mx = avgOf(xs), my = avgOf(ys), den = xs.reduce((n, x) => n + (x - mx) ** 2, 0);
+    perWk = den > 0 ? xs.reduce((n, x, i) => n + (x - mx) * (ys[i] - my), 0) / den : 0;
+    if (perWk > 0.2) { const days = (100 - cur) / perWk * 7; if (days > 0 && days < 730) eta = addDays(fromStr(t), Math.round(days)); }
+  }
+  const fast = eta && toStr(eta) < "2027-02-15";   // research (16 Nov report): the comeback slows near the old level, realistic 100 kg = March to May 2027
+  const lo = 40, hi = 105, pos = v => Math.max(0, Math.min(100, (v - lo) / (hi - lo) * 100));
+  const marks = [[75, "mi-déc."], [85, "fin janv."], [100, "objectif"]].map(([v, l]) => `<em style="left:${pos(v).toFixed(1)}%" class="${shown >= v ? "ok" : ""}"><b>${v}</b><small>${l}</small></em>`).join("");
+  let nextMax = null; for (let cw = weekOfStr(t); cw < weekOfStr(t) + 10 && !nextMax; cw++) if (maxTestWeek(cw)) { const dt = plannedDate(cw, "DP"); if (dt >= t && !S.sessions.some(x => sessionCw(x) === cw && x.type === "DP")) nextMax = dt; }
+  const sp = pts.slice(-16), SW = 300, SH = 46, ymin = Math.min(lo, ...sp.map(p => p.e)), ymax = 105, sx = i => 4 + i * (SW - 8) / Math.max(1, sp.length - 1), sy = v => 4 + (1 - (v - ymin) / (ymax - ymin)) * (SH - 8);
+  const spark = sp.length >= 2 ? `<svg class="chart" viewBox="0 0 ${SW} ${SH}" role="img" aria-label="Ton max estimé au couché, séance après séance"><line x1="4" x2="${SW - 4}" y1="${sy(100).toFixed(1)}" y2="${sy(100).toFixed(1)}" stroke="#ffcf5c" stroke-dasharray="4 4" opacity=".7"/><polyline points="${sp.map((p, i) => `${sx(i).toFixed(1)},${sy(p.e).toFixed(1)}`).join(" ")}" fill="none" stroke="#ffcf5c" stroke-width="2"/>${sp.map((p, i) => `<circle cx="${sx(i).toFixed(1)}" cy="${sy(p.e).toFixed(1)}" r="2.4" fill="#fff3cf"/>`).join("")}</svg>` : "";
+  return `<section class="win goal100 ${hit ? "won" : ""}"><h2 class="win-title">Objectif 100 kg</h2>
+    <div class="g100-top"><div class="g100-num"><b>${fmt(shown, 0)}</b><span>kg</span></div><div class="g100-txt"><span class="eyebrow">${hit ? "Objectif atteint" : "Ton max estimé au couché"}</span><p>${hit ? "Le chasseur a retrouvé sa force d'avant." : `Encore <b>${fmt(Math.max(0, 100 - cur), 0)} kg</b> avant les 100.`}</p></div></div>
+    <div class="g100-bar"><i style="width:${pos(shown).toFixed(1)}%"></i>${marks}</div>${spark}
+    <ul class="g100-info">${hit ? "" : `<li>${eta ? `Ton rythme : <b>+${fmt(perWk, 1)} kg par semaine</b>. À ce rythme, 100 kg vers ${fmtDay(eta, {month: "long", year: "numeric"})}${fast ? ". C'est le rythme de la reprise : il ralentira en approchant de ton ancien niveau. Estimation réaliste : <b>mars à mai 2027</b>." : "."}` : "Estimation d'après la recherche : <b>mars à mai 2027</b>. Ton rythme s'affiche dès 3 semaines de couché."}</li>`}
+      ${lastMax ? `<li>Dernier test de max : <b>${fmt(lastMax.maxKg)} kg</b> (${fmtDay(fromStr(lastMax.date), {day: "numeric", month: "long"})}).</li>` : ""}
+      ${nextMax ? `<li>Prochain test de max : <b>${fmtDay(fromStr(nextMax), {weekday: "long", day: "numeric", month: "long"})}</b>.</li>` : ""}
+      <li>Ancien record : ${fmt(Number(S.profile?.oldBench) || 105)} kg.</li></ul></section>`;
+}
+function centurionFx(kg, reps) {               // 17 Nov, his wish: the day he benches 100 kg must feel like "l'achèvement d'un truc"
+  document.querySelectorAll(".c100").forEach(x => x.remove());
+  const box = document.createElement("div"); box.className = "c100"; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", "100 kg au développé couché");
+  box.innerHTML = `<div class="c100-rays"></div><div class="c100-in"><p class="c100-alert">[ALERTE DU SYSTÈME]</p><p class="c100-l1">Quête légendaire accomplie</p>
+    <div class="c100-big">${fmt(kg)}<small>KG</small></div><p class="c100-l2">Développé couché · ${reps} rep${reps > 1 ? "s" : ""}</p>
+    <p class="c100-l3">Le chasseur a retrouvé sa force d'avant.</p><p class="c100-title">Titre débloqué : <b>Centurion</b> · +1 000 XP · +500 or</p>
+    <button class="btn gold" data-act="c100Close">Continuer</button></div>`;
+  document.body.appendChild(box);
+  if (!fxActive()) { box.classList.add("still", "s2", "s3", "s4"); return; }
+  chime("level"); buzz([60, 40, 60, 40, 160]);
+  setTimeout(() => { fxFlash(); box.classList.add("s2"); fxBurst(45, 160); buzz([30, 30, 30, 30, 120]); }, 1500);
+  setTimeout(() => { fxBurst(45, 120); fxBurst(205, 70); chime("level"); }, 2400);
+  setTimeout(() => { box.classList.add("s3"); fxBurst(45, 90); }, 3300);
+  setTimeout(() => { box.classList.add("s4"); fxStamp("Centurion", "100 kg au couché", "gold"); }, 4400);
+}
 function statusWin(P) {   // 14 Nov (Hunter OS): the status is a character sheet over a full-width illustration
   const pct = Math.min(100, Math.round(P.into / P.need * 100)), s = P.stats, mx = Math.max(10, ...["FOR", "VIT", "AGI", "INT", "PER"].map(k => Number(s[k]) || 0));
   const info = weekInfo(weekOfStr(today()));
@@ -3027,7 +3207,7 @@ function portalWin() {
   const plan = weekPlan(cw), open = plan.filter(p => !p.bonus && !p.done), bonus = plan.find(p => p.bonus), legs = plan.find(p => p.ty === "J");
   const todayIt = open.find(p => p.date === t), doneToday = plan.find(p => p.done && p.done.date === t);
   let body;
-  if (todayIt) body = portalCard(todayIt, "Portail du jour");
+  if (todayIt) body = todayIt.ty === "NV" ? portalCard(todayIt, "Maintien voyage", `${esc((tripOf(t) || {}).label || "Voyage")} : aucune séance obligatoire, pas de malus. Une trentaine de minutes sans matériel, à l'échec, pour garder ton muscle.`) : portalCard(todayIt, "Portail du jour");
   else if (doneToday) body = clearedBanner(doneToday, open);
   else if (dow >= 5) body = restBanner("Week-end", `Deux jours de récupération d'affilée : c'est là que le muscle se reconstruit.${open.length ? ` ${plural(open.length, "donjon")} pas fait${open.length > 1 ? "s" : ""} cette semaine${strictWeek(cw) ? " : chaque donjon compte, change son jour pour le faire ce week-end." : " : 3 donjons suffisent pour éviter la pénalité."}` : ""} Prochain portail : lundi.`, strictWeek(cw) && open.length ? open[0] : null);
   else {
@@ -3070,7 +3250,7 @@ function weekPills(cw0) {                    // 14 Nov (Hunter OS): the week as 
 }
 function blockDoneWin(cw) {
   const js = jokerState(cw);
-  return `<section class="win"><h2 class="win-title">Bloc terminé</h2><p class="sys-line">[Les 8 semaines du programme sont terminées.]</p>
+  return `<section class="win"><h2 class="win-title">Bloc terminé</h2><p class="sys-line">[Les 2 arcs du programme sont terminés.]</p>
     <p>${curPlan().noJoker ? "Le Système prépare" : "Le Système conseille une semaine allégée, puis"} un nouveau bloc. Demande à Claude de le préparer à partir de ton Journal. Ta quête quotidienne continue.</p>
     ${js && js.canUse ? `<button class="btn" data-act="jokerAsk" data-cw="${cw}">Lancer la semaine allégée de fin de bloc</button>` : ""}</section>`;
 }
@@ -3099,7 +3279,7 @@ function questWin() {
   const sleepRow = `<li><button class="q ${I.sleep.done ? "on" : ""}" data-act="sleepOpen" data-d="${key}">${ic("sleep")}<span class="q-l">Sommeil <small class="muted">(nuit d'avant)</small></span><span class="q-t">${sl ? `${fmt(sl, 1)} / ${fmt(tgt, 1)} h` : "Toucher pour noter"}</span>${box}</button>${state.sleepOpen === key ? sleepPicker(key, sl) : ""}</li>`;
   const wv = state.weighDraft[key] ?? (Number(d.weight) > 0 ? fmtIn(Number(d.weight)) : "");
   const ks = ["food", "protein", "sleep", ...["steps", "water", "study", "fast"].filter(k => I[k] && !I[k].off)], nd = ks.filter(k => I[k].done).length;
-  const head = e.sick ? "En pause : tu es malade" : e.full ? `Accomplie : +${e.xp} XP · +${e.gold} or` : `Tout faire : +${e.maxXp} XP${off === 0 ? ` · reste <b id="qTimer">--:--:--</b>` : ""}`;
+  const head = e.trip ? "En pause : tu es en voyage" : e.sick ? "En pause : tu es malade" : e.full ? `Accomplie : +${e.xp} XP · +${e.gold} or` : `Tout faire : +${e.maxXp} XP${off === 0 ? ` · reste <b id="qTimer">--:--:--</b>` : ""}`;
   return `<section class="win quest ${e.full ? "is-done" : ""}"><h2 class="win-title">Quête quotidienne</h2>
     <div class="qhead"><div class="qring"><svg viewBox="0 0 50 50" aria-hidden="true"><circle class="rg-bg" cx="25" cy="25" r="21"/>${nd ? `<circle class="rg-fg" cx="25" cy="25" r="21" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100 - Math.round(nd / ks.length * 100)}"/>` : ""}</svg><b>${nd}/${ks.length}</b></div>
       <div><b>Préparation du corps du Joueur${e.free ? " · jour libre" : ""}</b><small>${head}</small></div></div>
@@ -3107,8 +3287,8 @@ function questWin() {
     <ul class="qlist">${auto("food", "Repas notés")}${auto("protein", "Protéines")}${sleepRow}${check("steps", "Pas")}${check("water", "Eau")}${check("study", "Révisions")}${I.fast.off ? "" : check("fast", "Jeûne " + fastPlan(S.profile).label + " respecté")}</ul>
     ${e.malus.map(m => `<p class="malus">[Malus] ${m.txt} : −${Math.abs(m.xp)} XP</p>`).join("")}
     <div class="weigh"><label for="weighIn">Pesée du matin, à jeun, chaque jour (seule la moyenne compte)</label><div class="weigh-in"><input id="weighIn" data-bind="weigh" data-key="${key}" inputmode="decimal" autocomplete="off" placeholder="—" value="${esc(wv)}"><span>kg</span></div></div>
-    ${e.sick ? `<p class="reading">[Malade] Quête en pause aujourd'hui : pas de malus et ta série est gardée. Repose-toi, et décale tes donjons si besoin (touche une séance du planning).</p>` : ""}
-    <button class="link" data-act="sickDay" data-d="${key}" data-v="${e.sick ? 0 : 1}">${e.sick ? "Je ne suis plus malade" : off === 0 ? "Je suis malade aujourd'hui" : "J'étais malade ce jour-là"}</button>
+    ${e.trip ? `<p class="reading">[Voyage] Quête en pause : pas de malus sur les repas, les pesées ni le sommeil, et ta série est gardée. Le donjon nomade t'attend quand tu as 30 min.</p>` : ""}${e.sick ? `<p class="reading">[Malade] Quête en pause aujourd'hui : pas de malus et ta série est gardée. Repose-toi, et décale tes donjons si besoin (touche une séance du planning).</p>` : ""}
+    <button class="link" data-act="sickDay" data-d="${key}" data-v="${e.sick ? 0 : 1}" ${e.trip ? "hidden" : ""}>${e.sick ? "Je ne suis plus malade" : off === 0 ? "Je suis malade aujourd'hui" : "J'étais malade ce jour-là"}</button>
     <details class="fold"><summary>Règles de la quête</summary><div><p class="small">Une quête incomplète remet ta série à zéro. Moins de ${fmt((Number(S.profile?.targets?.sleep) || 7) - 1, 1)} h de sommeil : −40 XP. Une journée sans repas notés : −40 XP ; notée à moins de 60 % de ta cible : −25 XP (une journée à moitié notée fausse tous les calculs). 3 jours sans pesée : −15 XP.</p></div></details>
   </section>`;
 }
@@ -3139,7 +3319,7 @@ function jokerBlock(js, cw) {
 /* ----- dungeon map & rules ----- */
 const dgHead = tab => pageHero(gateArt("DB", "ph-bg"), "Donjons", tab === "plan" ? "Tous tes exercices de la semaine" : "La carte de tes 8 semaines")
   + `<div class="tabs3 tabs2" role="tablist"><button class="${tab === "plan" ? "on" : ""}" data-act="dgTab" data-t="plan">Planning</button><button class="${tab === "map" ? "on" : ""}" data-act="dgTab" data-t="map">Carte</button></div>`;
-const MUSCLE_OF = {latRaise: "Épaules (côtés)", latRaiseMach: "Épaules (côtés)", leanLatRaise: "Épaules (côtés)", yRaise: "Épaules (côtés)", shPress: "Épaules (avant)", dbShPress: "Épaules (avant)", frontRaise: "Épaules (avant)",
+const MUSCLE_OF = {pushup: "Pectoraux", declPush: "Pectoraux", pikePush: "Épaules (avant)", bottleRaise: "Épaules (côtés)", bagShrug: "Trapèzes", bwSquat: "Quadriceps", latRaise: "Épaules (côtés)", latRaiseMach: "Épaules (côtés)", leanLatRaise: "Épaules (côtés)", yRaise: "Épaules (côtés)", shPress: "Épaules (avant)", dbShPress: "Épaules (avant)", frontRaise: "Épaules (avant)",
   facePull: "Épaules (arrière)", revFly: "Épaules (arrière)", revPecDeck: "Épaules (arrière)", uprightRow: "Trapèzes", pecDeck: "Pectoraux", flySeated: "Pectoraux", lowHighFly: "Pectoraux", pullover: "Dos", isoPd: "Dos"};
 const MUSCLE_ORDER = ["Pectoraux", "Dos", "Épaules (avant)", "Épaules (côtés)", "Épaules (arrière)", "Trapèzes", "Biceps", "Triceps", "Quadriceps", "Ischios", "Fessiers", "Mollets", "Autres"];
 const muscleOf = ex => MUSCLE_OF[ex] || (STRENGTH.find(g => g.ex[ex] != null) || {name: "Autres"}).name;
@@ -3195,12 +3375,13 @@ function viewDungeons() {
   for (let cw = 1; cw <= endCw; cw++) {
     const info = weekInfo(cw); if (!info || !info.types.length) continue;
     const d1 = weekStart(cw), d2 = addDays(d1, 6), W = info.W;
-    weeks.push(`<div class="wk ${cw === curW ? "cur" : ""} ${cw < curW ? "past" : ""} ${info.deload ? "is-deload" : ""}"><div class="wk-l"><b>${info.deload ? "Joker" : "S" + info.p}</b><span>${fmtDay(d1, {day: "numeric", month: "short"})} – ${fmtDay(d2, {day: "numeric", month: "short"})}</span></div>
+    if (info.p === BLOCK_WEEKS + 1 && !info.deload && PROGRAM_WEEKS > BLOCK_WEEKS) weeks.push(`<div class="arc-sep"><span>Arc 2</span><small>8 nouvelles semaines, nouvelles épreuves en S16</small></div>`);
+    weeks.push(`<div class="wk ${cw === curW ? "cur" : ""} ${cw < curW ? "past" : ""} ${info.deload ? "is-deload" : ""}"><div class="wk-l"><b>${info.trip ? "Voyage" : info.deload ? "Allégée" : "S" + info.p}</b><span>${fmtDay(d1, {day: "numeric", month: "short"})} – ${fmtDay(d2, {day: "numeric", month: "short"})}</span></div>
       <div class="wk-m"><span class="wk-phase">${W.phase} ${rankBadgeInline(W.rank)}</span><span class="muted">Reps en réserve : ${W.rirTxt}</span><span class="muted">Séries : ${W.setsTxt}</span></div>
       ${(ps => `<div class="chips ${ps.length >= 5 ? "n5" : ""}">${ps.map(chip).join("")}</div>`)([...weekPlan(cw)].sort((a, b) => String(a.date || "9").localeCompare(String(b.date || "9"))))}</div>`);
   }
-  const jl = jokersUsed() >= JOKERS ? "utilisé" : "disponible (onglet Statut, avant le premier donjon de la semaine)";
-  return dgHead("map") + `<section class="win"><h2 class="win-title">Carte des donjons</h2><p class="lead">8 semaines de programme à partir du ${fmtDay(startDate(), {day: "numeric", month: "long"})}. ${curPlan().lead} Touche un donjon pour voir ses exercices.</p>${curPlan().noJoker ? "" : `<p class="small">Joker semaine allégée : ${jl}.</p>`}${weeks.join("")}</section>` + (curPlan().id === "base" ? grimoire() : planGrimoire());
+  const jl = jokersUsed(curW) >= JOKERS ? "utilisé" : "disponible (onglet Statut, avant le premier donjon de la semaine)";
+  return dgHead("map") + `<section class="win"><h2 class="win-title">Carte des donjons</h2><p class="lead">2 arcs de 8 semaines à partir du ${fmtDay(startDate(), {day: "numeric", month: "long"})}. ${curPlan().lead} Touche un donjon pour voir ses exercices.</p>${curPlan().noJoker ? "" : `<p class="small">Joker semaine allégée : ${jl}.</p>`}${weeks.join("")}</section>` + (curPlan().id === "base" ? grimoire() : planGrimoire());
 }
 function planGrimoire() {
   const id = curPlan().id;
@@ -3238,7 +3419,7 @@ function grimoire() {
       <li><b>Lundi : pecs / dos en FORCE.</b> Les pecs d'abord : c'est ton point faible, et le couché lourd demande d'être frais. Puis le dos. Lourd : 4-8 reps sur les gros exos, 2-3 min de repos, à l'échec. Puis 3 séries de shrugs.</li>
       <li><b>Mardi : épaules.</b> Les élévations latérales d'abord (machine puis poulie), pour travailler ton point faible n° 1 en étant frais. Puis développé militaire aux haltères, face pull et curl pupitre (2e séance de biceps). Pas de shrugs : tu en as fait la veille.</li>
       <li><b>Mercredi : jambes + complément.</b> Une seule machine de squat (hack ou pendule), leg curl, hip thrust, leg extension, à fond comme tu aimes. Puis le complément : skullcrusher pour les triceps, écarté de bas en haut pour le haut des pecs, et tes shrugs. Au milieu de la semaine, les jambes ne gênent aucune séance du haut.</li>
-      <li><b>Jeudi : dos / biceps en TECHNIQUE.</b> Le dos une 2e fois, plus léger : 10-15 reps, descente en 3 s, pause en étirement, 1-2 reps en réserve. Les biceps, eux, vont à l'échec. Puis 4 séries d'élévations latérales, 2 jours après mardi (la largeur d'épaules, ton meilleur levier pour paraître plus imposant), et 2 séries de face pull pour l'arrière d'épaule.</li>
+      <li><b>Jeudi : dos / biceps en TECHNIQUE.</b> Le dos une 2e fois, plus léger : 10-15 reps, pause en étirement, 1-2 reps en réserve. Les biceps, eux, vont à l'échec. Puis 4 séries d'élévations latérales, 2 jours après mardi (la largeur d'épaules, ton meilleur levier pour paraître plus imposant), et 2 séries de face pull pour l'arrière d'épaule.</li>
       <li><b>Vendredi : pecs / triceps en TECHNIQUE.</b> Les pecs une 2e fois, même logique : couché technique puis incliné barre. Les triceps vont à l'échec. Puis 3 séries de shrugs lourds.</li>
       <li><b>Un jour de repos entre deux séances d'un même muscle.</b> Trapèzes lundi, mercredi et vendredi. Épaules latérales mardi et jeudi : une 3e séance tomberait forcément le lendemain d'une autre, du lundi au vendredi. Pecs lundi, mercredi (complément) et vendredi. Dos, biceps et arrière d'épaule : deux fois, avec au moins un jour d'écart. Tout est dans Donjons, onglet Planning.</li>
       <li>Force puis technique : la séance lourde fait progresser les charges, la séance légère ajoute du volume sans t'écraser, et tu récupères pour le lundi suivant. C'est la logique des programmes de Nippard (une séance lourde, une séance plus volumineuse par muscle) et celle qui t'a fait progresser l'an dernier.</li>
@@ -3275,11 +3456,11 @@ function viewDungeon() {
       <p class="muted small">5 min de cardio léger, 2 séries de montée progressive sur le premier exercice, puis 1 série légère avant chaque nouveau mouvement.</p>
       ${d.deload ? `<p class="sugg">Semaine allégée : moitié des séries, mêmes charges, 3 reps en réserve. Tu dois sortir frais.</p>` : ""}
       ${d.bonus ? `<p class="sugg">Donjon bonus de grosse semaine.</p>` : ""}
-      ${d.week === 8 && !d.deload && planTest()[d.type] ? `<p class="sugg test">Semaine du bilan : les exercices marqués « Épreuve » mesurent ta progression depuis S4.</p>` : ""}
+      ${(d.week === 8 || d.week === 16) && !d.deload && planTest()[d.type] ? `<p class="sugg test">Semaine du bilan : les exercices marqués « Épreuve » mesurent ta progression depuis S${d.week - 4}.</p>` : ""}
       ${d.week === 1 && !d.deload ? `<p class="sugg">${curPlan().s1}</p>` : curPlan().id === "felix" && d.week <= 3 && !d.deload ? `<p class="sugg">${curPlan().s1}</p>` : ""}
     </section>
     ${(chalEx => { const cur = (plan.find(it => { const n = setsTarget(it, d); return n > 0 && (d.sets[it.ex] || []).slice(0, n).filter(r => r.done).length < n; }) || {}).ex;   // the exercise in progress
-      return plan.map((it, i) => exCard(it, i, d, chalEx, cur, plan)).join(""); })((plan.find(it => setsTarget(it, d) > 0 && EX[it.ex] && EX[it.ex].eq !== "bw" && !it.maint && !it.test) || {}).ex)}
+      return plan.map((it, i) => exCard(it, i, d, chalEx, cur, plan)).join(""); })((plan.find(it => setsTarget(it, d) > 0 && EX[it.ex] && EX[it.ex].eq !== "bw" && !it.maint && !it.test && !it.maxTest) || {}).ex)}
     <button class="btn ghost wide" data-act="addExOpen">＋ Ajouter un exercice</button>
     ${curPlan().finisher ? `<section class="win"><h2 class="win-title">Finisher</h2><button class="q ${d.fin ? "on" : ""}" data-act="fin" role="checkbox" aria-checked="${!!d.fin}"><span class="box" aria-hidden="true"></span><span class="q-l">10 à 15 min de cardio</span><span class="q-t">${d.fin ? "[Fait]" : "+20 XP · +10 or"}</span></button><p class="muted small">Marche inclinée (pente 8 à 12 %) ou rameur, à un rythme où tu peux encore parler. Ça brûle sans te fatiguer pour la séance suivante.</p></section>` : ""}
     <button class="btn primary wide big" data-act="finishAsk">Terminer le donjon</button>`;
@@ -3310,7 +3491,8 @@ function exCard(it, i, d, chalEx, cur, plan) {
   if (plan && it.ex !== cur && it.ex !== state.dgHold && !pair && !(state.dgOpen || {})[it.ex]) return exMini(it, i, n, rows, done0 >= n);
   const grip = (d.grip || {})[it.ex], sg = suggest(it, {p: d.week, deload: !!d.deload}, grip);
   const done = rows.slice(0, n).filter(r => r.done).length, cleared = done >= n;
-  const tags = [i === 0 ? `<span class="tag boss">Boss</span>` : "", it.test ? `<span class="tag test">Épreuve</span>` : "", `<span class="tag">${ex.kind === "poly" ? "Gros mouvement" : "Isolation"}</span>`, `<span class="tag">Repos ${RESTTXT[it.rest]}</span>`, it.opt ? `<span class="tag">Option</span>` : "", it.maint ? `<span class="tag">Entretien</span>` : "", it.superset ? `<span class="tag">Superset</span>` : ""].join("");
+  const stagLine = !rows.some(r => r.done) && !it.maxTest && !d.deload && stagSet().has(it.ex) ? `<div class="stag"><b>[Bloqué depuis 3 séances]</b> ${esc(stagTips(it.ex)[0])}</div>` : "";   // 17 Nov
+  const tags = [i === 0 ? `<span class="tag boss">Boss</span>` : "", it.test ? `<span class="tag test">Épreuve</span>` : "", it.maxTest ? `<span class="tag test">Test de max</span>` : "", `<span class="tag">${ex.kind === "poly" ? "Gros mouvement" : "Isolation"}</span>`, `<span class="tag">Repos ${RESTTXT[it.rest]}</span>`, it.opt ? `<span class="tag">Option</span>` : "", it.maint ? `<span class="tag">Entretien</span>` : "", it.superset ? `<span class="tag">Superset</span>` : ""].join("");
   const last = sg.last ? `<div class="hist"><span>Dernière fois</span>${sg.last.sets.map(s => `${fmt(s.kg)}×${s.reps}`).join(" · ")} <small class="muted">(S${sg.last.week}${sg.last.grip ? ", prise " + sg.last.grip.toLowerCase() : ""})</small></div>` : "";
   const sugKg = sg.kind === "test" && sg.testKg != null ? sg.testKg : sg.kg;
   const sugg = sg.text ? `<div class="sugg ${sg.kind}">${sugKg != null ? `Le Système suggère <b>${fmt(sugKg)} kg</b>. ` : ""}${esc(sg.text)}</div>` : "";
@@ -3321,7 +3503,7 @@ function exCard(it, i, d, chalEx, cur, plan) {
   const recKg = parseNum((rows.find(r => !r.done) || {}).kg) || chalKg || sg.kg, pbE = prevBest(it.ex, grip);
   let recN = 0; if (recKg > 0 && pbE > 0 && ex.eq !== "bw") for (let k = 1; k <= it.reps[1] + 5; k++) if (e1rm(it.ex, recKg, k) > pbE + 0.05) { recN = k; break; }
   const rec = recN && rows.slice(0, n).some(r => !r.done) ? `<div class="rec"><b>[Record à battre]</b> ${fmt(recKg)} kg × <b>${recN}</b> reps${recN <= it.reps[1] ? "" : " (ou monte de charge)"} = nouveau record.</div>` : "";
-  const ph = k => (it.test && k === 0) ? "max" : chalKg != null && parseNum(rows[k]?.kg) >= chalKg ? (k === 0 ? "max" : it.reps[0] + "-" + it.reps[1]) : (sg.reps[k] != null ? sg.reps[k] : (it.reps[0] === it.reps[1] ? it.reps[0] : it.reps[0] + "-" + it.reps[1]));
+  const ph = k => it.maxTest ? "1" : (it.test && k === 0) ? "max" : chalKg != null && parseNum(rows[k]?.kg) >= chalKg ? (k === 0 ? "max" : it.reps[0] + "-" + it.reps[1]) : (sg.reps[k] != null ? sg.reps[k] : (it.reps[0] === it.reps[1] ? it.reps[0] : it.reps[0] + "-" + it.reps[1]));
   const fu = rows.slice(0, n).findIndex(r => !r.done), setRows = rows.slice(0, n).map((r, k) => `<div class="set-row ${r.done ? "done" : ""} ${k === fu ? "now" : ""}"><span class="sn">${k + 1}</span>
       <input id="kg-${it.ex}-${k}" data-bind="dg" data-f="kg" data-ex="${it.ex}" data-i="${k}" inputmode="decimal" autocomplete="off" value="${esc(r.kg)}" placeholder="kg" aria-label="Charge en kg, série ${k + 1}">
       <input id="rp-${it.ex}-${k}" data-bind="dg" data-f="reps" data-ex="${it.ex}" data-i="${k}" inputmode="numeric" autocomplete="off" value="${esc(r.reps)}" placeholder="${ph(k)}" aria-label="Reps, série ${k + 1}">
@@ -3330,7 +3512,7 @@ function exCard(it, i, d, chalEx, cur, plan) {
   const minus = (n > 1 && !(lastRow && lastRow.done)) ? `<button class="link" data-act="minus" data-ex="${it.ex}">${(d.plus || {})[it.ex] > 0 ? "Retirer la série ajoutée" : "Encore courbaturé ? Retirer une série"}</button>` : "";
   const unminus = m > 0 ? `<button class="link" data-act="unminus" data-ex="${it.ex}">Remettre la série retirée</button>` : "";
   const plus = !d.deload && n > 0 && n < it.sets + 2 ? `<button class="link" data-act="plus" data-ex="${it.ex}">En forme ? Ajouter une série</button>` : "";
-  const anyDone = rows.some(r => r.done), alt0 = ALTS[it.ex], alt = alt0 && !(curPlan().id === "felix" && ["db", "bar"].includes(EX[alt0].eq)) && !(d.sets || {})[alt0] && !draftPlan(d).some(x => x.ex === alt0) ? alt0 : null;
+  const anyDone = rows.some(r => r.done), alt0 = (curPlan().id === "base" && BASE_ALTS[it.ex]) || ALTS[it.ex], alt = alt0 && !(curPlan().id === "felix" && ["db", "bar"].includes(EX[alt0].eq)) && !(d.sets || {})[alt0] && !draftPlan(d).some(x => x.ex === alt0) ? alt0 : null;
   const altBtn = alt && !anyDone ? `<button class="link" data-act="alt" data-ex="${it.base || it.ex}" data-to="${alt}">Machine prise ? Autre version : ${esc(EX[alt].n)}</button>` : "";
   const skip = it.added && !anyDone ? `<button class="link" data-act="removeExtra" data-ex="${it.ex}">Retirer cet exercice</button>` : n > 0 && !anyDone ? `<button class="link" data-act="skipEx" data-ex="${it.ex}">Retirer cet exercice (machine prise, en panne, pas le jour…)</button>` : n === 0 ? `<button class="link" data-act="unskipEx" data-ex="${it.ex}">Remettre l'exercice</button>` : "";
   const wu = !anyDone && n > 0 ? warmupFor(it, i, d, parseNum(rows[0]?.kg) || sugKg) : null;
@@ -3340,7 +3522,7 @@ function exCard(it, i, d, chalEx, cur, plan) {
     <div class="ex-h"><span class="ex-n">${pad(i + 1)}</span><div><h3>${esc(ex.n)}</h3><div class="tags">${tags}</div></div></div>
     <div class="target"><b>${n} × ${repsTxt(it)}</b> · ${it.rir.txt}</div>
     ${it.rir.fail ? `<div class="fail">Dernière série : jusqu'à l'échec</div>` : ""}
-    <p class="cue">${esc(it.cue)}</p>${gripRow}${last}${sugg}${chal}${rec}${warmLine}${n === 0 ? `<p class="muted small">Exercice passé (machine prise ou en panne).</p>` : ""}
+    <p class="cue">${esc(it.cue)}</p>${gripRow}${last}${sugg}${chal}${rec}${stagLine}${warmLine}${n === 0 ? `<p class="muted small">Exercice passé (machine prise ou en panne).</p>` : ""}
     <div class="sets" ${n === 0 ? "hidden" : ""}><div class="set-row head" aria-hidden="true"><span></span><span>${ex.eq === "bw" ? "Lest kg" : "kg"}</span><span>Reps</span><span></span></div>${setRows}</div>
     <div class="set-links">${plus}${n > 0 ? minus + unminus : ""}${altBtn}${skip}${plan && it.ex !== cur && it.ex !== state.dgHold ? `<button class="link" data-act="exOpen" data-ex="${it.ex}">Replier</button>` : ""}</div></article>`;
 }
@@ -3358,6 +3540,8 @@ function viewResults() {
   return `<section class="win res-win">${gateArt(d.type, "res-art")}<p class="res-eyebrow">[Système]</p><h1 class="res-title ${cls}">${title}</h1>
       <p class="sys-line" style="text-align:center">${sessLabel(d)} · ${sessName(d)}</p>
       <div class="res-grid"><div class="res-cell"><b>${d.doneReq}/${d.planned}</b><span>Séries</span></div><div class="res-cell"><b>${d.minutes}</b><span>Minutes</span></div><div class="res-cell"><b>${(d.prs || []).length}</b><span>Records</span></div></div>
+      ${d.maxKg ? (() => { const pv = S.sessions.filter(x => Number(x.maxKg) > 0 && String(x.finishedAt) < String(d.finishedAt)).sort((a, b) => String(a.finishedAt).localeCompare(String(b.finishedAt))).pop();
+        return `<div class="maxres"><span class="eyebrow">Test de max du mois</span><b>${fmt(d.maxKg)} kg</b><small>${pv ? (d.maxKg > pv.maxKg ? `+${fmt(d.maxKg - pv.maxKg)} kg depuis le dernier test` : d.maxKg === pv.maxKg ? "Même max que le dernier test" : `Dernier test : ${fmt(pv.maxKg)} kg`) : "Ton premier vrai max depuis la reprise"} · objectif 100 kg</small></div>`; })() : ""}
       <div class="gain"><span class="x" data-count>+${d.xp} XP</span><span class="g">+${d.gold - (d.loot && !r.opened ? d.loot.gold : 0)} or${d.loot && !r.opened ? " + coffre" : ""}</span></div>
       ${(() => { const sd = ["FOR", "VIT", "AGI", "INT", "PER"].map(k => [k, r.after.stats[k] - r.before.stats[k]]).filter(x => x[1] > 0); return sd.length ? `<div class="stat-gain">${sd.map(([k, v]) => `<span><b>${k}</b>+${v}</span>`).join("")}</div>` : ""; })()}
       ${r.wb && r.wb.xp > 0 ? `<p class="done-line" style="text-align:center">[${r.wb.big ? "Grosse semaine" : r.wb.perfect ? "Semaine complète" : "Bonus de semaine"}] +${r.wb.xp} XP · +${r.wb.gold} or</p>` : ""}
@@ -3498,6 +3682,20 @@ function exerciseBook() {                     // every exercise ever logged, gro
       <p class="muted small">Chaque exercice que tu as fait, rangé par muscle, avec toutes tes séries. À droite : ton 1RM estimé, et ↑ ou ↓ par rapport à la fois d'avant. Touche un exercice pour voir son historique.</p>
       ${groups || `<p class="empty">Rien pour l'instant : tes exercices apparaîtront ici après ton premier donjon.</p>`}</section>`;
 }
+const REC_FIRST = ["bench", "inclBar", "inclDb", "csRow", "latpd", "latpdNeutral", "dbShPress", "latRaiseMach", "latRaise", "shrug", "pecDeck", "hack", "legCurl", "legExt", "hipThrust"];
+function recordsWall() {                       // 17 Nov, his pick: "mur des records, ouais, de ouf"
+  const wk = toStr(addDays(fromStr(today()), -7)), exs = new Set(), cards = [];
+  for (const x of S.sessions) for (const ex of Object.keys(x.sets || {})) if (EX[ex]) exs.add(ex);
+  for (const ex of exs) { let b = null; for (const hh of perfHistory(ex)) for (const r of hh.sets) { const e = e1rm(ex, r.kg, r.reps); if (e > 0 && (!b || e > b.e + 0.01)) b = {ex, e, kg: Number(r.kg) || 0, reps: Number(r.reps) || 0, d: hh.date}; } if (b) cards.push(b); }
+  if (!cards.length) return "";
+  const rk = ex => { const i = REC_FIRST.indexOf(ex); return i < 0 ? 99 : i; };
+  cards.sort((a, b) => rk(a.ex) - rk(b.ex) || String(b.d).localeCompare(String(a.d)));
+  const nRec = S.sessions.reduce((n, x) => n + (x.prs || []).length, 0), nWk = S.sessions.filter(x => x.date > wk).reduce((n, x) => n + (x.prs || []).length, 0), ob = Number(S.profile?.oldBench) || 0;
+  const card = c => { const fresh = c.d > wk, ex = EX[c.ex], kgT = ex.eq === "bw" ? (c.kg > 0 ? "PDC+" + fmt(c.kg) : "PDC") : fmt(c.kg) + " kg";
+    return `<div class="rcard ${fresh ? "fresh" : ""} ${c.ex === "bench" ? "big" : ""}">${fresh && c.ex === "bench" ? `<span class="rnew">Nouveau</span>` : ""}<span class="rn">${esc(ex.n.split(" (")[0])}</span><b class="rv">${kgT} × ${c.reps}</b><small>≈ ${fmt(c.e, 0)} kg en 1 rep · ${fmtDay(fromStr(c.d), {day: "numeric", month: "short"})}${fresh && c.ex !== "bench" ? ` · <b class="rnew2">nouveau</b>` : ""}</small>${c.ex === "bench" && ob > 0 ? `<em>Ancien record : ${fmt(ob)} kg${c.e < ob ? ` · encore ${fmt(ob - c.e, 0)} kg` : " · battu !"}</em>` : ""}</div>`; };
+  return `<section class="win recwall"><h2 class="win-title">Mur des records</h2><p class="sys-line">[${plural(nRec, "record")} depuis ta reprise${nWk ? `, dont ${nWk} ces 7 derniers jours` : ""}.]</p>
+    <div class="rgrid">${cards.slice(0, 11).map(card).join("")}</div>${cards.length > 11 ? `<details class="fold"><summary>Tous tes records (${cards.length})</summary><div><div class="rgrid">${cards.slice(11).map(card).join("")}</div></div></details>` : ""}</section>`;
+}
 function viewJournal(P) {
   const recRows = (curPlan().keyLifts || KEY_LIFTS).map(([ex, ses, short]) => {
     const h = perfHistory(ex);
@@ -3513,7 +3711,7 @@ function viewJournal(P) {
       <small>${fmtDay(fromStr(s.date), {weekday: "short", day: "numeric", month: "short"})} · ${s.doneReq}/${s.planned} séries · ${s.minutes} min${(s.prs || []).length ? " · " + plural(s.prs.length, "record") : ""}${s.feeling ? " · " + esc(s.feeling) : ""}</small><span class="log-r">${s.full ? "Nettoyé" : s.valid ? "Partiel" : "Retraite"}</span></summary>
       <div class="log-body">${lines || `<p class="muted">Aucune série notée.</p>`}${s.note ? `<p class="muted">« ${esc(s.note)} »</p>` : ""}<button class="link" data-act="delSession" data-id="${esc(s.id)}">Supprimer cette séance</button></div></details>`;
   }).join("");
-  return topbar() + `<section class="win"><h2 class="win-title">Mouvements clés</h2>
+  return topbar() + recordsWall() + `<section class="win"><h2 class="win-title">Mouvements clés</h2>
       <p class="muted small">1RM estimé : la charge que tu pourrais soulever une fois, calculée sur ta meilleure série (charge × (1 + reps ÷ 30)).</p>
       <div class="tbl-wrap"><table><thead><tr><th>Mouvement</th><th class="num">Départ</th><th class="num">Dernière</th><th class="num">1RM est.</th><th class="num">Progr.</th></tr></thead><tbody>${recRows}</tbody></table></div></section>
     ${exerciseBook()}
@@ -3601,6 +3799,20 @@ function weightChart(pts) {
     <circle cx="${x(lastA.d).toFixed(1)}" cy="${y(lastA.a).toFixed(1)}" r="4" fill="#ffffff"/></svg>
     <p class="muted small">Points : tes pesées. Ligne : ta moyenne sur 7 jours, la seule qui compte (le poids bouge d'un jour à l'autre avec l'eau et le repas de la veille).</p>`;
 }
+function sleepWeekWin() {                     // 17 Nov, his pick: sleep over the last 7 nights
+  const t = today(), tgt = Number(S.profile?.targets?.sleep) || 7;
+  const nn = [...Array(7)].map((_, i) => { const k = toStr(addDays(fromStr(t), i - 6)); return {k, h: Number(S.days[k]?.sleepH) || 0}; }), got = nn.filter(x => x.h > 0);
+  if (!got.length) return "";
+  const avg = avgOf(got.map(x => x.h)), short = got.filter(x => x.h < 6).length;
+  const W = 320, H = 132, pl = 28, pr = 6, pt = 16, pb = 24, mx = 10, cw = (W - pl - pr) / 7, y = h => pt + (1 - Math.min(h, mx) / mx) * (H - pt - pb);
+  const bars = nn.map((x, i) => { const X = pl + i * cw + 6, w = cw - 12, cx = (X + w / 2).toFixed(1), col = x.h >= tgt ? "#6fe3ff" : x.h >= 6 ? "#9b7bff" : "#ff4d6a";
+    return (x.h > 0 ? `<rect x="${X.toFixed(1)}" y="${y(x.h).toFixed(1)}" width="${w.toFixed(1)}" height="${(H - pb - y(x.h)).toFixed(1)}" rx="4" fill="${col}" opacity=".85"/><text x="${cx}" y="${(y(x.h) - 4).toFixed(1)}" text-anchor="middle" fill="#e9f1ff" font-size="10">${fmt(x.h, 1)}</text>` : `<text x="${cx}" y="${(H - pb - 4).toFixed(1)}" text-anchor="middle" fill="#56627d" font-size="10">—</text>`)
+      + `<text x="${cx}" y="${H - 8}" text-anchor="middle" fill="#8b9cc0" font-size="10">${fmtDay(fromStr(x.k), {weekday: "short"}).replace(".", "")}</text>`; }).join("");
+  return `<section class="win sleepweek"><h2 class="win-title">Sommeil · 7 nuits</h2>
+    <div class="res-grid"><div class="res-cell"><b>${fmt(avg, 1)} h</b><span>Moyenne</span></div><div class="res-cell"><b>${fmt(tgt, 1)} h</b><span>Objectif</span></div><div class="res-cell"><b>${short}</b><span>Nuits sous 6 h</span></div></div>
+    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Heures de sommeil des 7 dernières nuits"><line x1="${pl}" x2="${W - pr}" y1="${y(tgt).toFixed(1)}" y2="${y(tgt).toFixed(1)}" stroke="#ffcf5c" stroke-dasharray="4 4" opacity=".8"/><text x="${pl - 4}" y="${(y(tgt) + 3).toFixed(1)}" text-anchor="end" fill="#ffcf5c" font-size="10">${fmt(tgt, 0)} h</text>${bars}</svg>
+    <p class="muted small">${avg >= tgt ? "Objectif tenu : c'est la nuit que le muscle se construit." : `Il te manque environ ${fmt(tgt - avg, 1)} h par nuit. Le plus simple : te coucher 8 h avant ton réveil, et garder à peu près la même heure de lever le week-end.`}</p></section>`;
+}
 function viewBody(P) {
   const t = today(), pts = weighins(), d = S.days[t] || {};
   const now = avgWeight(t), prev = avgWeight(toStr(addDays(fromStr(t), -7))), start = pts.length ? avgWeight(toStr(addDays(fromStr(pts[0].d), 6))) : null;
@@ -3628,6 +3840,7 @@ function viewBody(P) {
       ${pts.length >= 2 ? weightChart(pts) : `<p class="empty">Pèse-toi 3 ou 4 matins par semaine, à jeun, après être passé aux toilettes. La courbe apparaît dès la 2e pesée.</p>`}
       ${weekRows ? `<div class="tbl-wrap"><table><thead><tr><th>Semaine du</th><th class="num">Moyenne</th><th class="num">Pesées</th><th class="num">Écart</th></tr></thead><tbody>${weekRows}</tbody></table></div>` : ""}
     </section>
+    ${sleepWeekWin()}
     ${scale ? `<section class="win"><h2 class="win-title">Masse grasse</h2><p class="muted small">Une mesure par semaine suffit, toujours dans les mêmes conditions (le matin, à jeun, pieds secs) : les balances varient beaucoup d'un jour à l'autre, seule la tendance compte.</p>
       ${bfRows ? `<div class="tbl-wrap"><table><thead><tr><th>Date</th><th class="num">Gras</th><th class="num">Soit</th><th class="num">Écart</th></tr></thead><tbody>${bfRows}</tbody></table></div>` : `<p class="empty">Note ta masse grasse dans « Poids de corps » ci-dessus.</p>`}</section>` : ""}
     ${strengthWin()}
@@ -4738,6 +4951,9 @@ function toggleSet(ex, i) {
   r.done = true; r.reps = String(Math.round(reps));
   const it = draftPlan(d).find(x => x.ex === ex);
   let nextKg = r.kg;
+  if (curPlan().id === "base" && ex === "bench" && parseNum(r.kg) >= 100 && !S.profile?.bench100) {   // 17 Nov: his 100 kg, once
+    const pf = clone(S.profile); pf.bench100 = {date: today(), kg: parseNum(r.kg), reps: Math.round(reps)}; S.profile = pf; queueSet("game/profile", pf); setTimeout(() => centurionFx(parseNum(r.kg), Math.round(reps)), 700);
+  }
   const exq = EX[ex], kg0 = parseNum(r.kg), rp = Math.round(reps), ckT = (d.chal || {})[ex], topSet = ckT != null && i === 0 && kg0 >= ckT - 0.01;
   if (topSet && it) {   // the épreuve set: enough reps to hold the range on the next sets (about 2 lost per set) -> keep it, else back to the normal load
     const normal = (d.chalBase || {})[ex], keep = rp - 2 >= it.reps[0] || !(normal > 0);
@@ -4806,13 +5022,14 @@ async function finishDungeon() {
   const full = planned > 0 && cnt.counted >= planned, valid = planned > 0 && cnt.counted >= Math.ceil(planned / 2);
   const prs = [];
   for (const [ex, rows] of Object.entries(setsOut)) { const cur = bestE1(ex, rows), pb = prevBest(ex, (d.grip || {})[ex]); if (pb > 0 && cur > pb + 0.05) prs.push({ex, e1: r1(cur), prev: r1(pb)}); }
+  const mt = plan.find(it => it.maxTest), mtRows = mt ? (setsOut[mt.ex] || []).filter(r => r.reps >= 1) : [], maxKg = mtRows.length ? Math.max(...mtRows.map(r => r.kg)) : null;   // 17 Nov: monthly max
   const loot = valid ? rollLoot() : null, fin = !!d.fin && !!curPlan().finisher;
   const chalTaken = Object.entries(d.chal || {}).filter(([ex]) => setsOut[ex]), chalWon = chalTaken.filter(([ex, kg]) => { const it = plan.find(x => x.ex === ex), pb0 = prevBest(ex, (d.grip || {})[ex]); return it && setsOut[ex].some(r => r.kg >= kg - 0.01 && (pb0 > 0 ? e1rm(ex, r.kg, r.reps) > pb0 + 0.05 : r.reps >= it.reps[0])); }).map(([ex]) => ex);
   const xp = done * 10 + (full ? 60 : valid ? 20 : 0) + prs.length * 25 + (fin ? 20 : 0) + chalWon.length * 10;
   const gold = (full ? 50 : valid ? 20 : 0) + prs.length * 10 + (loot ? loot.gold : 0) + (fin ? 10 : 0) + chalWon.length * 10;
   const now = new Date();
   const doc = {key: d.key, cw: d.cw, week: d.week, deload: !!d.deload, bonus: !!d.bonus, type: d.type, date: today(), startedAt: d.startedAt, finishedAt: now.toISOString(), minutes: Math.max(1, Math.round((now - new Date(d.startedAt)) / 60000)),
-    sets: setsOut, planned, done, doneReq, full, valid, xp, gold, prs, loot, feeling: m.feeling || null, note: (m.note || "").slice(0, 4000), grip: Object.fromEntries(Object.entries(d.grip || {}).filter(([ex]) => setsOut[ex])), chal: Object.fromEntries(chalTaken), chalWon, minus: d.minus, plus: d.plus || {}, warm: !!d.warm, finisher: fin};
+    sets: setsOut, planned, done, doneReq, full, valid, xp, gold, prs, loot, ...(maxKg ? {maxKg} : {}), feeling: m.feeling || null, note: (m.note || "").slice(0, 4000), grip: Object.fromEntries(Object.entries(d.grip || {}).filter(([ex]) => setsOut[ex])), chal: Object.fromEntries(chalTaken), chalWon, minus: d.minus, plus: d.plus || {}, warm: !!d.warm, finisher: fin};
   const id = d.key + "-" + now.getTime().toString(36);
   try { await Store.db.collection("sessions").doc(id).set(doc); }
   catch (e) { state.finishing = false; writeError(e); return; }
@@ -5122,6 +5339,7 @@ const ACTIONS = {
     const slot = h < 11 && eatsBreakfast(S.profile) ? "matin" : h < 16 ? "midi" : h < 18 ? "snack" : "soir";
     state.modal = {kind: "food", date: a.dataset.d, slot, tab: "search", q: "", sel: f, grams: String(f.ug || 100), units: "1", mode: f.unit && f.ug ? "u" : "g"}; renderModal(); },
   set: a => toggleSet(a.dataset.ex, Number(a.dataset.i)),
+  c100Close: () => document.querySelectorAll(".c100").forEach(x => x.remove()),
   plus: a => { const ex = a.dataset.ex, d = S.draft, it = draftPlan(d).find(x => x.ex === ex); if (!it) return;
     d.plus = {...(d.plus || {}), [ex]: ((d.plus || {})[ex] || 0) + 1}; const rows = d.sets[ex] || (d.sets[ex] = []);
     while (rows.length < setsTarget(it, d)) rows.push({kg: rows.length ? rows[rows.length - 1].kg : "", reps: "", done: false});
