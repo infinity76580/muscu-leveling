@@ -2117,7 +2117,19 @@ const SHOP_1118 = [
   R("grosse", "Un ramen ou un pho au restaurant", 3000, 1), R("grosse", "Un petit-déjeuner américain : pancakes, bacon, œufs", 3000, 1), R("grosse", "Un fish and chips", 3000, 1),
   R("grosse", "Un repas mexicain : burritos, nachos", 3600, 1), R("grosse", "Une soirée tapas", 4500, 1), R("grosse", "Une raclette entre potes", 4500, 1), R("grosse", "Un buffet à volonté", 5400, 1),
 ];
-for (const r of [...SUGGESTED, ...GAUTHIER_SHOP, ...SHOP_1115]) r.cost = price1118(r);   // accounts created from now on start with the new prices
+for (const r of [...SUGGESTED, ...GAUTHIER_SHOP, ...SHOP_1115]) r.cost = price1118(r);
+const SHOP_MATHIS_BOUCLES = [                // 18 Nov, Gauthier: Mathis has beautiful curls and takes great care of them
+  R("petite", "Un spray hydratant pour tes boucles", 450), R("petite", "Un peigne à dents larges ou une brosse démêlante", 450), R("petite", "Une taie d'oreiller en satin", 600), R("petite", "Un bonnet en satin pour la nuit", 600),
+  R("moyenne", "Une crème coiffante pour boucles", 900), R("moyenne", "Un gel ou une mousse pour définir tes boucles", 900), R("moyenne", "Un masque hydratant pour cheveux bouclés", 1200), R("moyenne", "Une huile ou un sérum pour cheveux", 1200),
+  R("moyenne", "Un shampoing et un après-shampoing pour boucles", 1500), R("moyenne", "Un diffuseur pour ton sèche-cheveux", 1500),
+  R("grosse", "Une coupe chez un coiffeur spécialiste des boucles", 4500), R("grosse", "Un coffret de soins complet pour boucles", 6000), R("legendaire", "Un sèche-cheveux haut de gamme avec diffuseur", 18000),
+];
+const SHOP_FELIX_MODE = [                    // 18 Nov, Gauthier: Félix loves fashion
+  R("petite", "Une paire de chaussettes stylées", 450), R("petite", "Un bijou : bracelet, bague ou chaîne", 900), R("moyenne", "Une ceinture en cuir", 1200), R("moyenne", "Un t-shirt de marque", 1800),
+  R("moyenne", "Une chemise", 2400), R("moyenne", "Une paire de lunettes de soleil", 3000), R("moyenne", "Un pantalon cargo ou un chino", 3000),
+  R("grosse", "Un vêtement à ta nouvelle taille", 4500), R("grosse", "Une sacoche ou un sac de marque", 6000), R("grosse", "Une séance shopping avec 50 € à dépenser", 9000), R("grosse", "Un manteau d'hiver", 12000),
+  R("legendaire", "Une pièce de créateur de ton choix", 24000), R("legendaire", "Une tenue complète de A à Z", 30000),
+];   // accounts created from now on start with the new prices
 const FREE_LOOT = [                         // 15 Nov: rewards nobody buys, they only drop (with the player's own shop rewards)
   {tier: "petite", name: "Une grasse matinée sans réveil"}, {tier: "petite", name: "Une soirée film ou série"}, {tier: "petite", name: "Une heure de jeu vidéo sans culpabilité"},
   {tier: "petite", name: "Un long bain ou une soirée détente"}, {tier: "petite", name: "Une boisson chaude gourmande : cappuccino ou chocolat chaud", food: true},
@@ -3788,6 +3800,11 @@ function resultsFx() {
 /* ----- shop ----- */
 const RARITY = {petite: ["Commun", "var(--cyan)"], moyenne: ["Rare", "var(--violet)"], grosse: ["Épique", "var(--gold)"], legendaire: ["Légendaire", "#ffb347"]};
 const RW_IMG = [                              // 14 Nov: a Gemini picture per reward, picked from its name (accents ignored); unknown ones get rw_default
+  [/spray hydratant/, "rw_spray_boucles"], [/peigne|demelante/, "rw_peigne"], [/satin/, "rw_satin"], [/creme coiffante/, "rw_creme_boucles"], [/gel ou une mousse/, "rw_gel_boucles"],
+  [/masque hydratant/, "rw_masque_cheveux"], [/huile ou un serum/, "rw_huile_cheveux"], [/shampoing/, "rw_shampoing"], [/diffuseur|seche-cheveux/, "rw_diffuseur"], [/coiffeur/, "rw_coiffeur"], [/coffret de soins/, "rw_coffret_cheveux"],
+  [/chaussettes stylees/, "rw_chaussettes_mode"], [/bijou|bracelet|bague/, "rw_bijoux"], [/ceinture en cuir/, "rw_ceinture_cuir"], [/t-shirt de marque/, "rw_tshirt_mode"], [/chemise/, "rw_chemise"],
+  [/lunettes de soleil/, "rw_lunettes"], [/cargo|chino/, "rw_pantalon"], [/nouvelle taille/, "rw_nouvelle_taille"], [/sacoche|sac de marque/, "rw_sacoche"], [/seance shopping/, "rw_shopping"],
+  [/manteau/, "rw_manteau"], [/createur/, "rw_createur"], [/tenue complete de a a z/, "rw_tenue_mode"],
   [/parachute/, "rw_parachute"], [/foam|rouleau de massage|pistolet de massage/, "rw_foam"], [/gourde|bouteille de sport/, "rw_gourde"], [/serviette/, "rw_serviette"], [/bandes? elastique/, "rw_elastiques"], [/chaussette/, "rw_tshirt"],
   [/pre-workout/, "rw_preworkout"], [/barres? proteinee/, "rw_barres"], [/skin|passe de combat/, "rw_skin"], [/jeux de societe/, "rw_jeux_societe"], [/manga|livre/, "rw_livre"], [/coque|telephone/, "rw_coque"],
   [/streaming|abonnement/, "rw_streaming"], [/sweat|hoodie|veste|jean/, "rw_hoodie"], [/casquette|bonnet/, "rw_casquette"], [/figurine/, "rw_figurine"], [/carte cadeau/, "rw_carte_cadeau"],
@@ -4810,6 +4827,10 @@ function seedPlan(force) {                    // once per load: remember the pro
     const old = String(p.createdDay || "") < "2026-11-19";   // newer accounts already got the new prices
     const items = (S.rewards.items || []).map(i => old ? {...i, cost: price1118(i)} : {...i}), have = new Set(items.map(i => normPseudo(i.name)));
     saveRewards([...items, ...SHOP_1118.filter(r => !have.has(normPseudo(r.name)) && !(pid === "felix" && r.food)).map((r, i) => ({...r, id: "s1118-" + i}))]); mark("shop1118");
+  }
+  if (!done("shop1118b") && S.rewards && (pid === "mathis" || pid === "felix")) {   // 18 Nov: their own tastes (curls / fashion)
+    const items = (S.rewards.items || []).map(i => ({...i})), have = new Set(items.map(i => normPseudo(i.name)));
+    saveRewards([...items, ...(pid === "mathis" ? SHOP_MATHIS_BOUCLES : SHOP_FELIX_MODE).filter(r => !have.has(normPseudo(r.name))).map((r, i) => ({...r, id: "s1118b-" + i}))]); mark("shop1118b");
   }
   if (pid === "base" && !done("sick1026")) {  // sick on Mon 26 Oct: that day paused, week moved to Tue A / Wed B / Fri C / Sat Haut (his usual rhythm, one day later)
     const cw = weekOfStr("2026-10-26"), t = today();
