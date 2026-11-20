@@ -1604,12 +1604,12 @@ const TYPES = {
   A:  {name: "Pec / Dos lourd", day: 0, gate: "Donjon de fer"},
   B:  {name: "Épaules / Bras", day: 1, gate: "Tour des poulies"},
   C:  {name: "Pec / Dos étirement", day: 3, gate: "Caverne de l'étirement"},
-  J:  {get name() { return curPlan().id !== "felix" ? "Jambes + complément" : "Jambes"; }, get solo() { return curPlan().id !== "felix"; }, day: 5, gate: "Gouffre des jambes"},
+  J:  {get name() { return !["felix", "adonis"].includes(curPlan().id) ? "Jambes + complément" : "Jambes"; }, get solo() { return curPlan().id !== "felix"; }, day: 5, gate: "Gouffre des jambes"},
   DP: {get name() { return curPlan().id !== "felix" ? "Pecs / Dos · force" : "Pecs / Dos"; }, day: 0, gate: "Donjon de fer", solo: true},
   EP: {get name() { return curPlan().id === "base" ? "Épaules" : "Épaules / Trapèzes"; }, day: 1, gate: "Tour des épaules", solo: true},
-  EB: {get name() { return curPlan().id === "felix" ? "Épaules / Dos / Bras" : "Épaules / Bras"; }, day: 1, gate: "Tour des poulies", solo: true},
-  DB: {get name() { return curPlan().id !== "felix" ? "Dos / Biceps · technique" : "Dos / Biceps"; }, day: 3, gate: "Puits du dos", solo: true},
-  PT: {name: "Pecs / Triceps · technique", day: 4, gate: "Forge des pecs", solo: true},
+  EB: {get name() { return curPlan().id === "felix" ? "Épaules / Dos / Bras" : curPlan().id === "adonis" ? "Épaules / Dos" : "Épaules / Bras"; }, day: 1, gate: "Tour des poulies", solo: true},
+  DB: {get name() { return !["felix", "adonis"].includes(curPlan().id) ? "Dos / Biceps · technique" : "Dos / Biceps"; }, day: 3, gate: "Puits du dos", solo: true},
+  PT: {get name() { return curPlan().id === "adonis" ? "Pecs / Triceps" : "Pecs / Triceps · technique"; }, day: 4, gate: "Forge des pecs", solo: true},
   CO: {name: "Complément + rappel jambes", day: 5, gate: "Salle des compléments", solo: true},
   H:  {name: "Haut, pecs prioritaires", day: 4, gate: "Citadelle haute"},
 };
@@ -1889,6 +1889,41 @@ const GAUTHIER_EP = [                         // 16 Nov, his picks from the Nipp
   {ex: "facePull", sets: 3, reps: [12, 15], rest: 75, cue: GAUTHIER_SWAP.revFly.cue},
   {ex: "preacher", sets: 3, reps: [10, 12], rest: 90, cue: "2e séance de biceps de la semaine (avec jeudi). Coude bien calé sur le pupitre, descends jusqu'à l'étirement complet, monte sans décoller le coude. Pupitre pris : « Autre version » = curl machine."},
 ];
+const ADONIS_FROM = "2026-11-23", ADONIS_DAYS = {PT: 0, DB: 1, J: 3, EB: 4};   // 20 Nov, Gauthier: Adonis's own 4 sessions, entered as he does them ("il veut pas changer")
+const A_ = (ex, start, cue, o) => ({ex, sets: 3, reps: [8, 12], rest: EX[ex].kind === "poly" ? 120 : 90, ...(start ? {start} : {}), cue, ...(o || {})});   // start = [kg, reps]: his last numbers before the app
+const SESS_ADONIS = {
+  PT: [A_("machPress", [79, 12], "Ton « machine bench ». Dos calé, poignées au niveau du milieu des pecs, pousse sans verrouiller les coudes.", {rest: 150}),
+       A_("inclBar", [25, 9], "Incliné à la Smith, banc à ~30° : barre au haut des pecs, descente contrôlée, touche sans rebond."),
+       A_("cableCross", [23, 12], "Tes « pecs bas ». Poulies hautes, un pas en avant : ramène les mains devant le bas du ventre. Tu as pris 23 kg pour mieux contrôler : garde ce contrôle."),
+       A_("pushdown", [18, 10], "Ton « triceps court ». Coudes collés au corps, tends complètement les bras, remonte lentement."),
+       A_("ohTri", [32, 9], "Ton « triceps long ». Dos à la poulie, bras au-dessus de la tête : descends loin derrière la tête pour étirer, tends sans bouger les coudes.")],
+  DB: [A_("latpd", [45, 8], "Ton « LP ». 45 kg avec un bon mouvement plutôt que 54 kg (ton choix) : poitrine sortie, tire les coudes vers les côtes. Tractions assistées à la place : « Changer d'exo », puis note l'assistance en négatif (−38).", {rest: 150}),
+       A_("cableRow", [50, 12], "Ton « tirage horizontal ». Laisse les épaules avancer pour étirer, puis tire les coudes vers l'arrière et serre les omoplates."),
+       A_("revPecDeck", [18, 8], "Ton « arrière épaule ». Poitrine collée au pad, bras quasi tendus, pousse les mains loin sur les côtés. Autre machine ou haltères : « Changer d'exo »."),
+       A_("backExt", [10, 10], "Tes « lombaires ». Hanches calées, descends dos plat, remonte jusqu'à l'alignement sans te cambrer. Note le lest en kg.", {reps: [10, 15]}),
+       A_("cableCurl", [50, 10], "Ton « curl poulie ». Coudes fixes, monte sans balancer, descente complète."),
+       A_("hammer", null, "Ton curl marteau. Coudes fixes, paumes face à face, descente complète. Note le poids d'un haltère.")],
+  J:  [A_("smithSquat", [60, 12], "Pieds un peu devant la barre : descends sous la parallèle, dos droit, pousse dans les talons.", {rest: 150}),
+       A_("legPress", [150, 12], "Pieds au milieu de la plateforme : descends bas sans décoller le bas du dos, pousse sans verrouiller les genoux.", {rest: 150}),
+       A_("legExt", [59, 12], "Pause 1 s en haut, descente contrôlée."),
+       A_("calves", [80, 8], "Talons très bas pour étirer, monte sur la pointe, pause 1 s en haut.")],
+  EB: [A_("smithShPress", [60, 9], "Ta « Smith » épaules. Assis, barre devant le visage : descends jusqu'au menton, pousse vers le haut."),
+       A_("dbLatRaise", [14, 8], "Tes élévations latérales aux haltères. Coudes légèrement fléchis, monte jusqu'à l'horizontale, descente lente. Charge notée = un haltère."),
+       A_("latpd", [41, 12], "Ton « LP contrôlé » : descente lente, pause bras tendus en haut. Ses charges sont suivies à part de celles du mardi.", {tech: true}),
+       A_("dbRow", [36, 8], "Ton « rowing », contrôlé (descente en 3 s, comme tu le fais). Un genou et une main sur le banc, tire le coude vers la hanche. Pas aux haltères : « Changer d'exo »."),
+       A_("cableRow", [40, 8], "Ton « tirage poulie ». Si ce n'est pas un rowing assis à la poulie, touche « Changer d'exo ». Ses charges sont suivies à part de celles du mardi.", {tech: true})],
+};
+const ADONIS_W = (n, phase, rank, x) => ({n, phase, rank, rirTxt: "0 à 1 rep en réserve sur chaque série" + (x ? ", plus les épreuves de rang" : ""), setsTxt: "3 par exercice"});
+const WEEKS_ADONIS = [null, ADONIS_W(1, "Prise en main", "E"), ADONIS_W(2, "Progression", "E"), ADONIS_W(3, "Progression", "D"), ...[4, 5, 6, 7].map(n => ADONIS_W(n, "Construction", n <= 5 ? "D" : "C")), ADONIS_W(8, "Bilan", "C", 1),
+  ...[9, 10, 11, 12, 13, 14, 15].map(n => ADONIS_W(n, "Arc 2 · Construction", n <= 11 ? "C" : "B")), ADONIS_W(16, "Arc 2 · Bilan", "B", 1)];
+const ADONIS_RULES = [
+  "<b>Tes séances, comme tu les fais</b> : lundi pecs/triceps, mardi dos/biceps, jeudi jambes, vendredi épaules/dos. 3 séries par exercice. Mercredi et week-end : repos.",
+  "<b>Point de départ</b> : tes dernières charges notées avant l'appli. Dans chaque donjon, le Système te dit quoi battre, série par série.",
+  "<b>Double progression</b> : même charge tant que tu n'as pas fait 12 reps sur toutes les séries, puis le cran au-dessus (haltères : +2 kg). Lombaires : jusqu'à 15 reps.",
+  "<b>Le tirage vertical et le tirage poulie</b> reviennent le vendredi en version contrôlée, plus légère : leurs charges sont suivies à part de celles du mardi.",
+  "<b>Un exercice ne correspond pas</b> à ta machine ? Bouton « Changer d'exo » sous l'exercice : chaque exercice garde ses propres charges.",
+  "<b>En dehors de la salle</b> : tes repas et ta pesée dans l'appli (le matin à jeun, au moins 3 fois par semaine), et 7 h de sommeil.",
+];
 const PLANS = {
   base: {id: "base", sess: {J: GAUTHIER_J, EP: GAUTHIER_EP}, swap: GAUTHIER_SWAP, add: GAUTHIER_ADD, cueAdd: {
       flySeated: " C'est l'écarté AUX CÂBLES (poulies), pas la machine pec deck : les câbles gardent la tension bras ouverts, en étirement.",
@@ -1908,6 +1943,12 @@ const PLANS = {
     intro: "Le Système a détecté un guerrier assidu, déjà habitué de la salle. Il te propose un contrat",
     get lead() { return today() >= SWAP_FROM ? "Depuis le 23 novembre, la semaine de Gauthier : lundi pecs/dos (force), mardi jambes + complément, mercredi épaules/trapèzes, jeudi dos/biceps (technique), vendredi pecs/triceps (technique). Épaules latérales lundi et mercredi. Les compléments travaillent tes points à toi : haut des pecs, largeur d'épaules, bras. Week-end : repos." : today() >= MATHIS5_FROM ? "Depuis le 16 novembre, la semaine de Gauthier : lundi pecs/dos (force), mardi épaules/trapèzes, mercredi jambes + complément, jeudi dos/biceps (technique), vendredi pecs/triceps (technique). Les compléments travaillent tes points à toi : haut des pecs, largeur d'épaules, bras. Week-end : repos." : "Lundi Poussée, mardi Tirage, jeudi Haut complet, samedi grosse séance Jambes (semaines impaires) ou Bras et épaules (semaines paires). Mercredi, vendredi et dimanche : repos."; },
     s1: "Semaine de calibrage : trouve tes charges dans les nouvelles fourchettes de reps, sans aller à l'échec."},
+  adonis: {id: "adonis", label: "Programme d'Adonis", goal: "gain", title: "Chasseur aguerri", fbFirst: false, big: [], weeks: WEEKS_ADONIS, sess: SESS_ADONIS,
+    test: {PT: ["machPress"], DB: ["latpd"], J: ["smithSquat"], EB: ["smithShPress"]},
+    keyLifts: [["machPress", "Pecs / Triceps", "Machine bench"], ["inclBar", "Pecs / Triceps", "Incliné Smith"], ["latpd", "Dos / Biceps", "Tirage vertical"], ["cableRow", "Dos / Biceps", "Tirage horizontal"], ["smithSquat", "Jambes", "Squat Smith"], ["legPress", "Jambes", "Presse"], ["smithShPress", "Épaules / Dos", "Smith épaules"]],
+    intro: "Le Système a détecté un chasseur aguerri, avec ses habitudes et ses charges. Il te propose un contrat",
+    lead: "Lundi pecs/triceps, mardi dos/biceps, jeudi jambes, vendredi épaules/dos. Mercredi et week-end : repos.",
+    s1: "Première semaine dans l'appli : le Système part de tes dernières charges. Bats-les d'une rep, ou passe au cran au-dessus quand tu es à 12."},
 };
 const cloudName = () => Cloud && Cloud.signedIn() ? Cloud.email() : "";
 const hash53 = (str, seed = 0) => { let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed; for (let i = 0, ch; i < str.length; i++) { ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); } h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909); h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909); return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36); };
@@ -1915,7 +1956,7 @@ const KNOWN_LOGINS = {"1sdgioed0i": "mathis", "gk0w486ic0": "base"};   // hashed
 function detectPlan(...names) {              // by login, name or pseudo, accents ignored; null when the Système can't tell
   for (const n of names) { const hit = KNOWN_LOGINS[hash53(String(n || "").trim().toLowerCase())]; if (hit) return hit; }
   const k = names.map(normPseudo).join(" ");
-  return /felix/.test(k) ? "felix" : /mat+h?is/.test(k) ? "mathis" : /gauthier/.test(k) ? "base" : null;
+  return /felix/.test(k) ? "felix" : /mat+h?is/.test(k) ? "mathis" : /gauthier/.test(k) ? "base" : /adonis/.test(k) ? "adonis" : null;
 }
 const planOf = p => (p && PLANS[p.program]) ? p.program : (detectPlan(p?.name, cloudName()) || "base");
 const curPlan = () => PLANS[planOf(typeof S !== "undefined" ? S.profile : null)];
@@ -1934,6 +1975,7 @@ const planTest = () => curPlan().test || {};
 const tyLabel = ty => ty === "FB" ? "Full body" : TYPES[ty]?.solo ? TYPES[ty].name : "Séance " + ty + " · " + (TYPES[ty]?.name || "");
 function planSched(info) {
   const id = curPlan().id;
+  if (id === "adonis" && !info.custom) return info.deload ? "Mêmes jours que d'habitude, moitié des séries, mêmes charges." : "Lundi pecs/triceps, mardi dos/biceps, jeudi jambes, vendredi épaules/dos. Mercredi et week-end : repos.";
   if (info.custom) return "Cette semaine : " + info.types.map(ty => `${TYPES[ty].name.toLowerCase()} ${fmtDay(fromStr(plannedDate(info.cw, ty)), {weekday: "long"})}`).join(", ") + ".";
   if (!info.deload && !info.trip && swapWk(info.cw)) return id === "mathis" ? "Lundi pecs/dos (force), mardi jambes + complément, mercredi épaules/trapèzes, jeudi dos/biceps (technique), vendredi pecs/triceps (technique) : la semaine de Gauthier, avec tes points à toi. Week-end : repos."
     : "Lundi pecs/dos, mardi jambes + complément (triceps, biceps), mercredi épaules (+ haut des pecs), jeudi dos/biceps, vendredi pecs/triceps. Épaules latérales et trapèzes lundi, mercredi et vendredi. Week-end : repos.";
@@ -1959,7 +2001,7 @@ function weekInfo(cw) {
   if (!(cw >= 1)) return null;
   const PL = curPlan(), p = progWeek(cw), deload = isDeload(cw);
   const x = PL.id === "mathis" ? (p % 2 ? "JX" : "BE") : PL.id === "felix" || cw >= 5 ? "J" : p % 2 === 0 ? "J" : "CO";   // Gauthier: legs every other week, then every Wednesday from 16 Nov (his call, 10 Nov)
-  const main = PL.id === "mathis" && mathis5(cw) ? ["DP", "EP", "DB", "PT", "J"] : PL.id === "mathis" ? ["P", "T", p === 1 && !deload ? "FB" : "HC", x] : PL.id === "felix" ? (cw >= 4 ? ["DP", "J", "EB"] : ["DP", "EB", "DB", x]) : ["DP", "EP", "DB", "PT", x];   // week 1 Thursday: full body with the others
+  const main = PL.id === "adonis" ? ["PT", "DB", "J", "EB"] : PL.id === "mathis" && mathis5(cw) ? ["DP", "EP", "DB", "PT", "J"] : PL.id === "mathis" ? ["P", "T", p === 1 && !deload ? "FB" : "HC", x] : PL.id === "felix" ? (cw >= 4 ? ["DP", "J", "EB"] : ["DP", "EB", "DB", x]) : ["DP", "EP", "DB", "PT", x];   // week 1 Thursday: full body with the others
   const own = S.profile?.weekTypes?.[cw];
   if (own && !deload && p <= PROGRAM_WEEKS) return {cw, p, deload, W: PL.weeks[p], types: own, bonus: null, custom: true};
   if (deload && tripWeek(cw)) return {cw, p, deload, trip: true, W: TRIP_W, types: ["NV"], bonus: null};   // 17 Nov: away all week, only the bodyweight dungeon
@@ -1991,6 +2033,7 @@ function setsFor(p, it, idx, deload, ty) {
   if (it.maint) return 2;
   if (ty === "FB") return Math.min(2, it.sets);       // shared first session: same for the three players
   const PL = curPlan().id;
+  if (PL === "adonis") return it.sets;   // his own 3 sets, from day one
   if (PL === "felix") return p <= 3 ? Math.min(2, it.sets) : it.sets;              // newbie: 2 sets for 3 weeks
   if (PL === "mathis") return p === 1 && ty === "JX" ? Math.max(1, it.sets - 1) : it.sets;  // first big leg day: one set less
   if (p === 1) return it.sets;
@@ -2003,6 +2046,7 @@ function rirFor(p, it, idx, ty, deload) {
   if (deload || it.maint) return {txt: "3 reps en réserve", fail: false};
   if (ty === "FB") return {txt: "3 reps en réserve", fail: false};
   const PL = curPlan().id, isPoly = EX[it.ex].kind === "poly";
+  if (PL === "adonis") return it.tech ? {txt: "contrôlé : descente lente, 1-2 reps en réserve", fail: false} : {txt: "0 à 1 rep en réserve", fail: false};
   if (PL === "base" || (PL === "mathis" && MATHIS5_TYPES.includes(ty))) return it.tech ? {txt: PL === "base" ? "technique : plus léger, 1-2 reps en réserve" : "technique : 1-2 reps en réserve, descente en 3 s", fail: !isPoly}   // Mathis from 16 Nov: Gauthier's week, same effort   // 2nd day of a muscle: lighter, controlled (2 Nov)
     : {txt: "à l'échec (0-1 rep en réserve)", fail: false};   // his choice (29 Oct): every set to failure, at worst half a rep short
   if (PL === "felix" && p <= 3) return {txt: "3 reps en réserve", fail: false};
@@ -2513,6 +2557,7 @@ const SWAP_FROM = "2026-11-23";             // 18 Nov, his ask: side delts 3x a 
 const swapWk = cw => cw >= 1 && toStr(weekStart(cw)) >= SWAP_FROM && (curPlan().id === "base" || mathis5(cw));
 const FELIX_DAYS = {DP: 0, J: 2, EB: 4};     // Félix from 9 Nov: Monday chest/back, Wednesday legs, Friday shoulders/back/arms, on Gauthier's days
 const typeDay = (cw, ty) => { const id = curPlan().id;
+  if (id === "adonis" && ADONIS_DAYS[ty] != null) return ADONIS_DAYS[ty];   // 20 Nov: Mon, Tue, Thu, Fri
   if (swapWk(cw) && (ty === "J" || ty === "CO")) return 1;
   if (swapWk(cw) && ty === "EP") return 2;
   if ((id === "base" && cw >= 4 || mathis5(cw)) && (ty === "J" || ty === "CO")) return 2;   // Gauthier from 9 Nov: Monday to Friday, weekends free
@@ -2663,6 +2708,13 @@ function suggest(it, info, grip) {
     out.text = a1 ? `Ton max estimé : ${fmt(e, 1)} kg. Essai 1 : ${fmt(a1)} kg, il doit passer proprement. Réussi : essai 2 à ${fmt(a1 + st)} kg. Réussi encore : essai 3 à ${fmt(a1 + 2 * st)} kg.` : "Monte par paliers jusqu'à une charge que tu ne peux faire qu'une fois.";
     return out;
   }
+  if (!last && !all.length && it.start && !info.deload) {   // 20 Nov: Adonis starts from his own last numbers
+    const [k0, r0] = it.start, n = stepUp(k0, stepOf(ex.eq)), up = r0 >= hi && (n - k0) / k0 <= 0.2;
+    out.kg = up ? n : k0; out.kind = up ? "up" : ""; out.reps = up ? [] : Array(it.sets || 3).fill(Math.max(lo, r0 + 1));
+    out.text = up ? `Ta dernière fois avant l'appli : ${fmt(k0)} kg × ${r0}, le haut de la fourchette. Passe au cran au-dessus (${fmt(n)} kg ou le plus proche sur ta machine), vise au moins ${lo} reps.`
+      : `Ta dernière fois avant l'appli : ${fmt(k0)} kg × ${r0}. Même charge, vise ${Math.max(lo, r0 + 1)} reps.`;
+    return out;
+  }
   const est = last ? null : estimateLoad(it, grip, allAny);   // first technique bench: estimated from the heavy Monday one
   if (est) { out.kg = est.kg; out.kind = "est"; out.text = est.text; }
   else if (!last && all.length && !it.tech) out.text = `Première fois avec la prise ${String(grip).toLowerCase()} : la force change avec la prise, pars un peu plus léger que d'habitude.`;
@@ -2710,7 +2762,7 @@ function suggest(it, info, grip) {
       out.text = `Nouvelle charge : ${fmt(out.kg)} kg. Vise au moins ${lo} reps sur chaque série.`;
     }
   }
-  if (["base", "felix", "mathis"].includes(curPlan().id) && last && out.kg != null && out.kind !== "est" && !info.deload && !it.maint && !it.test && ex.eq !== "bw") out.chal = stepUp(out.kg, stepOf(ex.eq));   // 13 Nov: the épreuve = a heavy 1st set one step above, on the dungeon's big lift only (exCard)
+  if (["base", "felix", "mathis", "adonis"].includes(curPlan().id) && last && out.kg != null && out.kind !== "est" && !info.deload && !it.maint && !it.test && ex.eq !== "bw") out.chal = stepUp(out.kg, stepOf(ex.eq));   // 13 Nov: the épreuve = a heavy 1st set one step above, on the dungeon's big lift only (exCard)
   if (it.test) {
     const ref = (info.p || 8) - 4, s4 = hist.filter(h => h.week === ref).pop();
     out.testKg = s4 ? Number(s4.sets[0].kg) || 0 : null;
@@ -3004,6 +3056,7 @@ function nextRankInfo(P) {
 /* ----- status ----- */
 // Questions Claude needs answered (5 Nov): one card each on Statut until answered; the answer goes to profile.answers[id]
 const QUESTIONS = [
+  {id: "aProg1120", plan: "adonis", uid: "f3da2ddc", info: true, title: "Ton programme est prêt", q: "Tes 4 séances sont dans l'appli, telles que tu les fais, à partir du lundi 23 novembre : lundi pecs/triceps, mardi dos/biceps, jeudi jambes, vendredi épaules/dos.\nLe Système part de tes dernières charges : dans chaque exercice, il te dit quoi battre (une rep de plus, ou le cran au-dessus quand tu es à 12 reps).\nSi un exercice n'est pas exactement celui que tu fais, touche « Changer d'exo » sous l'exercice. À vérifier : l'arrière d'épaule (reverse pec deck) le mardi, le rowing (haltère, un bras) et le tirage poulie (rowing poulie assis) le vendredi.\nTractions assistées à la place du tirage vertical : « Changer d'exo », puis note l'assistance en négatif (−38).", choices: ["Compris"]},   // 20 Nov
   {id: "mathisSmith1105", plan: "mathis", q: "Sur ta séance du 5 novembre, tu as noté « Smith pour les pecs ». L'incliné (24 kg), tu l'as fait à la Smith ?",
    choices: ["Oui, l'incliné à la Smith", "Non, aux haltères", "Je veux la Smith pour les pecs à partir de maintenant"]},
   // getting to know Mathis (Gauthier's ask, 5 Nov): how he wants his sessions, his habits, his body, food and sleep
@@ -3620,7 +3673,7 @@ function viewDungeons() {
 }
 function planGrimoire() {
   const id = curPlan().id;
-  const own = id === "felix" ? [
+  const own = id === "adonis" ? ADONIS_RULES : id === "felix" ? [
     "<b>Objectif : perdre du gras sans perdre de muscle.</b> Comme tu prends du muscle en même temps, la balance descend moins vite que ton tour de taille : juge tes progrès à ta taille et à ton carnet, pas à la seule balance.",
     "<b>Tes séances</b> : les mêmes jours que Gauthier, pour vous entraîner ensemble. Lundi pecs/dos (toute la séance avec Gauthier), mercredi jambes (avec lui une semaine sur deux), vendredi épaules/dos/bras (pec deck et triceps avec lui). Moins d'exercices et de séries que lui : un rythme de débutant. Les jambes sont les plus gros muscles : c'est là que tu dépenses et construis le plus.",
     "<b>Tes poignets d'abord</b> : tous les développés se font à la machine (chest press, incliné machine, épaules machine). Pas de barre ni d'haltères pour pousser.",
@@ -4783,6 +4836,10 @@ function seedPlan(force) {                    // once per load: remember the pro
   const p = S.profile, det = detectPlan(p.name, cloudName());
   let next = !PLANS[p.program] && det ? {...clone(p), program: det} : null;
   const prof = () => next || (next = clone(p)), mark = k => { prof().seeded = {...(prof().seeded || {}), [k]: true}; }, done = k => !!((next || p).seeded || {})[k];
+  if (!done("adonis1120") && String((Cloud && Cloud.userId && Cloud.userId()) || "").startsWith("f3da2ddc")) {   // 20 Nov, Gauthier: "Ok là tu as Adonis"
+    const fresh = !S.sessions.length && !Object.keys(S.meals || {}).length;
+    Object.assign(prof(), {program: "adonis"}, fresh ? {startDay: ADONIS_FROM, createdDay: ADONIS_FROM, foodStart: ADONIS_FROM} : {}); mark("adonis1120");
+  }
   const pid = (next || p).program;
   const saveRewards = items => { S.rewards = {rank: {...RANK_DEFAULT}, ...(S.rewards || {}), items}; queueSet("game/rewards", S.rewards); };
   if (pid === "felix" && !done("felixDishes2")) {
