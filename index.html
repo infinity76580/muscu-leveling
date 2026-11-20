@@ -1948,7 +1948,7 @@ const PLANS = {
     keyLifts: [["machPress", "Pecs / Triceps", "Machine bench"], ["inclBar", "Pecs / Triceps", "Incliné Smith"], ["latpd", "Dos / Biceps", "Tirage vertical"], ["cableRow", "Dos / Biceps", "Tirage horizontal"], ["smithSquat", "Jambes", "Squat Smith"], ["legPress", "Jambes", "Presse"], ["smithShPress", "Épaules / Dos", "Smith épaules"]],
     intro: "Le Système a détecté un chasseur aguerri, avec ses habitudes et ses charges. Il te propose un contrat",
     lead: "Lundi pecs/triceps, mardi dos/biceps, jeudi jambes, vendredi épaules/dos. Mercredi et week-end : repos.",
-    s1: "Première semaine dans l'appli : le Système part de tes dernières charges. Bats-les d'une rep, ou passe au cran au-dessus quand tu es à 12."},
+    s1: "Première semaine dans l'appli : le Système te propose tes dernières charges. Une rep de plus si tu peux ; à 12 reps sur toutes les séries, il te fait monter la fois suivante."},
 };
 const cloudName = () => Cloud && Cloud.signedIn() ? Cloud.email() : "";
 const hash53 = (str, seed = 0) => { let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed; for (let i = 0, ch; i < str.length; i++) { ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); } h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909); h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909); return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36); };
@@ -2709,10 +2709,10 @@ function suggest(it, info, grip) {
     return out;
   }
   if (!last && !all.length && it.start && !info.deload) {   // 20 Nov: Adonis starts from his own last numbers
-    const [k0, r0] = it.start, n = stepUp(k0, stepOf(ex.eq)), up = r0 >= hi && (n - k0) / k0 <= 0.2;
-    out.kg = up ? n : k0; out.kind = up ? "up" : ""; out.reps = up ? [] : Array(it.sets || 3).fill(Math.max(lo, r0 + 1));
-    out.text = up ? `Ta dernière fois avant l'appli : ${fmt(k0)} kg × ${r0}, le haut de la fourchette. Passe au cran au-dessus (${fmt(n)} kg ou le plus proche sur ta machine), vise au moins ${lo} reps.`
-      : `Ta dernière fois avant l'appli : ${fmt(k0)} kg × ${r0}. Même charge, vise ${Math.max(lo, r0 + 1)} reps.`;
+    const [k0, r0] = it.start, top = r0 >= hi, aim = top ? hi : Math.max(lo, r0 + 1);   // Gauthier: "propose-lui les bons poids qui étaient marqués"
+    out.kg = k0; out.reps = Array(it.sets || 3).fill(aim);
+    out.text = top ? `Ta dernière fois avant l'appli : ${fmt(k0)} kg × ${r0}. Même charge pour reprendre tes repères : ${hi} reps sur toutes les séries, et le Système te fait monter la fois suivante.`
+      : `Ta dernière fois avant l'appli : ${fmt(k0)} kg × ${r0}. Même charge, vise ${aim} reps.`;
     return out;
   }
   const est = last ? null : estimateLoad(it, grip, allAny);   // first technique bench: estimated from the heavy Monday one
@@ -3056,7 +3056,7 @@ function nextRankInfo(P) {
 /* ----- status ----- */
 // Questions Claude needs answered (5 Nov): one card each on Statut until answered; the answer goes to profile.answers[id]
 const QUESTIONS = [
-  {id: "aProg1120", plan: "adonis", uid: "f3da2ddc", info: true, title: "Ton programme est prêt", q: "Tes 4 séances sont dans l'appli, telles que tu les fais, à partir du lundi 23 novembre : lundi pecs/triceps, mardi dos/biceps, jeudi jambes, vendredi épaules/dos.\nLe Système part de tes dernières charges : dans chaque exercice, il te dit quoi battre (une rep de plus, ou le cran au-dessus quand tu es à 12 reps).\nSi un exercice n'est pas exactement celui que tu fais, touche « Changer d'exo » sous l'exercice. À vérifier : l'arrière d'épaule (reverse pec deck) le mardi, le rowing (haltère, un bras) et le tirage poulie (rowing poulie assis) le vendredi.\nTractions assistées à la place du tirage vertical : « Changer d'exo », puis note l'assistance en négatif (−38).", choices: ["Compris"]},   // 20 Nov
+  {id: "aProg1120", plan: "adonis", uid: "f3da2ddc", info: true, title: "Ton programme est prêt", q: "Tes 4 séances sont dans l'appli, telles que tu les fais, à partir du lundi 23 novembre : lundi pecs/triceps, mardi dos/biceps, jeudi jambes, vendredi épaules/dos.\nLe Système te propose tes dernières charges, celles que tu avais notées : une rep de plus si tu peux, et le cran au-dessus une fois que tu fais 12 reps sur toutes les séries.\nSi un exercice n'est pas exactement celui que tu fais, touche « Changer d'exo » sous l'exercice. À vérifier : l'arrière d'épaule (reverse pec deck) le mardi, le rowing (haltère, un bras) et le tirage poulie (rowing poulie assis) le vendredi.\nTractions assistées à la place du tirage vertical : « Changer d'exo », puis note l'assistance en négatif (−38).", choices: ["Compris"]},   // 20 Nov
   {id: "mathisSmith1105", plan: "mathis", q: "Sur ta séance du 5 novembre, tu as noté « Smith pour les pecs ». L'incliné (24 kg), tu l'as fait à la Smith ?",
    choices: ["Oui, l'incliné à la Smith", "Non, aux haltères", "Je veux la Smith pour les pecs à partir de maintenant"]},
   // getting to know Mathis (Gauthier's ask, 5 Nov): how he wants his sessions, his habits, his body, food and sleep
