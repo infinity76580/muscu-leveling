@@ -3304,8 +3304,10 @@ async function feedLoad() {
   catch (e) { if (e && e.code === "invalid_argument") { state.feed = null; scheduleRender(); } }
   finally { state.feedBusy = false; }
 }
+const FEED_QUIET = {"9342b297": ["2026-11-23"]};   // Gauthier, 23 Nov: his session that day stays out of the group feed (no push, nothing in their Statut)
+const feedQuiet = kind => kind !== "cheer" && (FEED_QUIET[String((Cloud && Cloud.userId && Cloud.userId()) || "").slice(0, 8)] || []).includes(today());
 async function feedPost(kind, data) {
-  if (!Cloud || Store.mode !== "cloud" || !S.profile || S.profile.group === false) return false;
+  if (!Cloud || Store.mode !== "cloud" || !S.profile || S.profile.group === false || feedQuiet(kind)) return false;
   try { await Cloud.feedAdd({name: groupName(), kind, data}); feedLoad(); return true; } catch (e) { return false; }
 }
 function groupWeek(cw) {
@@ -5948,7 +5950,7 @@ if (Cloud) {
   window.addEventListener("online", () => cloudSync(false));
   syncTimer = setInterval(() => { if (document.visibilityState === "visible" && state.view !== "dungeon") cloudSync(false); }, 45000);
 }
-window.__GL = {S, state, compute, suggest, planFor, Store, render, Cloud, cloudSync};
+window.__GL = {S, state, compute, suggest, planFor, Store, render, Cloud, cloudSync, feedPost};
 boot();
 })();
 </script>
