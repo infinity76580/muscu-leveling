@@ -3304,8 +3304,8 @@ async function feedLoad() {
   catch (e) { if (e && e.code === "invalid_argument") { state.feed = null; scheduleRender(); } }
   finally { state.feedBusy = false; }
 }
-const FEED_QUIET = {"9342b297": ["2026-11-23"]};   // Gauthier, 23 Nov: his session that day stays out of the group feed (no push, nothing in their Statut)
-const feedQuiet = kind => kind !== "cheer" && (FEED_QUIET[String((Cloud && Cloud.userId && Cloud.userId()) || "").slice(0, 8)] || []).includes(today());
+const FEED_QUIET = {"9342b297": ["2026-11-23", "2026-11-29"]};   // Gauthier, 23 Nov: "toute la semaine [...] j'apparais pas moi": his sessions of that week stay out of the group feed (no push, nothing in their Statut)
+const feedQuiet = kind => { const q = FEED_QUIET[String((Cloud && Cloud.userId && Cloud.userId()) || "").slice(0, 8)], t = today(); return kind !== "cheer" && !!q && t >= q[0] && t <= q[1]; };
 async function feedPost(kind, data) {
   if (!Cloud || Store.mode !== "cloud" || !S.profile || S.profile.group === false || feedQuiet(kind)) return false;
   try { await Cloud.feedAdd({name: groupName(), kind, data}); feedLoad(); return true; } catch (e) { return false; }
