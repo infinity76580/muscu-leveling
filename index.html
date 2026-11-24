@@ -2069,10 +2069,12 @@ const LAT3 = (n, who) => ({ex: "latRaise", sets: 3, reps: [12, 15], rest: 75, cu
 const FP_FRI = {ex: "facePull", sets: 2, reps: [12, 15], rest: 75, cue: "2e séance d'arrière d'épaule de la semaine (avec mercredi). Assis face à la poulie à hauteur du visage : tire vers le front en écartant les mains, coudes hauts, pause 1 s, retour lent."};
 const LOWHIGH_WED = {ex: "lowHighFly", sets: 2, reps: [12, 15], rest: 75, cue: "Haut des pecs, à mi-chemin entre lundi et vendredi : poulies basses, mains qui montent vers le menton, serre 1 s en haut."};
 const LEGPRESS_ALT = {ex: "legPress", sets: 3, reps: [10, 12], rest: 120, cue: "Une semaine sur deux à la place du hip thrust et du leg extension (ton choix). Pieds au milieu de la plateforme, largeur des épaules : descends jusqu'à ce que les genoux approchent de la poitrine sans décoller le bas du dos, pousse sans verrouiller les genoux."};
+const KICKBACK_PW = {ex: "kickback", sets: 3, reps: [10, 15], rest: 75, cue: "Les semaines presse, tes fessiers en direct (le hip thrust revient la semaine suivante). Machine ou poulie basse, une jambe : buste calé, pousse le talon vers l'arrière et un peu vers le haut, serre le fessier 1 s, sans cambrer le bas du dos. Reps par jambe."};
 const legPressWeek = cw => curPlan().id === "base" && cw >= 1 && toStr(weekStart(cw)) >= SWAP_FROM && Math.round(dayDiff(fromStr(SWAP_FROM), weekStart(cw)) / 7) % 2 === 0;   // hip thrust one week, leg press the next
 function shoulders3(list, ty, cw) {          // the week from 23 Nov: one rest day between two sessions of the same muscle stays true
   const pw = legPressWeek(cw) && ty === "J";   // press week: the press replaces the hip thrust, and the leg extension goes (24 Nov, his call: hack + press already cover the quads)
-  let l = list.map(it => pw && it.ex === "hipThrust" ? {...LEGPRESS_ALT} : it).filter(it => !(pw && it.ex === "legExt"));
+  const kb = pw && toStr(weekStart(cw)) > "2026-11-23";   // 24 Nov he added his own "Kick" in the dungeon: the app's kickback starts with the next press week
+  let l = list.flatMap(it => pw && it.ex === "hipThrust" ? [{...LEGPRESS_ALT}, ...(kb ? [{...KICKBACK_PW}] : [])] : [it]).filter(it => !(pw && it.ex === "legExt"));
   if (!swapWk(cw)) return l;
   const mine = curPlan().id === "mathis", wo = (...ex) => { l = l.filter(it => !ex.includes(it.ex)); }, before = (ex, ...add) => { const i = l.findIndex(it => it.ex === ex); l = i < 0 ? [...l, ...add] : [...l.slice(0, i), ...add, ...l.slice(i)]; };
   if (ty === "DP") before("shrug", LAT3("1re", mine ? "mathis" : ""));
@@ -2368,6 +2370,15 @@ const Cloud = (() => {
       return {session: false};
     },
     signOut() { session = null; [KS, KC, KO, KP, KF].forEach(k => sv(k, null)); },
+    async restSet(row) {                         // 24 Nov: the end-of-rest push, sent by Supabase if he is not in the app at that time
+      if (!session) return;
+      await call("DELETE", "/rest/v1/gl_rest?user_id=eq." + session.user.id, undefined, {Prefer: "return=minimal"});
+      if (row) await call("POST", "/rest/v1/gl_rest", [{...row, user_id: session.user.id}], {Prefer: "return=minimal"});
+    },
+    restBeacon(row) {                            // the phone is being locked: no token refresh, best effort
+      if (!session) return;
+      try { fetch(base + "/rest/v1/gl_rest", {method: "POST", keepalive: true, headers: {apikey: key, Authorization: "Bearer " + session.access_token, "Content-Type": "application/json", Prefer: "return=minimal"}, body: JSON.stringify([{...row, user_id: session.user.id}])}).catch(() => {}); } catch (e) {}
+    },
     fullDue: () => !(Date.now() - (ld(KF) || 0) < 12 * 3600e3),
     pending: () => Object.keys(outbox()).length,
     async open() { mem = makeMemDB(ld(KC) || {}, persist); return mem; },
@@ -3165,6 +3176,7 @@ function pushSettings() {
   const body = st === "granted" ? `<p class="small">Activées sur cet appareil. Choisis ce que le Système t'envoie :</p>
       ${ntg("session", "Donjon du jour", "Vers 18 h, si la séance prévue n'est pas faite")}${ntg("meals", "Repas", "Vers 21 h, si rien n'est noté de la journée")}
       ${ntg("weigh", "Pesée", "Le matin, après deux jours sans pesée")}${ntg("report", "Bilan de la semaine", "Le dimanche vers 18 h")}${ntg("group", "Le groupe", "Donjons, records, rangs et encouragements des autres")}
+      ${ntg("rest", "Fin du repos", "Pendant un donjon, si tu n'es plus dans l'appli quand le repos se termine")}${ntg("restLock", "Heure de reprise", "Sur l'écran verrouillé, dès que tu quittes l'appli pendant un repos")}
       <button class="btn ghost" data-act="pushTest">Afficher un essai</button>`
     : st === "default" ? `<p class="small">Le Système te prévient quand il a une question pour toi.</p><button class="btn primary" data-act="pushOn">Activer les notifications</button>`
     : st === "denied" ? `<p class="small">Bloquées sur cet appareil : autorise les notifications pour ce site dans les réglages du navigateur, puis reviens ici.</p>`
@@ -5330,14 +5342,40 @@ function toggleSet(ex, i) {
   saveDraft(); chime("sys");
   const n = it ? setsTarget(it, d) : rows.length;
   const pairedSuperset = it && it.superset && ex === "triHigh";
-  if (!pairedSuperset) startRest(it ? it.rest : 90);
+  if (!pairedSuperset) startRest(it ? it.rest : 90, restNextLabel(d, ex, rows, n));
   if (it && rows.slice(0, n).filter(x => x.done).length >= n) state.dgHold = ex;
   render();
   fxSetDone(ex, i, it, parseNum(r.kg), Math.round(reps), n, rows.slice(0, n).filter(x => x.done).length);
   if (state.dgHold === ex) setTimeout(() => { if (state.dgHold !== ex || state.view !== "dungeon") return; state.dgHold = null; render();
     const nx = document.querySelector(".ex.now"); if (nx) nx.scrollIntoView({behavior: "smooth", block: "start"}); }, fxActive() ? 1300 : 250);
 }
-function startRest(sec) { state.rest = {end: Date.now() + sec * 1000, total: sec * 1000, rang: false}; tick(); }
+function startRest(sec, next) { state.rest = {end: Date.now() + sec * 1000, total: sec * 1000, rang: false, next: next || null}; restPush(state.rest); tick(); }
+// 24 Nov (Gauthier: "une alerte, tu dois reprendre ta série, si t'es pas sur l'app", "le minuteur écran verrouillé"):
+// each rest leaves a row in gl_rest; Supabase sends it at the end of the rest unless the app is still open then (the row is deleted 5 s before).
+let restArmed = false, restQ = Promise.resolve();
+const restOn = k => !!(Cloud && Store.mode === "cloud" && Cloud.signedIn()) && (S.profile?.notif || {})[k] !== false;
+function restPush(r) {
+  const row = r && r.next && restOn("rest") ? {kind: "end", due_at: new Date(r.end).toISOString(), title: "Repos terminé", body: `C'est reparti : ${r.next}.`} : null;
+  if (!row && !restArmed) return;
+  restArmed = !!row; if (r) r.cut = false;
+  restQ = restQ.then(() => Cloud.restSet(row)).catch(() => {});
+}
+function restLockBeacon() {                     // leaving the app during a rest: the time to come back shows on the lock screen
+  const r = state.rest; if (!r || state.view !== "dungeon" || !restArmed || r.lock || !restOn("restLock")) return;
+  if (r.end - Date.now() < 10000) return; r.lock = true;
+  const hm = new Date(r.end).toLocaleTimeString("fr-FR", {hour: "2-digit", minute: "2-digit", second: "2-digit"});
+  Cloud.restBeacon({kind: "start", due_at: new Date().toISOString(), title: `Repos jusqu'à ${hm}`, body: `Ensuite : ${r.next}. Le Système te prévient à la fin du repos.`});
+}
+function restNextLabel(d, ex, rows, n) {         // what comes after this rest, for the alert
+  const k = rows.slice(0, n).findIndex(x => !x.done);
+  if (k >= 0) return `${EX[ex]?.n || "ton exercice"}, série ${k + 1} sur ${n}`;
+  for (const it of draftPlan(d)) {
+    if (it.ex === ex) continue;
+    const t = setsTarget(it, d), r2 = d.sets[it.ex] || [], j = Array.from({length: t}, (_, q) => r2[q]).findIndex(x => !x || !x.done);
+    if (t > 0 && j >= 0) return `${EX[it.ex]?.n || "exercice suivant"}, série ${j + 1} sur ${t}`;
+  }
+  return null;                                   // nothing left: no alert, the dungeon is over
+}
 const CHEST_TIERS = [                         // 15 Nov: 7 chest rarities (chance, gold, colour, spark hue)
   {k: "Commun", c: "#b8c6dc", h: 210, p: 0.42, g: [10, 20]}, {k: "Peu commun", c: "#4ff0b0", h: 155, p: 0.26, g: [20, 35]},
   {k: "Rare", c: "#3d8bff", h: 215, p: 0.17, g: [40, 60]}, {k: "Épique", c: "#9b7bff", h: 265, p: 0.095, g: [80, 120]},
@@ -5402,7 +5440,7 @@ async function finishDungeon() {
   if (after.rank !== before.rank) feedPost("rank", {rank: after.rank});
   state.results = {doc, before, after, wb: {xp: wbAfter.xp - wbBefore.xp, gold: wbAfter.gold - wbBefore.gold, perfect: wbAfter.perfect, big: wbAfter.big && !wbBefore.big}, opened: false, fxDone: false, drops: drops.filter(Boolean)};
   state.lastLevel = after.level; state.lastRank = after.rank; state.lastAch = new Set(after.achIds);
-  state.modal = null; state.rest = null; state.view = "results"; releaseWakeLock(); window.scrollTo(0, 0); render(); chime("level");
+  state.modal = null; state.rest = null; restPush(null); state.view = "results"; releaseWakeLock(); window.scrollTo(0, 0); render(); chime("level");
   if (!loot) setTimeout(resultsFx, 500);
 }
 function confirmModal(opts) { state.modal = {kind: "confirm", ...opts}; renderModal(); }
@@ -5751,12 +5789,12 @@ const ACTIONS = {
   minus: a => { const ex = a.dataset.ex, d = S.draft;   // an extra set added by mistake goes first
     if ((d.plus || {})[ex] > 0) d.plus = {...d.plus, [ex]: d.plus[ex] - 1}; else d.minus[ex] = (d.minus[ex] || 0) + 1; saveDraft(); render(); },
   unminus: a => { const ex = a.dataset.ex; S.draft.minus[ex] = Math.max(0, (S.draft.minus[ex] || 0) - 1); saveDraft(); render(); },
-  restAdd: () => { if (state.rest) { if (state.rest.end < Date.now()) state.rest = {end: Date.now() + 15000, total: 15000, rang: false}; else { state.rest.end += 15000; state.rest.total += 15000; } tick(); } },
-  restSkip: () => { state.rest = null; tick(); },
+  restAdd: () => { if (state.rest) { if (state.rest.end < Date.now()) state.rest = {end: Date.now() + 15000, total: 15000, rang: false, next: state.rest.next}; else { state.rest.end += 15000; state.rest.total += 15000; } restPush(state.rest); tick(); } },
+  restSkip: () => { state.rest = null; restPush(null); tick(); },
   dgMenu: () => { state.modal = {kind: "dgMenu"}; renderModal(); },
-  pauseDg: () => { flushDraft(); state.modal = null; state.rest = null; state.view = "status"; releaseWakeLock(); window.scrollTo(0, 0); render(); },
+  pauseDg: () => { flushDraft(); state.modal = null; state.rest = null; restPush(null); state.view = "status"; releaseWakeLock(); window.scrollTo(0, 0); render(); },
   abandonAsk: () => { state.modal = {kind: "dgMenu", confirm: true}; renderModal(); },
-  abandon: () => { S.draft = null; clearTimeout(draftTimer); draftTimer = null; queueSet("game/draft", {active: false}); state.modal = null; state.rest = null; state.view = "status"; releaseWakeLock(); render(); toast("[Donjon abandonné]", "red"); },
+  abandon: () => { S.draft = null; clearTimeout(draftTimer); draftTimer = null; queueSet("game/draft", {active: false}); state.modal = null; state.rest = null; restPush(null); state.view = "status"; releaseWakeLock(); render(); toast("[Donjon abandonné]", "red"); },
   finishAsk: () => { state.modal = {kind: "finish", feeling: null, note: ""}; renderModal(); },
   feel: a => { state.modal.feeling = state.modal.feeling === a.dataset.f ? null : a.dataset.f; renderModal(); },
   finish: () => finishDungeon(),
@@ -5863,7 +5901,7 @@ document.addEventListener("keydown", e => {
 });
 if (window.visualViewport) visualViewport.addEventListener("resize", () => document.body.classList.toggle("kb", visualViewport.height < innerHeight - 120));   // phone keyboard open
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden") flushDraft();
+  if (document.visibilityState === "hidden") { flushDraft(); restLockBeacon(); }
   else if (state.view === "dungeon") requestWakeLock();
 });
 window.addEventListener("pagehide", flushDraft);
@@ -5880,6 +5918,7 @@ function tick() {
   const rb = document.getElementById("restbar");
   if (state.rest && state.view === "dungeon") {
     const left = state.rest.end - now; rb.hidden = false;
+    if (!state.rest.cut && left <= 5000 && document.visibilityState === "visible") { state.rest.cut = true; restPush(null); }   // he is in the app: the in-app chime is enough
     if (left <= 0) {
       if (!state.rest.rang) { state.rest.rang = true; chime("rest"); }
       rb.classList.add("done"); document.getElementById("rbTime").textContent = "GO"; document.getElementById("rbLabel").textContent = "Repos terminé"; document.getElementById("rbSub").textContent = "C'est reparti"; document.getElementById("rbFill").style.width = "100%"; document.getElementById("rbRing").setAttribute("stroke-dashoffset", "0");
@@ -5951,7 +5990,7 @@ if (Cloud) {
   window.addEventListener("online", () => cloudSync(false));
   syncTimer = setInterval(() => { if (document.visibilityState === "visible" && state.view !== "dungeon") cloudSync(false); }, 45000);
 }
-window.__GL = {S, state, compute, suggest, planFor, Store, render, Cloud, cloudSync, feedPost};
+window.__GL = {S, state, compute, suggest, planFor, Store, render, Cloud, cloudSync, feedPost, startRest, restNextLabel, restLockBeacon, tick};
 boot();
 })();
 </script>
