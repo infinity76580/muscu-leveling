@@ -2068,10 +2068,11 @@ const LAT3 = (n, who) => ({ex: "latRaise", sets: 3, reps: [12, 15], rest: 75, cu
   : `Épaules latérales, ${n} séance de la semaine (lundi, mercredi, vendredi : toujours un jour de repos entre deux). Poulie basse, un bras, coude légèrement fléchi, monte jusqu'à l'horizontale, descente lente.`});
 const FP_FRI = {ex: "facePull", sets: 2, reps: [12, 15], rest: 75, cue: "2e séance d'arrière d'épaule de la semaine (avec mercredi). Assis face à la poulie à hauteur du visage : tire vers le front en écartant les mains, coudes hauts, pause 1 s, retour lent."};
 const LOWHIGH_WED = {ex: "lowHighFly", sets: 2, reps: [12, 15], rest: 75, cue: "Haut des pecs, à mi-chemin entre lundi et vendredi : poulies basses, mains qui montent vers le menton, serre 1 s en haut."};
-const LEGPRESS_ALT = {ex: "legPress", sets: 3, reps: [10, 12], rest: 120, cue: "Une semaine sur deux à la place du hip thrust (ton choix du 18 nov.). Pieds au milieu de la plateforme, largeur des épaules : descends jusqu'à ce que les genoux approchent de la poitrine sans décoller le bas du dos, pousse sans verrouiller les genoux."};
+const LEGPRESS_ALT = {ex: "legPress", sets: 3, reps: [10, 12], rest: 120, cue: "Une semaine sur deux à la place du hip thrust et du leg extension (ton choix). Pieds au milieu de la plateforme, largeur des épaules : descends jusqu'à ce que les genoux approchent de la poitrine sans décoller le bas du dos, pousse sans verrouiller les genoux."};
 const legPressWeek = cw => curPlan().id === "base" && cw >= 1 && toStr(weekStart(cw)) >= SWAP_FROM && Math.round(dayDiff(fromStr(SWAP_FROM), weekStart(cw)) / 7) % 2 === 0;   // hip thrust one week, leg press the next
 function shoulders3(list, ty, cw) {          // the week from 23 Nov: one rest day between two sessions of the same muscle stays true
-  let l = list.map(it => legPressWeek(cw) && ty === "J" && it.ex === "hipThrust" ? {...LEGPRESS_ALT} : it);
+  const pw = legPressWeek(cw) && ty === "J";   // press week: the press replaces the hip thrust, and the leg extension goes (24 Nov, his call: hack + press already cover the quads)
+  let l = list.map(it => pw && it.ex === "hipThrust" ? {...LEGPRESS_ALT} : it).filter(it => !(pw && it.ex === "legExt"));
   if (!swapWk(cw)) return l;
   const mine = curPlan().id === "mathis", wo = (...ex) => { l = l.filter(it => !ex.includes(it.ex)); }, before = (ex, ...add) => { const i = l.findIndex(it => it.ex === ex); l = i < 0 ? [...l, ...add] : [...l.slice(0, i), ...add, ...l.slice(i)]; };
   if (ty === "DP") before("shrug", LAT3("1re", mine ? "mathis" : ""));
